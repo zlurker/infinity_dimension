@@ -37,7 +37,7 @@ public class MusicBeatEngine : MonoBehaviour {
                 break;
         }
 
-        jR = (JudgementRange[])GlobalData.jRT.Clone();
+        jR = (JudgementRange[])PresetGameplayData.jRT.Clone();
         i = this;
 
         PlayerInput.i.AddNewInput(0, BeatJudgeProcessing);

@@ -17,7 +17,7 @@ public class Reference : MonoBehaviour {
     public List<Renderer> cubes;
     public List<Renderer> cubesShadow;
     //public PreviousData[] prevData;
-    public SpriteRenderer flash;
+    public GameObject flash;
     public AudioSource song;
     public Text combo;
     public float minOnset;

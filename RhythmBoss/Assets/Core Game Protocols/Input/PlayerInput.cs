@@ -46,7 +46,7 @@ public class PlayerInput : MonoBehaviour {
     }
 
     int ProcessNewInput(string key, InputData inputData) {
-        int i = GlobalData.IterateKey(iS.ToArray(), key);
+        int i = BaseIteratorFunctions.IterateKey(iS.ToArray(), key);
 
         if (i == -1) {
             iS.Add(inputData);
@@ -57,6 +57,6 @@ public class PlayerInput : MonoBehaviour {
     }
 
     void Load() {
-        GlobalData.LoadNewLevel(1);
+        GlobalData.LoadNewLevel(3);
     }
 }

@@ -23,7 +23,7 @@ public class UIDrawer : MonoBehaviour {
     }
 
     public void UpdateGraphic(string n, string c, float t) {
-        UIElement uII = uE[GlobalData.IterateKey(uE.ToArray(), n)];
+        UIElement uII = uE[BaseIteratorFunctions.IterateKey(uE.ToArray(), n)];
         Text tI = (Text)uII.u;
         tI.text = c;
         uII.u.gameObject.SetActive(true);

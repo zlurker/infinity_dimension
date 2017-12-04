@@ -5,6 +5,9 @@ using UnityEngine;
 public static class Math {
 
     public static float CalculateAngle(Vector2[] pTC) {
+        for (int i = 0; i < pTC.Length; i++)
+            pTC[i] = Normalise(pTC[i]);
+
         Vector2 d = pTC[1] - pTC[0];
         int m = 0;
         int u = 45;
@@ -19,6 +22,12 @@ public static class Math {
     }
 
     public static Vector2 Normalise(Vector2 tTN) {
+        int i = Mathf.Abs(tTN.x) > Mathf.Abs(tTN.y) ? 0 : 1;
+
+        for (int j = 0; j < 2; j++)
+            if (tTN[j] != 0)
+                tTN[j] /= Mathf.Abs(tTN[i]);
+
         return tTN;
     }
 }
