@@ -8,7 +8,6 @@ public class MusicBeatEngine : MonoBehaviour {
     public float distMultiplier = 1;
     public GameObject beat;
     public float[] beatTimings;
-    public static MusicBeatEngine i;
 
     AudioSource music;
     float totalDist;
@@ -38,8 +37,6 @@ public class MusicBeatEngine : MonoBehaviour {
         }
 
         jR = (JudgementRange[])PresetGameplayData.jRT.Clone();
-        i = this;
-
         PlayerInput.i.AddNewInput(0, BeatJudgeProcessing);
 
         music.Play();
@@ -65,11 +62,19 @@ public class MusicBeatEngine : MonoBehaviour {
     }
 
     void BeatJudgeProcessing() {
+        float tDFB = Mathf.Abs(music.time - beatTimings[cB] - GlobalData.offset);
+
         for (int i = 0; i < jR.Length; i++)
-            if (Mathf.Abs(music.time - beatTimings[cB] - GlobalData.offset) <= jR[i].maxWindow) {
+            if (tDFB <= jR[i].maxWindow) {
+
+                for (int j = 0; j < DelegatePools.jD.Count; j++)
+                    DelegatePools.jD[j](i);
+
                 UIDrawer.i.UpdateGraphic("BeatGrade", jR[i].name, 0.25f);
                 jR[i].counter++;
                 cB++;
+
+                return;
             }
     }
 }

@@ -82,6 +82,7 @@ public class InputData:BaseIterator {
 
 #region General Data Structures
 public delegate void r();
+public delegate void jD(int jG);
 
 [System.Serializable]
 public class BaseIterator {
@@ -102,7 +103,16 @@ public static class GlobalData {
     //Loads a new level and refreshes data structures if needed.
     public static void LoadNewLevel(int level) {
         PlayerInput.i.iS = new List<InputData>();
+        DelegatePools.ClearDelegatePools();
         SceneManager.LoadScene(level);
+    }
+}
+
+public static class DelegatePools {
+    public static List<jD> jD;
+
+    public static void ClearDelegatePools() {
+        jD = new List<jD>();
     }
 }
 

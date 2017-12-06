@@ -57,6 +57,6 @@ public class PlayerInput : MonoBehaviour {
     }
 
     void Load() {
-        GlobalData.LoadNewLevel(3);
+        GlobalData.LoadNewLevel(1);
     }
 }
