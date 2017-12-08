@@ -2,44 +2,55 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class Projectile : MonoBehaviour {
 
     public float cA; //currAngle
-    public float[] aC; //angleChanges
+    public PointData[] aC; //angleChanges
     public float tD; //totalDistance
     public float tT; //totalTime
     public int pF; //patternFrequency
 
-    float i; //interval
+    //float i; //interval
     int aCG; //actualChanges
-    Vector3 cV; //currVector
+    float sT; //startTime
+    Vector3 sV; //startVector
 
     void Start() {
         cA = 0;
-        aC = new float[] { 20, -50, 70, 80, 100, -50 };
+        aC = new PointData[] { new PointData(0, 0.2f), new PointData(50, 0.8f) };
         tD = 100;
         tT = 10;
         pF = 3;
 
         int tMD = aC.Length * pF;
-        i = tT / tMD;
+        //i = tT / tMD;
 
         aCG = 0;
-        cV = Math.VectorFromAngle(cA);
-        Debug.Log(i);
+        //Debug.Log(i);
+        sT = Time.time;
+        sV = transform.position;
     }
 
     void Update() {
-        transform.position += cV;
+        float tI = tT * aC[aCG % aC.Length].u;
+        float t = TimeHandler.i.ReturnGameTimeUnit(sT, tI);
 
-        int cC = Mathf.FloorToInt(Time.time / i);
-        
-        if (cC > aCG)
-            for (int j = aCG; j < cC; j++) {
-                //Do stuff with angle data here.
-                Debug.LogFormat("Actual change is: {0}. Reading from array value: {1}", j, j % aC.Length);
-            }
-        //(Time.time % i)/i
-        aCG = cC;
+        //Debug.Log(t);
+        //int cC = Mathf.FloorToInt(Time.time / i);
+        transform.position = sV + (Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u) * t);
+        Debug.Log(cA);
+        if (t > 1) {
+            sV += Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u);
+            //for (int j = aCG; j < cC; j++) {
+            //Do stuff with angle data here.
+            //Debug.LogFormat("Actual change is: {0}. Reading from array value: {1}", j, j % aC.Length);
+            //}
+            //(Time.time % i)/i
+            sT += tI;
+            aCG++;
+            cA += aC[aCG % aC.Length].aC;
+        }
     }
 }

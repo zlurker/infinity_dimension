@@ -78,6 +78,25 @@ public class InputData:BaseIterator {
     }
 }
 
+public class TimeData : BaseIterator {
+    public List<r> tD; //timeDelegates
+    public float eT; //endTime
+
+    public TimeData(string id,float endTime) {
+        n = id;
+        eT = endTime;
+    }
+}
+
+public struct PointData {
+    public float aC; //angleChanges
+    public float u; //unit
+
+    public PointData(float angleChanges, float unit) {
+        aC = angleChanges;
+        u = unit;
+    }
+}
 #endregion
 
 #region General Data Structures
