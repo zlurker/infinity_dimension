@@ -40,7 +40,7 @@ public class Projectile : MonoBehaviour {
         //Debug.Log(t);
         //int cC = Mathf.FloorToInt(Time.time / i);
         transform.position = sV + (Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u) * t);
-        Debug.Log(cA);
+        //Debug.Log(cA);
         if (t > 1) {
             sV += Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u);
             //for (int j = aCG; j < cC; j++) {

@@ -85,6 +85,7 @@ public class TimeData : BaseIterator {
     public TimeData(string id,float endTime) {
         n = id;
         eT = endTime;
+        tD = new List<r>();
     }
 }
 
