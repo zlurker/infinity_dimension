@@ -1,10 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
-public class Projectile : MonoBehaviour {
+public class Projectile : MonoBehaviour, OnSpawn {
 
     public float cA; //currAngle
     public PointData[] aC; //angleChanges
@@ -28,7 +27,6 @@ public class Projectile : MonoBehaviour {
         //i = tT / tMD;
 
         aCG = 0;
-        //Debug.Log(i);
         sT = Time.time;
         sV = transform.position;
     }
@@ -37,20 +35,22 @@ public class Projectile : MonoBehaviour {
         float tI = tT * aC[aCG % aC.Length].u;
         float t = TimeHandler.i.ReturnGameTimeUnit(sT, tI);
 
-        //Debug.Log(t);
-        //int cC = Mathf.FloorToInt(Time.time / i);
         transform.position = sV + (Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u) * t);
-        //Debug.Log(cA);
+
         if (t > 1) {
             sV += Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u);
-            //for (int j = aCG; j < cC; j++) {
-            //Do stuff with angle data here.
-            //Debug.LogFormat("Actual change is: {0}. Reading from array value: {1}", j, j % aC.Length);
-            //}
-            //(Time.time % i)/i
             sT += tI;
             aCG++;
             cA += aC[aCG % aC.Length].aC;
         }
+    }
+
+    void DestroyProjectile() {
+        Debug.Log("Destroying");
+        GameObjectSpawner.i.Remove(this, "Projectile");
+    }
+
+    public void RunOnActive() {
+        Debug.Log("Test Sucessful");
     }
 }

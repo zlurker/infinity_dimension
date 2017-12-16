@@ -3,6 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public class InputData : BaseIterator {
+    public List<r> rs;
+    public KeyCode k;
+    public int b;
+
+    public InputData(KeyCode key, string id) {
+        n = id;
+        k = key;
+        rs = new List<r>();
+    }
+
+    public InputData(int button, string id) {
+        n = id;
+        b = button;
+        rs = new List<r>();
+    }
+}
+
 public class PlayerInput : MonoBehaviour {
 
     public static PlayerInput i;

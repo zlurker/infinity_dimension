@@ -9,6 +9,14 @@ public enum RhythmAnalyseState {
     Manual, Auto
 }
 
+public interface IPlayerEditable {
+    void Fire(object[] parameters);
+}
+
+public interface OnSpawn {
+    void RunOnActive();
+}
+
 public struct EffectTemplate {
     public string statAffected;
     public float duration;
@@ -60,35 +68,6 @@ public class UIElement : BaseIterator {
     }
 }
 
-public class InputData:BaseIterator {
-    public List<r> rs;
-    public KeyCode k;
-    public int b;
-
-    public InputData(KeyCode key, string id) {
-        n = id;
-        k = key;
-        rs = new List<r>();
-    }
-
-    public InputData(int button, string id) {
-        n = id;
-        b = button;
-        rs = new List<r>();
-    }
-}
-
-public class TimeData : BaseIterator {
-    public List<r> tD; //timeDelegates
-    public float eT; //endTime
-
-    public TimeData(string id,float endTime) {
-        n = id;
-        eT = endTime;
-        tD = new List<r>();
-    }
-}
-
 public struct PointData {
     public float aC; //angleChanges
     public float u; //unit
@@ -129,7 +108,7 @@ public static class GlobalData {
 }
 
 public static class DelegatePools {
-    public static List<jD> jD;
+    public static List<jD> jD; //judgementDelegate
 
     public static void ClearDelegatePools() {
         jD = new List<jD>();

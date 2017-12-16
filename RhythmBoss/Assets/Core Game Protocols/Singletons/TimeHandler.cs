@@ -2,33 +2,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class TimeData : BaseIterator {
+    public List<r> tD; //timeDelegates
+    public float eT; //endTime
+
+    public TimeData(string id, float endTime, r d) {
+        n = id;
+        eT = endTime;
+        tD = new List<r>();
+        tD.Add(d);
+    }
+
+    public TimeData(float endTime, r d) {
+        eT = endTime;
+        tD = new List<r>();
+        tD.Add(d);
+    }
+}
+
 public class TimeHandler : MonoBehaviour {
 
     public static TimeHandler i; //instance
-    List<TimeData> tE; //timeEvents;
+    public List<TimeData> tE; //timeEvents;
 
     void Start() {
         i = this;
         tE = new List<TimeData>();
         DontDestroyOnLoad(this);
-
-        AddNewTimerEvent(new TimeData("Test", 5));
-        AddNewDelegates("Test",RunNothing);
-    }
-
-    void RunNothing() {
-        Debug.Log("Test");
     }
 
     void Update() {
         for (int i = 0; i < tE.Count; i++)
             if (tE[i].eT < Time.time) {
-                for (int j = 0; j < tE.Count; j++)
+                for (int j = 0; j < tE[i].tD.Count; j++)
                     tE[i].tD[j]();
 
-                Debug.LogFormat("Function has been fired for {0} timer event. ", tE[i].n);
+                //Debug.LogFormat("Function has been fired for {0} timer event. ", tE[i].n);
                 tE.RemoveAt(i);
-                Debug.LogFormat("Time events remaining: {0}", tE.Count);
+                //Debug.LogFormat("Time events remaining: {0}", tE.Count);
             }
     }
 
@@ -36,7 +48,7 @@ public class TimeHandler : MonoBehaviour {
         tE.Add(d);
     }
 
-    public void SetEndTime(string n, float eT) {
+    public void UpdateEndTime(string n, float eT) {
         int i = BaseIteratorFunctions.IterateKey(tE.ToArray(), n);
         TimeData inst = tE[i];
         inst.eT = eT;
