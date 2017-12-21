@@ -34,7 +34,18 @@ public class Spawner : MonoBehaviour {
         //Spawn("Projectile", new Vector3());
     }
 
-    public MonoBehaviour Spawn(string p, Vector3 l) {
+    public MonoBehaviour Spawn(string p) { //pool
+        int cOK = BaseIteratorFunctions.IterateKey(sP, p);
+        cK = cOK;
+
+        MonoBehaviour iR = sP[cOK].sP.Retrieve();
+        iR.gameObject.SetActive(true);
+
+        //(iR as OnSpawn).RunOnActive();
+        return iR;
+    }
+
+    public MonoBehaviour Spawn(string p, Vector3 l) { //pool, location
         int cOK = BaseIteratorFunctions.IterateKey(sP, p);
         cK = cOK;
 
@@ -42,13 +53,32 @@ public class Spawner : MonoBehaviour {
         iR.gameObject.SetActive(true);
         iR.transform.position = l;
 
-        (iR as OnSpawn).RunOnActive();
+        //(iR as OnSpawn).RunOnActive();
+        return iR;
+    }
+
+    public MonoBehaviour Spawn(string p, Vector3 l,Transform t) { //pool, location, target
+        int cOK = BaseIteratorFunctions.IterateKey(sP, p);
+        cK = cOK;
+
+        MonoBehaviour iR = sP[cOK].sP.Retrieve();
+        iR.gameObject.SetActive(true);
+
+        iR.transform.parent = t;
+        iR.transform.position = l;
+
+        //(iR as OnSpawn).RunOnActive();
         return iR;
     }
 
     public void Remove(MonoBehaviour iR, string p) {
         iR.gameObject.SetActive(false);
         sP[BaseIteratorFunctions.IterateKey(sP, p)].sP.Store(iR);
+    }
+
+    public void Remove(object[] p) {
+        Remove(p[0] as MonoBehaviour, p[1] as string);
+        MonoBehaviour iR = p[0] as MonoBehaviour;
     }
 
     Object CreateNewObject() {

@@ -56,7 +56,7 @@ public class MusicBeatEngine : MonoBehaviour {
         //}*/
 
         if (music.time - GlobalData.offset >= beatTimings[cB] + jR[jR.Length - 1].maxWindow) {
-            UIDrawer.i.UpdateGraphic("BeatGrade", "X", 0.25f);
+            //UIDrawer.i.UpdateGraphic("BeatGrade", "X", 0.25f);
             cB++;
         }
     }
@@ -70,7 +70,7 @@ public class MusicBeatEngine : MonoBehaviour {
                 for (int j = 0; j < DelegatePools.jD.Count; j++)
                     DelegatePools.jD[j].Invoke(new object[] { i });
 
-                UIDrawer.i.UpdateGraphic("BeatGrade", jR[i].name, 0.25f);
+                //UIDrawer.i.UpdateGraphic("BeatGrade", jR[i].name, 0.25f);
                 jR[i].counter++;
                 cB++;
                 return;
