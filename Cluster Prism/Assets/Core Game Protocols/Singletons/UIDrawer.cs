@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class UIDrawer : Spawner {
 
-    //public List<UIElement> uE;
     public static UIDrawer i;
 
     void Start() {

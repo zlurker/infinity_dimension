@@ -14,6 +14,16 @@ public interface IPlayerEditable {
     void LoadUI();
 }
 
+public class CustomClassFirer:BaseIterator {
+    public List<object[]> p; //Allows mutiple methods to be called. Every one object[] is one method. 
+
+    public CustomClassFirer(object[] parameters, string name) {
+        p = new List<object[]>();
+        p.Add(parameters);
+        n = name; //In this case, it is the name of the class.
+    }
+}
+
 public interface OnSpawn {
     void RunOnActive();
 }
