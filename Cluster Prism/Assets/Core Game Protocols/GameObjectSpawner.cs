@@ -22,6 +22,6 @@ public class GameObjectSpawner :Spawner,IPlayerEditable {
     }
 
     public void LoadUI() {
-
+        //UIDrawer.i.Spawn("Image");
     }
 }

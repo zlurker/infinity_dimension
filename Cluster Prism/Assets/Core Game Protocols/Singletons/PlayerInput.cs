@@ -5,19 +5,22 @@ using UnityEngine.SceneManagement;
 
 public class InputData : BaseIterator {
     public List<DH> rs;
-    public KeyCode k;
-    public int b;
+    public KeyCode k; //keycode
+    public int b; //button
+    public int iT; //inputType
 
-    public InputData(KeyCode key, string id) {
+    public InputData(KeyCode key, string id, int inputType) {
         n = id;
         k = key;
         rs = new List<DH>();
+        iT = inputType;
     }
 
-    public InputData(int button, string id) {
+    public InputData(int button, string id, int inputType) {
         n = id;
         b = button;
         rs = new List<DH>();
+        iT = inputType;
     }
 }
 
@@ -31,36 +34,71 @@ public class PlayerInput : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
         iS = new List<InputData>();
 
-        AddNewInput(KeyCode.L, new DH(Load));
+        AddNewInput(KeyCode.L, new DH(Load), 0);
     }
 
     void Update() { //Buggy somewhat. Produces error when switching between scenes
-        for (int i = 0; i < iS.Count; i++)
+        for (int i = 0; i < iS.Count; i++) {
+            bool inputCheck = false;
+
             switch (iS[i].n[0]) {
                 case 'K':
-                    if (Input.GetKeyDown(iS[i].k))
-                        for (int j = 0; j < iS[i].rs.Count; j++)
-                            iS[i].rs[j].Invoke();
+                    switch (iS[i].iT) {
+                        case 0:
+                            if (Input.GetKeyDown(iS[i].k))
+                                inputCheck = true;
+                            break;
+
+                        case 1:
+                            if (Input.GetKey(iS[i].k))
+                                inputCheck = true;
+                            break;
+
+                        case 2:
+                            if (Input.GetKeyUp(iS[i].k))
+                                inputCheck = true;
+                            break;
+                    }
+
                     break;
 
                 case 'M':
-                    if (Input.GetMouseButtonDown(iS[i].b))
-                        for (int j = 0; j < iS[i].rs.Count; j++)
-                            iS[i].rs[j].Invoke();
+                    switch (iS[i].iT) {
+                        case 0:
+                            if (Input.GetMouseButtonDown(iS[i].b))
+                                inputCheck = true;
+                            break;
+
+                        case 1:
+                            if (Input.GetMouseButton(iS[i].b))
+                                inputCheck = true;
+                            break;
+
+                        case 2:
+                            if (Input.GetMouseButtonUp(iS[i].b))
+                                inputCheck = true;
+                            break;
+                    }
+
                     break;
             }
+
+            if (inputCheck)
+                for (int j = 0; j < iS[i].rs.Count; j++)
+                    iS[i].rs[j].Invoke();
+        }
     }
 
-    public void AddNewInput(KeyCode key, DH reference) {
+    public void AddNewInput(KeyCode key, DH reference, int inputType) {
         string k = "K" + ((int)key).ToString();
 
-        iS[ProcessNewInput(k, new InputData(key, k))].rs.Add(reference);
+        iS[ProcessNewInput(k, new InputData(key, k, inputType))].rs.Add(reference);
     }
 
-    public void AddNewInput(int button, DH reference) {
+    public void AddNewInput(int button, DH reference, int inputType) {
         string k = "M" + button;
 
-        iS[ProcessNewInput(k, new InputData(button, k))].rs.Add(reference);
+        iS[ProcessNewInput(k, new InputData(button, k, inputType))].rs.Add(reference);
     }
 
     int ProcessNewInput(string key, InputData inputData) {

@@ -23,10 +23,13 @@ public class UIData : MonoBehaviour {
         for (int i=0; i < transform.childCount; i++) {
             Transform c = transform.GetChild(i);
             pD[i] = new UILocation(c as RectTransform, c.name);
-        }        
+        }
+        
+       
     }
 
     public Vector3 ReturnPoint(string name) {
+        Debug.Log(pD[BaseIteratorFunctions.IterateKey(pD, name)].p);
         return pD[BaseIteratorFunctions.IterateKey(pD, name)].p.position;
     }
 }

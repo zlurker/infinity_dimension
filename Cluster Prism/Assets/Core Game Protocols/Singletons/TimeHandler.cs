@@ -38,9 +38,9 @@ public class TimeHandler : MonoBehaviour {
                 for (int j = 0; j < tE[i].tD.Count; j++)
                     tE[i].tD[j].Invoke();
 
-                //Debug.LogFormat("Function has been fired for {0} timer event. ", tE[i].n);
-                tE.RemoveAt(i);
-                //Debug.LogFormat("Time events remaining: {0}", tE.Count);
+                Debug.LogFormat("Function has been fired for {0} timer event. ", tE[i].n);
+                Debug.LogFormat("Time events remaining: {0}", tE.Count);
+                tE.RemoveAt(i);                
             }
     }
 

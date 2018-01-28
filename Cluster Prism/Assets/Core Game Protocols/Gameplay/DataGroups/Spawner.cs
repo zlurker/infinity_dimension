@@ -3,11 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnerPool : BaseIterator {
-    public Pool<MonoBehaviour> sP;
+    public Pool<PoolElement> sP;
 
     public SpawnerPool(string name, CI instanceCreator) {
         n = name;
-        sP = new Pool<MonoBehaviour>(instanceCreator, name);
+        sP = new Pool<PoolElement>(instanceCreator, name);
+    }
+}
+
+public class PoolElement : BaseIterator {
+    public MonoBehaviour o; //object
+
+    public PoolElement(MonoBehaviour obj, string name) {
+        o = obj;
+        n = name;
     }
 }
 
@@ -17,11 +26,11 @@ public class SpawnInstance : BaseIterator {
 }
 
 public class Spawner : MonoBehaviour {
-    
+
     public SpawnInstance[] iS; //instanceS
 
     SpawnerPool[] sP; //spawnPool;
-    public OnSpawn test;
+
     int cK; //currentKey
 
     void Awake() {
@@ -34,54 +43,54 @@ public class Spawner : MonoBehaviour {
         //Spawn("Projectile", new Vector3());
     }
 
-    public MonoBehaviour Spawn(string p) { //pool
+    public PoolElement Spawn(string p) { //pool
         int cOK = BaseIteratorFunctions.IterateKey(sP, p);
         cK = cOK;
 
-        MonoBehaviour iR = sP[cOK].sP.Retrieve();
-        iR.gameObject.SetActive(true);
+        PoolElement iR = sP[cOK].sP.Retrieve();
+        iR.o.gameObject.SetActive(true);
 
-        //(iR as OnSpawn).RunOnActive();
         return iR;
+        //(iR as OnSpawn).RunOnActive();
     }
 
-    public MonoBehaviour Spawn(string p, Vector3 l) { //pool, location
+    public PoolElement Spawn(string p, Vector3 l) { //pool, location
         int cOK = BaseIteratorFunctions.IterateKey(sP, p);
         cK = cOK;
 
-        MonoBehaviour iR = sP[cOK].sP.Retrieve();
-        iR.gameObject.SetActive(true);
-        iR.transform.position = l;
+        PoolElement iR = sP[cOK].sP.Retrieve();
+        iR.o.gameObject.SetActive(true);
+        iR.o.transform.position = l;
 
-        //(iR as OnSpawn).RunOnActive();
         return iR;
+        //(iR as OnSpawn).RunOnActive();
     }
 
-    public MonoBehaviour Spawn(string p, Vector3 l,Transform t) { //pool, location, target
+    public PoolElement Spawn(string p, Vector3 l, Transform t) { //pool, location, target
         int cOK = BaseIteratorFunctions.IterateKey(sP, p);
         cK = cOK;
 
-        MonoBehaviour iR = sP[cOK].sP.Retrieve();
-        iR.gameObject.SetActive(true);
+        PoolElement iR = sP[cOK].sP.Retrieve();
+        iR.o.gameObject.SetActive(true);
 
-        iR.transform.parent = t;
-        iR.transform.position = l;
+        iR.o.transform.parent = t;
+        iR.o.transform.position = l;
 
         //(iR as OnSpawn).RunOnActive();
+        Debug.Log(iR);
         return iR;
     }
 
-    public void Remove(MonoBehaviour iR, string p) {
-        iR.gameObject.SetActive(false);
-        sP[BaseIteratorFunctions.IterateKey(sP, p)].sP.Store(iR);
+    public void Remove(PoolElement i) {
+        sP[BaseIteratorFunctions.IterateKey(sP, i.n)].sP.Store(i);
+        i.o.gameObject.SetActive(false);
     }
 
     public void Remove(object[] p) {
-        Remove(p[0] as MonoBehaviour, p[1] as string);
-        MonoBehaviour iR = p[0] as MonoBehaviour;
+        Remove(p[0] as PoolElement);
     }
 
-    Object CreateNewObject() {
-        return Instantiate(iS[cK].i);
+    object CreateNewObject() {
+        return new PoolElement(Instantiate(iS[cK].i), iS[cK].n);
     }
 }

@@ -6,10 +6,10 @@ public class PlayerControlledUnit : UnitBase {
 
     // Use this for initialization
     void Start() {
-        PlayerInput.i.AddNewInput(KeyCode.W, new DH(Up));
-        PlayerInput.i.AddNewInput(KeyCode.A, new DH(Down));
-        PlayerInput.i.AddNewInput(KeyCode.D, new DH(Right));
-        PlayerInput.i.AddNewInput(KeyCode.S, new DH(Left));        
+        PlayerInput.i.AddNewInput(KeyCode.W, new DH(Up),1);
+        PlayerInput.i.AddNewInput(KeyCode.A, new DH(Down),1);
+        PlayerInput.i.AddNewInput(KeyCode.D, new DH(Right),1);
+        PlayerInput.i.AddNewInput(KeyCode.S, new DH(Left),1);        
     }
 
     // Update is called once per frame

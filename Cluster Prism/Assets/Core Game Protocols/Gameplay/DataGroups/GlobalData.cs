@@ -14,7 +14,7 @@ public interface IPlayerEditable {
     void LoadUI();
 }
 
-public class CustomClassFirer:BaseIterator {
+public class CustomClassFirer : BaseIterator {
     public List<object[]> p; //Allows mutiple methods to be called. Every one object[] is one method. 
 
     public CustomClassFirer(object[] parameters, string name) {
@@ -68,7 +68,7 @@ public class Stat : BaseIterator {
     }
 }
 
-[System.Serializable]
+/*[System.Serializable]
 public class UIElement : BaseIterator {
     public MaskableGraphic u;
     public float dAT;
@@ -78,7 +78,7 @@ public class UIElement : BaseIterator {
         n = name;
         u = ui;
     }
-}
+}*/
 
 public struct PointData {
     public float aC; //angleChanges
@@ -92,7 +92,7 @@ public struct PointData {
 #endregion
 
 #region General Data Structures
-public delegate void r(object[] p); 
+public delegate void r(object[] p);
 
 [System.Serializable]
 public class BaseIterator {
@@ -113,11 +113,11 @@ public class DH { //delegateHelper
         p = parameters;
     }
 
-    public void Invoke() {
+    public void Invoke() { //Fixed parameters
         d(p);
     }
 
-    public void Invoke(object[] parameters) {
+    public void Invoke(object[] parameters) { //For custom parameters
         d(parameters);
     }
 }
@@ -155,7 +155,7 @@ public static class BaseIteratorFunctions { //A list of functions that complemen
     //Iterates though the Array and returns the first item with the string k
     public static int IterateKey(BaseIterator[] tA, string k) {
         for (int i = 0; i < tA.Length; i++)
-            if (tA[i].n == k)
+            if (string.Equals(tA[i].n, k))
                 return i;
 
         Debug.LogErrorFormat("The key: {0} does not exist.", k);
