@@ -23,9 +23,6 @@ public class Projectile : MonoBehaviour, OnSpawn {
         tT = 10;
         pF = 3;
 
-        int tMD = aC.Length * pF;
-        //i = tT / tMD;
-
         aCG = 0;
         sT = Time.time;
         sV = transform.position;

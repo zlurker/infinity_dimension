@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct MenuStructure {
-    string pN; //pointName
-
-}
-
 public class MenuScript : MonoBehaviour {
 
-	void Start () {
+    
 		
+	void Start () {
 	}
 	
 	void Update () {

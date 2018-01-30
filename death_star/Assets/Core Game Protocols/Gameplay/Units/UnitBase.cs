@@ -44,7 +44,7 @@ public class UnitBase : MonoBehaviour {
                 instance.time.tickCount = currTick;
                 currEffects[i] = instance; //Updates tick to return to original stat
 
-                Debug.Log(currEffects[i].effect.statAffected + " left: " + stat[BaseIteratorFunctions.IterateKey(stat, currEffects[i].effect.statAffected)].v + " Current Tick: " + currTick);
+                //Debug.Log(currEffects[i].effect.statAffected + " left: " + stat[BaseIteratorFunctions.IterateKey(stat, currEffects[i].effect.statAffected)].v + " Current Tick: " + currTick);
             }
 
             if (currEffects[i].time.startTime + currEffects[i].effect.duration <= Time.time) { //Checks if duration is over

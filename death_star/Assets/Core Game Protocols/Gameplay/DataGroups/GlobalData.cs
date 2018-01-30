@@ -14,6 +14,10 @@ public interface IPlayerEditable {
     void LoadUI();
 }
 
+public interface IMenuElements {
+    void MenuHandle(object[] parameters);
+}
+
 public class CustomClassFirer : BaseIterator {
     public List<object[]> p; //Allows mutiple methods to be called. Every one object[] is one method. 
 

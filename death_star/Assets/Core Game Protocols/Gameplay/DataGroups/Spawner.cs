@@ -62,7 +62,9 @@ public class Spawner : MonoBehaviour {
         iR.o.gameObject.SetActive(true);
         iR.o.transform.position = l;
 
+        Debug.Log("Working");
         return iR;
+
         //(iR as OnSpawn).RunOnActive();
     }
 
