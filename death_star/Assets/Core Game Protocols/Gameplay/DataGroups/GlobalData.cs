@@ -18,6 +18,10 @@ public interface IMenuElements {
     void MenuHandle(object[] parameters);
 }
 
+public interface IXMLLoader {
+    string ReturnStringPath();
+}
+
 public class CustomClassFirer : BaseIterator {
     public List<object[]> p; //Allows mutiple methods to be called. Every one object[] is one method. 
 

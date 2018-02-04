@@ -16,12 +16,16 @@ public class XMLTesting : MonoBehaviour {
 
     void ReadPath() {
         XmlDocument xmlDoc = new XmlDocument();
-        xmlDoc.Load("test.xml");
-        XmlNode titleNode = xmlDoc.SelectSingleNode("/users");
+        xmlDoc.Load("Ability.xml");
+        XmlNode titleNode = xmlDoc.SelectSingleNode("/savefile/ability");
+
         if (titleNode != null)
-            Debug.Log(titleNode.InnerText);
+            Debug.Log(titleNode.Attributes[0].Value);
+      
         else
-            Debug.Log("Empty");
+            Debug.Log("Empty"); 
+
+        Debug.Log(titleNode.ChildNodes[0].InnerText);
     }
 
     void Read() {
