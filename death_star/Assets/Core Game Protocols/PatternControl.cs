@@ -49,25 +49,25 @@ public class PatternControl : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
     }
 
-    public void Pattern_Args(string patterns, PoolElement[] objects, object[][] arg_values) {
+    public object[] Pattern_Args(PoolElement[] objects, object[][] arg_values) {
 
-        string[] pattern = patterns.Split(',');
+        List<object> returnItems = new List<object>();
 
-        for (int i = 0; i < pattern.Length; i++)
+        for (int i = 0; i < arg_values.Length; i++)
 
-            switch (pattern[i]) {
+            switch (arg_values[i][0] as string) {
 
                 case "VECTOR_PATTERN":
-                    Vector3 s_P = (Vector3)arg_values[i][0];
-                    Vector3 v_P = (Vector3)arg_values[i][1];
+                    Vector3 s_P = (Vector3)arg_values[i][1];
+                    Vector3 v_P = (Vector3)arg_values[i][2];
 
                     for (int j = 0; j < objects.Length; j++)
                         objects[j].o.transform.position = s_P + (v_P * j);
                     break;
 
                 case "GROUP_PATTERN":
-                    string gN = (string)arg_values[i][0];
-                    string oP = (string)arg_values[i][1];
+                    string gN = (string)arg_values[i][1];
+                    string oP = (string)arg_values[i][2];
                     int index = BaseIteratorFunctions.IterateKey(g.ToArray(), gN);
 
                     if (index == -1) {
@@ -95,28 +95,27 @@ public class PatternControl : MonoBehaviour {
                                 break;
 
                             case "PARENT_PARAMETER_OBJECTS": //Parent args
-                                if (!g[index].gP) {
+                                if (!g[index].gP)
                                     //Creates a GroupParent
                                     g[index].gP = Instantiate(new GameObject("parent")).transform;
 
-                                    //Makes it a child to the first objects parent, if any
-                                    if (g[index].gE[0].o.transform.parent != null)
-                                        g[index].gP = g[index].gE[0].o.transform.parent;
-                                }
+                                //Makes it a child to the first objects parent, if any
+                                if (objects.Length > 0)
+                                    if (objects[0].o.transform.parent != null)
+                                        g[index].gP.transform.parent = objects[0].o.transform.parent;
 
                                 for (int l = 0; l < objects.Length; l++)
                                     objects[l].o.transform.parent = g[index].gP;
                                 break;
 
                             case "PARENT_ALL_CURRENT_OBJECTS":
-                                if (!g[index].gP) {
-                                    //Creates a GroupParent
+                                if (!g[index].gP) //Creates a GroupParent
                                     g[index].gP = Instantiate(new GameObject("parent")).transform;
 
-                                    //Makes it a child to the first objects parent, if any
+                                //Makes it a child to the first objects parent, if any
+                                if (g[index].gE.Count > 0)
                                     if (g[index].gE[0].o.transform.parent != null)
-                                        g[index].gP = g[index].gE[0].o.transform.parent;
-                                }
+                                        g[index].gP.transform.parent = g[index].gE[0].o.transform.parent;
 
                                 for (int l = 0; l < g[index].gE.Count; l++)
                                     g[index].gE[l].o.transform.parent = g[index].gP;
@@ -125,13 +124,15 @@ public class PatternControl : MonoBehaviour {
                             case "REMOVE_GROUP":
                                 g.Remove(g[index]);
                                 break;
+
+                            case "GET_GROUP":
+                                returnItems.Add(g[index]);
+                                break;
                         }
 
                     break;
             }
-    }
 
-    public GroupElement Get_Group(string name) {
-        return g[BaseIteratorFunctions.IterateKey(g.ToArray(), name)];
+        return returnItems.ToArray();
     }
 }

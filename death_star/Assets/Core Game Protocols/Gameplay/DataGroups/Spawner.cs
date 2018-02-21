@@ -43,7 +43,7 @@ public class Spawner : MonoBehaviour {
         //Spawn("Projectile", new Vector3());
     }
 
-    public PoolElement Spawn(string p) { //pool
+    public virtual PoolElement Spawn(string p) { //pool
         int cOK = BaseIteratorFunctions.IterateKey(sP, p);
         cK = cOK;
 
@@ -54,7 +54,18 @@ public class Spawner : MonoBehaviour {
         //(iR as OnSpawn).RunOnActive();
     }
 
-    public PoolElement Spawn(string p, Vector3 l) { //pool, location
+    public virtual PoolElement Spawn(string p, float d) { //pool
+        int cOK = BaseIteratorFunctions.IterateKey(sP, p);
+        cK = cOK;
+
+        PoolElement iR = sP[cOK].sP.Retrieve();
+        iR.o.gameObject.SetActive(true);
+
+        TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
+        return iR;
+    }
+
+    public virtual PoolElement Spawn(string p, Vector3 l) { //pool, location
         int cOK = BaseIteratorFunctions.IterateKey(sP, p);
         cK = cOK;
 
@@ -68,7 +79,22 @@ public class Spawner : MonoBehaviour {
         //(iR as OnSpawn).RunOnActive();
     }
 
-    public PoolElement Spawn(string p, Vector3 l, Transform t) { //pool, location, target
+    public virtual PoolElement Spawn(string p, Vector3 l,float d) { //pool, location, duration
+        int cOK = BaseIteratorFunctions.IterateKey(sP, p);
+        cK = cOK;
+
+        PoolElement iR = sP[cOK].sP.Retrieve();
+        iR.o.gameObject.SetActive(true);
+        iR.o.transform.position = l;
+
+        Debug.Log("Working");
+        TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
+        return iR;
+
+        //(iR as OnSpawn).RunOnActive();
+    }
+
+    public virtual PoolElement Spawn(string p, Vector3 l, Transform t) { //pool, location, target
         int cOK = BaseIteratorFunctions.IterateKey(sP, p);
         cK = cOK;
 

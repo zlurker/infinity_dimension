@@ -21,7 +21,7 @@ public class TimeData : BaseIterator {
     }
 }
 
-public class TimeHandler : MonoBehaviour {
+public class TimeHandler : MonoBehaviour, Singleton {
 
     public static TimeHandler i; //instance
     public List<TimeData> tE; //timeEvents;
@@ -70,5 +70,9 @@ public class TimeHandler : MonoBehaviour {
 
     public float ReturnRealTimeUnit(float start, float interval) {
         return (Time.realtimeSinceStartup - start) / interval;
+    }
+
+    public void RunOnStart() {
+
     }
 }

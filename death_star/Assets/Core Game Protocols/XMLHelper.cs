@@ -36,10 +36,9 @@ public class XMLHelper : MonoBehaviour {
         XmlNodeList baseNode = xmlDoc.SelectNodes(xPath);
         List<XmlNode> list = new List<XmlNode>();
 
-        for (int i = 0; i < baseNode.Count; i++) {
+        for (int i = 0; i < baseNode.Count; i++) 
             Loop(elementType, baseNode[i], list);
-        }
-
+        
         return list.ToArray();    
     }
 
@@ -60,7 +59,6 @@ public class XMLHelper : MonoBehaviour {
         string[] paths = generalPath.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
 
         for (int i = 0; i < path.Length; i++) {
-
             for (int j = baseNode.ChildNodes.Count; j < path[i] + 1; j++) {
                 XmlNode tempNode = xmlDoc.CreateElement(paths[i]);
                 baseNode.AppendChild(tempNode);

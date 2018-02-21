@@ -22,6 +22,10 @@ public interface IXMLLoader {
     string ReturnStringPath();
 }
 
+public interface Singleton {
+    void RunOnStart();
+}
+
 public class CustomClassFirer : BaseIterator {
     public List<object[]> p; //Allows mutiple methods to be called. Every one object[] is one method. 
 
@@ -144,7 +148,7 @@ public static class GlobalData {
 
     //Loads a new level and refreshes data structures if needed.
     public static void LoadNewLevel(int level) {
-        PlayerInput.i.iS = new List<InputData>();
+        
         DelegatePools.ClearDelegatePools();
         SceneManager.LoadScene(level);
     }

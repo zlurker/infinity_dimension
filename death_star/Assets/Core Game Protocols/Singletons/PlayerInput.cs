@@ -24,7 +24,7 @@ public class InputData : BaseIterator {
     }
 }
 
-public class PlayerInput : MonoBehaviour {
+public class PlayerInput : MonoBehaviour,Singleton {
 
     public static PlayerInput i;
     public List<InputData> iS;
@@ -114,5 +114,9 @@ public class PlayerInput : MonoBehaviour {
 
     void Load(object[] p) {
         GlobalData.LoadNewLevel(1);
+    }
+
+    public void RunOnStart() {
+        iS = new List<InputData>();
     }
 }

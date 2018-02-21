@@ -21,17 +21,21 @@ public class InstanceSpawnerTrigger : MonoBehaviour {
 
         t.Add(GameObjectSpawner.i.Spawn("TestObj"));
 
-        PatternControl.i.Pattern_Args("VECTOR_PATTERN,GROUP_PATTERN", t.ToArray(),
+        PatternControl.i.Pattern_Args(t.ToArray(),
             new object[][] {
-                new object[] { new Vector3(0,0), new Vector3(1,1)},
-                new object[] {"TEST", "ADD_PARAMETER_OBJECTS,PARENT_PARAMETER_OBJECTS" }
+                new object[] { "VECTOR_PATTERN", new Vector3(0,0), new Vector3(1,1)},
+                new object[] { "GROUP_PATTERN","TEST", "ADD_PARAMETER_OBJECTS,PARENT_PARAMETER_OBJECTS" }
             });
 
-        GroupElement testreturn = PatternControl.i.Get_Group("TEST");
+        object[] testreturn = PatternControl.i.Pattern_Args(null,
+            new object[][] { new object[] { "GROUP_PATTERN","TEST", "GET_GROUP" } }
+            );
 
-        Debug.Log(testreturn.n);
-        for (int i = 0; i < testreturn.gE.Count; i++)
-            Debug.Log(testreturn.gE[i].o.transform.position);
+        GroupElement te = testreturn[0] as GroupElement;
+
+        Debug.Log(te.n);
+        for (int i = 0; i < te.gE.Count; i++)
+            Debug.Log(te.gE[i].o.transform.position);
 
         TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + 1, new DH(Loop)));
     }
