@@ -24,20 +24,16 @@ public class InputData : BaseIterator {
     }
 }
 
-public class PlayerInput : MonoBehaviour,Singleton {
+public class PlayerInput : MonoBehaviour,ISingleton {
 
     public static PlayerInput i;
     public List<InputData> iS;
 
-    void Awake() {
-        i = this;
-        DontDestroyOnLoad(gameObject);
-        iS = new List<InputData>();
-
-        AddNewInput(KeyCode.L, new DH(Load), 0);
+    public object ReturnInstance() {
+        return i;
     }
 
-    void Update() { //Buggy somewhat. Produces error when switching between scenes
+    void Update() {
         for (int i = 0; i < iS.Count; i++) {
             bool inputCheck = false;
 
@@ -112,11 +108,14 @@ public class PlayerInput : MonoBehaviour,Singleton {
         return i;
     }
 
-    void Load(object[] p) {
-        GlobalData.LoadNewLevel(1);
-    }
-
     public void RunOnStart() {
         iS = new List<InputData>();
     }
+
+    public void RunOnCreated() {
+        i = this;
+        DontDestroyOnLoad(gameObject);
+        iS = new List<InputData>();
+    }
+
 }

@@ -2,18 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
-public class UIDrawer : Spawner, Singleton {
+public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
 
     public static UIDrawer i;
     public static Canvas t; //target
 
-    void Start() {
-        i = this;
-        DontDestroyOnLoad(gameObject);
-        RunOnStart();
+    public override void CreateTypePool() {
+        bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
 
-        Debug.DrawLine(new Vector3(), ReturnPosition(new Vector2(0.7f, 0.25f)), Color.red, 5f);
+        tP = new TypePool[] {
+            new TypePool(new Type[] { typeof(Image) }, "Image"),
+            new TypePool(new Type[] { typeof(Image), typeof(Button)},"Button"),
+            new TypePool(new Type[] { typeof(Text)}, "Text")
+        };
+    }
+
+    void Start() {
+        //Spawn("Button");
+        //Debug.DrawLine(new Vector3(), ReturnPosition(new Vector2(0.7f, 0.25f)), Color.red, 5f);
     }
 
     //public void SpawnWithPointData(string p, string pDN) { //pool, pointDataName
@@ -50,6 +58,29 @@ public class UIDrawer : Spawner, Singleton {
         return c;
     }
 
+    public void SetUIVisual(MonoBehaviour obj, object parameter) {
+
+        if (obj is Text)
+            (obj as Text).text = parameter as string;
+
+        if (obj is Image)
+            (obj as Image).sprite = parameter as Sprite;
+    }
+
+    public object GetUIVisual(MonoBehaviour obj) {
+
+        if (obj is Text)
+            return (obj as Text).text;
+
+        if (obj is Image)
+            return (obj as Image).sprite;
+
+        if (obj is InputField)
+            return (obj as InputField).text;
+
+        return null;
+    }
+
     public void ReplaceUIGroup(string name, PoolElement[] replaceWith) {
         PatternControl.i.Pattern_Args(replaceWith,
             new object[][] {
@@ -58,7 +89,24 @@ public class UIDrawer : Spawner, Singleton {
             );
     }
 
+    public void Fire(object[] parameters) {
+
+    }
+
+    public void LoadUI() {
+        Debug.Log("TEST WORKS?");
+    }
+
+    public object ReturnInstance() {
+        return i;
+    }
+
     public void RunOnStart() {
         t = FindObjectOfType<Canvas>();
+    }
+
+    public void RunOnCreated() {
+        i = this;
+        DontDestroyOnLoad(gameObject);
     }
 }

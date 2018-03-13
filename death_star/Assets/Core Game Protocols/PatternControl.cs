@@ -62,7 +62,7 @@ public class PatternControl : MonoBehaviour {
                     Vector3 v_P = (Vector3)arg_values[i][2];
 
                     for (int j = 0; j < objects.Length; j++)
-                        objects[j].o.transform.position = s_P + (v_P * j);
+                        objects[j].o[0].transform.position = s_P + (v_P * j);
                     break;
 
                 case "GROUP_PATTERN":
@@ -97,28 +97,28 @@ public class PatternControl : MonoBehaviour {
                             case "PARENT_PARAMETER_OBJECTS": //Parent args
                                 if (!g[index].gP)
                                     //Creates a GroupParent
-                                    g[index].gP = Instantiate(new GameObject("parent")).transform;
+                                    g[index].gP = new GameObject(gN).transform;
 
                                 //Makes it a child to the first objects parent, if any
                                 if (objects.Length > 0)
-                                    if (objects[0].o.transform.parent != null)
-                                        g[index].gP.transform.parent = objects[0].o.transform.parent;
+                                    if (objects[0].o[0].transform.parent != null)
+                                        g[index].gP.transform.parent = objects[0].o[0].transform.parent;
 
                                 for (int l = 0; l < objects.Length; l++)
-                                    objects[l].o.transform.parent = g[index].gP;
+                                    objects[l].o[0].transform.parent = g[index].gP;
                                 break;
 
                             case "PARENT_ALL_CURRENT_OBJECTS":
                                 if (!g[index].gP) //Creates a GroupParent
-                                    g[index].gP = Instantiate(new GameObject("parent")).transform;
+                                    g[index].gP = new GameObject(gN).transform;
 
                                 //Makes it a child to the first objects parent, if any
                                 if (g[index].gE.Count > 0)
-                                    if (g[index].gE[0].o.transform.parent != null)
-                                        g[index].gP.transform.parent = g[index].gE[0].o.transform.parent;
+                                    if (g[index].gE[0].o[0].transform.parent != null)
+                                        g[index].gP.transform.parent = g[index].gE[0].o[0].transform.parent;
 
                                 for (int l = 0; l < g[index].gE.Count; l++)
-                                    g[index].gE[l].o.transform.parent = g[index].gP;
+                                    g[index].gE[l].o[0].transform.parent = g[index].gP;
                                 break;
 
                             case "REMOVE_GROUP":

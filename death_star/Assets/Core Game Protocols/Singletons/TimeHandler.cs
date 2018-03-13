@@ -21,15 +21,13 @@ public class TimeData : BaseIterator {
     }
 }
 
-public class TimeHandler : MonoBehaviour, Singleton {
+public class TimeHandler : MonoBehaviour, ISingleton {
 
     public static TimeHandler i; //instance
-    public List<TimeData> tE; //timeEvents;
+    List<TimeData> tE; //timeEvents
 
-    void Start() {
-        i = this;
-        tE = new List<TimeData>();
-        DontDestroyOnLoad(this);
+    public object ReturnInstance() {
+        return i;
     }
 
     void Update() {
@@ -40,7 +38,7 @@ public class TimeHandler : MonoBehaviour, Singleton {
 
                 Debug.LogFormat("Function has been fired for {0} timer event. ", tE[i].n);
                 Debug.LogFormat("Time events remaining: {0}", tE.Count);
-                tE.RemoveAt(i);                
+                tE.RemoveAt(i);
             }
     }
 
@@ -73,6 +71,12 @@ public class TimeHandler : MonoBehaviour, Singleton {
     }
 
     public void RunOnStart() {
+        tE = new List<TimeData>();
+    }
 
+    public void RunOnCreated() {
+        i = this;
+        DontDestroyOnLoad(gameObject);
+        tE = new List<TimeData>();
     }
 }

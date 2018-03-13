@@ -22,8 +22,10 @@ public interface IXMLLoader {
     string ReturnStringPath();
 }
 
-public interface Singleton {
+public interface ISingleton {
     void RunOnStart();
+    void RunOnCreated();
+    object ReturnInstance();
 }
 
 public class CustomClassFirer : BaseIterator {
@@ -143,14 +145,30 @@ public static class GlobalData {
     public static RhythmAnalyseState analyseAlgorithm;
 
     public static AudioClip song;
-    public static List<IPlayerEditable> uL; //uiLoaders
+
     #endregion
 
     //Loads a new level and refreshes data structures if needed.
     public static void LoadNewLevel(int level) {
-        
+
         DelegatePools.ClearDelegatePools();
         SceneManager.LoadScene(level);
+    }
+}
+
+public static class LoadedData {
+    public static IPlayerEditable[] gIPEI; //globalIPlayerEditableInstances
+    public static IPlayerEditable[] uL; //uiLoaders
+    public static ISingleton[] sL; //singletonList
+}
+
+public static class SceneTransitionData {
+    public static int sI; //sceneIndex;
+    public static int sO = 2; //sceneOffset
+
+    public static void LoadScene(object[] p) {
+        sI = (int)p[0] + sO;
+        SceneManager.LoadScene(1);
     }
 }
 
@@ -170,7 +188,7 @@ public static class BaseIteratorFunctions { //A list of functions that complemen
             if (string.Equals(tA[i].n, k))
                 return i;
 
-        Debug.LogErrorFormat("The key: {0} does not exist.", k);
+        //Debug.LogErrorFormat("The key: {0} does not exist.", k);
         return -1;
     }
 }

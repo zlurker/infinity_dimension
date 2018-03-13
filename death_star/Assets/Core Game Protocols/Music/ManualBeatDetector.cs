@@ -17,7 +17,7 @@ public class ManualBeatDetector : MonoBehaviour {
         GlobalData.song = music.clip;
         beatTimings = new List<float>();
 
-        PlayerInput.i.AddNewInput(KeyCode.L, new DH(Load),0);
+        PlayerInput.i.AddNewInput(KeyCode.L, new DH(SceneTransitionData.LoadScene,new object[] {1 }),0);
         PlayerInput.i.AddNewInput(0, new DH(RegisterClick),0);
         PlayerInput.i.AddNewInput(KeyCode.Escape, new DH(EraseData),0);
     }
@@ -42,10 +42,6 @@ public class ManualBeatDetector : MonoBehaviour {
         GlobalData.offset = avgOffset;
 
         Debug.LogFormat("Current BPM is {0}. Offset is {1} ", 60 / avgBpm, avgOffset);
-    }
-
-    void Load(object[] p) {
-        GlobalData.LoadNewLevel(2);
     }
 
     void RegisterClick(object[] p) {

@@ -42,6 +42,10 @@ public class Reference : MonoBehaviour {
     bool[] cY;
     bool fA;
 
+    bool[] isPrevHigh;
+    int highestChannel;
+
+
     //float lowestValue;
     //float gradient;
     //Renderer prevRenderer;
@@ -63,6 +67,8 @@ public class Reference : MonoBehaviour {
         pV = new float[actualNumber];
         lV = new float[actualNumber];
         cY = new bool[actualNumber];
+
+        isPrevHigh = new bool[2];
 
         //prevData = new PreviousData[numberOfObjects];
         song = GetComponent<AudioSource>();
@@ -121,6 +127,23 @@ public class Reference : MonoBehaviour {
                 highestValue = samples[selectedChannel];
         }*/
 
+        if (flashValue > 1.5f) {
+            flash.transform.localScale = new Vector3(flashValue, flashValue, 0);
+            flashValue -= 0.25f;
+        }
+
+        bool[] currPos = new bool[2];
+
+        if (selectedChannel > 0)
+            currPos[0] = samples[selectedChannel] - samples[selectedChannel - 1] > 0 ? true : false;
+        else
+            currPos[0] = true;
+
+        if (selectedChannel < samples.Length - 1)
+            currPos[1] = samples[selectedChannel + 1] - samples[selectedChannel] > 0 ? true : false;
+        else
+            currPos[1] = false;
+
         for (int i = 0; i < actualNumber; i++) {
             Vector3 previousScale = cubes[i].transform.localScale;
             previousScale.y = samples[i] * 100;
@@ -129,46 +152,36 @@ public class Reference : MonoBehaviour {
             Vector3 pos = cubes[i].transform.position;
             pos.y = cubes[i].transform.localScale.y / 2;
             cubes[i].transform.position = pos;
+        }
 
+        bool hasTrue = false;
 
-            //if (samples[i] > max[i]) {
-                //max[i] = samples[i];
-                
-            //}
+        for (int j = 0; j < currPos.Length; j++)
+            if (isPrevHigh[j] == currPos[j])
+                hasTrue = true;
 
+        isPrevHigh = currPos;
 
-            /* if (currPeak < samples[i]) 
-                 currPeak = samples[i];
+        if (hasTrue)
+            return;
 
-              prevData[i].upwards = UpdatePrevData(i, samples[i]);
-              prevData[i].prevValue = samples[i];
+        cubesShadow[selectedChannel].transform.position = new Vector3(cubesShadow[selectedChannel].transform.position.x, samples[selectedChannel] * 100);
+        //Debug.DrawRay(new Vector2(-100, pV[selectedChannel] * 100), new Vector2(200, 0), Color.red, 1f);
 
-
-              if (prevData[i].prevValue > prevPeak) {
-                  prevPeak = prevData[i].prevValue;
-                  selectedChannel = i;
-
-                  if (prevData[i].upwards) {
-                      valueChanged = true;
-
-                  }
-              }
-
-              if (prevData[i].upwards)
-                  hasUpwards = true;*/
-            /*if (samples[cP] >= pPV) { //Checks if current sample is going upwards or downwards. If upwards, then changing is allowed.
-                if (samples[i] >= pPV) {
-                    cP = i;
-                    pPV = samples[i];
-                }
-            }*/
-
+        for (int i = 0; i < actualNumber; i++)
             if (samples[i] > highestValue) {
                 highestValue = samples[i];
                 selectedChannel = i;
             }
-        }
 
+
+        flashValue = 2.5f;
+        totalBeats++;
+        combo.text = totalBeats.ToString();
+
+
+       
+        //isPrevHigh = currPos;
         /*if (cP < 2)
             pD[0] = 0;
         else {
@@ -226,12 +239,10 @@ public class Reference : MonoBehaviour {
 
         if (samples[selectedChannel] < pV[selectedChannel])
             if (samples[selectedChannel] - lV[selectedChannel] >= lV[selectedChannel]) {
-                flashValue = 2.5f;
-                totalBeats++;
-                combo.text = totalBeats.ToString();
 
-                cubesShadow[selectedChannel].transform.position = new Vector3(cubesShadow[selectedChannel].transform.position.x, pV[selectedChannel] * 100);
-                Debug.DrawRay(new Vector2(-100, pV[selectedChannel] * 100),new Vector2(200,0),Color.red,1f);
+
+                //cubesShadow[selectedChannel].transform.position = new Vector3(cubesShadow[selectedChannel].transform.position.x, pV[selectedChannel] * 100);
+                //Debug.DrawRay(new Vector2(-100, pV[selectedChannel] * 100),new Vector2(200,0),Color.red,1f);
             }
 
 
@@ -264,10 +275,7 @@ public class Reference : MonoBehaviour {
                 pPD[i] = pD[i];
             }*/
 
-        if (flashValue > 1.5f) {
-            flash.transform.localScale = new Vector3(flashValue, flashValue, 0);
-            flashValue -= 0.25f;
-        }
+
 
         if (song.time >= 60 * currMinute) {
             Debug.LogWarning("Current BPM Tracked: " + bpmTracker);
@@ -276,6 +284,8 @@ public class Reference : MonoBehaviour {
         }
 
         pV = samples;
+
+        //isPrevHigh = currPos;
     }
 
     // bool UpdatePrevData(int item, float value) {
