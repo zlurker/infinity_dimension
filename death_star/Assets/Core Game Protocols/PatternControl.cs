@@ -38,15 +38,31 @@ public class GroupElement : BaseIterator {
     }
 }
 
-public class PatternControl : MonoBehaviour {
+public enum Patterns {
+    VECTOR_PATTERN, GROUP_PATTERN
+}
+
+public enum GroupArgs {
+    ADD_PARAMETER_OBJECTS, REMOVE_PARAMETER_OBJECTS, REMOVE_ALL_CURRENT_OBJECTS, PARENT_PARAMETER_OBJECTS, PARENT_ALL_CURRENT_OBJECTS, REMOVE_GROUP, GET_GROUP
+}
+
+public class PatternControl : MonoBehaviour,ISingleton {
 
     List<GroupElement> g; //groups 
     public static PatternControl i;
 
-    void Awake() {
+    public void RunOnCreated() {
         g = new List<GroupElement>();
         i = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    public void RunOnStart() {
+
+    }
+
+    public object ReturnInstance() {
+        return this;
     }
 
     public object[] Pattern_Args(PoolElement[] objects, object[][] arg_values) {
@@ -55,9 +71,9 @@ public class PatternControl : MonoBehaviour {
 
         for (int i = 0; i < arg_values.Length; i++)
 
-            switch (arg_values[i][0] as string) {
+            switch ((Patterns)arg_values[i][0]) {
 
-                case "VECTOR_PATTERN":
+                case Patterns.VECTOR_PATTERN:
                     Vector3 s_P = (Vector3)arg_values[i][1];
                     Vector3 v_P = (Vector3)arg_values[i][2];
 
@@ -65,9 +81,8 @@ public class PatternControl : MonoBehaviour {
                         objects[j].o[0].transform.position = s_P + (v_P * j);
                     break;
 
-                case "GROUP_PATTERN":
+                case Patterns.GROUP_PATTERN:
                     string gN = (string)arg_values[i][1];
-                    string oP = (string)arg_values[i][2];
                     int index = BaseIteratorFunctions.IterateKey(g.ToArray(), gN);
 
                     if (index == -1) {
@@ -75,26 +90,25 @@ public class PatternControl : MonoBehaviour {
                         index = g.Count - 1;
                     }
 
-                    string[] oP_Augs = oP.Split(',');
 
-                    for (int j = 0; j < oP_Augs.Length; j++)
+                    for (int j = 2; j < arg_values.Length; j++)
 
-                        switch (oP_Augs[j]) {
+                        switch ((GroupArgs)arg_values[i][j]) {
 
-                            case "ADD_PARAMETER_OBJECTS":
+                            case GroupArgs.ADD_PARAMETER_OBJECTS:
                                 g[index].AddItem(objects);
                                 break;
 
-                            case "REMOVE_PARAMETER_OBJECTS": //Removal args
+                            case GroupArgs.REMOVE_PARAMETER_OBJECTS: //Removal args
                                 for (int l = 0; l < objects.Length; l++)
                                     g[index].gE.Remove(objects[l]);
                                 break;
 
-                            case "REMOVE_ALL_CURRENT_OBJECTS":
+                            case GroupArgs.REMOVE_ALL_CURRENT_OBJECTS:
                                 g[index].ResetGroupElements();
                                 break;
 
-                            case "PARENT_PARAMETER_OBJECTS": //Parent args
+                            case GroupArgs.PARENT_PARAMETER_OBJECTS: //Parent args
                                 if (!g[index].gP)
                                     //Creates a GroupParent
                                     g[index].gP = new GameObject(gN).transform;
@@ -108,7 +122,7 @@ public class PatternControl : MonoBehaviour {
                                     objects[l].o[0].transform.parent = g[index].gP;
                                 break;
 
-                            case "PARENT_ALL_CURRENT_OBJECTS":
+                            case GroupArgs.PARENT_ALL_CURRENT_OBJECTS:
                                 if (!g[index].gP) //Creates a GroupParent
                                     g[index].gP = new GameObject(gN).transform;
 
@@ -121,11 +135,11 @@ public class PatternControl : MonoBehaviour {
                                     g[index].gE[l].o[0].transform.parent = g[index].gP;
                                 break;
 
-                            case "REMOVE_GROUP":
+                            case GroupArgs.REMOVE_GROUP:
                                 g.Remove(g[index]);
                                 break;
 
-                            case "GET_GROUP":
+                            case GroupArgs.GET_GROUP:
                                 returnItems.Add(g[index]);
                                 break;
                         }

@@ -11,21 +11,27 @@ public class UITesting : MonoBehaviour {
     public Image asd;
     public MonoBehaviour t;
     public string[] test2;
+    DH erd;
 
-    void Start () {
+    void Start() {
+        erd = new DH(Ass, new object[] { 1 });
         //Debug.Log(test2.Min(w => w.Length));
-        //test.onClick.AddListener(() =>Test(999));
+        test.onClick.AddListener(erd.Invoke);
         test.image = null;
         aas.text = null;
         asd.sprite = null;
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+    }
+
+    public void Ass(object[] test) {
+        Debug.Log((int)test[0]);
+    }
 
     public void Test(int i) {
-        Debug.LogFormat("Working {0}",i);
+        Debug.LogFormat("Working {0}", i);
     }
 }

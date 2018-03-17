@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum MenuLayouts {
-
-}
 
 public class MenuScript : MonoBehaviour {
 

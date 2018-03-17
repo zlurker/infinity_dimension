@@ -26,6 +26,7 @@ public class SpawnInstance : BaseIterator {
     public MonoBehaviour i;
 }
 
+[Serializable]
 public class TypePool : BaseIterator {
     public TypeIterator[] t;//types;
 
@@ -39,6 +40,7 @@ public class TypePool : BaseIterator {
     }
 }
 
+[Serializable]
 public class TypeIterator : BaseIterator {
     public Type t;
 
@@ -151,7 +153,7 @@ public class Spawner : MonoBehaviour {
     object CreateNewObject() {
         GameObject newInstance = new GameObject(tP[cK].n, bB);
 
-        MonoBehaviour[] scripts = new MonoBehaviour[tP.Length];
+        MonoBehaviour[] scripts = new MonoBehaviour[tP[cK].t.Length];
         for (int i = 0; i < tP[cK].t.Length; i++)
             scripts[i] = newInstance.AddComponent(tP[cK].t[i].t) as MonoBehaviour;
 

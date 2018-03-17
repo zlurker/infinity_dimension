@@ -19,6 +19,8 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
         };
     }
 
+    //Button test;
+
     void Start() {
         //Spawn("Button");
         //Debug.DrawLine(new Vector3(), ReturnPosition(new Vector2(0.7f, 0.25f)), Color.red, 5f);
@@ -33,7 +35,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
     //TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { i })));
     //}
 
-    public override PoolElement Spawn(string p) { //pool, location
+    public override PoolElement Spawn(string p) { //pool
         return Spawn(p, new Vector3(), t.transform);
     }
 
@@ -41,7 +43,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
         return Spawn(p, l, t.transform);
     }
 
-    public override PoolElement Spawn(string p, Vector3 l, float d) { //pool, location
+    public override PoolElement Spawn(string p, Vector3 l, float d) { //pool, location, duration
         PoolElement iR = Spawn(p, l, t.transform);
         TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
 
@@ -58,16 +60,26 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
         return c;
     }
 
-    public void SetUIVisual(MonoBehaviour obj, object parameter) {
+    public void SetUIComponent(MonoBehaviour o, object p) {
 
-        if (obj is Text)
-            (obj as Text).text = parameter as string;
+        if (o is Text)
+            (o as Text).text = p as string;
 
-        if (obj is Image)
-            (obj as Image).sprite = parameter as Sprite;
+        if (o is Image)
+            (o as Image).sprite = p as Sprite;
+
+        //For button, parameter is a new DH.
+        if (o is Button)
+            (o as Button).onClick.AddListener((p as DH).Invoke);
     }
 
-    public object GetUIVisual(MonoBehaviour obj) {
+    public void SetUIComponent(MonoBehaviour[] o, Type t,object p) {
+        for (int i = 0; i < o.Length; i++) 
+            if (o[i].GetType() == t) 
+                SetUIComponent(o[i], p);        
+    }
+
+    public object GetUIComponent(MonoBehaviour obj) {
 
         if (obj is Text)
             return (obj as Text).text;

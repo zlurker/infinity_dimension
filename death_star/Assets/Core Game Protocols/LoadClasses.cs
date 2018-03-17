@@ -11,7 +11,7 @@ public class LoadClasses : MonoBehaviour {
         LoadSingletonClasses();
         LoadEditableClasses();
 
-        SceneTransitionData.LoadScene(new object[] { 0 });
+        SceneTransitionData.Initialise();
     }
 
     void LoadSingletonClasses() {

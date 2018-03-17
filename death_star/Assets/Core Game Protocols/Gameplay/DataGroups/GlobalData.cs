@@ -163,12 +163,22 @@ public static class LoadedData {
 }
 
 public static class SceneTransitionData {
-    public static int sI; //sceneIndex;
-    public static int sO = 2; //sceneOffset
+    public static int sO; //sceneOffset
+
+    public static void Initialise() {
+        sO = 2;
+        SceneManager.sceneLoaded += OnSceneLoad;
+        LoadScene(new object[] { 0 });
+    }
 
     public static void LoadScene(object[] p) {
-        sI = (int)p[0] + sO;
-        SceneManager.LoadScene(1);
+        int sI = (int)p[0] + sO;
+        SceneManager.LoadScene(sI);
+    }
+
+    public static void OnSceneLoad(Scene arg0, LoadSceneMode arg1) {
+        for (int i = 0; i < LoadedData.sL.Length; i++)
+            LoadedData.sL[i].RunOnStart(); //Runs all the singleton start  
     }
 }
 
