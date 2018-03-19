@@ -4,43 +4,55 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
+public class SetOnSpawnParameters {
+    public Type t; //type
+    public object v; //value
+
+    public SetOnSpawnParameters(Type type, object value) {
+        t = type;
+        v = value;
+    }
+}
+
+public class TextSettings : ObjectSettings {
+    public override Modifier[] SetDefaultValues() {
+        return new Modifier[] {
+            new Modifier(0,"Default Text"),
+            new Modifier(1,Resources.Load("jd-bold") as Font)
+        };
+    }
+
+    public override void SetObjectValues(MonoBehaviour t, Modifier[] mods) {
+        Text s = t as Text;
+        for (int i = 0; i < mods.Length; i++)
+            switch (mods[i].v) {
+                case 0:
+                    s.text = mods[i].vV as string;
+                    break;
+                case 1:
+                    s.font = mods[i].vV as Font;
+                    break;
+            }
+    }
+}
+
 public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
 
-    public static UIDrawer i;
+    public static UIDrawer i; //instance
     public static Canvas t; //target
 
     public override void CreateTypePool() {
         bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
 
         tP = new TypePool[] {
-            new TypePool(new Type[] { typeof(Image) }, "Image"),
-            new TypePool(new Type[] { typeof(Image), typeof(Button)},"Button"),
-            new TypePool(new Type[] { typeof(Text)}, "Text")
+            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Image)) }, "Image"),
+            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Image)), new TypeIterator(typeof(Button))},"Button"),
+            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Text),new TextSettings())}, "Text")
         };
     }
 
-    //Button test;
-
-    void Start() {
-        //Spawn("Button");
-        //Debug.DrawLine(new Vector3(), ReturnPosition(new Vector2(0.7f, 0.25f)), Color.red, 5f);
-    }
-
-    //public void SpawnWithPointData(string p, string pDN) { //pool, pointDataName
-    //Spawn(p, UIData.i.ReturnPoint(pDN), UIData.i.t.transform);
-    // }
-
-    //public void SpawnWithPointData(string p, string pDN, float d) { //pool, pointDataName, duration
-    //  PoolElement i = Spawn(p, UIData.i.ReturnPoint(pDN), UIData.i.t.transform);
-    //TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { i })));
-    //}
-
     public override PoolElement Spawn(string p) { //pool
         return Spawn(p, new Vector3(), t.transform);
-    }
-
-    public override PoolElement Spawn(string p, Vector3 l) { //pool, location
-        return Spawn(p, l, t.transform);
     }
 
     public override PoolElement Spawn(string p, Vector3 l, float d) { //pool, location, duration
@@ -50,7 +62,27 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
         return iR;
     }
 
-    public Vector3 ReturnPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.
+    public PoolElement Spawn(string p, bool uNP, Vector3 l) { //pool, location, useNormalisedPosition
+        if (uNP)
+            l = UINormalisedPosition(l);
+
+        //return Spawn(p, l, t.transform);
+        return Spawn(p, l, t.transform);
+    }
+
+    public PoolElement Spawn(string p, bool uNP, Vector3 l, SetOnSpawnParameters[] sP) { //pool, location, useNormalisedosition, spawnParameters
+        if (uNP)
+            l = UINormalisedPosition(l);
+
+        PoolElement iR = Spawn(p, l, t.transform);
+
+        for (int i = 0; i < sP.Length; i++)
+            SetUIComponent(iR.o, sP[i].t, sP[i].v);
+
+        return iR;
+    }
+
+    public Vector3 UINormalisedPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.
 
         for (int i = 0; i < 2; i++) {
             c[i] = (c[i] / 1) * t.pixelRect.size[i];
@@ -62,8 +94,9 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
 
     public void SetUIComponent(MonoBehaviour o, object p) {
 
-        if (o is Text)
+        if (o is Text) 
             (o as Text).text = p as string;
+        
 
         if (o is Image)
             (o as Image).sprite = p as Sprite;
@@ -73,10 +106,10 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
             (o as Button).onClick.AddListener((p as DH).Invoke);
     }
 
-    public void SetUIComponent(MonoBehaviour[] o, Type t,object p) {
-        for (int i = 0; i < o.Length; i++) 
-            if (o[i].GetType() == t) 
-                SetUIComponent(o[i], p);        
+    public void SetUIComponent(MonoBehaviour[] o, Type t, object p) {
+        for (int i = 0; i < o.Length; i++)
+            if (o[i].GetType() == t)
+                SetUIComponent(o[i], p);
     }
 
     public object GetUIComponent(MonoBehaviour obj) {
