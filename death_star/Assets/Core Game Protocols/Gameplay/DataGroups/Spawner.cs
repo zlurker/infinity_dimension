@@ -3,71 +3,85 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class SpawnerPool : BaseIterator {
+public class SpawnerPool : BaseIterator
+{
     public Pool<PoolElement> sP;
 
-    public SpawnerPool(string name, CI instanceCreator) {
+    public SpawnerPool(string name, CI instanceCreator)
+    {
         n = name;
         sP = new Pool<PoolElement>(instanceCreator, name);
     }
 }
 
-public class PoolElement : BaseIterator {
+public class PoolElement : BaseIterator
+{
     public MonoBehaviour[] o; //object
+    public PointerHolder[][] sD;//scriptData
 
-    public PoolElement(MonoBehaviour[] obj, string name) {
+    public PoolElement(MonoBehaviour[] obj, PointerHolder[][] scriptData, string name)
+    {
         o = obj;
+        sD = scriptData;
         n = name;
     }
 }
 
 [System.Serializable]
-public class SpawnInstance : BaseIterator {
+public class SpawnInstance : BaseIterator
+{
     public MonoBehaviour i;
 }
 
 [Serializable]
-public class TypePool : BaseIterator {
+public class TypePool : BaseIterator
+{
     public TypeIterator[] t;//types;
 
-    public TypePool(TypeIterator[] types, string name) {
+    public TypePool(TypeIterator[] types, string name)
+    {
         t = types;
         n = name;
 
         //for (int i = 0; i < types.Length; i++)
-          //  t[i] = new TypeIterator(types[i], types[i].Name);
+        //  t[i] = new TypeIterator(types[i], types[i].Name);
     }
 }
 
 [Serializable]
-public class TypeIterator : BaseIterator {
+public class TypeIterator : BaseIterator
+{
     public Type t;
-    public ObjectSettings s;//settings
+    public PointerHolderCreatorBase pC; //pointerCreator
 
-    public TypeIterator(Type type) {
+    public TypeIterator(Type type)
+    {
         t = type;
         n = type.Name;
     }
 
-    public TypeIterator(Type type, ObjectSettings settings) {
+    public TypeIterator(Type type, PointerHolderCreatorBase pointerCreator)
+    {
         t = type;
         n = type.Name;
-
-        s = settings;
+        pC = pointerCreator;
     }
 }
 
-public class Modifier {
+/*public class Modifier
+{
     public int v;//variable
     public object vV;//varaibleValue
 
-    public Modifier(int value, object variableValue) {
+    public Modifier(int value, object variableValue)
+    {
         v = value;
         vV = variableValue;
     }
 }
+*/
 
-public class ObjectSettings {
+/*public class ObjectSettings {
 
     protected Modifier[] dV; //values
 
@@ -86,9 +100,10 @@ public class ObjectSettings {
     public virtual void SetObjectValues(MonoBehaviour t,Modifier[] mods) {
 
     }
-}
+}*/
 
-public class Spawner : MonoBehaviour {
+public class Spawner : MonoBehaviour
+{
 
     public TypePool[] tP; //typePool
     protected Type[] bB;  //baseBlocks
@@ -96,7 +111,8 @@ public class Spawner : MonoBehaviour {
     SpawnerPool[] sP; //spawnPool;
     int cK; //currentKey
 
-    void Awake() {
+    void Awake()
+    {
         CreateTypePool();
 
         sP = new SpawnerPool[tP.Length];
@@ -108,7 +124,8 @@ public class Spawner : MonoBehaviour {
         //Spawn("Projectile", new Vector3());
     }
 
-    public PoolElement ObjectRetriver(string p) {
+    public PoolElement ObjectRetriver(string p)
+    {
         int cOK = BaseIteratorFunctions.IterateKey(sP, p);
         cK = cOK;
 
@@ -116,25 +133,31 @@ public class Spawner : MonoBehaviour {
         iR.o[0].gameObject.SetActive(true);
 
         for (int i = 0; i < iR.o.Length; i++)
-            if (tP[cK].t[i].s != null)
-                tP[cK].t[i].s.Reset(iR.o[i]);
+            if (iR.sD[i] != null)
+                for (int j = 0; j < iR.sD[i].Length; j++)
+                    iR.sD[i][j].RestoreDefault();
+            
+
 
         return iR;
     }
 
-    public virtual PoolElement Spawn(string p) { //pool
+    public virtual PoolElement Spawn(string p)
+    { //pool
         return ObjectRetriver(p);
         //(iR as OnSpawn).RunOnActive();
     }
 
-    public virtual PoolElement Spawn(string p, float d) { //pool
+    public virtual PoolElement Spawn(string p, float d)
+    { //pool
         PoolElement iR = ObjectRetriver(p);
 
         TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
         return iR;
     }
 
-    public virtual PoolElement Spawn(string p, Vector3 l) { //pool, location
+    public virtual PoolElement Spawn(string p, Vector3 l)
+    { //pool, location
         PoolElement iR = ObjectRetriver(p);
 
         iR.o[0].gameObject.SetActive(true);
@@ -146,7 +169,8 @@ public class Spawner : MonoBehaviour {
         //(iR as OnSpawn).RunOnActive();
     }
 
-    public virtual PoolElement Spawn(string p, Vector3 l, float d) { //pool, location, duration
+    public virtual PoolElement Spawn(string p, Vector3 l, float d)
+    { //pool, location, duration
         PoolElement iR = ObjectRetriver(p);
 
         iR.o[0].gameObject.SetActive(true);
@@ -159,7 +183,8 @@ public class Spawner : MonoBehaviour {
         //(iR as OnSpawn).RunOnActive();
     }
 
-    public virtual PoolElement Spawn(string p, Vector3 l, Transform t) { //pool, location, target
+    public virtual PoolElement Spawn(string p, Vector3 l, Transform t)
+    { //pool, location, target
         PoolElement iR = ObjectRetriver(p);
 
         iR.o[0].gameObject.SetActive(true);
@@ -172,26 +197,37 @@ public class Spawner : MonoBehaviour {
         return iR;
     }
 
-    public virtual void CreateTypePool() {
+    public virtual void CreateTypePool()
+    {
         //Just a handle for me to override and call to create TypePools.
     }
 
-    public void Remove(PoolElement i) {
+    public void Remove(PoolElement i)
+    {
         sP[BaseIteratorFunctions.IterateKey(sP, i.n)].sP.Store(i);
         i.o[0].gameObject.SetActive(false);
     }
 
-    public void Remove(object[] p) {
+    public void Remove(object[] p)
+    {
         Remove(p[0] as PoolElement);
     }
 
-    object CreateNewObject() {
+    object CreateNewObject()
+    {
         GameObject newInstance = new GameObject(tP[cK].n, bB);
 
         MonoBehaviour[] scripts = new MonoBehaviour[tP[cK].t.Length];
-        for (int i = 0; i < tP[cK].t.Length; i++)
-            scripts[i] = newInstance.AddComponent(tP[cK].t[i].t) as MonoBehaviour;
+        PointerHolder[][] scriptData = new PointerHolder[tP[cK].t.Length][];
 
-        return new PoolElement(scripts, tP[cK].n);
+        for (int i = 0; i < tP[cK].t.Length; i++)
+        {
+            scripts[i] = newInstance.AddComponent(tP[cK].t[i].t) as MonoBehaviour;
+            if (tP[cK].t[i].pC != null)
+                scriptData[i] = tP[cK].t[i].pC.PopulateArray(scripts[i]);
+        }
+
+
+        return new PoolElement(scripts, scriptData, tP[cK].n);
     }
 }

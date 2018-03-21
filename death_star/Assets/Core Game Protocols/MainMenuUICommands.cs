@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MainMenuUICommands : MonoBehaviour {
+public class MainMenuUICommands : MonoBehaviour
+{
 
     public Font font;
+    public delegate void test();
+
     // Use this for initialization
-    void Start() {
+    void Start()
+    {
         PatternControl.i.Pattern_Args(new PoolElement[] {
             UIDrawer.i.Spawn("Image",true, new Vector2(0.5f, 0.9f)),
-            UIDrawer.i.Spawn("Text",true, new Vector2(0.5f, 0.8f),new SetOnSpawnParameters[] { new SetOnSpawnParameters(typeof(Text),"Suck my dick")})
+            //UIDrawer.i.Spawn("Text",true, new Vector2(0.5f, 0.8f),new SetOnSpawnParameters[] { new SetOnSpawnParameters(typeof(Text),"Suck my dick")})
         }, new object[][] {
             new object[] { Patterns.GROUP_PATTERN, "Introduction", GroupArgs.PARENT_PARAMETER_OBJECTS,GroupArgs.ADD_PARAMETER_OBJECTS }
         });
@@ -29,7 +33,8 @@ public class MainMenuUICommands : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {        
+    void Update()
+    {
 
     }
 }
