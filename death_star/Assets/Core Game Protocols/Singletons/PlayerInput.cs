@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class InputData : BaseIterator {
+public class InputData : Iterator {
     public List<DH> rs;
     public KeyCode k; //keycode
     public int b; //button
@@ -98,7 +98,7 @@ public class PlayerInput : MonoBehaviour,ISingleton {
     }
 
     int ProcessNewInput(string key, InputData inputData) {
-        int i = BaseIteratorFunctions.IterateKey(iS.ToArray(), key);
+        int i = Iterator.ReturnKey(iS.ToArray(), key);
 
         if (i == -1) {
             iS.Add(inputData);

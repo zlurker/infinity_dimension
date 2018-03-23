@@ -22,17 +22,17 @@ public class PlayerControlledUnit : UnitBase {
     }
 
     void Up(object[] p) {
-        UpdateLocation(new Vector3(0,stat[BaseIteratorFunctions.IterateKey(stat,"Movespeed")].v));
+        UpdateLocation(new Vector3(0,Iterator.ReturnObject<Stat>(stat,"Movespeed").v));
     }
 
     void Down(object[] p) {
-        UpdateLocation(new Vector3(0, -stat[BaseIteratorFunctions.IterateKey(stat, "Movespeed")].v));
+        UpdateLocation(new Vector3(0, -Iterator.ReturnObject<Stat>(stat, "Movespeed").v));
     }
     void Right(object[] p) {
-        UpdateLocation(new Vector3(stat[BaseIteratorFunctions.IterateKey(stat, "Movespeed")].v, 0));
+        UpdateLocation(new Vector3(Iterator.ReturnObject<Stat>(stat, "Movespeed").v, 0));
     }
 
     void Left(object[] p) {
-        UpdateLocation(new Vector3(-stat[BaseIteratorFunctions.IterateKey(stat, "Movespeed")].v, 0));
+        UpdateLocation(new Vector3(-Iterator.ReturnObject<Stat>(stat, "Movespeed").v, 0));
     }
 }

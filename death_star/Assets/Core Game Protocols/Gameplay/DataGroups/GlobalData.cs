@@ -34,7 +34,7 @@ public interface ISingleton
     object ReturnInstance();
 }
 
-public class CustomClassFirer : BaseIterator
+public class CustomClassFirer : Iterator
 {
     public List<object[]> p; //Allows mutiple methods to be called. Every one object[] is one method. 
 
@@ -44,11 +44,6 @@ public class CustomClassFirer : BaseIterator
         p.Add(parameters);
         n = name; //In this case, it is the name of the class.
     }
-}
-
-public interface OnSpawn
-{
-    void RunOnActive();
 }
 
 public struct EffectTemplate
@@ -85,7 +80,7 @@ public struct JudgementRange
     }
 }
 
-public class Stat : BaseIterator
+public class Stat : Iterator
 {
     public float v;
     public float pTC;
@@ -126,9 +121,29 @@ public struct PointData
 public delegate void r(object[] p);
 
 [System.Serializable]
-public class BaseIterator
+public class Iterator
 {
     public string n;
+
+    public static int ReturnKey(Iterator[] tA, string k)
+    {
+        for (int i = 0; i < tA.Length; i++)
+            if (string.Equals(tA[i].n, k))
+                return i;
+
+        //Debug.LogErrorFormat("The key: {0} does not exist.", k);
+        return -1;
+    }
+
+    public static T ReturnObject<T>(Iterator[] tA, string k)
+    {
+        for (int i = 0; i < tA.Length; i++)
+            if (string.Equals(tA[i].n, k))
+                return (T)(tA[i] as object);
+
+        //Debug.LogErrorFormat("The key: {0} does not exist.", k);
+        return (T)(null as object);
+    }
 }
 
 public class DH
@@ -159,50 +174,69 @@ public class DH
     }
 }
 
-public class PointerHolder<T> : PointerHolder
+public class PointerHolder<M, T> : PointerHolder
 {
-    public Action<T> p; //pointer
+    public Action<M, T> p; //pointer
 
-    public PointerHolder(Action<T> toExecute)
+    public PointerHolder(string name,Action<M, T> toExecute)
     {
-        p = toExecute;
+        n = name;
+        p = toExecute;     
     }
 
-    public PointerHolder(Action<T> toExecute, object defaultValue)
+    public PointerHolder(string name,Action<M, T> toExecute, object defaultValue)
     {
+        n = name;
         p = toExecute;
         dV = defaultValue;
-        Set(dV);
     }
 
-    public override void Set(object value)
+    public override void Set(object mono, object value)
     {
-        if (value != null)
-            p((T)value);
+        Debug.Log(mono.GetType().Name);
+        p((M)mono, (T)value);
+    }
+
+    public override void SetDefault(object mono)
+    {
+        if (dV != null)
+            p((M)mono, (T)dV);
     }
 }
 
-public class PointerHolder
+public class PointerHolder : Iterator
 {
+    public static PointerGroup[] pL; //pointerList;
     public object dV;//defaultValue
 
-    public virtual void Set(object value)
+    public virtual void Set(object mono, object value)
     {
+
     }
 
-    public virtual void RestoreDefault()
+    public virtual void SetDefault(object mono)
     {
-        Set(dV);
+
     }
 }
 
-public class PointerHolderCreatorBase
+public class PointerGroup : Iterator
 {
-    public virtual PointerHolder[] PopulateArray(MonoBehaviour target) //Base method.
+    public PointerHolder[] cP;//classPointers;
+
+    public PointerGroup(string scriptName, PointerHolder[] classPointers)
     {
-        return null;
+        n = scriptName;
+        cP = classPointers;
     }
 }
+
+
+
+/*public class PointerHolderCreatorBase
+{
+    public PointerHolder[] p;//pointers
+}*/
 #endregion
 
 
@@ -271,15 +305,7 @@ public static class BaseIteratorFunctions
 { //A list of functions that complements the BaseIterator class
 
     //Iterates though the Array and returns the first item with the string k
-    public static int IterateKey(BaseIterator[] tA, string k)
-    {
-        for (int i = 0; i < tA.Length; i++)
-            if (string.Equals(tA[i].n, k))
-                return i;
-
-        //Debug.LogErrorFormat("The key: {0} does not exist.", k);
-        return -1;
-    }
+    
 }
 
 public static class PresetGameplayData

@@ -12,7 +12,7 @@ public class Fire {
     }
 }
 
-public class Ability : BaseIterator {
+public class Ability : Iterator {
     public Fire[] aF; //abilityFires
 
     public Ability(Fire[] abilityFire) {

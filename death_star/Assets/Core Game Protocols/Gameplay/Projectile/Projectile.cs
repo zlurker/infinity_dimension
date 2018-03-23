@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Projectile : MonoBehaviour, OnSpawn {
+public class Projectile : MonoBehaviour, IPlayerEditable {
 
     public float cA; //currAngle
     public PointData[] aC; //angleChanges
@@ -47,7 +47,13 @@ public class Projectile : MonoBehaviour, OnSpawn {
         //GameObjectSpawner.i.Remove(this, "Projectile");
     }
 
-    public void RunOnActive() {
-        Debug.Log("Test Sucessful");
+    public void LoadUI()
+    {
+
+    }
+
+    public void Fire(object[] parameters)
+    {
+
     }
 }

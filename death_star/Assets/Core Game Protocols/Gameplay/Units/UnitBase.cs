@@ -38,7 +38,7 @@ public class UnitBase : MonoBehaviour {
 
             if (currTick != currEffects[i].time.tickCount) {
                 float currEffV = currEffects[i].effect.value * (currTick - currEffects[i].time.tickCount);
-                stat[BaseIteratorFunctions.IterateKey(stat, currEffects[i].effect.statAffected)].v-= currEffV; //Affects value according to ticks past
+                Iterator.ReturnObject<Stat>(stat, currEffects[i].effect.statAffected).v-= currEffV; //Affects value according to ticks past
 
                 CurrentEffects instance = currEffects[i];
                 instance.time.tickCount = currTick;
@@ -49,9 +49,9 @@ public class UnitBase : MonoBehaviour {
 
             if (currEffects[i].time.startTime + currEffects[i].effect.duration <= Time.time) { //Checks if duration is over
                 if (!currEffects[i].effect.permanent) //If not permanent, returns all values lost though this effect to stat (Regains how much it was lost in the time it was struck in the effect.
-                    stat[BaseIteratorFunctions.IterateKey(stat, currEffects[i].effect.statAffected)].v += currEffects[i].time.tickCount * currEffects[i].effect.value;
+                    Iterator.ReturnObject<Stat>(stat, currEffects[i].effect.statAffected).v += currEffects[i].time.tickCount * currEffects[i].effect.value;
 
-                Debug.Log(currEffects[i].effect.statAffected + " left: " + stat[BaseIteratorFunctions.IterateKey(stat, currEffects[i].effect.statAffected)].v);
+                Debug.Log(currEffects[i].effect.statAffected + " left: " + Iterator.ReturnObject<Stat>(stat, currEffects[i].effect.statAffected).v);
                 currEffects.RemoveAt(i); //Removes effect
             }
         }

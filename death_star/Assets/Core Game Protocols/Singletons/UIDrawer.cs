@@ -51,25 +51,34 @@ using System;
     }
 }*/
 
-public class TextPointer : PointerHolderCreatorBase
+/*public class TextPointer : PointerHolderCreatorBase
 {
-    public override PointerHolder[] PopulateArray(MonoBehaviour target)
+    public TextPointer()
     {
-        Text instance = target as Text;
-        return new PointerHolder[] {
-            new PointerHolder<string>((v) => { instance.text = v; Debug.Log("CALLED"); },"defaultvalue"),
-            new PointerHolder<int>((v) => { instance.fontSize = v; }),
-            new PointerHolder<Font>((v) => { instance.font = v; },Resources.Load("jd-bold"))
+        p = new PointerHolder[] {
+            new PointerHolder<Text,string>((t,v) => { t.text = v; },"defaultvalue"),
+            new PointerHolder<Text,int>((t,v) => { t.fontSize = v; }),
+            new PointerHolder<Text,Font>((t,v) => { t.font = v; },Resources.Load("jd-bold"))
         };
     }
-}
+}*/
+
+/*public class ButtonPointer: PointerHolderCreatorBase
+{
+    public ButtonPointer()
+    {
+        p = new PointerHolder[]
+        {
+            new PointerHolder<Button,DH>((b,v) => { b.onClick.AddListener(v.Invoke); })
+        };
+    }
+}*/
 
 public class UIDrawer : Spawner, ISingleton, IPlayerEditable
 {
 
     public static UIDrawer i; //instance
     public static Canvas t; //target
-    //PointerHolder<int> test = new PointerHolder<int>()
 
     public override void CreateTypePool()
     {
@@ -78,18 +87,13 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
 
         tP = new TypePool[] {
             new TypePool(new TypeIterator[] { new TypeIterator(typeof(Image)) }, "Image"),
-            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Image)), new TypeIterator(typeof(Button))},"Button"),
-            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Text), new TextPointer()) }, "Text")
+            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Image)), new TypeIterator(typeof(Button),"Button")},"Button"),
+            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Text), "Text") }, "Text")
         };
-
-
-
     }
 
     public override PoolElement Spawn(string p)
-    { //pool
-        //new Action(() => GenericModifier<string>.ModifyValue(ref p, p))();
-
+    { 
         return Spawn(p, new Vector3(), t.transform);
     }
 
@@ -134,7 +138,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         return c;
     }
 
-    public void SetUIComponent(MonoBehaviour o, object p)
+    /*public void SetUIComponent(MonoBehaviour o, object p)
     {
 
         if (o is Text)
@@ -147,16 +151,16 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         //For button, parameter is a new DH.
         if (o is Button)
             (o as Button).onClick.AddListener((p as DH).Invoke);
-    }
+    }*/
 
-    public void SetUIComponent(MonoBehaviour[] o, Type t, object p)
+    /*public void SetUIComponent(MonoBehaviour[] o, Type t, object p)
     {
         for (int i = 0; i < o.Length; i++)
             if (o[i].GetType() == t)
                 SetUIComponent(o[i], p);
-    }
+    }*/
 
-    public object GetUIComponent(MonoBehaviour obj)
+    /*public object GetUIComponent(MonoBehaviour obj)
     {
 
         if (obj is Text)
@@ -169,7 +173,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
             return (obj as InputField).text;
 
         return null;
-    }
+    }*/
 
     public void ReplaceUIGroup(string name, PoolElement[] replaceWith)
     {

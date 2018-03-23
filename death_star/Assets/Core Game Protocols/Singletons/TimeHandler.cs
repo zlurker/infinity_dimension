@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class TimeData : BaseIterator {
+public class TimeData : Iterator {
     public List<DH> tD; //timeDelegates
     public float eT; //endTime
 
@@ -47,7 +47,7 @@ public class TimeHandler : MonoBehaviour, ISingleton {
     }
 
     public void UpdateEndTime(string n, float eT) {
-        int i = BaseIteratorFunctions.IterateKey(tE.ToArray(), n);
+        int i = Iterator.ReturnKey(tE.ToArray(), n);
         TimeData inst = tE[i];
         inst.eT = eT;
 
@@ -55,7 +55,7 @@ public class TimeHandler : MonoBehaviour, ISingleton {
     }
 
     public void AddNewDelegates(string n, DH eD) {
-        int i = BaseIteratorFunctions.IterateKey(tE.ToArray(), n);
+        int i = Iterator.ReturnKey(tE.ToArray(), n);
         TimeData inst = tE[i];
         inst.tD.Add(eD);
 

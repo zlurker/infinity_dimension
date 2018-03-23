@@ -35,7 +35,7 @@ public class InstanceSpawnerTrigger : MonoBehaviour {
 
         Debug.Log(te.n);
         for (int i = 0; i < te.gE.Count; i++)
-            Debug.Log(te.gE[i].o[0].transform.position);
+            Debug.Log(te.gE[i].o[0].s.transform.position);
 
         TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + 1, new DH(Loop)));
     }

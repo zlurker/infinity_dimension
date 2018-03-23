@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GroupElement : BaseIterator {
+public class GroupElement : Iterator {
 
     public List<PoolElement> gE; //groupElements
     public Transform gP; //groupParent
@@ -78,12 +78,12 @@ public class PatternControl : MonoBehaviour,ISingleton {
                     Vector3 v_P = (Vector3)arg_values[i][2];
 
                     for (int j = 0; j < objects.Length; j++)
-                        objects[j].o[0].transform.position = s_P + (v_P * j);
+                        objects[j].o[0].s.transform.position = s_P + (v_P * j);
                     break;
 
                 case Patterns.GROUP_PATTERN:
                     string gN = (string)arg_values[i][1];
-                    int index = BaseIteratorFunctions.IterateKey(g.ToArray(), gN);
+                    int index = Iterator.ReturnKey(g.ToArray(), gN);
 
                     if (index == -1) {
                         g.Add(new GroupElement(gN));
@@ -115,11 +115,11 @@ public class PatternControl : MonoBehaviour,ISingleton {
 
                                 //Makes it a child to the first objects parent, if any
                                 if (objects.Length > 0)
-                                    if (objects[0].o[0].transform.parent != null)
-                                        g[index].gP.transform.parent = objects[0].o[0].transform.parent;
+                                    if (objects[0].o[0].s.transform.parent != null)
+                                        g[index].gP.transform.parent = objects[0].o[0].s.transform.parent;
 
                                 for (int l = 0; l < objects.Length; l++)
-                                    objects[l].o[0].transform.parent = g[index].gP;
+                                    objects[l].o[0].s.transform.parent = g[index].gP;
                                 break;
 
                             case GroupArgs.PARENT_ALL_CURRENT_OBJECTS:
@@ -128,11 +128,11 @@ public class PatternControl : MonoBehaviour,ISingleton {
 
                                 //Makes it a child to the first objects parent, if any
                                 if (g[index].gE.Count > 0)
-                                    if (g[index].gE[0].o[0].transform.parent != null)
-                                        g[index].gP.transform.parent = g[index].gE[0].o[0].transform.parent;
+                                    if (g[index].gE[0].o[0].s.transform.parent != null)
+                                        g[index].gP.transform.parent = g[index].gE[0].o[0].s.transform.parent;
 
                                 for (int l = 0; l < g[index].gE.Count; l++)
-                                    g[index].gE[l].o[0].transform.parent = g[index].gP;
+                                    g[index].gE[l].o[0].s.transform.parent = g[index].gP;
                                 break;
 
                             case GroupArgs.REMOVE_GROUP:
