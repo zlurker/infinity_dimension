@@ -11,7 +11,7 @@ public class LoadClasses : MonoBehaviour
 
     void Start()
     {
-        LoadPointerData();
+        //LoadPointerData();
         LoadSingletonClasses();
         LoadEditableClasses();
 
@@ -72,15 +72,15 @@ public class LoadClasses : MonoBehaviour
         LoadedData.uL = uiLoaderInstances.ToArray();
     }
 
-    void LoadPointerData()
+    /*void LoadPointerData()
     {
         PointerHolder.pL = new PointerGroup[]
         {
             new PointerGroup("Text", new PointerHolder[]
             {
-                new PointerHolder<Text,string>("text", (t,v) => { t.text = v; },"defaultvalue"),
-                new PointerHolder<Text,int>("fontSize", (t,v) => { t.fontSize = v; }),
-                new PointerHolder<Text,Font>("font", (t,v) => { t.font = v; },Resources.Load("jd-bold"))
+                new PointerHolder<Text,string>("text", (t,v) => { t.text = v; }, (t) => {return t.text; },"defaultvalue"),
+                new PointerHolder<Text,int>("fontSize", (t,v) => { t.fontSize = v; },(t) => {return t.fontSize; }),
+                new PointerHolder<Text,Font>("font", (t,v) => { t.font = v; },(t) =>  {return t.font; },Resources.Load("jd-bold"))
             }),
 
             new PointerGroup("Button", new PointerHolder[]
@@ -92,5 +92,5 @@ public class LoadClasses : MonoBehaviour
         };
 
         Debug.Log("Pointer Data Generated.");
-    }
+    }*/
 }

@@ -28,7 +28,7 @@ public class MainMenuUICommands : MonoBehaviour
         {
             PoolElement inst = UIDrawer.i.Spawn("Button");
             string name = LoadedData.uL[i].GetType().Name;
-            UIDrawer.i.SetPointer(inst, "Button", "listener", new DH((o)=> { instance.text = name; Debug.Log(i); }));
+            //UIDrawer.i.SetPointer(inst, "Button", "listener", new DH(ChangeEditableUITemplate,new object[] { i}) );
             buttons[i] = inst;
         }
 
@@ -40,18 +40,18 @@ public class MainMenuUICommands : MonoBehaviour
         });
 
         PoolElement test = UIDrawer.i.Spawn("Text");
-        UIDrawer.i.SetPointer(test, "Text", "text", "Mother fucking shit");
+        // UIDrawer.i.SetPointer(test, "Text", "text", "Mother fucking shit");
+        //Debug.Log(UIDrawer.i.GetPointer(test, "Text", "text"));
         //UIDrawer.i.SetUIComponent(test,typeof(Image), null);
     }
 
-    void Testing(object[] p)
-    {
-        Debug.Log("Able to invoke?!?!?!");
-    }
-
-    // Update is called once per frame
     void Update()
     {
 
+    }
+
+    public void ChangeEditableUITemplate(object[] p)
+    {
+        instance.text = LoadedData.uL[(int)p[0]].GetType().Name;
     }
 }

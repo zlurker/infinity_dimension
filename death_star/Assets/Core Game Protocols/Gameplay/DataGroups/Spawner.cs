@@ -58,25 +58,58 @@ public class TypePool : Iterator
     }
 }
 
+public class TypeIterator<T> : TypeIterator
+{
+    public Action<T> dPS; //defaultParameterSetting
+
+    public TypeIterator()
+    {
+        t = typeof(T);
+    }
+
+    public TypeIterator(Action<T> parameterSetting)
+    {
+        t = typeof(T);
+        dPS = parameterSetting;
+    }
+
+    public override void SetDefault(object parameter)
+    {
+        if (dPS != null)
+            dPS((T)parameter);
+    }
+}
+
 [Serializable]
 public class TypeIterator : Iterator
 {
     public Type t;
-    public PointerGroup pG; //pointerGroup
+    //public PointerGroup pG; //pointerGroup
 
-    public TypeIterator(Type type)
+    public TypeIterator()
     {
-        t = type;
-        n = type.Name;
     }
 
-    public TypeIterator(Type type, string pointerGroupName)
+    /*public TypeIterator(Type type)
     {
         t = type;
         n = type.Name;
-        pG = ReturnObject<PointerGroup>(PointerHolder.pL, pointerGroupName);
+    }*/
+
+    /*public TypeIterator(Type type, string pointerGroupName)
+        {
+            t = type;
+            n = type.Name;
+            pG = ReturnObject<PointerGroup>(PointerHolder.pL, pointerGroupName);
+        }*/
+
+    public virtual void SetDefault(object parameter)
+    {
+
     }
 }
+
+
 
 /*public class Modifier
 {
@@ -136,7 +169,7 @@ public class Spawner : MonoBehaviour
 
     public virtual void CreateTypePool() //Just a handle for me to override and call to create TypePools.
     {
-        
+
     }
 
     public PoolElement ObjectRetriver(string p)
@@ -148,10 +181,7 @@ public class Spawner : MonoBehaviour
         iR.o[0].s.gameObject.SetActive(true);
 
         for (int i = 0; i < iR.o.Length; i++)
-            if (tP[cK].t[i].pG != null)
-                for (int j = 0; j < tP[cK].t[i].pG.cP.Length; j++)
-                    tP[cK].t[i].pG.cP[j].SetDefault(iR.o[i].s);
-
+            tP[cK].t[i].SetDefault(iR.o[i].s);//pG.cP[j].SetDefault(iR.o[i].s);
 
         return iR;
     }
@@ -207,30 +237,38 @@ public class Spawner : MonoBehaviour
         iR.o[0].s.transform.position = l;
 
         //(iR as OnSpawn).RunOnActive();
+        
         Debug.Log(iR);
         return iR;
     }
 
-    public void SetPointer(PoolElement target, string component, string variableName, object value) //target, component, variableName, value
+    /*public object GetPointer(PoolElement target, string component, string variableName)
     {
-        //Iterator.ReturnObject<PointerHolder>(,t.n)
-        //Iterator.ReturnObject<ScriptIterator>(t.o, c).s;
-        //t.n;
         MonoBehaviour script = Iterator.ReturnObject<ScriptIterator>(target.o, component).s;
-        
-        TypePool i0 = Iterator.ReturnObject<TypePool>(tP, target.n);
+        return GetPointerLocation(target.n, component, variableName).Get(script);
+    }*/
 
+    /*public void SetPointer(PoolElement target, string component, string variableName, object value) //target, component, variableName, value
+    {
+        MonoBehaviour script = Iterator.ReturnObject<ScriptIterator>(target.o, component).s;
+        Debug.Log(script.GetType().Name);
+
+        GetPointerLocation(target.n, component, variableName).Set(script, value);
+    }*/
+
+    /*public PointerHolder GetPointerLocation(string targetName, string component, string variableName)
+    {
+        TypePool i0 = Iterator.ReturnObject<TypePool>(tP, targetName);
         TypeIterator i1 = Iterator.ReturnObject<TypeIterator>(i0.t, component);
 
         if (i1.pG == null)
         {
             Debug.LogErrorFormat("PointerGroup does not exist for {0}. Create one before trying to access it!", i1.n);
-            return;
+            return null;
         }
-        Debug.Log(script.GetType().Name);
 
-        Iterator.ReturnObject<PointerHolder>(i1.pG.cP, variableName).Set(script,value);
-    }
+        return Iterator.ReturnObject<PointerHolder>(i1.pG.cP, variableName);
+    }*/
 
     public void Remove(PoolElement i)
     {
@@ -243,13 +281,29 @@ public class Spawner : MonoBehaviour
         Remove(p[0] as PoolElement);
     }
 
+    public static T GetCType<T>(PoolElement target) where T:class
+    {
+        for (int i =0; i < target.o.Length; i++)
+        {
+            T inst =  target.o[i].s as T;
+
+            if (inst != null)
+                return inst;
+        }
+
+        return null;
+    }
+
     object CreateNewObject()
     {
         GameObject newInstance = new GameObject(tP[cK].n, bB);
         MonoBehaviour[] scripts = new MonoBehaviour[tP[cK].t.Length];
 
         for (int i = 0; i < tP[cK].t.Length; i++)
+        {
             scripts[i] = newInstance.AddComponent(tP[cK].t[i].t) as MonoBehaviour;
+            Debug.Log(tP[cK].t[i].t.Name);
+        }
 
         return new PoolElement(scripts, tP[cK].n);
     }

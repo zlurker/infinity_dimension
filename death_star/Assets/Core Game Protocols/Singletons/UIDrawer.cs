@@ -86,9 +86,9 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
 
         tP = new TypePool[] {
-            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Image)) }, "Image"),
-            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Image)), new TypeIterator(typeof(Button),"Button")},"Button"),
-            new TypePool(new TypeIterator[] { new TypeIterator(typeof(Text), "Text") }, "Text")
+            new TypePool(new TypeIterator[] { new TypeIterator<Image>() }, "Image"),
+            new TypePool(new TypeIterator[] { new TypeIterator<Image>(), new TypeIterator<Button>()},"Button"),
+            new TypePool(new TypeIterator[] { new TypeIterator<Text>((t) => {t.text = "DEFAULTWORDS"; t.font = Resources.Load("jd-bold") as Font; }) }, "Text")
         };
     }
 
@@ -102,7 +102,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         PoolElement iR = Spawn(p, l, t.transform);
         TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
 
-        return iR;
+        return iR;       
     }
 
     public PoolElement Spawn(string p, bool uNP, Vector3 l)

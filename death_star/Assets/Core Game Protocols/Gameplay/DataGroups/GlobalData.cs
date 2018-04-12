@@ -174,37 +174,71 @@ public class DH
     }
 }
 
-public class PointerHolder<M, T> : PointerHolder
+/*public class PointerHolder<M, T> : PointerHolder
 {
-    public Action<M, T> p; //pointer
+    public Action<M, T> sP; //setPointer
+    public Func<M, T> rP; //returnPointer
 
-    public PointerHolder(string name,Action<M, T> toExecute)
+    public PointerHolder(string name, Action<M, T> toExecute)
     {
         n = name;
-        p = toExecute;     
+        sP = toExecute;
     }
 
-    public PointerHolder(string name,Action<M, T> toExecute, object defaultValue)
+    public PointerHolder(string name, Action<M, T> toExecute, object defaultValue)
     {
         n = name;
-        p = toExecute;
+        sP = toExecute;
+        dV = defaultValue;
+    }
+
+    public PointerHolder(string name, Func<M, T> returnPointer)
+    {
+        n = name;
+        rP = returnPointer;
+    }
+
+    public PointerHolder(string name, Func<M, T> returnPointer, object defaultValue)
+    {
+        n = name;
+        rP = returnPointer;
+        dV = defaultValue;
+    }
+
+    public PointerHolder(string name, Action<M, T> toExecute, Func<M, T> returnPointer)
+    {
+        n = name;
+        sP = toExecute;
+        rP = returnPointer;
+    }
+
+    public PointerHolder(string name, Action<M, T> toExecute, Func<M, T> returnPointer, object defaultValue)
+    {
+        n = name;
+        sP = toExecute;
+        rP = returnPointer;
         dV = defaultValue;
     }
 
     public override void Set(object mono, object value)
     {
         Debug.Log(mono.GetType().Name);
-        p((M)mono, (T)value);
+        sP((M)mono, (T)value);
     }
 
     public override void SetDefault(object mono)
     {
         if (dV != null)
-            p((M)mono, (T)dV);
+            sP((M)mono, (T)dV);
+    }
+
+    public override object Get(object mono)
+    {
+        return rP((M)mono);
     }
 }
-
-public class PointerHolder : Iterator
+*/
+/*public class PointerHolder : Iterator
 {
     public static PointerGroup[] pL; //pointerList;
     public object dV;//defaultValue
@@ -218,9 +252,13 @@ public class PointerHolder : Iterator
     {
 
     }
-}
 
-public class PointerGroup : Iterator
+    public virtual object Get(object mono)
+    {
+        return null;
+    }
+}*/
+/*public class PointerGroup : Iterator
 {
     public PointerHolder[] cP;//classPointers;
 
@@ -229,7 +267,7 @@ public class PointerGroup : Iterator
         n = scriptName;
         cP = classPointers;
     }
-}
+}*/
 
 
 
@@ -305,7 +343,7 @@ public static class BaseIteratorFunctions
 { //A list of functions that complements the BaseIterator class
 
     //Iterates though the Array and returns the first item with the string k
-    
+
 }
 
 public static class PresetGameplayData
