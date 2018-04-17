@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Reflection;
 
 /*public class SetOnSpawnParameters {
     public Type t; //type
@@ -79,6 +80,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
 
     public static UIDrawer i; //instance
     public static Canvas t; //target
+    public DH uiCreator;
 
     public override void CreateTypePool()
     {
@@ -88,13 +90,34 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         tP = new TypePool[] {
             new TypePool(new TypeIterator[] { new TypeIterator<Image>() }, "Image"),
             new TypePool(new TypeIterator[] { new TypeIterator<Image>(), new TypeIterator<Button>()},"Button"),
-            new TypePool(new TypeIterator[] { new TypeIterator<Text>((t) => {t.text = "DEFAULTWORDS"; t.font = Resources.Load("jd-bold") as Font; }) }, "Text")
+
+            new TypePool(new TypeIterator[] {
+                new TypeIterator<Text>((t) => {
+                    t.text = "DEFAULTWORDS";
+                    t.font = Resources.Load("jd-bold") as Font;
+                    t.verticalOverflow = VerticalWrapMode.Overflow;
+                    t.horizontalOverflow = HorizontalWrapMode.Wrap;                 
+                }) }, "Text"),
+
+            new TypePool(new TypeIterator[]{ new TypeIterator<Image>(),
+                new TypeIterator<InputField>((t) => {
+                    Text tC = GetCType<Text>(Spawn("Text"));
+                    t.textComponent = tC;
+                    tC.color = Color.black;
+                    tC.supportRichText = false;
+                    tC.transform.SetParent(t.transform);
+                    tC.transform.position = Vector3.zero;
+                })},"InputField")
         };
     }
 
     public override PoolElement Spawn(string p)
-    { 
-        return Spawn(p, new Vector3(), t.transform);
+    {
+        PoolElement inst = base.Spawn(p);
+        SetVariable(inst,uiCreator,new object[] { t });
+
+        return inst;
+        //return Spawn(p, new Vector3(), t.transform);
     }
 
     public override PoolElement Spawn(string p, Vector3 l, float d)
@@ -102,7 +125,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         PoolElement iR = Spawn(p, l, t.transform);
         TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
 
-        return iR;       
+        return iR;
     }
 
     public PoolElement Spawn(string p, bool uNP, Vector3 l)
@@ -189,9 +212,15 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
 
     }
 
-    public void LoadUI()
+    public MethodInfo GetMainMethod()
     {
         Debug.Log("TEST WORKS?");
+        return null;
+    }
+
+    public void Invoke(object[] p)
+    {
+
     }
 
     public object ReturnInstance()
@@ -208,5 +237,13 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
     {
         i = this;
         DontDestroyOnLoad(gameObject);
+
+        uiCreator = new DH((o) =>
+        {
+            PoolElement arg0 = (PoolElement)o[0];
+            Transform arg1 = ((Canvas)o[1]).transform;
+
+            arg0.o[0].s.transform.SetParent(arg1);
+        });
     }
 }

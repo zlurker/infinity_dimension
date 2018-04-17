@@ -46,7 +46,7 @@ public class AbilityManager : MonoBehaviour {
     void FireAbility(object[] g) {
         Debug.Log((int) g[0] +PresetGameplayData.jRT[(int) g[0]].name);
 
-        for (int i = 0; i < a[aS].aF.Length; i++) 
-            a[aS].aF[i].mTR.Fire(a[aS].aF[i].p);        
+        //for (int i = 0; i < a[aS].aF.Length; i++) 
+            //a[aS].aF[i].mTR.Fire(a[aS].aF[i].p);        
     }
 }

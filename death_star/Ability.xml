@@ -1,84 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<savefile>
-  <Fuck />
-  <Fuck>
-    <My />
-    <My />
-    <My />
-    <My>
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole>
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard senpainame="FUCK ME SENSELESS">I LOVE SEX</Hard>
-      </Asshole>
-    </My>
-  </Fuck>
-  <Fuck>
-    <My />
-    <My />
-    <My />
-    <My>
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole />
-      <Asshole>
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard />
-        <Hard senpainame="FUCK ME SENSELESS">I LOVE SEX</Hard>
-      </Asshole>
-    </My>
-  </Fuck>
+<savefile id="Testing">
+  <Ability id="1">
+    <Script id="2">
+      <Variable id="3">Change test</Variable>
+      <Variable id="4">Contains danger room 2</Variable>
+    </Script>
+  </Ability>
+  <Ability id="Firestorm">
+    <Script id="Health">
+      <Variable id="Damage">Motherfucking shithues i hate ahh </Variable>
+    </Script>
+  </Ability>
 </savefile>

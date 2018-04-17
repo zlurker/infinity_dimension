@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
+using System.Reflection;
 
 #region Gameplay Data Structures
 public enum RhythmAnalyseState
@@ -13,8 +14,8 @@ public enum RhythmAnalyseState
 
 public interface IPlayerEditable
 {
-    void Fire(object[] parameters);
-    void LoadUI();
+    MethodInfo GetMainMethod();
+    void Invoke(object[] p);
 }
 
 public interface IMenuElements
@@ -174,90 +175,41 @@ public class DH
     }
 }
 
-/*public class PointerHolder<M, T> : PointerHolder
+public class DelegateIterator : Iterator
 {
-    public Action<M, T> sP; //setPointer
-    public Func<M, T> rP; //returnPointer
+    public DH d;
 
-    public PointerHolder(string name, Action<M, T> toExecute)
+    public DelegateIterator(string name, DH deleg)
     {
         n = name;
-        sP = toExecute;
-    }
-
-    public PointerHolder(string name, Action<M, T> toExecute, object defaultValue)
-    {
-        n = name;
-        sP = toExecute;
-        dV = defaultValue;
-    }
-
-    public PointerHolder(string name, Func<M, T> returnPointer)
-    {
-        n = name;
-        rP = returnPointer;
-    }
-
-    public PointerHolder(string name, Func<M, T> returnPointer, object defaultValue)
-    {
-        n = name;
-        rP = returnPointer;
-        dV = defaultValue;
-    }
-
-    public PointerHolder(string name, Action<M, T> toExecute, Func<M, T> returnPointer)
-    {
-        n = name;
-        sP = toExecute;
-        rP = returnPointer;
-    }
-
-    public PointerHolder(string name, Action<M, T> toExecute, Func<M, T> returnPointer, object defaultValue)
-    {
-        n = name;
-        sP = toExecute;
-        rP = returnPointer;
-        dV = defaultValue;
-    }
-
-    public override void Set(object mono, object value)
-    {
-        Debug.Log(mono.GetType().Name);
-        sP((M)mono, (T)value);
-    }
-
-    public override void SetDefault(object mono)
-    {
-        if (dV != null)
-            sP((M)mono, (T)dV);
-    }
-
-    public override object Get(object mono)
-    {
-        return rP((M)mono);
+        d = deleg;
     }
 }
-*/
-/*public class PointerHolder : Iterator
+
+
+/*public class MethodRunner<T> : MethodRunner
 {
-    public static PointerGroup[] pL; //pointerList;
-    public object dV;//defaultValue
+    public Action<T, object[]> d; //delegate
 
-    public virtual void Set(object mono, object value)
+    public MethodRunner(Action<T, object[]> del)
     {
-
+        d = del;
     }
 
-    public virtual void SetDefault(object mono)
+    public override void Run(object[] args)
     {
-
-    }
-
-    public virtual object Get(object mono)
-    {
-        return null;
+        d(args);
     }
 }*/
+
+/*public class MethodRunner
+{
+    public virtual void Run(object[] args)
+    {
+
+    }
+}*/
+
 /*public class PointerGroup : Iterator
 {
     public PointerHolder[] cP;//classPointers;

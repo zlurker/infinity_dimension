@@ -3,22 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Xml;
 
-public enum OperationType {
+public enum OperationType
+{
     Attribute, InnerText
 }
 
-public class XMLHelper : MonoBehaviour {
-
-    string[][] test;
-    string l;
+public class XMLHelper : MonoBehaviour, ISingleton
+{
+    public static XMLHelper i;
+    string[] fullDirectory;
+    XmlDocument xmlDoc;
     // XmlDocument xmlDoc;
     // Use this for initialization
-    void Start() {
-
-        WriteNode(new int[] { 1, 3, 10, 20 }, "/Fuck/My/Asshole/Hard", "INNER_TEXT,ATTRIBUTES", new string[][] { new string[] { "I LOVE SEX" }, new string[] { "senpainame", "FUCK ME SENSELESS" } });
-        GetNodes("Asshole", "/savefile/Fuck/My");
-
-    }
+    /*void Start()
+    {
+        
+        //WriteNode(new int[] { 1, 3, 10, 20 }, "/Fuck/My/Asshole/Hard", "INNER_TEXT,ATTRIBUTES", new string[][] { new string[] { "I LOVE SEX" }, new string[] { "senpainame", "FUCK ME SENSELESS" } });
+        //GetNodes("Asshole", "/savefile/Fuck/My");
+        SetNode(new string[] { "1", "2", "3" }, "Change test");
+        SetNode(new string[] { "1", "2", "4" }, "Contains danger room 2");
+    }*/
 
     /*public XmlDocument GetCurrentDoc() {
         if (xmlDoc == null) {
@@ -29,37 +33,41 @@ public class XMLHelper : MonoBehaviour {
         return xmlDoc;
     }*/
 
-    public XmlNode[] GetNodes(string elementType, string xPath) {
+    /*    public XmlNode[] GetNodes(string elementType, string xPath)
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load("Ability.xml");
+            XmlNodeList baseNode = xmlDoc.SelectNodes(xPath);
+            List<XmlNode> list = new List<XmlNode>();
 
-        XmlDocument xmlDoc = new XmlDocument();
-        xmlDoc.Load("Ability.xml");
-        XmlNodeList baseNode = xmlDoc.SelectNodes(xPath);
-        List<XmlNode> list = new List<XmlNode>();
+            for (int i = 0; i < baseNode.Count; i++)
+                Loop(elementType, baseNode[i], list);
 
-        for (int i = 0; i < baseNode.Count; i++) 
-            Loop(elementType, baseNode[i], list);
-        
-        return list.ToArray();    
-    }
+            return list.ToArray();
+        }*/
 
-    void Loop(string elementType, XmlNode node, List<XmlNode> list) {
+    /*void Loop(string elementType, XmlNode node, List<XmlNode> list)
+    {
 
         if (string.Equals(node.Name, elementType))
             list.Add(node);
 
         for (int i = 0; i < node.ChildNodes.Count; i++)
-            Loop(elementType, node.ChildNodes[i],list);
-    }
+            Loop(elementType, node.ChildNodes[i], list);
+    }*/
 
-    public void WriteNode(int[] path, string generalPath, string actions, string[][] args) {
+    /*public void WriteNode(int[] path, string generalPath, string actions, string[][] args)
+    {
         XmlDocument xmlDoc = new XmlDocument();
         xmlDoc.Load("Ability.xml");
 
         XmlNode baseNode = xmlDoc.DocumentElement;
         string[] paths = generalPath.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
 
-        for (int i = 0; i < path.Length; i++) {
-            for (int j = baseNode.ChildNodes.Count; j < path[i] + 1; j++) {
+        for (int i = 0; i < path.Length; i++)
+        {
+            for (int j = baseNode.ChildNodes.Count; j < path[i] + 1; j++)
+            {
                 XmlNode tempNode = xmlDoc.CreateElement(paths[i]);
                 baseNode.AppendChild(tempNode);
             }
@@ -70,7 +78,8 @@ public class XMLHelper : MonoBehaviour {
         string[] action = actions.Split(',');
 
         for (int i = 0; i < action.Length; i++)
-            switch (action[i]) {
+            switch (action[i])
+            {
                 case "INNER_TEXT":
                     baseNode.InnerText = args[i][0];
                     break;
@@ -81,6 +90,58 @@ public class XMLHelper : MonoBehaviour {
             }
 
         xmlDoc.Save("Ability.xml");
+        //SetNode("goodnight");
+    }*/
+
+    public void SetNode(string[] ids, string setValue, XmlNode currNode = null, int currLoop = 0)
+    {
+        if (currNode == null)
+            currNode = xmlDoc.DocumentElement;
+
+        string xPath = "/savefile";
+
+        for (int i = 0; i < currLoop + 1; i++)
+            xPath += "/" + fullDirectory[i] + "[@id='" + ids[i] + "']";
+
+        XmlNode nextNode = xmlDoc.SelectSingleNode(xPath);
+
+        if (nextNode == null)
+        {
+            nextNode = xmlDoc.CreateElement(fullDirectory[currLoop]);
+            currNode.AppendChild(nextNode);
+            (nextNode as XmlElement).SetAttribute("id", ids[currLoop]);
+        }
+
+        currLoop = currLoop + 1;
+
+        if (currLoop < ids.Length)
+            SetNode(ids, setValue, nextNode, currLoop);
+        else
+        {
+            nextNode.InnerText = setValue;
+            xmlDoc.Save("Ability.xml");
+        }
+    }
+
+    public void RunOnCreated()
+    {
+        i = this;
+        DontDestroyOnLoad(gameObject);
+
+        xmlDoc = new XmlDocument();
+        xmlDoc.Load("Ability.xml");
+
+        fullDirectory = new string[] { "Ability", "Script", "Variable" };
+    }
+
+    public void RunOnStart()
+    {
+
+    }
+
+    public object ReturnInstance()
+    {
+        return this;
     }
 
     /*string[][] ReturnData(string path) {

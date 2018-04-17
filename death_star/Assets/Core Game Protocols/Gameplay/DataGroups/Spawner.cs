@@ -149,6 +149,7 @@ public class Spawner : MonoBehaviour
 {
 
     public TypePool[] tP; //typePool
+    public static Spawner i;
     protected Type[] bB;  //baseBlocks
 
     SpawnerPool[] sP; //spawnPool;
@@ -192,6 +193,24 @@ public class Spawner : MonoBehaviour
         //(iR as OnSpawn).RunOnActive();
     }
 
+    public virtual PoolElement Spawn(string p, DH d, object[] ps)
+    {
+        PoolElement inst = Spawn(p);
+        SetVariable(inst, d, ps);
+        return inst;
+    }
+
+    protected void SetVariable(PoolElement inst, DH d, object[] cP)
+    {
+        object[] fP = new object[cP.Length + 1];
+        fP[0] = inst;
+
+        for (int i = 1; i < fP.Length; i++)
+            fP[i] = cP[i - 1];
+
+        d.d(fP);
+    }
+
     public virtual PoolElement Spawn(string p, float d)
     { //pool
         PoolElement iR = ObjectRetriver(p);
@@ -207,7 +226,6 @@ public class Spawner : MonoBehaviour
         iR.o[0].s.gameObject.SetActive(true);
         iR.o[0].s.transform.position = l;
 
-        Debug.Log("Working");
         return iR;
 
         //(iR as OnSpawn).RunOnActive();
@@ -220,7 +238,6 @@ public class Spawner : MonoBehaviour
         iR.o[0].s.gameObject.SetActive(true);
         iR.o[0].s.transform.position = l;
 
-        Debug.Log("Working");
         TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
         return iR;
 
@@ -237,8 +254,8 @@ public class Spawner : MonoBehaviour
         iR.o[0].s.transform.position = l;
 
         //(iR as OnSpawn).RunOnActive();
-        
-        Debug.Log(iR);
+
+        //Debug.Log(iR);
         return iR;
     }
 
@@ -270,7 +287,7 @@ public class Spawner : MonoBehaviour
         return Iterator.ReturnObject<PointerHolder>(i1.pG.cP, variableName);
     }*/
 
-    public void Remove(PoolElement i)
+    public static void Remove(PoolElement i)
     {
         Iterator.ReturnObject<SpawnerPool>(sP, i.n).sP.Store(i);
         i.o[0].s.gameObject.SetActive(false);
@@ -278,14 +295,15 @@ public class Spawner : MonoBehaviour
 
     public void Remove(object[] p)
     {
-        Remove(p[0] as PoolElement);
+        for (int i = 0; i < p.Length; i++)
+            Remove(p[i] as PoolElement);
     }
 
-    public static T GetCType<T>(PoolElement target) where T:class
+    public static T GetCType<T>(PoolElement target) where T : class
     {
-        for (int i =0; i < target.o.Length; i++)
+        for (int i = 0; i < target.o.Length; i++)
         {
-            T inst =  target.o[i].s as T;
+            T inst = target.o[i].s as T;
 
             if (inst != null)
                 return inst;
@@ -302,7 +320,7 @@ public class Spawner : MonoBehaviour
         for (int i = 0; i < tP[cK].t.Length; i++)
         {
             scripts[i] = newInstance.AddComponent(tP[cK].t[i].t) as MonoBehaviour;
-            Debug.Log(tP[cK].t[i].t.Name);
+            //Debug.Log(tP[cK].t[i].t.Name);
         }
 
         return new PoolElement(scripts, tP[cK].n);

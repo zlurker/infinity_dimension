@@ -26,8 +26,8 @@ public class Pool<T> {
             cI++;
         }
 
-        if (n.Length != 0)
-            Debug.LogFormat("Current_Number_Of_{0}_Instances: {1}", n, cI);
+        //if (n.Length != 0)
+            //Debug.LogFormat("Current_Number_Of_{0}_Instances: {1}", n, cI);
 
         return pool.Pop();
     }

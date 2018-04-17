@@ -1,27 +1,35 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
-public class GameObjectSpawner :Spawner,IPlayerEditable {
+public class GameObjectSpawner : Spawner, IPlayerEditable
+{
 
     public static GameObjectSpawner i; //instance
 
     // Use this for initialization
-    void Start() {
+    void Start()
+    {
         i = this;
-        Spawn("Projectile",new Vector3());
+        Spawn("Projectile", new Vector3());
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update()
+    {
 
     }
 
-    public void Fire(object[] parameters) {
+    public MethodInfo GetMainMethod()
+    {
 
-    }
-
-    public void LoadUI() {
+        return null;
         //UIDrawer.i.Spawn("Image");
+    }
+
+    public void Invoke(object[] p)
+    {
+
     }
 }
