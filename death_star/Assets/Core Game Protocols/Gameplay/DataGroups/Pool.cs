@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public delegate object CI(); //Create Instance //Peformance might be expensive. Need to find out another way to point to functions to create instance. 
+public delegate object CI(object p); //Create Instance //Peformance might be expensive. Need to find out another way to point to functions to create instance. 
 
 public class Pool<T> {
 
     public Stack<T> pool = new Stack<T>();
-    CI iC;
-    int cI = 0;
+    CI iC; //instanceCreator
+    object p; //parameter
     string n = "";
 
-    public Pool(CI instanceCreator) {
+    public Pool(CI instanceCreator,object parameter) {
         iC = instanceCreator;
+        p = parameter;
     }
 
     public Pool(CI instanceCreator, string debug) {
@@ -22,8 +23,7 @@ public class Pool<T> {
 
     public T Retrieve() {
         if (pool.Count == 0) {
-            pool.Push((T)iC());
-            cI++;
+            pool.Push((T)iC(p));
         }
 
         //if (n.Length != 0)

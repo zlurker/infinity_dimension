@@ -246,4 +246,11 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
             arg0.o[0].s.transform.SetParent(arg1);
         });
     }
+
+    public override object CreateBaseObject(object p)
+    {
+        GameObject inst = new GameObject("ScriptBaseHolder", new Type[] { typeof(RectTransform), typeof(CanvasRenderer) });
+        inst.transform.SetParent(t.transform);
+        return inst;
+    }
 }

@@ -58,33 +58,57 @@ public class TypePool : Iterator
     }
 }
 
-public class TypeIterator<T> : TypeIterator
+public class TypeIterator<T> : TypeIterator where T : Component
 {
     public Action<T> dPS; //defaultParameterSetting
+    public Pool<T> tP; //typePool
 
     public TypeIterator()
     {
         t = typeof(T);
+        tP = new Pool<T>(CreateNewTypeObject, null);
     }
 
     public TypeIterator(Action<T> parameterSetting)
     {
         t = typeof(T);
         dPS = parameterSetting;
+        tP = new Pool<T>(CreateNewTypeObject, null);
     }
 
-    public override void SetDefault(object parameter)
+
+    public override void SetDefault(object p)
     {
         if (dPS != null)
-            dPS((T)parameter);
+            dPS((T)p);
     }
+
+    public override object CreateNewTypeObject(object p)
+    {
+        return new GameObject(t.Name).AddComponent<T>();
+    }
+
+    public override MonoBehaviour Retrive()
+    {
+        T inst = tP.Retrieve();
+        SetDefault(inst);
+
+        inst.gameObject.SetActive(true);
+        return inst as MonoBehaviour;
+    }
+
+    public override void Remove(MonoBehaviour p)
+    {
+        p.gameObject.SetActive(false);
+        tP.Store(p as T);
+    }
+
 }
 
 [Serializable]
 public class TypeIterator : Iterator
 {
     public Type t;
-    //public PointerGroup pG; //pointerGroup
 
     public TypeIterator()
     {
@@ -103,7 +127,22 @@ public class TypeIterator : Iterator
             pG = ReturnObject<PointerGroup>(PointerHolder.pL, pointerGroupName);
         }*/
 
-    public virtual void SetDefault(object parameter)
+    public virtual void SetDefault(object p)
+    {
+
+    }
+
+    public virtual object CreateNewTypeObject(object p)
+    {
+        return null;
+    }
+
+    public virtual MonoBehaviour Retrive()
+    {
+        return null;
+    }
+
+    public virtual void Remove(MonoBehaviour p)
     {
 
     }
@@ -147,13 +186,21 @@ public class TypeIterator : Iterator
 
 public class Spawner : MonoBehaviour
 {
-
+    public Pool<GameObject> bOL; //baseObjectList
+    public static List<TypeIterator> aTS; //allTypes
     public TypePool[] tP; //typePool
-    public static Spawner i;
     protected Type[] bB;  //baseBlocks
 
     SpawnerPool[] sP; //spawnPool;
     int cK; //currentKey
+
+    public Spawner()
+    {
+        bOL = new Pool<GameObject>(CreateBaseObject, null);
+
+        if (aTS == null)
+            aTS = new List<TypeIterator>();
+    }
 
     void Awake()
     {
@@ -161,11 +208,15 @@ public class Spawner : MonoBehaviour
 
         sP = new SpawnerPool[tP.Length];
 
-        for (int i = 0; i < sP.Length; i++)
-            sP[i] = new SpawnerPool(tP[i].n, CreateNewObject);
+        //for (int i = 0; i < sP.Length; i++)
+        //sP[i] = new SpawnerPool(tP[i].n, CreateNewObject);
 
+        // new TypeIterator<Text>((Text) => )
         //i = this;
         //Spawn("Projectile", new Vector3());
+        aTS.Add(new TypeIterator<UnitBase>());
+        Remove(CreateNewUnit(new Type[] { typeof(UnitBase) }));
+
     }
 
     public virtual void CreateTypePool() //Just a handle for me to override and call to create TypePools.
@@ -200,7 +251,7 @@ public class Spawner : MonoBehaviour
         return inst;
     }
 
-    protected void SetVariable(PoolElement inst, DH d, object[] cP)
+    protected void SetVariable(PoolElement inst, DH d, object[] cP) //Adds created pool element in as target, then set whatever variables it needs by delegate
     {
         object[] fP = new object[cP.Length + 1];
         fP[0] = inst;
@@ -287,7 +338,7 @@ public class Spawner : MonoBehaviour
         return Iterator.ReturnObject<PointerHolder>(i1.pG.cP, variableName);
     }*/
 
-    public static void Remove(PoolElement i)
+    public void Remove(PoolElement i)
     {
         Iterator.ReturnObject<SpawnerPool>(sP, i.n).sP.Store(i);
         i.o[0].s.gameObject.SetActive(false);
@@ -299,11 +350,51 @@ public class Spawner : MonoBehaviour
             Remove(p[i] as PoolElement);
     }
 
+    public void Remove(MonoBehaviour target)
+    {
+        //Transform p = target
+        for (int i = 0; i < aTS.Count; i++)
+            if (aTS[i].t == target.GetType())
+            {
+                aTS[i].Remove(target);
+                target.transform.parent = null;
+                break;
+            }          
+    }
+
+    public void Remove(MonoBehaviour[] targets)
+    {
+        List<MonoBehaviour> t = new List<MonoBehaviour>(targets);
+
+        for (int i = 0; i < aTS.Count; i++)
+            for (int j = 0; j < targets.Length; j++)
+                if (aTS[i].t == targets[j].GetType())
+                {
+                    aTS[i].Remove(targets[j]);
+                    targets[j].transform.parent = null;
+                    t.Remove(targets[j]);
+                    break;
+                }
+    }
+
     public static T GetCType<T>(PoolElement target) where T : class
     {
         for (int i = 0; i < target.o.Length; i++)
         {
             T inst = target.o[i].s as T;
+
+            if (inst != null)
+                return inst;
+        }
+
+        return null;
+    }
+
+    public static T GetCType<T>(MonoBehaviour[] target) where T : class
+    {
+        for (int i = 0; i < target.Length; i++)
+        {
+            T inst = target[i] as T;
 
             if (inst != null)
                 return inst;
@@ -324,5 +415,30 @@ public class Spawner : MonoBehaviour
         }
 
         return new PoolElement(scripts, tP[cK].n);
+    }
+
+    public MonoBehaviour[] CreateNewUnit(object p)
+    {
+        List<Type> types = new List<Type>(p as Type[]); //Checks against my 
+        List<MonoBehaviour> unitScripts = new List<MonoBehaviour>();
+        GameObject baseObject = bOL.Retrieve();
+        
+        for (int i=0; i < aTS.Count; i++)
+            for (int j =0; j < types.Count; j++)
+                if (types[j] == aTS[i].t)
+                {
+                    MonoBehaviour inst = aTS[i].Retrive();
+                    types.Remove(types[j]);
+                    inst.transform.SetParent(baseObject.transform);
+                    unitScripts.Add(inst);
+                    break;
+                }
+
+        return unitScripts.ToArray();
+    }
+
+    public virtual object CreateBaseObject(object p)
+    {
+        return new GameObject("ScriptBaseHolder");
     }
 }
