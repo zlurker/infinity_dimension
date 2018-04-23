@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class InstanceSpawnerTrigger : MonoBehaviour {
 
-    List<PoolElement> t;
+    /*List<PoolElement> t;
 
     void Start() {
         t = new List<PoolElement>();
@@ -38,5 +38,5 @@ public class InstanceSpawnerTrigger : MonoBehaviour {
             Debug.Log(te.gE[i].o[0].s.transform.position);
 
         TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + 1, new DH(Loop)));
-    }
+    }*/
 }

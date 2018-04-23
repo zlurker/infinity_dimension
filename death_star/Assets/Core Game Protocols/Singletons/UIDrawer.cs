@@ -82,60 +82,60 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
     public static Canvas t; //target
     public DH uiCreator;
 
-    public override void CreateTypePool()
-    {
+    /* public override void CreateTypePool()
+     {
 
-        bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
+         bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
 
-        tP = new TypePool[] {
-            new TypePool(new TypeIterator[] { new TypeIterator<Image>() }, "Image"),
-            new TypePool(new TypeIterator[] { new TypeIterator<Image>(), new TypeIterator<Button>()},"Button"),
+         tP = new TypePool[] {
+             new TypePool(new TypeIterator[] { new TypeIterator<Image>() }, "Image"),
+             new TypePool(new TypeIterator[] { new TypeIterator<Image>(), new TypeIterator<Button>()},"Button"),
 
-            new TypePool(new TypeIterator[] {
-                new TypeIterator<Text>((t) => {
-                    t.text = "DEFAULTWORDS";
-                    t.font = Resources.Load("jd-bold") as Font;
-                    t.verticalOverflow = VerticalWrapMode.Overflow;
-                    t.horizontalOverflow = HorizontalWrapMode.Wrap;                 
-                }) }, "Text"),
+             new TypePool(new TypeIterator[] {
+                 new TypeIterator<Text>((t) => {
+                     t.text = "DEFAULTWORDS";
+                     t.font = Resources.Load("jd-bold") as Font;
+                     t.verticalOverflow = VerticalWrapMode.Overflow;
+                     t.horizontalOverflow = HorizontalWrapMode.Wrap;                 
+                 }) }, "Text"),
 
-            new TypePool(new TypeIterator[]{ new TypeIterator<Image>(),
-                new TypeIterator<InputField>((t) => {
-                    Text tC = GetCType<Text>(Spawn("Text"));
-                    t.textComponent = tC;
-                    tC.color = Color.black;
-                    tC.supportRichText = false;
-                    tC.transform.SetParent(t.transform);
-                    tC.transform.position = Vector3.zero;
-                })},"InputField")
-        };
-    }
+             new TypePool(new TypeIterator[]{ new TypeIterator<Image>(),
+                 new TypeIterator<InputField>((t) => {
+                     Text tC = GetCType<Text>(Spawn("Text"));
+                     t.textComponent = tC;
+                     tC.color = Color.black;
+                     tC.supportRichText = false;
+                     tC.transform.SetParent(t.transform);
+                     tC.transform.position = Vector3.zero;
+                 })},"InputField")
+         };
+     }*/
 
-    public override PoolElement Spawn(string p)
+    /*public override PoolElement Spawn(string p)
     {
         PoolElement inst = base.Spawn(p);
         SetVariable(inst,uiCreator,new object[] { t });
 
         return inst;
         //return Spawn(p, new Vector3(), t.transform);
-    }
+    }*/
 
-    public override PoolElement Spawn(string p, Vector3 l, float d)
+    /*public override PoolElement Spawn(string p, Vector3 l, float d)
     { //pool, location, duration
         PoolElement iR = Spawn(p, l, t.transform);
         TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
 
         return iR;
-    }
+    }*/
 
-    public PoolElement Spawn(string p, bool uNP, Vector3 l)
+    /*public PoolElement Spawn(string p, bool uNP, Vector3 l)
     { //pool, location, useNormalisedPosition
         if (uNP)
             l = UINormalisedPosition(l);
 
         //return Spawn(p, l, t.transform);
         return Spawn(p, l, t.transform);
-    }
+    }*/
 
     /*public PoolElement Spawn(string p, bool uNP, Vector3 l, ObjectSettings[] sP) { //pool, location, useNormalisedosition, spawnParameters
         if (uNP)
@@ -198,14 +198,14 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         return null;
     }*/
 
-    public void ReplaceUIGroup(string name, PoolElement[] replaceWith)
+    /*public void ReplaceUIGroup(string name, PoolElement[] replaceWith)
     {
         PatternControl.i.Pattern_Args(replaceWith,
             new object[][] {
                 new object[] { "GROUPPATTERN", name, "REMOVE_ALL_CURRENT_OBJECTS,ADD_PARAMETER_OBJECTS"}
             }
             );
-    }
+    }*/
 
     public void Fire(object[] parameters)
     {
@@ -231,26 +231,37 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
     public void RunOnStart()
     {
         t = FindObjectOfType<Canvas>();
+        Debug.Log("Called");
     }
 
     public void RunOnCreated()
     {
         i = this;
         DontDestroyOnLoad(gameObject);
+        bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
 
-        uiCreator = new DH((o) =>
+        /*uiCreator = new DH((o) =>
         {
-            PoolElement arg0 = (PoolElement)o[0];
+            //PoolElement arg0 = (PoolElement)o[0];
             Transform arg1 = ((Canvas)o[1]).transform;
 
-            arg0.o[0].s.transform.SetParent(arg1);
-        });
+            //arg0.o[0].s.transform.SetParent(arg1);
+        });*/
+        
     }
 
-    public override object CreateBaseObject(object p)
+    //public override object CreateBaseObject(object p)
+    //{
+    //  GameObject inst = new GameObject("ScriptBaseHolder", new Type[] { typeof(RectTransform), typeof(CanvasRenderer) });
+    //  inst.transform.SetParent(t.transform);
+    //  return inst;
+    //}
+
+    public override ScriptableObject CustomiseBaseObject()
     {
-        GameObject inst = new GameObject("ScriptBaseHolder", new Type[] { typeof(RectTransform), typeof(CanvasRenderer) });
-        inst.transform.SetParent(t.transform);
-        return inst;
+        //Debug.Log("Called before Run");
+        ScriptableObject baseObject = base.CustomiseBaseObject();
+        baseObject.transform.SetParent(t.transform);
+        return baseObject;
     }
 }

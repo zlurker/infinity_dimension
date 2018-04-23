@@ -12,7 +12,7 @@ public class GameObjectSpawner : Spawner, IPlayerEditable
     void Start()
     {
         i = this;
-        Spawn("Projectile", new Vector3());
+        //Spawn("Projectile", new Vector3());
     }
 
     // Update is called once per frame

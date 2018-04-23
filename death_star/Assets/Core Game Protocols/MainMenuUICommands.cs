@@ -26,12 +26,11 @@ public class MainMenuUICommands : MonoBehaviour
 
     DelegateIterator[] inIt; //InputFiend initialisers
 
-    public void InitialiseFieldForUse(PoolElement target, string[] id) //Makes fields here usable by this script. Auto saves it to the data.
+    public void InitialiseFieldForUse(MonoBehaviour[] target, string[] id) //Makes fields here usable by this script. Auto saves it to the data.
     {
-        for (int k = 0; k < target.o.Length; k++)
-            if (target.o[k].s is Selectable)
-                Iterator.ReturnObject<DelegateIterator>(inIt, target.o[k].s.name).d.Invoke(new object[] { target.o[k].s, id });
-
+        for (int k = 0; k < target.Length; k++)
+            if (target[k] is Selectable)
+                Iterator.ReturnObject<DelegateIterator>(inIt, target[k].GetType().Name).d.Invoke(new object[] { target[k], id });
     }
 
     void InitialiseInIt() //Contains MethodRunners to help prepare field for use.
@@ -64,24 +63,27 @@ public class MainMenuUICommands : MonoBehaviour
         edits = new List<UnsavedEdit>();
         InitialiseInIt();
 
-        PatternControl.i.Pattern_Args(new PoolElement[] {
-            UIDrawer.i.Spawn("Image",true, new Vector2(0.5f, 0.9f)),
+        PatternControl.i.Pattern_Args(new ScriptableObject[] {
+            //UIDrawer.i.Spawn("Image",true, new Vector2(0.5f, 0.9f)),
+            UIDrawer.i.CreateScriptedObject(new MonoBehaviour[]{UIDrawer.i.CreateComponent<Image>() })
             //UIDrawer.i.Spawn("Text",true, new Vector2(0.5f, 0.8f),new SetOnSpawnParameters[] { new SetOnSpawnParameters(typeof(Text),"Suck my dick")})
         }, new object[][] {
             new object[] { Patterns.GROUP_PATTERN, "Introduction", GroupArgs.PARENT_PARAMETER_OBJECTS,GroupArgs.ADD_PARAMETER_OBJECTS }
         });
 
         //instance = Iterator.ReturnObject<ScriptIterator>(UIDrawer.i.Spawn("Text", true, new Vector3(0.5f, 0.9f)).o, "Text").s as Text;
-        instance = Spawner.GetCType<Text>(UIDrawer.i.Spawn("Text", true, new Vector3(0.5f, 0.9f)));
-        PoolElement[] buttons = new PoolElement[LoadedData.gIPEI.Length];
+        //instance = Spawner.GetCType<Text>(UIDrawer.i.Spawn("Text", true, new Vector3(0.5f, 0.9f)));
+        instance = Spawner.GetCType<Text>(UIDrawer.i.CreateScriptedObject(new MonoBehaviour[] { UIDrawer.i.CreateComponent<Text>() }));
+
+        ScriptableObject[] buttons = new ScriptableObject[LoadedData.gIPEI.Length];
 
         for (int i = 0; i < LoadedData.uL.Length; i++)
         {
-            PoolElement inst = UIDrawer.i.Spawn("Button");
-            inst.o[0].s.transform.localScale = new Vector3(1, 0.3f);
+            ScriptableObject inst = Iterator.ReturnObject<ObjectCreationTemplate>(UIDrawer.i.tplts, "ButtonMaker").d();
+            //inst.transform.localScale = new Vector3(1, 0.3f);
 
             string name = LoadedData.uL[i].GetType().Name;
-            //Debug.Log(i + " " + name + LoadedData.uL.Length);
+            Debug.Log(i + " " + name + LoadedData.uL.Length);
             Spawner.GetCType<Button>(inst).onClick.AddListener(new DH(ChangeEditableUITemplate, new object[] { i }).Invoke);
             //UIDrawer.i.SetPointer(inst, "Button", "listener", new DH(ChangeEditableUITemplate,new object[] { i}) );
             buttons[i] = inst;
@@ -113,6 +115,7 @@ public class MainMenuUICommands : MonoBehaviour
     public void ChangeEditableUITemplate(object[] p)
     {
         int arg0 = (int)p[0];
+        Debug.Log(instance);
         instance.text = LoadedData.uL[arg0].GetType().Name;
         MethodInfo returnedMethod = LoadedData.uL[arg0].GetMainMethod();
         ParameterInfo[] fields = new ParameterInfo[0];
@@ -120,16 +123,16 @@ public class MainMenuUICommands : MonoBehaviour
         if (returnedMethod != null)
             fields = returnedMethod.GetParameters();
 
-        PoolElement[] fieldNames = new PoolElement[fields.Length];
-        PoolElement[] field = new PoolElement[fields.Length];
+        ScriptableObject[] fieldNames = new ScriptableObject[fields.Length];
+        ScriptableObject[] field = new ScriptableObject[fields.Length];
 
         for (int i = 0; i < fields.Length; i++)
         {
-            PoolElement tinst = UIDrawer.i.Spawn("Text");
+            ScriptableObject tinst = UIDrawer.i.CreateScriptedObject(new MonoBehaviour[] { UIDrawer.i.CreateComponent<Text>()});
             Spawner.GetCType<Text>(tinst).text = fields[i].Name;
             fieldNames[i] = tinst;
 
-            PoolElement iinst = UIDrawer.i.Spawn("InputField");
+            ScriptableObject iinst = Iterator.ReturnObject<ObjectCreationTemplate>(UIDrawer.i.tplts, "InputFieldMaker").d();
             field[i] = iinst;
             //InitialiseFieldForUse(iinst,)
             //Spawner.GetCType<InputField>(iinst).

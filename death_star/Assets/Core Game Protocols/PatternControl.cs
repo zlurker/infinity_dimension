@@ -5,40 +5,40 @@ using UnityEngine;
 public class GroupElement : Iterator
 {
 
-    public List<PoolElement> gE; //groupElements
+    public List<ScriptableObject> gE; //groupElements
     public Transform gP; //groupParent
 
     public GroupElement(string name)
     {
         n = name;
-        gE = new List<PoolElement>();
+        gE = new List<ScriptableObject>();
     }
 
-    public GroupElement(string name, PoolElement[] items)
+    public GroupElement(string name, ScriptableObject[] items)
     {
         n = name;
-        gE = new List<PoolElement>();
+        gE = new List<ScriptableObject>();
         AddItem(items);
     }
 
-    public GroupElement(string name, PoolElement item)
+    public GroupElement(string name, ScriptableObject item)
     {
         n = name;
-        gE = new List<PoolElement>();
+        gE = new List<ScriptableObject>();
         AddItem(item);
     }
 
     public void ResetGroupElements()
     {
-        gE = new List<PoolElement>();
+        gE = new List<ScriptableObject>();
     }
 
-    public void AddItem(PoolElement item)
+    public void AddItem(ScriptableObject item)
     {
         gE.Add(item);
     }
 
-    public void AddItem(PoolElement[] items)
+    public void AddItem(ScriptableObject[] items)
     {
         for (int i = 0; i < items.Length; i++)
             gE.Add(items[i]);
@@ -78,7 +78,7 @@ public class PatternControl : MonoBehaviour, ISingleton
         return this;
     }
 
-    public object[] Pattern_Args(PoolElement[] objects, object[][] arg_values)
+    public object[] Pattern_Args(ScriptableObject[] objects, object[][] arg_values)
     {
 
         List<object> returnItems = new List<object>();
@@ -96,7 +96,7 @@ public class PatternControl : MonoBehaviour, ISingleton
                     for (int j = 0; j < objects.Length; j++)
                     {
                         //Debug.Log(objects[j]);
-                        objects[j].o[0].s.transform.position = s_P + (v_P * j);
+                        objects[j].transform.position = s_P + (v_P * j);
                     }
                     break;
 
@@ -135,11 +135,11 @@ public class PatternControl : MonoBehaviour, ISingleton
 
                                 //Makes it a child to the first objects parent, if any
                                 if (objects.Length > 0)
-                                    if (objects[0].o[0].s.transform.parent != null)
-                                        g[index].gP.transform.parent = objects[0].o[0].s.transform.parent;
+                                    if (objects[0].transform.parent != null)
+                                        g[index].gP.transform.parent = objects[0].transform.parent;
 
                                 for (int l = 0; l < objects.Length; l++)
-                                    objects[l].o[0].s.transform.SetParent(g[index].gP);
+                                    objects[l].transform.SetParent(g[index].gP);
                                 break;
 
                             case GroupArgs.PARENT_ALL_CURRENT_OBJECTS:
@@ -149,11 +149,11 @@ public class PatternControl : MonoBehaviour, ISingleton
                                 //Debug.LogWarning("Parent is " + g[index].gP);
                                 //Makes it a child to the first objects parent, if any
                                 if (g[index].gE.Count > 0)
-                                    if (g[index].gE[0].o[0].s.transform.parent != null)
-                                        g[index].gP.transform.parent = g[index].gE[0].o[0].s.transform.parent;
+                                    if (g[index].gE[0].transform.parent != null)
+                                        g[index].gP.transform.parent = g[index].gE[0].transform.parent;
 
                                 for (int l = 0; l < g[index].gE.Count; l++)
-                                    g[index].gE[l].o[0].s.transform.SetParent(g[index].gP);
+                                    g[index].gE[l].transform.SetParent(g[index].gP);
                                 break;
 
                             case GroupArgs.REMOVE_GROUP:

@@ -125,6 +125,7 @@ public delegate void r(object[] p);
 public class Iterator
 {
     public string n;
+    public Type t;
 
     public static int ReturnKey(Iterator[] tA, string k)
     {
@@ -144,6 +145,14 @@ public class Iterator
 
         //Debug.LogErrorFormat("The key: {0} does not exist.", k);
         return (T)(null as object);
+    }
+
+    public static Iterator ReturnObject<T>(Iterator[] tA)
+    {
+        for (int i = 0; i < tA.Length; i++)
+            if (tA[i].t == typeof(T))
+                return (Iterator)(tA[i] as object);
+        return (Iterator)(null as object);
     }
 }
 
