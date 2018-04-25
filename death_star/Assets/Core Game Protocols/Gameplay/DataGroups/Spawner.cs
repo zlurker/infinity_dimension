@@ -67,6 +67,9 @@ public class ScriptableObject : MonoBehaviour
     public void ResetScriptableObject()
     {
         scripts = new MonoBehaviour[0];
+        transform.SetParent(null);
+        gameObject.SetActive(false);
+        Spawner.i.bOL.Store(this);
     }
 }
 
@@ -78,6 +81,30 @@ public class ObjectCreationTemplate : Iterator
     {
         n = name;
         d = deleg;
+    }
+}
+
+public class ObjectDefaultSettings<T> : ObjectDefaultSettings
+{
+    public Action<T> sD; //settingDelegate
+
+    public ObjectDefaultSettings(Action<T> settingDelegate)
+    {
+        sD = settingDelegate;
+        t = typeof(T);
+    }
+
+    public override object ReturnDelegate()
+    {
+        return sD;
+    }
+}
+
+public class ObjectDefaultSettings : Iterator
+{
+    public virtual object ReturnDelegate()
+    {
+        return null;
     }
 }
 
@@ -138,47 +165,17 @@ public class TypeIterator<T> : TypeIterator where T : Component
 
     public override void Remove(MonoBehaviour p)
     {
-        p.gameObject.SetActive(false);
-        tP.Store(p as T);
+            p.gameObject.SetActive(false);
+            p.transform.SetParent(null);
+            tP.Store(p as T);
     }
 }
 
-public class ObjectDefaultSettings<T> : ObjectDefaultSettings
-{
-    public Action<T> sD; //settingDelegate
-
-    public ObjectDefaultSettings(Action<T> settingDelegate)
-    {
-        sD = settingDelegate;
-        t = typeof(T);
-    }
-
-    public override object ReturnDelegate()
-    {
-        return sD;
-    }
-}
-
-public class ObjectDefaultSettings : Iterator
-{
-    public virtual object ReturnDelegate()
-    {
-        return null;
-    }
-}
-
-[Serializable]
 public class TypeIterator : Iterator
 {
     public TypeIterator()
     {
     }
-
-    /*public TypeIterator(Type type)
-    {
-        t = type;
-        n = type.Name;
-    }*/
 
     /*public TypeIterator(Type type, string pointerGroupName)
         {
@@ -204,7 +201,29 @@ public class TypeIterator : Iterator
 
     public virtual void Remove(MonoBehaviour p)
     {
+    }
+}
 
+public class OnSpawnDelegates : Iterator
+{
+    public DH d;
+
+    public OnSpawnDelegates(string name, DH deleg)
+    {
+        n = name;
+        d = deleg;
+    }
+}
+
+public struct DelegateInfo
+{
+    public string dN;//delegateNAme
+    public object[] p; //parameters
+
+    public DelegateInfo(string delegateName, object[] paramters)
+    {
+        dN = delegateName;
+        p = paramters;
     }
 }
 
@@ -249,21 +268,27 @@ public class Spawner : MonoBehaviour
     public ObjectCreationTemplate[] tplts; //templates
     public ObjectDefaultSettings[] oDS; //objectDefaultSettings
     public List<TypeIterator> aTS;
+    public OnSpawnDelegates[] oSD; //onSpawnDelegates
     //public TypePool[] tP; //typePool
     protected Type[] bB;  //baseBlocks
     // SpawnerPool[] sP; //spawnPool;
     int cK; //currentKey
+    public static Spawner i;
 
     public Spawner()
     {
         if (aTS == null)
             aTS = new List<TypeIterator>();
 
+        if (i == null)
+            i = this;
+
         bOL = new Pool<ScriptableObject>(CreateBaseObject, null);
         bB = new Type[0];
 
         CreateDefaultSettings();
         CreateTemplates();
+        CreateOnSpawnDelegates();
     }
 
     void CreateTemplates()
@@ -307,7 +332,27 @@ public class Spawner : MonoBehaviour
                 t.horizontalOverflow = HorizontalWrapMode.Wrap;
                 t.alignment = TextAnchor.MiddleCenter;
             })
+        };
+    }
 
+    void CreateOnSpawnDelegates()
+    {
+        oSD = new OnSpawnDelegates[]
+        {
+            new OnSpawnDelegates("Position",new DH((p) =>
+            {
+                ScriptableObject p0 = p[0] as ScriptableObject;
+                Vector3 p1 = (Vector3) p[1];
+
+                p0.transform.position = p1;
+            })),
+            new OnSpawnDelegates("UIPosition",new DH((p) =>
+            {
+                ScriptableObject p0 = p[0] as ScriptableObject;
+                Vector3 p1 = (Vector3) p[1];
+
+                p0.transform.position = UIDrawer.UINormalisedPosition(p1);
+            }))
         };
     }
 
@@ -358,17 +403,24 @@ public class Spawner : MonoBehaviour
         return inst;
     }*/
 
-    /*protected void SetVariable(PoolElement inst, DH d, object[] cP) //Adds created pool element in as target, then set whatever variables it needs by delegate
-     {
-         object[] fP = new object[cP.Length + 1];
-         fP[0] = inst;
+    protected void OnSpawn(string delegateName, ScriptableObject inst, object[] cP) //Adds created pool element in as target, then set whatever variables it needs by delegate
+    {
+        object[] fP = new object[cP.Length + 1];
+        fP[0] = inst;
 
-         for (int i = 1; i < fP.Length; i++)
-             fP[i] = cP[i - 1];
+        for (int i = 1; i < fP.Length; i++)
+            fP[i] = cP[i - 1];
 
-         d.d(fP);
-     }*/
+        Iterator.ReturnObject<OnSpawnDelegates>(oSD, delegateName).d.d(fP);
+    }
 
+    public void Remove(ScriptableObject inst)
+    {
+        for (int i = 0; i < inst.scripts.Length; i++)
+            (Iterator.ReturnObject(aTS.ToArray(), inst.scripts[i].GetType()) as TypeIterator).Remove(inst.scripts[i]);
+
+        inst.ResetScriptableObject();
+    }
     /*public virtual PoolElement Spawn(string p, float d)
     { //pool
         PoolElement iR = ObjectRetriver(p);
@@ -550,7 +602,7 @@ public class Spawner : MonoBehaviour
         ObjectDefaultSettings oinst = null;
         T toReturn;
 
-        Debug.Log(aTS);
+        //Debug.Log(aTS);
         inst = Iterator.ReturnObject<T>(aTS.ToArray()) as TypeIterator;
         oinst = Iterator.ReturnObject<T>(oDS) as ObjectDefaultSettings;
 
@@ -558,19 +610,26 @@ public class Spawner : MonoBehaviour
             pinst = oinst.ReturnDelegate() as Action<T>;
 
         if (inst == null)
+        {
             inst = new TypeIterator<T>(pinst, this);
+            aTS.Add(inst);
+        }
 
         toReturn = inst.Retrive() as T;
         return toReturn;
     }
 
-    public ScriptableObject CreateScriptedObject(MonoBehaviour[] scripts)
+    public ScriptableObject CreateScriptedObject(MonoBehaviour[] scripts, DelegateInfo[] onSpawn = null)
     {
         ScriptableObject baseObject = CustomiseBaseObject();
         baseObject.scripts = scripts;
 
         for (int i = 0; i < scripts.Length; i++)
             scripts[i].transform.SetParent(baseObject.transform);
+
+        if (onSpawn != null)
+            for (int i = 0; i < onSpawn.Length; i++)
+                OnSpawn(onSpawn[i].dN, baseObject, onSpawn[i].p);
 
         return baseObject;
     }
@@ -582,15 +641,12 @@ public class Spawner : MonoBehaviour
 
     public virtual ScriptableObject CustomiseBaseObject()
     {
-        return bOL.Retrieve();
+        ScriptableObject bO = bOL.Retrieve();
+        bO.gameObject.SetActive(true);
+        return bO;
     }
 
-    public void Test()
-    {
-        Debug.Log(this);
-    }
-
-    public virtual Type[] GetBaseBlocks()
+    public Type[] GetBaseBlocks()
     {
         return bB;
     }

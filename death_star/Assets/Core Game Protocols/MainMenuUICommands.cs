@@ -65,16 +65,17 @@ public class MainMenuUICommands : MonoBehaviour
 
         PatternControl.i.Pattern_Args(new ScriptableObject[] {
             //UIDrawer.i.Spawn("Image",true, new Vector2(0.5f, 0.9f)),
-            UIDrawer.i.CreateScriptedObject(new MonoBehaviour[]{UIDrawer.i.CreateComponent<Image>() })
+            UIDrawer.i.CreateScriptedObject(new MonoBehaviour[]{UIDrawer.i.CreateComponent<Image>() },new DelegateInfo[]{ new DelegateInfo("UIPosition", new object[] { new Vector3(0.5f, 0.9f) }) })
             //UIDrawer.i.Spawn("Text",true, new Vector2(0.5f, 0.8f),new SetOnSpawnParameters[] { new SetOnSpawnParameters(typeof(Text),"Suck my dick")})
         }, new object[][] {
-            new object[] { Patterns.GROUP_PATTERN, "Introduction", GroupArgs.PARENT_PARAMETER_OBJECTS,GroupArgs.ADD_PARAMETER_OBJECTS }
+            new object[] { Patterns.GROUP_PATTERN, "Introduction", GroupArgs.PARENT_PARAMETER_OBJECTS,GroupArgs.ADD_PARAMETER_OBJECTS },
         });
 
         //instance = Iterator.ReturnObject<ScriptIterator>(UIDrawer.i.Spawn("Text", true, new Vector3(0.5f, 0.9f)).o, "Text").s as Text;
         //instance = Spawner.GetCType<Text>(UIDrawer.i.Spawn("Text", true, new Vector3(0.5f, 0.9f)));
-        instance = Spawner.GetCType<Text>(UIDrawer.i.CreateScriptedObject(new MonoBehaviour[] { UIDrawer.i.CreateComponent<Text>() }));
+        instance = Spawner.GetCType<Text>(UIDrawer.i.CreateScriptedObject(new MonoBehaviour[] { UIDrawer.i.CreateComponent<Text>() }, new DelegateInfo[] { new DelegateInfo("UIPosition", new object[] { new Vector3(0.5f, 0.9f) }) }));
 
+        UIDrawer.i.Remove(UIDrawer.i.CreateScriptedObject(new MonoBehaviour[] { UIDrawer.i.CreateComponent<Text>() }));
         ScriptableObject[] buttons = new ScriptableObject[LoadedData.gIPEI.Length];
 
         for (int i = 0; i < LoadedData.uL.Length; i++)
@@ -92,7 +93,7 @@ public class MainMenuUICommands : MonoBehaviour
         PatternControl.i.Pattern_Args(buttons,
             new object[][] {
             new object[] { Patterns.GROUP_PATTERN, "Secondary", GroupArgs.ADD_PARAMETER_OBJECTS,GroupArgs.PARENT_PARAMETER_OBJECTS},
-            new object[] { Patterns.VECTOR_PATTERN, UIDrawer.i.UINormalisedPosition(new Vector3(0.1f, 0.85f)), new Vector3(-10f,-25f) }
+            new object[] { Patterns.VECTOR_PATTERN, UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.85f)), new Vector3(-10f,-25f) }
         });
 
         //PoolElement test = UIDrawer.i.Spawn("Text");
@@ -128,7 +129,7 @@ public class MainMenuUICommands : MonoBehaviour
 
         for (int i = 0; i < fields.Length; i++)
         {
-            ScriptableObject tinst = UIDrawer.i.CreateScriptedObject(new MonoBehaviour[] { UIDrawer.i.CreateComponent<Text>()});
+            ScriptableObject tinst = UIDrawer.i.CreateScriptedObject(new MonoBehaviour[] { UIDrawer.i.CreateComponent<Text>() });
             Spawner.GetCType<Text>(tinst).text = fields[i].Name;
             fieldNames[i] = tinst;
 
@@ -141,13 +142,13 @@ public class MainMenuUICommands : MonoBehaviour
         PatternControl.i.Pattern_Args(fieldNames,
             new object[][] {
             new object[] { Patterns.GROUP_PATTERN, "FieldNames", GroupArgs.ADD_PARAMETER_OBJECTS,GroupArgs.PARENT_ALL_CURRENT_OBJECTS },
-            new object[] { Patterns.VECTOR_PATTERN, UIDrawer.i.UINormalisedPosition(new Vector3(0.5f, 0.85f)), new Vector3(0,-25f) }
+            new object[] { Patterns.VECTOR_PATTERN, UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.85f)), new Vector3(0,-25f) }
         });
 
         PatternControl.i.Pattern_Args(field,
             new object[][] {
             new object[] { Patterns.GROUP_PATTERN, "FieldNames", GroupArgs.ADD_PARAMETER_OBJECTS,GroupArgs.PARENT_ALL_CURRENT_OBJECTS },
-            new object[] { Patterns.VECTOR_PATTERN, UIDrawer.i.UINormalisedPosition(new Vector3(0.6f, 0.85f)), new Vector3(0,-25f) }
+            new object[] { Patterns.VECTOR_PATTERN, UIDrawer.UINormalisedPosition(new Vector3(0.6f, 0.85f)), new Vector3(0,-25f) }
         });
 
     }

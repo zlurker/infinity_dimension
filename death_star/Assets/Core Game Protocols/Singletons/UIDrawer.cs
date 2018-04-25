@@ -149,7 +149,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         return iR;
     }*/
 
-    public Vector3 UINormalisedPosition(Vector3 c)
+    public static Vector3 UINormalisedPosition(Vector3 c)
     {//coordinates: Returns back position to the decimal of 1.
 
         for (int i = 0; i < 2; i++)
@@ -231,7 +231,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
     public void RunOnStart()
     {
         t = FindObjectOfType<Canvas>();
-        Debug.Log("Called");
+        //Debug.Log("Called");
     }
 
     public void RunOnCreated()

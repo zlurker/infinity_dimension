@@ -154,6 +154,14 @@ public class Iterator
                 return (Iterator)(tA[i] as object);
         return (Iterator)(null as object);
     }
+
+    public static Iterator ReturnObject(Iterator[] tA,Type t)
+    {
+        for (int i = 0; i < tA.Length; i++)
+            if (tA[i].t == t)
+                return (Iterator)(tA[i] as object);
+        return (Iterator)(null as object);
+    }
 }
 
 public class DH

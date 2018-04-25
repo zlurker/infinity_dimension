@@ -30,6 +30,9 @@ public class GroupElement : Iterator
 
     public void ResetGroupElements()
     {
+        for (int i = 0; i < gE.Count; i++)
+            UIDrawer.i.Remove(gE[i]);
+
         gE = new List<ScriptableObject>();
     }
 
