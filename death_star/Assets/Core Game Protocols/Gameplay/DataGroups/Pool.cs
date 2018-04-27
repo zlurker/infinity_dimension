@@ -22,10 +22,8 @@ public class Pool<T> {
     }
 
     public T Retrieve() {
-        if (pool.Count == 0) {
+        if (pool.Count == 0) 
             pool.Push((T)iC(p));
-        }
-
         //if (n.Length != 0)
             //Debug.LogFormat("Current_Number_Of_{0}_Instances: {1}", n, cI);
 

@@ -18,21 +18,21 @@ public interface IPlayerEditable
     void Invoke(object[] p);
 }
 
-public interface IMenuElements
-{
-    void MenuHandle(object[] parameters);
-}
-
-public interface IXMLLoader
-{
-    string ReturnStringPath();
-}
-
 public interface ISingleton
 {
     void RunOnStart();
     void RunOnCreated();
     object ReturnInstance();
+}
+
+public interface IStarters
+{
+
+}
+
+public interface IComponent
+{
+
 }
 
 public class CustomClassFirer : Iterator

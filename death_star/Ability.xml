@@ -11,4 +11,11 @@
       <Variable id="Damage">Motherfucking shithues i hate ahh </Variable>
     </Script>
   </Ability>
+  <Ability id="Projectile">
+    <Script id="test2">lelelele</Script>
+    <Script id="test">wwwwwww</Script>
+  </Ability>
+  <Ability id="UIDrawer">
+    <Script id="type">hahahaha</Script>
+  </Ability>
 </savefile>

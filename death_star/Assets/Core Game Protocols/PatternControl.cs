@@ -112,12 +112,11 @@ public class PatternControl : MonoBehaviour, ISingleton
                         g.Add(new GroupElement(gN));
                         index = g.Count - 1;
                     }
-
+                    
                     for (int j = 2; j < arg_values[i].Length; j++)
 
                         switch ((GroupArgs)arg_values[i][j])
                         {
-
                             case GroupArgs.ADD_PARAMETER_OBJECTS:
                                 g[index].AddItem(objects);
                                 break;
@@ -160,6 +159,7 @@ public class PatternControl : MonoBehaviour, ISingleton
                                 break;
 
                             case GroupArgs.REMOVE_GROUP:
+                                g[index].ResetGroupElements();
                                 g.Remove(g[index]);
                                 break;
 

@@ -4,62 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-/*public class SpawnerPool : Iterator
-{
-    public Pool<PoolElement> sP;
-
-    public SpawnerPool(string name, CI instanceCreator)
-    {
-        n = name;
-        sP = new Pool<PoolElement>(instanceCreator, name);
-    }
-}
-
-public class ScriptIterator : Iterator
-{
-    public MonoBehaviour s;//script
-
-    public ScriptIterator(string name, MonoBehaviour script)
-    {
-        n = name;
-        s = script;
-    }
-
-}*/
-
-/*public class PoolElement : Iterator
-{
-    public ScriptIterator[] o; //object
-
-    public PoolElement(MonoBehaviour[] obj, string name)
-    {
-        n = name;
-        o = new ScriptIterator[obj.Length];
-
-        for (int i = 0; i < o.Length; i++)
-            o[i] = new ScriptIterator(obj[i].GetType().Name, obj[i]);
-    }
-}*/
-
-/*[System.Serializable]
-public class SpawnInstance : Iterator
-{
-    public MonoBehaviour i;
-}*/
-
-/*[Serializable]
-public class TypePool : Iterator
-{
-    public TypeIterator[] t;//types;
-
-    public TypePool(TypeIterator[] types, string name)
-    {
-        t = types;
-        n = name;
-    }
-}
-*/
-
 public class ScriptableObject : MonoBehaviour
 {
     public MonoBehaviour[] scripts;
@@ -70,6 +14,16 @@ public class ScriptableObject : MonoBehaviour
         transform.SetParent(null);
         gameObject.SetActive(false);
         Spawner.i.bOL.Store(this);
+    }
+}
+
+public class ScriptableObjectConstruction
+{
+    public List<MonoBehaviour> objects;
+
+    public ScriptableObjectConstruction()
+    {
+        objects = new List<MonoBehaviour>();
     }
 }
 
@@ -121,13 +75,6 @@ public class TypeIterator<T> : TypeIterator where T : Component
         tP = new Pool<T>(CreateNewTypeObject, null);
     }
 
-    /*public TypeIterator(Action<T> parameterSetting)
-    {
-        t = typeof(T);
-        dPS = parameterSetting;
-        tP = new Pool<T>(CreateNewTypeObject, null);
-    }*/
-
     public TypeIterator(Spawner baseBlockReturner)
     {
         t = typeof(T);
@@ -158,16 +105,15 @@ public class TypeIterator<T> : TypeIterator where T : Component
     {
         T inst = tP.Retrieve();
         SetDefault(inst);
-
         inst.gameObject.SetActive(true);
         return inst as MonoBehaviour;
     }
 
     public override void Remove(MonoBehaviour p)
     {
-            p.gameObject.SetActive(false);
-            p.transform.SetParent(null);
-            tP.Store(p as T);
+        p.gameObject.SetActive(false);
+        p.transform.SetParent(null);
+        tP.Store(p as T);
     }
 }
 
@@ -227,52 +173,15 @@ public struct DelegateInfo
     }
 }
 
-/*public class Modifier
-{
-    public int v;//variable
-    public object vV;//varaibleValue
-
-    public Modifier(int value, object variableValue)
-    {
-        v = value;
-        vV = variableValue;
-    }
-}
-*/
-
-/*public class ObjectSettings {
-
-    protected Modifier[] dV; //values
-
-    public ObjectSettings() {
-        dV = SetDefaultValues();
-    }
-
-    public void Reset(MonoBehaviour t) {
-        SetObjectValues(t, dV);
-    }
-
-    public virtual Modifier[] SetDefaultValues() {
-        return null;
-    }
-
-    public virtual void SetObjectValues(MonoBehaviour t,Modifier[] mods) {
-
-    }
-}*/
-
 public class Spawner : MonoBehaviour
 {
     public Pool<ScriptableObject> bOL; //baseObjectList
-    public Text test;
+    public Pool<ScriptableObjectConstruction> sOC; //scriptableObjectConstruction
     public ObjectCreationTemplate[] tplts; //templates
     public ObjectDefaultSettings[] oDS; //objectDefaultSettings
     public List<TypeIterator> aTS;
     public OnSpawnDelegates[] oSD; //onSpawnDelegates
-    //public TypePool[] tP; //typePool
     protected Type[] bB;  //baseBlocks
-    // SpawnerPool[] sP; //spawnPool;
-    int cK; //currentKey
     public static Spawner i;
 
     public Spawner()
@@ -297,28 +206,29 @@ public class Spawner : MonoBehaviour
         {
             ScriptableObject inst = UIDrawer.i.CreateScriptedObject(new MonoBehaviour[] { UIDrawer.i.CreateComponent<Image>(), UIDrawer.i.CreateComponent<Button>(), UIDrawer.i.CreateComponent<Text>() });
             GetCType<Button>(inst).targetGraphic = GetCType<Image>(inst);
-            GetCType<Text>(inst).transform.SetParent(GetCType<Button>(inst).transform);
+            
             GetCType<Image>(inst).transform.localScale = new Vector3(1, 0.3f);
+
+            GetCType<Text>(inst).transform.SetParent(GetCType<Button>(inst).transform);
             GetCType<Text>(inst).rectTransform.sizeDelta = new Vector2(100, 30);
             GetCType<Text>(inst).color = Color.black;
             return inst;
         }),
         new ObjectCreationTemplate("InputFieldMaker", () =>
-            {
-                ScriptableObject inst = UIDrawer.i.CreateScriptedObject(new MonoBehaviour[]{ UIDrawer.i.CreateComponent<Image>(), UIDrawer.i.CreateComponent<InputField>(),UIDrawer.i.CreateComponent<Text>() });
-                GetCType<InputField>(inst).targetGraphic = GetCType<Image>(inst);
-                GetCType<InputField>(inst).textComponent = GetCType<Text>(inst);
+        {
+            ScriptableObject inst = UIDrawer.i.CreateScriptedObject(new MonoBehaviour[]{ UIDrawer.i.CreateComponent<Image>(), UIDrawer.i.CreateComponent<InputField>(),UIDrawer.i.CreateComponent<Text>() });
+            GetCType<InputField>(inst).targetGraphic = GetCType<Image>(inst);
+            GetCType<InputField>(inst).textComponent = GetCType<Text>(inst);
 
-                GetCType<Text>(inst).color = Color.black;
-                GetCType<Text>(inst).supportRichText = false;
-                GetCType<Text>(inst).transform.SetParent(GetCType<InputField>(inst).transform);
-                GetCType<Text>(inst).transform.position = Vector3.zero;
+            GetCType<Text>(inst).color = Color.black;
+            GetCType<Text>(inst).supportRichText = false;
+            GetCType<Text>(inst).transform.SetParent(GetCType<InputField>(inst).transform);
+            GetCType<Text>(inst).transform.SetParent(GetCType<InputField>(inst).transform);
+            GetCType<Text>(inst).rectTransform.sizeDelta = new Vector2(100, 30);
 
-                GetCType<Text>(inst).transform.SetParent(GetCType<InputField>(inst).transform);
-                //GetCType<Image>(inst).transform.SetParent(GetCType<InputField>(inst).transform);
-                             
-                return inst;
-            })
+            GetCType<Image>(inst).rectTransform.sizeDelta = new Vector2(100, 30);
+            return inst;
+        })
         };
     }
 
@@ -331,6 +241,14 @@ public class Spawner : MonoBehaviour
                 t.verticalOverflow = VerticalWrapMode.Overflow;
                 t.horizontalOverflow = HorizontalWrapMode.Wrap;
                 t.alignment = TextAnchor.MiddleCenter;
+                t.color = Color.white;
+            }),
+
+            new ObjectDefaultSettings<InputField>((t) =>{
+                t.textComponent = null;
+                t.text = "";
+                t.onEndEdit.RemoveAllListeners();
+                Debug.Log("Called");
             })
         };
     }
@@ -356,53 +274,6 @@ public class Spawner : MonoBehaviour
         };
     }
 
-    void Awake()
-    {
-        //CreateTypePool();
-
-        //sP = new SpawnerPool[tP.Length];
-
-        //aTS.Add(new TypeIterator<Text>());
-        //aTS.Add(new TypeIterator<InputField>());
-        //aTS.Add(new TypeIterator<InputField>());
-
-        //CreateScriptedObject(new MonoBehaviour[] { CreateComponent<Text>() });
-        //Remove(CreateNewUnit(new Type[] { typeof(Text) }));
-        //CreateNewUnit(new Type[] { typeof(InputField) });
-    }
-
-    /*public virtual void CreateTypePool() //Just a handle for me to override and call to create TypePools.
-    {
-
-    }*/
-
-    /*public PoolElement ObjectRetriver(string p)
-    {
-        int cOK = Iterator.ReturnKey(sP, p);
-        cK = cOK;
-
-        PoolElement iR = sP[cOK].sP.Retrieve();
-        iR.o[0].s.gameObject.SetActive(true);
-
-        for (int i = 0; i < iR.o.Length; i++)
-            tP[cK].t[i].SetDefault(iR.o[i].s);//pG.cP[j].SetDefault(iR.o[i].s);
-
-        return iR;
-    }*/
-
-    /*public virtual PoolElement Spawn(string p)
-    { //pool
-        return ObjectRetriver(p);
-        //(iR as OnSpawn).RunOnActive();
-    }*/
-
-    /*public virtual PoolElement Spawn(string p, DH d, object[] ps)
-    {
-        PoolElement inst = Spawn(p);
-        SetVariable(inst, d, ps);
-        return inst;
-    }*/
-
     protected void OnSpawn(string delegateName, ScriptableObject inst, object[] cP) //Adds created pool element in as target, then set whatever variables it needs by delegate
     {
         object[] fP = new object[cP.Length + 1];
@@ -421,166 +292,6 @@ public class Spawner : MonoBehaviour
 
         inst.ResetScriptableObject();
     }
-    /*public virtual PoolElement Spawn(string p, float d)
-    { //pool
-        PoolElement iR = ObjectRetriver(p);
-
-        TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
-        return iR;
-    }*/
-
-    /*public virtual PoolElement Spawn(string p, Vector3 l)
-    { //pool, location
-        PoolElement iR = ObjectRetriver(p);
-
-        iR.o[0].s.gameObject.SetActive(true);
-        iR.o[0].s.transform.position = l;
-
-        return iR;
-
-        //(iR as OnSpawn).RunOnActive();
-    }*/
-
-    /*public virtual PoolElement Spawn(string p, Vector3 l, float d)
-    { //pool, location, duration
-        PoolElement iR = ObjectRetriver(p);
-
-        iR.o[0].s.gameObject.SetActive(true);
-        iR.o[0].s.transform.position = l;
-
-        TimeHandler.i.AddNewTimerEvent(new TimeData(Time.time + d, new DH(Remove, new object[] { iR })));
-        return iR;
-
-        //(iR as OnSpawn).RunOnActive();
-    }*/
-
-    /*public virtual PoolElement Spawn(string p, Vector3 l, Transform t)
-    { //pool, location, target
-        PoolElement iR = ObjectRetriver(p);
-
-        iR.o[0].s.gameObject.SetActive(true);
-
-        iR.o[0].s.transform.SetParent(t);
-        iR.o[0].s.transform.position = l;
-
-        //(iR as OnSpawn).RunOnActive();
-
-        //Debug.Log(iR);
-        return iR;
-    }*/
-
-    /*public object GetPointer(PoolElement target, string component, string variableName)
-    {
-        MonoBehaviour script = Iterator.ReturnObject<ScriptIterator>(target.o, component).s;
-        return GetPointerLocation(target.n, component, variableName).Get(script);
-    }*/
-
-    /*public void SetPointer(PoolElement target, string component, string variableName, object value) //target, component, variableName, value
-    {
-        MonoBehaviour script = Iterator.ReturnObject<ScriptIterator>(target.o, component).s;
-        Debug.Log(script.GetType().Name);
-
-        GetPointerLocation(target.n, component, variableName).Set(script, value);
-    }*/
-
-    /*public PointerHolder GetPointerLocation(string targetName, string component, string variableName)
-    {
-        TypePool i0 = Iterator.ReturnObject<TypePool>(tP, targetName);
-        TypeIterator i1 = Iterator.ReturnObject<TypeIterator>(i0.t, component);
-
-        if (i1.pG == null)
-        {
-            Debug.LogErrorFormat("PointerGroup does not exist for {0}. Create one before trying to access it!", i1.n);
-            return null;
-        }
-
-        return Iterator.ReturnObject<PointerHolder>(i1.pG.cP, variableName);
-    }*/
-
-    /*public void Remove(PoolElement i)
-    {
-        Iterator.ReturnObject<SpawnerPool>(sP, i.n).sP.Store(i);
-        i.o[0].s.gameObject.SetActive(false);
-    }*/
-
-    /*public void Remove(object[] p)
-    {
-        for (int i = 0; i < p.Length; i++)
-            Remove(p[i] as PoolElement);
-    }*/
-
-    /*public void Remove(MonoBehaviour target)
-    {
-        //Transform p = target
-        for (int i = 0; i < aTS.Count; i++)
-            if (aTS[i].t == target.GetType())
-            {
-                aTS[i].Remove(target);
-                target.transform.parent = null;
-                break;
-            }
-    }*/
-
-    /* public void Remove(MonoBehaviour[] targets)
-     {
-         List<MonoBehaviour> t = new List<MonoBehaviour>(targets);
-
-         for (int i = 0; i < aTS.Count; i++)
-             for (int j = 0; j < targets.Length; j++)
-                 if (aTS[i].t == targets[j].GetType())
-                 {
-                     aTS[i].Remove(targets[j]);
-                     targets[j].transform.SetParent(null);
-                     t.Remove(targets[j]);
-                     break;
-                 }
-     }*/
-
-    /*object CreateNewObject()
-    {
-        GameObject newInstance = new GameObject(tP[cK].n, bB);
-        MonoBehaviour[] scripts = new MonoBehaviour[tP[cK].t.Length];
-
-        for (int i = 0; i < tP[cK].t.Length; i++)
-        {
-            scripts[i] = newInstance.AddComponent(tP[cK].t[i].t) as MonoBehaviour;
-            //Debug.Log(tP[cK].t[i].t.Name);
-        }
-
-        return new PoolElement(scripts, tP[cK].n);
-    }*/
-
-    /*public static T GetCType<T>(PoolElement target) where T : class
-    {
-        for (int i = 0; i < target.o.Length; i++)
-        {
-            T inst = target.o[i].s as T;
-
-            if (inst != null)
-                return inst;
-        }
-
-        return null;
-    }*/
-
-    /*public MonoBehaviour[] CreateNewUnit(object p)
-    {
-        List<Type> types = new List<Type>(p as Type[]); //Checks against my 
-        List<MonoBehaviour> unitScripts = new List<MonoBehaviour>();
-        GameObject baseObject = bOL.Retrieve();
-
-        for (int i = 0; i < aTS.Count; i++)
-            for (int j = 0; j < types.Count; j++)
-                if (types[j] == aTS[i].t)
-                {
-                    MonoBehaviour inst = aTS[i].Retrive();
-                    types.Remove(types[j]);
-                    inst.transform.SetParent(baseObject.transform);
-                    unitScripts.Add(inst);
-                    break;
-                }
-        return unitScripts.ToArray();
-    }*/
 
     public static T GetCType<T>(ScriptableObject target) where T : Component
     {
@@ -602,7 +313,6 @@ public class Spawner : MonoBehaviour
         ObjectDefaultSettings oinst = null;
         T toReturn;
 
-        //Debug.Log(aTS);
         inst = Iterator.ReturnObject<T>(aTS.ToArray()) as TypeIterator;
         oinst = Iterator.ReturnObject<T>(oDS) as ObjectDefaultSettings;
 
@@ -625,7 +335,10 @@ public class Spawner : MonoBehaviour
         baseObject.scripts = scripts;
 
         for (int i = 0; i < scripts.Length; i++)
+        {
             scripts[i].transform.SetParent(baseObject.transform);
+            scripts[i].transform.localPosition = Vector3.zero;
+        }
 
         if (onSpawn != null)
             for (int i = 0; i < onSpawn.Length; i++)
