@@ -1,8 +1,26 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GroupElement : Iterator
+public interface IAddOn
+{
+    void Add(object target);
+    void LinkedGroup(Group linkedGroup);
+}
+
+public class AddOnData : Iterator
+{
+    public IAddOn i;
+
+    public AddOnData(IAddOn interf)
+    {
+        i = interf;
+        t = interf.GetType();
+    }
+}
+
+/*public class GroupElement : Iterator
 {
 
     public List<ScriptableObject> gE; //groupElements
@@ -46,6 +64,80 @@ public class GroupElement : Iterator
         for (int i = 0; i < items.Length; i++)
             gE.Add(items[i]);
     }
+}*/
+
+public class Group : Iterator
+{
+    public List<ScriptableObject> gE; //groupElements
+    public List<Group> g;//groups
+    public List<AddOnData> aO;
+
+    public Transform gP; //groupParent
+
+    public Group()
+    {
+        ResetGroup();
+        //gP = new GameObject("Group").transform;
+    }
+
+    public void ResetGroup()
+    {       
+        gE = new List<ScriptableObject>();
+        g = new List<Group>();
+        aO = new List<AddOnData>();
+        n = "";
+        gP = null;
+        //ChangeRoot(Singleton.GetSingleton<Spawner>());
+    }
+
+    public void AddItem(ScriptableObject scriptableObject)
+    {
+        gE.Add(scriptableObject);
+        Root(scriptableObject.transform);
+        //scriptableObject.transform.parent = gP.transform;
+    }
+
+    public void AddItem(IAddOn addOn)
+    {
+        aO.Add(new AddOnData(addOn));
+    }
+
+    public void AddItem(Group group)
+    {
+        g.Add(group);
+        Root(group.gP);
+        //group.gP.transform.parent = gP.transform;
+    }
+
+    void Root(Transform target)
+    {
+        if (!gP)
+            gP = target;
+        else
+            target.parent = gP;
+    }
+
+    /*public void ChangeRoot(Spawner inst)
+    {
+        gP = inst.CustomiseBaseObject();
+
+        for (int i = 0; i <g.Count; i++)
+            g[i].gP.transform.parent = gP.transform;
+
+        for (int i = 0; i < gE.Count; i++)
+            gE[i].transform.parent = gP.transform;      
+    }
+
+    public void ChangeRoot(ScriptableObject inst)
+    {
+        gP = inst;
+
+        for (int i = 0; i < g.Count; i++)
+            g[i].gP.transform.parent = gP.transform;
+
+        for (int i = 0; i < gE.Count; i++)
+            gE[i].transform.parent = gP.transform;
+    }*/
 }
 
 public enum Patterns
@@ -53,22 +145,27 @@ public enum Patterns
     VECTOR_PATTERN, GROUP_PATTERN
 }
 
+public enum GroupMode
+{
+    NONE,UI
+}
+
 public enum GroupArgs
 {
-    ADD_PARAMETER_OBJECTS, REMOVE_PARAMETER_OBJECTS, REMOVE_ALL_CURRENT_OBJECTS, PARENT_PARAMETER_OBJECTS, PARENT_ALL_CURRENT_OBJECTS, REMOVE_GROUP, GET_GROUP
+    NONE, ADD_PARAMETER_OBJECTS, REMOVE_PARAMETER_OBJECTS, REMOVE_ALL_CURRENT_OBJECTS, REMOVE_GROUP
 }
 
 public class PatternControl : MonoBehaviour, ISingleton
 {
-
-    List<GroupElement> g; //groups 
-    public static PatternControl i;
+    //List<GroupElement> g; //groups 
+    List<Group> groups;
+    Pool<Group> groupSpawner;
 
     public void RunOnCreated()
     {
-        g = new List<GroupElement>();
-        i = this;
-        DontDestroyOnLoad(gameObject);
+        //g = new List<GroupElement>();
+        groups = new List<Group>();
+        groupSpawner = new Pool<Group>(CreateNewGroup, null);
     }
 
     public void RunOnStart()
@@ -76,12 +173,63 @@ public class PatternControl : MonoBehaviour, ISingleton
 
     }
 
-    public object ReturnInstance()
+    public object CreateNewGroup(object p)
     {
-        return this;
+        return new Group();
     }
 
-    public object[] Pattern_Args(ScriptableObject[] objects, object[][] arg_values)
+    public Group GetGroup(string name)
+    {
+        return Iterator.ReturnObject<Group>(groups.ToArray(), name);
+    }
+
+    public void ModifyGroup(string groupName, object[] objects, GroupArgs commands = GroupArgs.ADD_PARAMETER_OBJECTS)
+    {
+        Group target = Iterator.ReturnObject<Group>(groups.ToArray(), groupName);
+
+        if (target == null)
+        {
+            target = groupSpawner.Retrieve();
+            target.n = groupName;
+
+            groups.Add(target);
+        }
+
+        switch (commands)
+        {
+            case GroupArgs.ADD_PARAMETER_OBJECTS:
+                for (int i = 0; i < objects.Length; i++)
+                {
+                    if (objects[i] is Group)
+                    {
+                        target.AddItem(objects[i] as Group);
+
+                        for (int j = 0; j < target.aO.Count; j++)
+                            target.aO[j].i.Add(objects[i] as Group);
+                    }
+
+                    if (objects[i] is ScriptableObject)
+                    {
+                        ScriptableObject sO = objects[i] as ScriptableObject;
+                        target.AddItem(sO);
+
+                        for (int j = 0; j < sO.scripts.Length; j++) //checks which is IAddOn
+                            if (sO.scripts[j] is IAddOn)
+                            {
+                                IAddOn iAOinst = sO.scripts[j] as IAddOn;
+                                target.AddItem(iAOinst);
+                                iAOinst.LinkedGroup(target);
+                            }
+
+                        for (int j = 0; j < target.aO.Count; j++)
+                            target.aO[j].i.Add(objects[i] as ScriptableObject);
+                    }
+                }
+                break;
+        }
+    }
+
+    /*public object[] Pattern_Args(ScriptableObject[] objects, object[][] arg_values)
     {
 
         List<object> returnItems = new List<object>();
@@ -172,5 +320,5 @@ public class PatternControl : MonoBehaviour, ISingleton
             }
 
         return returnItems.ToArray();
-    }
+    }*/
 }

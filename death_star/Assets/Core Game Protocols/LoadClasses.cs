@@ -6,21 +6,86 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine.UI;
 
-public class LoadClasses : MonoBehaviour
-{
 
+/// <summary>
+/// Class which loads all singletons/editable classes.
+/// </summary>
+public class InterfaceLoader<T> : InterfaceLoader where T : class
+{
+    public T[] lI; //loadedInterfaces
+
+    public InterfaceLoader()
+    {
+        List<T> typeInstances = new List<T>();
+
+        t = typeof(T);
+
+        Type[] types = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(s => s.GetTypes())
+            .Where(p => t.IsAssignableFrom(p)).ToArray();
+
+        //lI = new T[types.Length];
+
+        for (int i = 0; i < types.Length; i++)
+        {
+            ConstructorInfo info = types[i].GetConstructor(new Type[0]);
+
+            if (info != null)
+                typeInstances.Add(info.Invoke(new object[0]) as T);
+        }
+
+        lI = typeInstances.ToArray();
+    }
+
+    public override object ReturnLoadedInterfaces()
+    {
+        return lI;
+    }
+}
+
+public class InterfaceLoader : Iterator
+{
+    public virtual object ReturnLoadedInterfaces()
+    {
+        return null;
+    }
+}
+
+public class LoadClasses : MonoBehaviour
+{   
     void Start()
     {
+        LoadedData.lI = new InterfaceLoader[] { new InterfaceLoader<IPlayerEditable>(), new InterfaceLoader<ISingleton>()};
         //LoadPointerData();
         LoadSingletonClasses();
-        LoadEditableClasses();
+        //LoadEditableClasses();
+        IPlayerEditable[] interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
+
+        for (int i = 0; i < interfaces.Length; i++)
+        {
+            Debug.Log(interfaces[i].GetType());
+        }
 
         SceneTransitionData.Initialise();
     }
 
     void LoadSingletonClasses()
     {
-        List<ISingleton> singletonInstances = new List<ISingleton>();
+        ISingleton[] interfaces = (Iterator.ReturnObject<ISingleton>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as ISingleton[];
+        LoadedData.sL = new Singleton[interfaces.Length];
+        //Debug.Log(interfaces[0]);
+        for (int i = 0; i < interfaces.Length; i++)
+        {
+            //Debug.Log(interfaces[i].GetType());
+            MonoBehaviour singleton = new GameObject(interfaces[i].GetType().FullName).AddComponent(interfaces[i].GetType()) as MonoBehaviour;
+            DontDestroyOnLoad(singleton.gameObject);
+            (singleton as ISingleton).RunOnCreated();
+
+            LoadedData.sL[i] = new Singleton(singleton as ISingleton);
+        }
+
+        Debug.Log(Singleton.GetSingleton<UIDrawer>());
+        /*List<ISingleton> singletonInstances = new List<ISingleton>();
 
         Type type = typeof(ISingleton);
         Type[] types = AppDomain.CurrentDomain.GetAssemblies()
@@ -40,11 +105,13 @@ public class LoadClasses : MonoBehaviour
             }
         }
 
-        LoadedData.sL = singletonInstances.ToArray();
+        LoadedData.sL = singletonInstances.ToArray();*/
     }
 
-    void LoadEditableClasses()
+    /*void LoadEditableClasses()
     {
+        IPlayerEditable[] interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
+
         List<IPlayerEditable> uiLoaderInstances = new List<IPlayerEditable>();
         List<IPlayerEditable> singletonInstances = new List<IPlayerEditable>();
 
@@ -70,7 +137,9 @@ public class LoadClasses : MonoBehaviour
 
         LoadedData.gIPEI = singletonInstances.ToArray();
         LoadedData.uL = uiLoaderInstances.ToArray();
-    }
+
+        Debug.Log(LoadedData.uL.Length);
+    }*/
 
     /*void LoadPointerData()
     {

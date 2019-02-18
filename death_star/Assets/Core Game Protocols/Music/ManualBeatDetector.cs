@@ -17,9 +17,9 @@ public class ManualBeatDetector : MonoBehaviour {
         GlobalData.song = music.clip;
         beatTimings = new List<float>();
 
-        PlayerInput.i.AddNewInput(KeyCode.L, new DH(SceneTransitionData.LoadScene,new object[] {1 }),0);
-        PlayerInput.i.AddNewInput(0, new DH(RegisterClick),0);
-        PlayerInput.i.AddNewInput(KeyCode.Escape, new DH(EraseData),0);
+        Singleton.GetSingleton<PlayerInput>().AddNewInput(KeyCode.L, new DH(SceneTransitionData.LoadScene,new object[] {1 }),0);
+        Singleton.GetSingleton<PlayerInput>().AddNewInput(0, new DH(RegisterClick),0);
+        Singleton.GetSingleton<PlayerInput>().AddNewInput(KeyCode.Escape, new DH(EraseData),0);
     }
 
     void CalculateBPM(float timing) {

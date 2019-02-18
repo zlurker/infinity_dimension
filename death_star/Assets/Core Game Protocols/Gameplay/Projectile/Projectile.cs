@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 
-public class Projectile : MonoBehaviour, IPlayerEditable
+public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
 {
 
     public float cA; //currAngle
@@ -34,7 +34,7 @@ public class Projectile : MonoBehaviour, IPlayerEditable
     void Update()
     {
         float tI = tT * aC[aCG % aC.Length].u;
-        float t = TimeHandler.i.ReturnGameTimeUnit(sT, tI);
+        float t = Singleton.GetSingleton<TimeHandler>().ReturnGameTimeUnit(sT, tI);
 
         transform.position = sV + (Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u) * t);
 
@@ -67,5 +67,18 @@ public class Projectile : MonoBehaviour, IPlayerEditable
     public MethodInfo GetMainMethod() 
     {
         return GetType().GetMethod("SetProjectile");
+    }
+
+    public void OnSpawn()
+    {
+       
+    }
+
+    public RuntimeParameters[] GetRuntimeParameters() {
+        throw new NotImplementedException();
+    }
+
+    public void Invoke(Iterator[] parameters) {
+        throw new NotImplementedException();
     }
 }

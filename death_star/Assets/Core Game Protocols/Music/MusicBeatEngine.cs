@@ -5,14 +5,14 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class MusicBeatEngine : MonoBehaviour {
 
-    public float distMultiplier = 1;
+    /*public float distMultiplier = 1;
     public GameObject beat;
     public float[] beatTimings;
 
     AudioSource music;
     float totalDist;
 
-    public JudgementRange[] jR;
+    //public JudgementRange[] jR;
     int cB;
 
     void Start() {
@@ -37,7 +37,7 @@ public class MusicBeatEngine : MonoBehaviour {
         }
 
         jR = (JudgementRange[])PresetGameplayData.jRT.Clone();
-        PlayerInput.i.AddNewInput(0, new DH(BeatJudgeProcessing),0);
+        Singleton.GetSingleton<PlayerInput>().AddNewInput(0, new DH(BeatJudgeProcessing),0);
 
         music.Play();
     }
@@ -53,7 +53,7 @@ public class MusicBeatEngine : MonoBehaviour {
                     jR[i].counter++;
                     cB++;
                 }
-        //}*/
+        //}
 
         if (music.time - GlobalData.offset >= beatTimings[cB] + jR[jR.Length - 1].maxWindow) {
             //UIDrawer.i.UpdateGraphic("BeatGrade", "X", 0.25f);
@@ -75,5 +75,5 @@ public class MusicBeatEngine : MonoBehaviour {
                 cB++;
                 return;
             }
-    }
+    }*/
 }

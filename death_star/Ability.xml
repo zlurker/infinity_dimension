@@ -12,10 +12,13 @@
     </Script>
   </Ability>
   <Ability id="Projectile">
-    <Script id="test2">lelelele</Script>
-    <Script id="test">wwwwwww</Script>
+    <Script id="test2">asdasd</Script>
+    <Script id="test">asfdsafadf</Script>
   </Ability>
   <Ability id="UIDrawer">
-    <Script id="type">hahahaha</Script>
+    <Script id="type">asdas</Script>
+    <Script id="groupName">asdsad</Script>
+    <Script id="layerNumber">sds</Script>
+    <Script id="removeAllSucessors">asdasd</Script>
   </Ability>
 </savefile>

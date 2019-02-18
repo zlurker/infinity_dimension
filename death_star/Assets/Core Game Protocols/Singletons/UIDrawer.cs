@@ -17,13 +17,118 @@ public class Layer
 
 public class UIDrawer : Spawner, ISingleton, IPlayerEditable
 {
-
-    public static UIDrawer i; //instance
     public static Canvas t; //target
     public DH uiCreator;
     public Layer uL; //uiLayer
 
-    public void ModifyLayer(int layerNumber, string groupName = "",bool removeAllSucessors = true)
+    public override void CreateDefaultSettings()
+    {
+        oDS = new ObjectDefaultSettings[] {
+            new ObjectDefaultSettings<Text>((t,sOC) =>{
+                t.text = "DEFAULTWORDS";
+                t.font = Resources.Load("jd-bold") as Font;
+                t.verticalOverflow = VerticalWrapMode.Overflow;
+                t.horizontalOverflow = HorizontalWrapMode.Wrap;
+                t.alignment = TextAnchor.MiddleCenter;
+                t.color = Color.black;
+                (t.transform as RectTransform).sizeDelta = new Vector2(100,20);
+                //Debug.Log(t.text);
+            }),
+
+            new ObjectDefaultSettings<InputField>((t,sOC) =>{
+                t.textComponent = null;
+                t.text = "";
+                t.onEndEdit.RemoveAllListeners();
+
+                sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Image>());
+                sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>());
+
+                t.gameObject.SetActive(true);
+
+                t.textComponent = GetCType<Text>(sOC);
+                t.targetGraphic = GetCType<Image>(sOC);
+                (t.transform as RectTransform).sizeDelta = new Vector2(100,30);
+
+                GetCType<Text>(sOC).color = Color.black;
+                GetCType<Text>(sOC).supportRichText = false;
+                GetCType<Text>(sOC).transform.SetParent(t.transform);
+                GetCType<Text>(sOC).rectTransform.sizeDelta = new Vector2(100, 30);
+
+                GetCType<Image>(sOC).rectTransform.sizeDelta = new Vector2(100, 30);
+            }),
+
+            new ObjectDefaultSettings<Button>((t, sOC)=>{
+                t.onClick.RemoveAllListeners();
+                sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Image>());
+                sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>());
+                t.targetGraphic = GetCType<Image>(sOC);
+
+                GetCType<Image>(sOC).rectTransform.sizeDelta = new Vector3(100, 30);
+                (t.transform as RectTransform).sizeDelta = new Vector3(100, 30);
+
+                GetCType<Text>(sOC).transform.SetParent(t.transform);
+                GetCType<Text>(sOC).rectTransform.sizeDelta = new Vector2(100, 30);
+                GetCType<Text>(sOC).color = Color.black;
+            }),
+
+            new ObjectDefaultSettings<WindowsScript>((t, sOC)=>{
+                 //t.transform.name = "Panel";
+                 sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Image>());
+                 t.transform.SetAsLastSibling();
+
+                GetCType<Image>(sOC).rectTransform.sizeDelta = new Vector2(100,40);
+                (t.transform as RectTransform).sizeDelta = new Vector2(100,40);
+                 //sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>());
+            }),
+
+            new ObjectDefaultSettings<LinearLayout>((t, sOC)=>{
+                 //t.transform.name = "Panel";
+                 (t.transform as RectTransform).sizeDelta = new Vector2(0,0);
+                 //sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>());
+            })
+        };
+    }
+
+    public override void CreateOnSpawnDelegates()
+    {
+        oSD = new OnSpawnDelegates[]
+        {
+            new OnSpawnDelegates("Position",new DH((p) =>
+            {
+                ScriptableObject p0 = p[0] as ScriptableObject;
+                Vector3 p1 = (Vector3) p[1];
+
+                p0.transform.position = p1;
+            })),
+            new OnSpawnDelegates("UIPosition",new DH((p) =>
+            {
+                ScriptableObject p0 = p[0] as ScriptableObject;
+                Vector3 p1 = (Vector3) p[1];
+
+                p0.transform.position = UIDrawer.UINormalisedPosition(p1);
+            }))
+        };
+    }
+
+    public override ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts, DelegateInfo[] onSpawn = null)
+    {
+        Vector2 dimensions = new Vector2();
+        ScriptableObject instance = base.CreateScriptedObject(scripts, onSpawn);
+
+        for (int i =0; i < instance.scripts.Length; i++)
+        {
+            RectTransform rT = instance.scripts[i].transform as RectTransform;
+
+            for (int j = 0; j < 2; j++)
+                if (rT.sizeDelta[j] > dimensions[j])
+                    dimensions[j] = rT.sizeDelta[j];
+        }
+
+        (instance.transform as RectTransform).sizeDelta = dimensions;
+        return instance;
+    }
+
+    public void ModifyLayer(int layerNumber, string groupName = "", bool removeAllSucessors = true)
     {
         while (layerNumber >= uL.uE.Count)
             uL.uE.Add("");
@@ -33,10 +138,10 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         for (int i = layerNumber; i < loopCount; i++)
             if (uL.uE[i] != "")
             {
-                PatternControl.i.Pattern_Args(null, new object[][] {
+                /*PatternControl.i.Pattern_Args(null, new object[][] {
                 new object[]{ Patterns.GROUP_PATTERN, uL.uE[i], GroupArgs.REMOVE_ALL_CURRENT_OBJECTS }
                 });
-                uL.uE[i] = "";
+                uL.uE[i] = "";*/
             }
 
         uL.uE[layerNumber] = groupName;
@@ -54,14 +159,9 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         return c;
     }
 
-    public void UIInterfaceTest(int type)
-    {
-
-    }
-
     public MethodInfo GetMainMethod()
     {
-        return GetType().GetMethod("UIInterfaceTest");
+        return GetType().GetMethod("ModifyLayer");
     }
 
     public void Invoke(object[] p)
@@ -69,20 +169,14 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
 
     }
 
-    public object ReturnInstance()
-    {
-        return i;
-    }
 
-    public void RunOnStart()
+    public new void RunOnStart()
     {
         t = FindObjectOfType<Canvas>();
     }
 
-    public void RunOnCreated()
+    public new void RunOnCreated()
     {
-        i = this;
-        DontDestroyOnLoad(gameObject);
         bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
         uL = new Layer();
     }
@@ -92,5 +186,13 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         ScriptableObject baseObject = base.CustomiseBaseObject();
         baseObject.transform.SetParent(t.transform);
         return baseObject;
+    }
+
+    public RuntimeParameters[] GetRuntimeParameters() {
+        throw new NotImplementedException();
+    }
+
+    public void Invoke(Iterator[] parameters) {
+        throw new NotImplementedException();
     }
 }

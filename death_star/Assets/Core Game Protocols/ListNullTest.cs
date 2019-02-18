@@ -7,7 +7,6 @@ public class ListNullTest : MonoBehaviour {
     List<Spawner> test;
 	// Use this for initialization
 	void Start () {
-        Debug.Log(test);
 
         DoSomething();
         test = new List<Spawner>(new Spawner[7]);

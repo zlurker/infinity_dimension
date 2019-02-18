@@ -23,12 +23,7 @@ public class TimeData : Iterator {
 
 public class TimeHandler : MonoBehaviour, ISingleton {
 
-    public static TimeHandler i; //instance
     List<TimeData> tE; //timeEvents
-
-    public object ReturnInstance() {
-        return i;
-    }
 
     void Update() {
         for (int i = 0; i < tE.Count; i++)
@@ -75,8 +70,6 @@ public class TimeHandler : MonoBehaviour, ISingleton {
     }
 
     public void RunOnCreated() {
-        i = this;
-        DontDestroyOnLoad(gameObject);
         tE = new List<TimeData>();
     }
 }

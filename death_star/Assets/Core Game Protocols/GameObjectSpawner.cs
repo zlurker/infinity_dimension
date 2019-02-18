@@ -28,8 +28,17 @@ public class GameObjectSpawner : Spawner, IPlayerEditable
         //UIDrawer.i.Spawn("Image");
     }
 
-    public void Invoke(object[] p)
-    {
+    public RuntimeParameters[] GetRuntimeParameters() {
+        return new RuntimeParameters[] {
+            new RuntimeParameters<string>("Name of Projectile","Marcus Warts"),
+            new RuntimeParameters<float>("Projectile Speed", 5),
+            new RuntimeParameters<float>("Projectile Damage", 20),
+            new RuntimeParameters<int>("Multiplier", 15)
+            
+        };
+    }
 
+    public void Invoke(Iterator[] parameters) {
+        throw new System.NotImplementedException();
     }
 }

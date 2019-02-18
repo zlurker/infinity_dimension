@@ -10,7 +10,6 @@ public enum OperationType
 
 public class XMLHelper : MonoBehaviour, ISingleton
 {
-    public static XMLHelper i;
     string[] fullDirectory;
     XmlDocument xmlDoc;
     // XmlDocument xmlDoc;
@@ -125,8 +124,6 @@ public class XMLHelper : MonoBehaviour, ISingleton
 
     public void RunOnCreated()
     {
-        i = this;
-        DontDestroyOnLoad(gameObject);
 
         xmlDoc = new XmlDocument();
         xmlDoc.Load("Ability.xml");
@@ -137,11 +134,6 @@ public class XMLHelper : MonoBehaviour, ISingleton
     public void RunOnStart()
     {
 
-    }
-
-    public object ReturnInstance()
-    {
-        return this;
     }
 
     /*string[][] ReturnData(string path) {

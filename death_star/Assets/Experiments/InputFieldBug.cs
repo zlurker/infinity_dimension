@@ -7,17 +7,26 @@ public class InputFieldBug : MonoBehaviour {
 
     public GameObject test;
     public Text testText;
-    InputField testComponent;
+    public InputField testComponent;
+    public Text text;
+    public Image image;
 	// Use this for initialization
 	void Start () {
-        testComponent = test.AddComponent<InputField>();
-        testComponent.textComponent = testText;
+        testComponent.gameObject.SetActive(false);
+
         testComponent.textComponent = null;
+        testComponent.text = "";
+        testComponent.onEndEdit.RemoveAllListeners();
 
-        test.gameObject.SetActive(false);        
-        test.gameObject.SetActive(true);
+        text.color = Color.black;
+        text.supportRichText = false;
+        text.transform.SetParent(testComponent.transform);
+        text.rectTransform.sizeDelta = new Vector2(100, 30);
 
-        testComponent.textComponent = testText;
+        image.rectTransform.sizeDelta = new Vector2(100, 30);
+        testComponent.gameObject.SetActive(true);
+        testComponent.textComponent = text;
+        testComponent.targetGraphic = image;
     }
 	
 	// Update is called once per frame

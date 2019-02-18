@@ -26,12 +26,7 @@ public class InputData : Iterator {
 
 public class PlayerInput : MonoBehaviour,ISingleton {
 
-    public static PlayerInput i;
     public List<InputData> iS;
-
-    public object ReturnInstance() {
-        return i;
-    }
 
     void Update() {
         for (int i = 0; i < iS.Count; i++) {
@@ -113,8 +108,6 @@ public class PlayerInput : MonoBehaviour,ISingleton {
     }
 
     public void RunOnCreated() {
-        i = this;
-        DontDestroyOnLoad(gameObject);
         iS = new List<InputData>();
     }
 

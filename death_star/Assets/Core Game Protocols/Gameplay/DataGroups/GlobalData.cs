@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
 using System.Reflection;
+using Newtonsoft.Json;
 
 #region Gameplay Data Structures
 public enum RhythmAnalyseState
@@ -15,27 +16,21 @@ public enum RhythmAnalyseState
 public interface IPlayerEditable
 {
     MethodInfo GetMainMethod();
-    void Invoke(object[] p);
+    RuntimeParameters[] GetRuntimeParameters();
+    void Invoke(Iterator[] parameters);
 }
 
 public interface ISingleton
 {
     void RunOnStart();
     void RunOnCreated();
-    object ReturnInstance();
 }
 
-public interface IStarters
+public interface ISpawnable
 {
-
+    //void OnSpawn();
 }
-
-public interface IComponent
-{
-
-}
-
-public class CustomClassFirer : Iterator
+/*public class CustomClassFirer : Iterator
 {
     public List<object[]> p; //Allows mutiple methods to be called. Every one object[] is one method. 
 
@@ -45,6 +40,29 @@ public class CustomClassFirer : Iterator
         p.Add(parameters);
         n = name; //In this case, it is the name of the class.
     }
+}*/
+
+public class RuntimeParameters<T>:RuntimeParameters {
+    public T v;
+
+    public RuntimeParameters(string name,T value) {       
+        n = name;
+        v = value;
+        t = typeof(T);
+        vI = VariableTypeIndex.ReturnVariableIndex(t);
+    }
+
+    public override string GetSerializedObject() {
+        return JsonConvert.SerializeObject(this);
+    }
+}
+
+public class RuntimeParameters : Iterator {
+
+    public virtual string GetSerializedObject() {
+        return "";
+    }
+    public int vI;
 }
 
 public struct EffectTemplate
@@ -67,7 +85,7 @@ public struct EffectTemplate
     }
 }
 
-public struct JudgementRange
+/*public struct JudgementRange
 {
     public string name;
     public float maxWindow;
@@ -79,7 +97,7 @@ public struct JudgementRange
         maxWindow = mW;
         counter = c;
     }
-}
+}*/
 
 public class Stat : Iterator
 {
@@ -127,14 +145,48 @@ public class Iterator
     public string n;
     public Type t;
 
+    public Iterator()
+    {
+        if (string.IsNullOrEmpty(n))
+            if (t != null)
+                n = t.Name;
+    }
+
+
     public static int ReturnKey(Iterator[] tA, string k)
     {
         for (int i = 0; i < tA.Length; i++)
             if (string.Equals(tA[i].n, k))
                 return i;
 
-        //Debug.LogErrorFormat("The key: {0} does not exist.", k);
         return -1;
+    }
+
+    public static int ReturnKey<T>(T[] tA, string k,Func<T,string> iI)
+    {
+        for (int i = 0; i < tA.Length; i++)
+            if (string.Equals(iI(tA[i]), k))
+                return i;
+
+        return -1;
+    }
+
+    public static T ReturnObject<T>(T[] tA, string k, Func<T, string> iI)
+    {
+        for (int i = 0; i < tA.Length; i++)
+            if (string.Equals(iI(tA[i]), k))
+                return (T)(tA[i] as object);
+
+        return (T)(null as object);
+    }
+
+    public static T ReturnObject<T>(T[] tA, Func<T,bool> iI)
+    {
+        for (int i = 0; i < tA.Length; i++)
+            if (iI(tA[i]))
+                return (T)(tA[i] as object);
+
+        return (T)(null as object);
     }
 
     public static T ReturnObject<T>(Iterator[] tA, string k)
@@ -155,7 +207,7 @@ public class Iterator
         return (Iterator)(null as object);
     }
 
-    public static Iterator ReturnObject(Iterator[] tA,Type t)
+    public static Iterator ReturnObject(Iterator[] tA, Type t)
     {
         for (int i = 0; i < tA.Length; i++)
             if (tA[i].t == t)
@@ -199,6 +251,12 @@ public class DelegateIterator : Iterator
     public DelegateIterator(string name, DH deleg)
     {
         n = name;
+        d = deleg;
+    }
+
+    public DelegateIterator(Type type, DH deleg)
+    {
+        t = type;
         d = deleg;
     }
 }
@@ -246,7 +304,6 @@ public class DelegateIterator : Iterator
 }*/
 #endregion
 
-
 public static class GlobalData
 {
     #region Gameplay Global Data
@@ -267,11 +324,35 @@ public static class GlobalData
         }*/
 }
 
+public class Singleton : Iterator
+{
+    public ISingleton linkedInstance;
+
+    public Singleton(ISingleton singleton)
+    {
+        linkedInstance = singleton;
+        t = linkedInstance.GetType();
+    }
+
+    public static T GetSingleton<T>()
+    {
+        Singleton instance = ReturnObject(LoadedData.sL, typeof(T)) as Singleton;
+        return (T)instance.linkedInstance;
+    }
+
+    public static ISingleton GetSingleton(Type t)
+    {
+        Singleton instance = ReturnObject(LoadedData.sL, t) as Singleton;
+        return instance.linkedInstance;
+    }
+}
+
 public static class LoadedData
 {
     public static IPlayerEditable[] gIPEI; //globalIPlayerEditableInstances
-    public static IPlayerEditable[] uL; //uiLoaders
-    public static ISingleton[] sL; //singletonList
+    //public static IPlayerEditable[] uL; //uiLoaders
+    public static Singleton[] sL; //singletonList
+    public static InterfaceLoader[] lI; //loadedInterfaces
 }
 
 public static class SceneTransitionData
@@ -293,8 +374,10 @@ public static class SceneTransitionData
 
     public static void OnSceneLoad(Scene arg0, LoadSceneMode arg1)
     {
-        for (int i = 0; i < LoadedData.sL.Length; i++)
-            LoadedData.sL[i].RunOnStart(); //Runs all the singleton start  
+        ISingleton[] interfaces = (Iterator.ReturnObject<ISingleton>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as ISingleton[];
+
+        for (int i = 0; i < interfaces.Length; i++)
+            interfaces[i].RunOnStart(); //Runs all the singleton start  
     }
 }
 
@@ -308,18 +391,13 @@ public static class DelegatePools
     }
 }
 
-public static class BaseIteratorFunctions
-{ //A list of functions that complements the BaseIterator class
-
-    //Iterates though the Array and returns the first item with the string k
-
-}
-
 public static class PresetGameplayData
 {
     public static Stat[] sT = new Stat[]
   { new Stat("Current Health", 50), new Stat("Max Health", 50), new Stat("Movespeed", 1), new Stat("Health Regeneration", 1)  };
 
-    public static JudgementRange[] jRT = new JudgementRange[]
-    { new JudgementRange("YEAH!", 0.05f, 0), new JudgementRange("SUPER", 0.1f, 0), new JudgementRange("GOOD", 0.2f, 0), new JudgementRange("OK", 0.3f, 0) };
+    //public static JudgementRange[] jRT = new JudgementRange[]
+    //{ new JudgementRange("YEAH!", 0.05f, 0), new JudgementRange("SUPER", 0.1f, 0), new JudgementRange("GOOD", 0.2f, 0), new JudgementRange("OK", 0.3f, 0) };
+
+    
 }
