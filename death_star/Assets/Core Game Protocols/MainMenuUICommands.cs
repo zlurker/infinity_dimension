@@ -76,16 +76,11 @@ public class SavedDataCommit {
 
 public class SavedData {
     public List<RuntimeParameters> fields;
-
-    public SavedData(RuntimeParameters[] runtimeParameters) {
-        fields = new List<RuntimeParameters>();
-
-        for(int i = 0; i < runtimeParameters.Length; i++)
-            fields.Add(runtimeParameters[i]);
-    }
+    public int connectedInt;
 
     public SavedData() {
         fields = new List<RuntimeParameters>();
+        connectedInt = -1;
     }
 
     public static SavedData LoadData(string filePath) {
@@ -269,7 +264,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         savedData = SavedData.LoadData(path);
 
         if(savedData == null)
-            savedData = new SavedData(new RuntimeParameters[0]);
+            savedData = new SavedData();
 
         SpawnUIFromData(savedData);
 
@@ -382,7 +377,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     public ScriptableObject CreateWindow(int targetInterface) {
         string windowNo = windowsCount.ToString();
 
-        Iterator[] runtimePara = interfaces[dataIndex].GetRuntimeParameters();
+        RuntimeParameters[] runtimePara = interfaces[dataIndex].GetRuntimeParameters();
 
         ScriptableObject window = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>() });
         ScriptableObject lL = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
