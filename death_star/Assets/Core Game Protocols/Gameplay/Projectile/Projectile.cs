@@ -75,7 +75,17 @@ public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
     }
 
     public RuntimeParameters[] GetRuntimeParameters() {
-        throw new NotImplementedException();
+        return new RuntimeParameters[] {
+            new RuntimeParameters<string>("Test","Produced BIATCH"),
+           
+        };
+    }
+
+    public RuntimeParameters[] GetRawRuntimeParameters() {
+        return new RuntimeParameters[] {
+            new RuntimeParameters<string>("Test","Produced BIATCH"),
+
+        };
     }
 
     public void Invoke(Iterator[] parameters) {

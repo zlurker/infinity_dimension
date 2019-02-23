@@ -13,62 +13,53 @@ public class SavedDataCommit {
     public List<SavedDataCommit> members;
     public string n;
     public int vI;
+    public int cI;
     public string sO;
-
-    public SavedDataCommit(SavedData target, string name) {
-        members = new List<SavedDataCommit>();
-        n = name;
-        ConvertToCommit(target);
-    }
 
     public SavedDataCommit(string name, string soValue, int variableIndex) {
         members = new List<SavedDataCommit>();
         n = name;
         sO = soValue;
         vI = variableIndex;
+    }
 
+    public SavedDataCommit(string name, int connectedInt) {
+        members = new List<SavedDataCommit>();
+        cI = connectedInt;
+        n = name;
     }
 
     public SavedDataCommit() {
         members = new List<SavedDataCommit>();
     }
 
-    public void ConvertToCommit(SavedData target) {
-        for(int i = 0; i < target.fields.Count; i++) {
-            RuntimeParameters<SavedData> inst = target.fields[i] as RuntimeParameters<SavedData>;
+    public static SavedDataCommit[] ConvertToCommit(SavedData[] target) {
+        List<SavedDataCommit> commit = new List<SavedDataCommit>();
 
-            if(inst != null)
-                members.Add(new SavedDataCommit(inst.v, inst.n));
-            else
-                members.Add(new SavedDataCommit(target.fields[i].n, target.fields[i].GetSerializedObject(), target.fields[i].vI));
+        for(int i = 0; i < target.Length; i++) {
+            SavedDataCommit commitHeader = new SavedDataCommit(target[i].classType.Name, target[i].connectedInt);
+            commit.Add(commitHeader);
+            //RuntimeParameters<SavedData> inst = target.fields[i] as RuntimeParameters<SavedData>;
+
+            for(int j = 0; j < target[i].fields.Count; j++)
+                commitHeader.members.Add(new SavedDataCommit(target[i].fields[j].n, target[i].fields[j].GetSerializedObject(), target[i].fields[j].vI));
         }
+
+        return commit.ToArray();
     }
 
     public SavedData CreateSavedData() {
-        SavedData instance = new SavedData();
-        RuntimeParameters[] validatedData = new RuntimeParameters[0];
 
-        int a = Iterator.ReturnKey<IPlayerEditable>(MainMenuUICommands.interfaces, n, (t) => { return t.GetType().Name; });
+        IPlayerEditable selectedInterface = Iterator.ReturnObject<IPlayerEditable>(MainMenuUICommands.interfaces, n, (p) => {
+            return p.GetType().Name;
+        });
 
-        //Debug.Log(instance.fields.Count);
-        if(a > -1)
-            instance.fields = new List<RuntimeParameters>(MainMenuUICommands.interfaces[a].GetRuntimeParameters());
-        else
-            instance.fields = new List<RuntimeParameters>(new RuntimeParameters[members.Count]);
+        SavedData instance = new SavedData(selectedInterface.GetType());
+        instance.connectedInt = cI;
 
-        for(int i = 0; i < members.Count; i++) {
+        for(int i = 0; i < instance.fields.Count; i++)
+            instance.fields[i] = VariableTypeIndex.ReturnRuntimeType(members[i].vI, members[i].sO);
 
-            if(members[i].members.Count > 0)
-                instance.fields[i] = new RuntimeParameters<SavedData>(members[i].n, members[i].CreateSavedData());
-            else {
- 
-                int b = Iterator.ReturnKey<RuntimeParameters>(instance.fields.ToArray(), members[i].n, (t) => { return t.n; });
-
-                if(b > -1)
-                    instance.fields[b] = VariableTypeIndex.ReturnRuntimeType(members[i].vI, members[i].sO);
-            }
-
-        }
         return instance;
     }
 }
@@ -77,66 +68,42 @@ public class SavedDataCommit {
 public class SavedData {
     public List<RuntimeParameters> fields;
     public int connectedInt;
+    public Type classType;
 
-    public SavedData() {
-        fields = new List<RuntimeParameters>();
+    //public SavedData() {
+    //fields = new List<RuntimeParameters>();
+    //connectedInt = -1;
+    //}
+
+    public SavedData(Type t) {
+        IPlayerEditable selectedInterface = Iterator.ReturnObject<IPlayerEditable>(MainMenuUICommands.interfaces, t, (p) => {
+            return p.GetType();
+        });
+
+        classType = t;
+        fields = new List<RuntimeParameters>(selectedInterface.GetRuntimeParameters());
         connectedInt = -1;
     }
 
-    public static SavedData LoadData(string filePath) {
-        SavedData instance = null;
-        SavedDataCommit textData;
+    public static SavedData[] LoadData(string filePath) {
+        SavedData[] instance = null;
+        SavedDataCommit[] textData;
 
         using(StreamReader reader = new StreamReader(filePath)) {
             string text = reader.ReadToEnd();
-            textData = JsonConvert.DeserializeObject<SavedDataCommit>(text);
+            textData = JsonConvert.DeserializeObject<SavedDataCommit[]>(text);
             reader.Close();
         }
-        //Debug.Log(textData.members.Count);
-        //Debug.LogError(JsonConvert.SerializeObject(textData));
-        instance = textData.CreateSavedData();
+
+        if(textData != null) {
+            instance = new SavedData[textData.Length];
+            Debug.Log(textData.Length);
+            //Debug.LogError(JsonConvert.SerializeObject(textData));
+            for(int i = 0; i < textData.Length; i++)
+                instance[i] = textData[i].CreateSavedData();
+        }
 
         return instance;
-
-    }
-
-    public static T GetData<T>(SavedData s, int[] pathToData) {
-        Debug.Log(GetDataPath(s, pathToData).fields[pathToData[pathToData.Length - 1]].n);
-        return (GetDataPath(s, pathToData).fields[pathToData[pathToData.Length - 1]] as RuntimeParameters<T>).v;
-    }
-
-    public static void SetData<T>(SavedData s, int[] pathToData, T value, string name = "-") {
-        Iterator inst = GetDataPath(s, pathToData).fields[pathToData[pathToData.Length - 1]];
-        RuntimeParameters<T> paraInst = inst as RuntimeParameters<T>;
-
-        if(paraInst == null)
-            paraInst = new RuntimeParameters<T>(name, value);
-        else
-            paraInst.v = value;
-
-        GetDataPath(s, pathToData).fields[pathToData[pathToData.Length - 1]] = paraInst;
-        Debug.Log(MainMenuUICommands.savedData.fields.Count);
-        //Debug.Log((GetDataPath(s, pathToData).fields[pathToData[pathToData.Length - 1]] as RuntimeParameters<T>).n);
-    }
-
-    public static SavedData GetDataPath(SavedData s, int[] id) {
-        SavedData root = s;
-
-        for(int i = 0; i < id.Length; i++) {
-            int d = id[i] - root.fields.Count;
-
-            for(int j = 0; j <= d; j++)
-                root.fields.Add(new RuntimeParameters());
-
-            if(id.Length - i > 1) {
-                if(root.fields[id[i]] as RuntimeParameters<SavedData> == null)
-                    root.fields[id[i]] = new RuntimeParameters<SavedData>("Header", new SavedData());
-                root = (root.fields[id[i]] as RuntimeParameters<SavedData>).v;
-            }
-            //Debug.Log(root.fields.Count); lol;,./.ro9ieioede
-        }
-        //Debug.Log(root.fields.Count);
-        return root;
     }
 }
 
@@ -160,7 +127,7 @@ public class UICalibrator : Iterator {
 }
 
 public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
-    public static SavedData savedData;
+    public static List<SavedData> savedData;
 
     SavedData testGP;
     public Font font;
@@ -208,18 +175,18 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
                 switch (t.contentType){
                         case InputField.ContentType.Standard:
-                            t.text = SavedData.GetData<string>(savedData,p);
+                            t.text = (savedData[p[0]].fields[p[1]] as RuntimeParameters<string>).v;//SavedData.GetData<string>(savedData,p);
                             break;
 
                         case InputField.ContentType.IntegerNumber:
 
-                            t.text = SavedData.GetData<int>(savedData,p).ToString();
+                            t.text = (savedData[p[0]].fields[p[1]] as RuntimeParameters<int>).v.ToString();
 
                             Debug.Log("Unable to get");
                             break;
 
                         case InputField.ContentType.DecimalNumber:
-                            t.text = SavedData.GetData<float>(savedData,p).ToString();
+                            t.text = (savedData[p[0]].fields[p[1]] as RuntimeParameters<float>).v.ToString();
                             break;
                 }
 
@@ -227,15 +194,15 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
                 t.onValueChanged.AddListener((s) => {
                     switch (t.contentType){
                         case InputField.ContentType.Standard:
-                            SavedData.SetData<string>(savedData,p,s);
+                            (savedData[p[0]].fields[p[1]] as RuntimeParameters<string>).v = s;
                             break;
 
                         case InputField.ContentType.IntegerNumber:
-                            SavedData.SetData<int>(savedData,p,int.Parse(s));
+                            (savedData[p[0]].fields[p[1]] as RuntimeParameters<int>).v = int.Parse(s);
                             break;
 
                         case InputField.ContentType.DecimalNumber:
-                            SavedData.SetData<float>(savedData,p,float.Parse(s));
+                            (savedData[p[0]].fields[p[1]] as RuntimeParameters<float>).v = float.Parse(s);
                             break;
                 }
 
@@ -261,12 +228,19 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     void Start() {
         InitialiseInIt();
 
-        savedData = SavedData.LoadData(path);
+        SavedData[] prevData = SavedData.LoadData(path);
 
-        if(savedData == null)
-            savedData = new SavedData();
+        if(prevData == null)
+            savedData = new List<SavedData>();
+        else {
+            savedData = new List<SavedData>(prevData);
 
-        SpawnUIFromData(savedData);
+            StartupLinkerHelper.RelinkLoadedData(savedData.ToArray());
+
+            SpawnUIFromData(savedData.ToArray());
+            Debug.Log(JsonConvert.SerializeObject(savedData));
+            Debug.Log(EditableLinkInstance.links.Count);
+        }
 
         Singleton.GetSingleton<PatternControl>().ModifyGroup("Test", new object[] { Singleton.GetSingleton<UIDrawer>().CustomiseBaseObject(), Singleton.GetSingleton<Spawner>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<Spawner>().CreateComponent<LinearLayout>() }) });
 
@@ -284,7 +258,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
         ScriptableObject saveButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Button>() });
         Spawner.GetCType<Button>(saveButton).onClick.AddListener(() => {
-            FileSaver.SaveFile(new string[] { "DataFiles", "TestFile" }, JsonConvert.SerializeObject(new SavedDataCommit(savedData, "-")));
+            FileSaver.SaveFile(new string[] { "DataFiles", "TestFile" }, JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(savedData.ToArray())));
             Debug.Log(JsonConvert.SerializeObject(savedData));
         });
 
@@ -292,58 +266,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         saveButton.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.1f));
     }
 
-    public void SpawnUIFromData(SavedData data) {
-        for(int i = 0; i < data.fields.Count; i++) {
-            int a = Iterator.ReturnKey<IPlayerEditable>(interfaces, (data.fields[i] as RuntimeParameters<SavedData>).n,
-                (t) => { return t.GetType().Name; });
+    public void SpawnUIFromData(SavedData[] data) {
+        Debug.Log("Called to spawn UI");
+        for(int i = 0; i < data.Length; i++)
+            CreateWindow(data[i]);
 
-            if(a > -1)
-                CreateWindow(a);
-        }
     }
-
-    /*public void ChangeEditableUITemplate(object[] p)
-    {
-        int arg0 = (int)p[0];
-        IPlayerEditable[] instances = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
-        Debug.Log(instances.Length);
-        instance.text = instances[arg0].GetType().Name;
-        MethodInfo returnedMethod = instances[arg0].GetMainMethod();
-        ParameterInfo[] fields = new ParameterInfo[0];
-
-        if (returnedMethod != null)
-            fields = returnedMethod.GetParameters();
-
-        ScriptableObject[] fieldNames = new ScriptableObject[fields.Length];
-        ScriptableObject[] field = new ScriptableObject[fields.Length];
-
-        Singleton.GetSingleton<UIDrawer>().ModifyLayer(0);
-
-        for (int i = 0; i < fields.Length; i++)
-        {
-            ScriptableObject tinst = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });
-            Spawner.GetCType<Text>(tinst).text = fields[i].Name;
-            fieldNames[i] = tinst;
-
-            ScriptableObject iinst = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<InputField>() });
-            field[i] = iinst;
-            InitialiseFieldForUse(iinst.scripts, new string[] { instances[arg0].GetType().Name, fields[i].Name });
-        }
-
-        /*PatternControl.i.Pattern_Args(fieldNames,
-            new object[][] {
-            new object[] { Patterns.GROUP_PATTERN, "FieldNames", GroupArgs.ADD_PARAMETER_OBJECTS,GroupArgs.PARENT_ALL_CURRENT_OBJECTS },
-            new object[] { Patterns.VECTOR_PATTERN, UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.85f)), new Vector3(0,-25f) }
-        });
-
-        PatternControl.i.Pattern_Args(field,
-            new object[][] {
-            new object[] { Patterns.GROUP_PATTERN, "FieldNames", GroupArgs.ADD_PARAMETER_OBJECTS,GroupArgs.PARENT_ALL_CURRENT_OBJECTS },
-            new object[] { Patterns.VECTOR_PATTERN, UIDrawer.UINormalisedPosition(new Vector3(0.6f, 0.85f)), new Vector3(0,-25f) }
-        });
-
-        Singleton.GetSingleton<UIDrawer>().ModifyLayer(0, "FieldNames");
-    }*/
 
     public void WindowSpawnState(int index) {
         Spawner.GetCType<Text>(windowSpawner).text = index.ToString();
@@ -358,26 +286,53 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             windowSpawnMode = false;
             windowSpawner.gameObject.SetActive(false);
 
-            RuntimeParameters[] runtimePara = interfaces[dataIndex].GetRuntimeParameters();
-            SavedData newClass = new SavedData();
+            //RuntimeParameters[] runtimePara = interfaces[dataIndex].GetRuntimeParameters();
+            SavedData newClass = new SavedData(interfaces[dataIndex].GetType());
 
-            savedData.fields.Add(new RuntimeParameters<SavedData>(interfaces[dataIndex].GetType().Name, newClass));
+            //Debug.Log(runtimePara.Length);
+            //for(int i = 0; i < runtimePara.Length; i++)
+            //newClass.fields.Add(runtimePara[i]);
 
-            Debug.Log(runtimePara.Length);
-            for(int i = 0; i < runtimePara.Length; i++)
-                newClass.fields.Add(runtimePara[i]);
+            SavedData[] allWindows = GetDefaultWindows(new SavedData[] { newClass });
+            Debug.Log("Number of windows: " + allWindows.Length);
+            for(int i = 0; i < allWindows.Length; i++) {
+                savedData.Add(allWindows[i]);
 
-            ScriptableObject window = CreateWindow(dataIndex);
-            Vector2 cursorPos;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
-            window.transform.localPosition = cursorPos;
+                ScriptableObject window = CreateWindow(allWindows[i]);
+                Vector2 cursorPos;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
+                window.transform.localPosition = cursorPos;
+            }
         }
     }
 
-    public ScriptableObject CreateWindow(int targetInterface) {
-        string windowNo = windowsCount.ToString();
+    public SavedData[] GetDefaultWindows(SavedData[] root) {
+        List<SavedData> additionalWindows = new List<SavedData>();
 
-        RuntimeParameters[] runtimePara = interfaces[dataIndex].GetRuntimeParameters();
+        for(int j = 0; j < root.Length; j++) {
+            additionalWindows.Add(root[j]);
+
+            for(int i = 0; i < root[j].fields.Count; i++) {
+                RuntimeParameters<EditableLinkInstance> link = root[j].fields[i] as RuntimeParameters<EditableLinkInstance>;
+
+                if(link != null)
+                    if(link.v != null) {
+                        SavedData[] returnedWindows = GetDefaultWindows(link.v.GetLinkedObjects());
+
+                        for(int k = 0; k < returnedWindows.Length; k++)
+                            additionalWindows.Add(returnedWindows[k]);
+                    }
+            }
+        }
+
+        return additionalWindows.ToArray();
+    }
+
+
+    public ScriptableObject CreateWindow(SavedData runtimePara) {
+        string windowNo = windowsCount.ToString();
+        int currWindow = windowsCount;
+        windowsCount++;
 
         ScriptableObject window = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>() });
         ScriptableObject lL = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
@@ -385,21 +340,26 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         Singleton.GetSingleton<PatternControl>().ModifyGroup(windowNo, new object[] { window, lL });
         Spawner.GetCType<LinearLayout>(lL).Add(window);
 
-        Debug.Log("Runtime Para Length + " + runtimePara.Length);
-        for(int i = 0; i < runtimePara.Length; i++) {
-            string generatedString = windowsCount.ToString() + " - " + i.ToString();
+        Debug.Log("Runtime Para Length + " + runtimePara.fields.Count);
+        for(int i = 0; i < runtimePara.fields.Count; i++) {
+            string generatedString = windowNo + " - " + i.ToString();
             ScriptableObject elementName = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });
             ScriptableObject align = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
             ScriptableObject element = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<InputField>() });
-
-            Spawner.GetCType<Text>(elementName).text = runtimePara[i].n;
+            Debug.Log(runtimePara.fields[i].n);
+            Spawner.GetCType<Text>(elementName).text = runtimePara.fields[i].n;
             Spawner.GetCType<Text>(elementName).color = Color.white;
             Spawner.GetCType<LinearLayout>(align).o = LinearLayout.Orientation.X;
 
-            if(runtimePara[i].t == typeof(int))
+            Spawner.GetCType<InputField>(element).contentType = InputField.ContentType.Custom;
+
+            if(runtimePara.fields[i].t == typeof(string))
+                Spawner.GetCType<InputField>(element).contentType = InputField.ContentType.Standard;
+
+            if(runtimePara.fields[i].t == typeof(int))
                 Spawner.GetCType<InputField>(element).contentType = InputField.ContentType.IntegerNumber;
 
-            if(runtimePara[i].t == typeof(float))
+            if(runtimePara.fields[i].t == typeof(float))
                 Spawner.GetCType<InputField>(element).contentType = InputField.ContentType.DecimalNumber;
 
 
@@ -407,12 +367,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             Singleton.GetSingleton<PatternControl>().ModifyGroup(windowNo, new object[] { Singleton.GetSingleton<PatternControl>().GetGroup(generatedString) });
 
 
-            UICalibrator(element, new int[] { windowsCount, i });
-            Debug.Log(windowsCount + " " + i);
+            UICalibrator(element, new int[] { currWindow, i });
+            Debug.Log(currWindow + " " + i);
             Debug.Log(i);
         }
 
-        windowsCount++;
+
         return window;
     }
 

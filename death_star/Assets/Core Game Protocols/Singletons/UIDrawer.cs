@@ -189,7 +189,17 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
     }
 
     public RuntimeParameters[] GetRuntimeParameters() {
-        throw new NotImplementedException();
+        return new RuntimeParameters[] {
+            new RuntimeParameters<string>("UI","What the fuck nigga"),
+
+        };
+    }
+
+    public RuntimeParameters[] GetRawRuntimeParameters() {
+        return new RuntimeParameters[] {
+            new RuntimeParameters<string>("UI","Seriously nigga"),
+
+        };
     }
 
     public void Invoke(Iterator[] parameters) {

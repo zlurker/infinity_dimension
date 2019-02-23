@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 
-public class GameObjectSpawner : Spawner, IPlayerEditable
+public class GameObjectSpawner : Spawner, IPlayerEditable,ISpawnable
 {
 
     public static GameObjectSpawner i; //instance
@@ -29,16 +29,21 @@ public class GameObjectSpawner : Spawner, IPlayerEditable
     }
 
     public RuntimeParameters[] GetRuntimeParameters() {
+        SavedData projectile = new SavedData(typeof(Projectile));
+        SavedData amazingshit = new SavedData(typeof(UIDrawer));
+
         return new RuntimeParameters[] {
             new RuntimeParameters<string>("Name of Projectile","Marcus Warts"),
             new RuntimeParameters<float>("Projectile Speed", 5),
             new RuntimeParameters<float>("Projectile Damage", 20),
-            new RuntimeParameters<int>("Multiplier", 15)
-            
+            new RuntimeParameters<int>("Multiplier", 15),
+            new RuntimeParameters<EditableLinkInstance>("On Hit",new EditableLinkInstance(new SavedData[]{projectile,amazingshit }))     
         };
     }
 
     public void Invoke(Iterator[] parameters) {
         throw new System.NotImplementedException();
     }
+
+    
 }

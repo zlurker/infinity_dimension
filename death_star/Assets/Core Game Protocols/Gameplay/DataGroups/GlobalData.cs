@@ -30,6 +30,16 @@ public interface ISpawnable
 {
     //void OnSpawn();
 }
+
+public class AdditonalDefault {
+    public string n;
+    public SavedData[] aD;
+
+    public AdditonalDefault(string name,SavedData[] additionalDefaults ) {
+        n = name;
+        aD = additionalDefaults;
+    }
+}
 /*public class CustomClassFirer : Iterator
 {
     public List<object[]> p; //Allows mutiple methods to be called. Every one object[] is one method. 
@@ -169,6 +179,15 @@ public class Iterator
                 return i;
 
         return -1;
+    }
+
+    public static T ReturnObject<T>(T[] tA, Type k, Func<T, Type> iI) {
+        
+        for(int i = 0; i < tA.Length; i++)
+            if(k == iI(tA[i]))
+                return tA[i];
+
+        return (T) (null as object);
     }
 
     public static T ReturnObject<T>(T[] tA, string k, Func<T, string> iI)
