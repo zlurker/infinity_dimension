@@ -44,7 +44,6 @@ public class StartupLinkerHelper {
             if(target[i].connectedInt > -1) {
                 groupId = GetGroupByID(target[i].connectedInt.ToString());
                 EditableLinkInstance.links[groupId].linkedData.Add(target[i]);
-                Debug.Log("From connectedInt: " + target[i].connectedInt);
             }
 
             for(int j = 0; j < target[i].fields.Count; j++) {
@@ -53,18 +52,22 @@ public class StartupLinkerHelper {
                 if(instance != null) {
                     groupId = GetGroupByID(instance.v.linkIdStr);
                     EditableLinkInstance.links[groupId].l = instance.v;
-                    Debug.Log("From LI: " + instance.v.linkIdStr);
                 }
             }
         }
         
         for(int i = 0; i < EditableLinkInstance.links.Count; i++) {
             Debug.Log(EditableLinkInstance.links[i]);
-            EditableLinkInstance.links[i].l.linkId = i;
-            EditableLinkInstance.links[i].l.linkIdStr = i.ToString();
+            int cI = -1;
+            Debug.Log(cI);
+            if(EditableLinkInstance.links[i].l != null) {
+                EditableLinkInstance.links[i].l.linkId = i;
+                EditableLinkInstance.links[i].l.linkIdStr = i.ToString();
+                cI = i;
+            }
 
             for(int j = 0; j < EditableLinkInstance.links[i].linkedData.Count; j++)
-                EditableLinkInstance.links[i].linkedData[j].connectedInt = i;
+                EditableLinkInstance.links[i].linkedData[j].connectedInt = cI;
         }
     }
 }

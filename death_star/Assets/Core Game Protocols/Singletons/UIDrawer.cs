@@ -159,17 +159,6 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         return c;
     }
 
-    public MethodInfo GetMainMethod()
-    {
-        return GetType().GetMethod("ModifyLayer");
-    }
-
-    public void Invoke(object[] p)
-    {
-
-    }
-
-
     public new void RunOnStart()
     {
         t = FindObjectOfType<Canvas>();
@@ -195,14 +184,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         };
     }
 
-    public RuntimeParameters[] GetRawRuntimeParameters() {
-        return new RuntimeParameters[] {
-            new RuntimeParameters<string>("UI","Seriously nigga"),
-
-        };
-    }
-
-    public void Invoke(Iterator[] parameters) {
+    public void SetValues(RuntimeParameters[] values) {
         throw new NotImplementedException();
     }
 }

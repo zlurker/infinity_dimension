@@ -11,8 +11,6 @@ public class ManualBeatDetector : MonoBehaviour {
     public int calibrationRequired;
 
     void Start() {
-        GlobalData.analyseAlgorithm = RhythmAnalyseState.Manual;
-
         music = GetComponent<AudioSource>();
         GlobalData.song = music.clip;
         beatTimings = new List<float>();

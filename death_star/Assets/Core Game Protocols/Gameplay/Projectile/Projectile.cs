@@ -47,48 +47,23 @@ public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
         }
     }
 
-    void DestroyProjectile()
-    {
-        Debug.Log("Destroying");
-        //GameObjectSpawner.i.Remove(this, "Projectile");
-       
-    }
-
-    public void SetProjectile(int test,int test2)
-    {
-
-    }
-
-    public void Invoke(object[] test) //Need to just write down the method with all the paramters.
-    {
-        SetProjectile((int)test[0], (int)test[1]);
-    }
-
-    public MethodInfo GetMainMethod() 
-    {
-        return GetType().GetMethod("SetProjectile");
-    }
-
     public void OnSpawn()
     {
        
     }
 
     public RuntimeParameters[] GetRuntimeParameters() {
+
         return new RuntimeParameters[] {
-            new RuntimeParameters<string>("Test","Produced BIATCH"),
-           
+            new RuntimeParameters<string>("Name of Projectile","Marcus Warts"),
+            new RuntimeParameters<float>("Projectile Speed", 5),
+            new RuntimeParameters<float>("Projectile Damage", 20),
+            new RuntimeParameters<int>("Multiplier", 15),
+            new RuntimeParameters<EditableLinkInstance>("On Hit",new EditableLinkInstance(new SavedData[0]))
         };
     }
 
-    public RuntimeParameters[] GetRawRuntimeParameters() {
-        return new RuntimeParameters[] {
-            new RuntimeParameters<string>("Test","Produced BIATCH"),
-
-        };
-    }
-
-    public void Invoke(Iterator[] parameters) {
-        throw new NotImplementedException();
+    public void SetValues(RuntimeParameters[] values) {
+        Debug.Log("Projectile printing");
     }
 }

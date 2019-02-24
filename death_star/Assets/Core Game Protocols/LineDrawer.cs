@@ -10,10 +10,7 @@ public class LineDrawer : MaskableGraphic {
     Image test;
 
      void Start()
-    {
-        
-        
-        
+    { 
         coordinates = new Vector3[] { new Vector3(-100, -100, 0), new Vector3(-100, 100, 0), new Vector3(100, 100, 0), new Vector3(100, -100, 0) };
     }
 

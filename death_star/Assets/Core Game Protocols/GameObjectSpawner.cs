@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 
-public class GameObjectSpawner : Spawner, IPlayerEditable,ISpawnable
+public class GameObjectSpawner : Spawner
 {
 
     public static GameObjectSpawner i; //instance
@@ -19,13 +19,6 @@ public class GameObjectSpawner : Spawner, IPlayerEditable,ISpawnable
     void Update()
     {
 
-    }
-
-    public MethodInfo GetMainMethod()
-    {
-
-        return null;
-        //UIDrawer.i.Spawn("Image");
     }
 
     public RuntimeParameters[] GetRuntimeParameters() {
@@ -45,5 +38,7 @@ public class GameObjectSpawner : Spawner, IPlayerEditable,ISpawnable
         throw new System.NotImplementedException();
     }
 
-    
+    public void SetValues(RuntimeParameters[] runtimeParameters) {
+        Debug.Log("GOS Called");
+    }
 }

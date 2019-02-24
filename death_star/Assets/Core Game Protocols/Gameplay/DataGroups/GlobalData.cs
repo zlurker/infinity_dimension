@@ -8,16 +8,11 @@ using System.Reflection;
 using Newtonsoft.Json;
 
 #region Gameplay Data Structures
-public enum RhythmAnalyseState
-{
-    Manual, Auto
-}
 
 public interface IPlayerEditable
 {
-    MethodInfo GetMainMethod();
     RuntimeParameters[] GetRuntimeParameters();
-    void Invoke(Iterator[] parameters);
+    void SetValues(RuntimeParameters[] runtimeParameters);
 }
 
 public interface ISingleton
@@ -329,7 +324,6 @@ public static class GlobalData
     public static float bpm;
     public static float offset;
     public static bool followsBeat = false;
-    public static RhythmAnalyseState analyseAlgorithm;
 
     public static AudioClip song;
 
@@ -412,11 +406,21 @@ public static class DelegatePools
 
 public static class PresetGameplayData
 {
-    public static Stat[] sT = new Stat[]
-  { new Stat("Current Health", 50), new Stat("Max Health", 50), new Stat("Movespeed", 1), new Stat("Health Regeneration", 1)  };
+    public static Stat[] sT = new Stat[] {
+        new Stat("Current Health", 50),
+        new Stat("Max Health", 50),
+        new Stat("Movespeed", 1),
+        new Stat("Health Regeneration", 1)  };
 
-    //public static JudgementRange[] jRT = new JudgementRange[]
-    //{ new JudgementRange("YEAH!", 0.05f, 0), new JudgementRange("SUPER", 0.1f, 0), new JudgementRange("GOOD", 0.2f, 0), new JudgementRange("OK", 0.3f, 0) };
+    public static ClassFilter[] standaloneClass = new ClassFilter[] {
+        new ClassFilter<Type>(typeof(ISpawnable), (t)=>{
+            ScriptableObject scriptableObject = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[]{ t});
+            return Spawner.GetCType(scriptableObject,t) as IPlayerEditable;
+        }),
+        new ClassFilter<Type>(typeof(ISingleton), (t) => {
+            return Singleton.GetSingleton(t) as IPlayerEditable;
+        })
+    };
 
-    
+
 }
