@@ -45,7 +45,7 @@ public class WindowsScript : MonoBehaviour,IPointerDownHandler,IDragHandler,IPoi
     {
         Vector2 currMousePos; 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out currMousePos);
-        //Debug.Log("Dragging");
+        Debug.Log(currMousePos);
         transform.parent.localPosition = currMousePos - pointInObject;
     }
 }

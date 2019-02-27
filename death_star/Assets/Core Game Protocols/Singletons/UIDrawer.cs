@@ -5,24 +5,20 @@ using UnityEngine.UI;
 using System;
 using System.Reflection;
 
-public class Layer
-{
+public class Layer {
     public List<string> uE; //uiElements
 
-    public Layer()
-    {
+    public Layer() {
         uE = new List<string>();
     }
 }
 
-public class UIDrawer : Spawner, ISingleton, IPlayerEditable
-{
+public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
     public static Canvas t; //target
     public DH uiCreator;
     public Layer uL; //uiLayer
 
-    public override void CreateDefaultSettings()
-    {
+    public override void CreateDefaultSettings() {
         oDS = new ObjectDefaultSettings[] {
             new ObjectDefaultSettings<Text>((t,sOC) =>{
                 t.text = "DEFAULTWORDS";
@@ -89,8 +85,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         };
     }
 
-    public override void CreateOnSpawnDelegates()
-    {
+    public override void CreateOnSpawnDelegates() {
         oSD = new OnSpawnDelegates[]
         {
             new OnSpawnDelegates("Position",new DH((p) =>
@@ -110,34 +105,48 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         };
     }
 
-    public override ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts, DelegateInfo[] onSpawn = null)
-    {
-        Vector2 dimensions = new Vector2();
+    public override ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts, DelegateInfo[] onSpawn = null) {
         ScriptableObject instance = base.CreateScriptedObject(scripts, onSpawn);
+        UpdateMainObject(instance);
 
-        for (int i =0; i < instance.scripts.Length; i++)
-        {
-            RectTransform rT = instance.scripts[i].transform as RectTransform;
-
-            for (int j = 0; j < 2; j++)
-                if (rT.sizeDelta[j] > dimensions[j])
-                    dimensions[j] = rT.sizeDelta[j];
-        }
-
-        (instance.transform as RectTransform).sizeDelta = dimensions;
         return instance;
     }
 
-    public void ModifyLayer(int layerNumber, string groupName = "", bool removeAllSucessors = true)
-    {
-        while (layerNumber >= uL.uE.Count)
+    public override ScriptableObject CreateScriptedObject(Type[] type) {
+        ScriptableObject instance = base.CreateScriptedObject(type);
+
+        UpdateMainObject(instance);
+
+        return instance;
+    }
+
+    public static void ChangeUISize(ScriptableObject target, Type type, Vector2 size) {
+        (GetCType(target, type).transform as RectTransform).sizeDelta = size;
+        UpdateMainObject(target);
+    }
+
+    public static void UpdateMainObject(ScriptableObject target) {
+        Vector2 dimensions = new Vector2();
+
+        for(int i = 0; i < target.scripts.Length; i++) {
+            RectTransform rT = target.scripts[i].transform as RectTransform;
+
+            for(int j = 0; j < 2; j++)
+                if(rT.sizeDelta[j] > dimensions[j])
+                    dimensions[j] = rT.sizeDelta[j];
+        }
+
+        (target.transform as RectTransform).sizeDelta = dimensions;
+    }
+
+    public void ModifyLayer(int layerNumber, string groupName = "", bool removeAllSucessors = true) {
+        while(layerNumber >= uL.uE.Count)
             uL.uE.Add("");
 
         int loopCount = removeAllSucessors ? uL.uE.Count : layerNumber + 1;
 
-        for (int i = layerNumber; i < loopCount; i++)
-            if (uL.uE[i] != "")
-            {
+        for(int i = layerNumber; i < loopCount; i++)
+            if(uL.uE[i] != "") {
                 /*PatternControl.i.Pattern_Args(null, new object[][] {
                 new object[]{ Patterns.GROUP_PATTERN, uL.uE[i], GroupArgs.REMOVE_ALL_CURRENT_OBJECTS }
                 });
@@ -147,11 +156,9 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         uL.uE[layerNumber] = groupName;
     }
 
-    public static Vector3 UINormalisedPosition(Vector3 c)
-    {//coordinates: Returns back position to the decimal of 1.
+    public static Vector3 UINormalisedPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.
 
-        for (int i = 0; i < 2; i++)
-        {
+        for(int i = 0; i < 2; i++) {
             c[i] = (c[i] / 1) * t.pixelRect.size[i];
             c[i] += t.pixelRect.min[i];
         }
@@ -159,19 +166,16 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
         return c;
     }
 
-    public new void RunOnStart()
-    {
+    public new void RunOnStart() {
         t = FindObjectOfType<Canvas>();
     }
 
-    public new void RunOnCreated()
-    {
+    public new void RunOnCreated() {
         bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
         uL = new Layer();
     }
 
-    public override ScriptableObject CustomiseBaseObject()
-    {
+    public override ScriptableObject CustomiseBaseObject() {
         ScriptableObject baseObject = base.CustomiseBaseObject();
         baseObject.transform.SetParent(t.transform);
         return baseObject;
@@ -180,11 +184,10 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable
     public RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
             new RuntimeParameters<string>("UI","What the fuck nigga"),
-
         };
     }
 
     public void SetValues(RuntimeParameters[] values) {
-        throw new NotImplementedException();
+        Debug.Log("UICalled");
     }
 }

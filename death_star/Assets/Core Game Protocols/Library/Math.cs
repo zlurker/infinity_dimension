@@ -3,50 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Math {
-    static Vector2[] cP = new Vector2[] { new Vector2(-1, 1), new Vector2(1, 1), new Vector2(1, -1), new Vector2(-1, -1), new Vector2(-1, 1) };
 
-    public static float CalculateAngle(Vector2 s, Vector2 e) {
-        s = Normalise(s);
-        e = Normalise(e);
+    public static float CalculateAngle(Vector2 e) {
+        float total = Mathf.Abs(e.x) + Mathf.Abs(e.y);
+        float ratio = 1 - (e.y / total);
+        float startUp = 0;
 
-        Vector2 d = e - s;
-        int m = 0;
-        int u = 45;
+        if(e.x >= 0) {
+            startUp = 180;
+            ratio = (e.y / total) - (-1);
+        }
 
-        for (int i = 0; i < 2; i++)
-            if (s[i] == 0 && e[i] == 0)
-                m += 2;
-
-        u = (s.y * d.x) + (s.x * d.y * -1) >= 0 ? u : u * -1;
-
-        return (Mathf.Abs(d.x) + Mathf.Abs(d.y) + m) * u;
+        return (ratio / 2 * 180) + startUp;
     }
 
     public static Vector2 Normalise(Vector2 tTN) {
-        int i = Mathf.Abs(tTN.x) > Mathf.Abs(tTN.y) ? 0 : 1;
+        float sF = Mathf.Abs(tTN.x) > Mathf.Abs(tTN.y) ? tTN.x : tTN.y;
+        Debug.Log(tTN);
 
         for (int j = 0; j < 2; j++)
             if (tTN[j] != 0)
-                tTN[j] /= Mathf.Abs(tTN[i]);
+                tTN[j] /= Mathf.Abs(sF);
 
+        Debug.Log(tTN);
         return tTN;
-    }
-
-    public static float CheckIfAngleInRange(float a) {
-        a = a % 360;
-
-        if (a < 0)
-            return 360 - a;
-
-        return a;
-    }
-
-    public static Vector3 VectorFromAngle(float a) {
-        a = CheckIfAngleInRange(a);
-
-        int sI = Mathf.FloorToInt(a / 90);
-        Vector2 aO = (cP[sI + 1] - cP[sI]) * ((a / 90) - sI);
-
-        return cP[sI] + aO;
     }
 }

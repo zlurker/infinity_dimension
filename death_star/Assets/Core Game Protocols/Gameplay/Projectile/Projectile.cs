@@ -36,7 +36,7 @@ public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
         float tI = tT * aC[aCG % aC.Length].u;
         float t = Singleton.GetSingleton<TimeHandler>().ReturnGameTimeUnit(sT, tI);
 
-        transform.position = sV + (Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u) * t);
+        /*transform.position = sV + (Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u) * t);
 
         if (t > 1)
         {
@@ -44,7 +44,7 @@ public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
             sT += tI;
             aCG++;
             cA += aC[aCG % aC.Length].aC;
-        }
+        }*/
     }
 
     public void OnSpawn()
