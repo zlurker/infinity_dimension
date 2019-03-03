@@ -15,6 +15,11 @@ public class WindowsData {
     public WindowsData(SavedData linkedData) {
         lD = linkedData;
     }
+
+    public void RemoveWindows() {
+        Singleton.GetSingleton<PatternControl>().GetGroup("windows" + wN.ToString()).gP.gameObject.SetActive(false);
+        
+    }
 }
 
 public class SavedDataCommit {
@@ -282,8 +287,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             SavedData[] data = new SavedData[savedData.l.Count];
             for(int i = 0; i < data.Length; i++)
                 data[i] = savedData.l[i].lD;
-            
-            FileSaver.SaveFile(JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(data)));
+
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { "TestFile101" }, JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(data)));
+           // FileSaver.SaveFile(JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(data)));
             Debug.Log(JsonConvert.SerializeObject(savedData));
         });
 
@@ -399,6 +405,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
                 Singleton.GetSingleton<PatternControl>().ModifyGroup(generatedName, new object[] { line });
                 Singleton.GetSingleton<PatternControl>().ModifyGroup("lineStart" + EditableLinkInstance.links.l[runtimePara.lD.connectedInt].l.linkId, new object[] { line });           
             }
+        });
+
+        Spawner.GetCType<Button>(windowsDeleter).onClick.AddListener(() => { //Deletes windows when clicked on
+            runtimePara.RemoveWindows();
         });
 
         Singleton.GetSingleton<PatternControl>().ModifyGroup(windowNo, new object[] { window, windowsConnector, windowsDeleter, lL });
