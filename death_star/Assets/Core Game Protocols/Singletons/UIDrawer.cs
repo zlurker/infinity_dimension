@@ -150,12 +150,15 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
     }
 
     public static Vector3 UINormalisedPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.
+        return UINormalisedPosition(t.transform as RectTransform, c);
+    }
 
+    public static Vector3 UINormalisedPosition(RectTransform target,Vector2 c) {//coordinates: Returns back position to the decimal of 1.
+        c -= target.pivot;
         for(int i = 0; i < 2; i++) {
-            c[i] = (c[i] / 1) * t.pixelRect.size[i];
-            c[i] += t.pixelRect.min[i];
+            c[i] = (c[i] / 1) * target.sizeDelta[i];
+            c[i] += target.position[i];
         }
-
         return c;
     }
 

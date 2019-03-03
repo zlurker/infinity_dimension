@@ -3,6 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public class LineUpdater : IWindowsDragEvent {
+    public string gN;
+
+    public LineUpdater(string groupName) {
+        gN = groupName;
+    }
+
+    public void OnDrag() {
+        Group lines = Singleton.GetSingleton<PatternControl>().GetGroup(gN);
+        //Debug.Log(gN);
+        for(int i = 0; i < lines.gE.Count; i++)
+            Spawner.GetCType<Line>(lines.gE[i]).EstablishJoint();
+    }
+}
+
+
 public class Line : MonoBehaviour {
 
     public Transform target;

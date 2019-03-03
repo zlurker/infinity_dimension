@@ -8,11 +8,6 @@ public class ImageFileReader : MonoBehaviour {
     public SpriteRenderer display;
     Texture2D tex = null;
 
-    // Use this for initialization
-    void Start() {
-        
-    }
-
     public static Color[,] ReadImageFile(Color[] pixels) {
         
         int rcs = 16;
