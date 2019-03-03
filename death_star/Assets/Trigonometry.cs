@@ -36,7 +36,7 @@ public class Trigonometry : MonoBehaviour, IDragHandler {
         Debug.Log(d + " " + d.magnitude);
 
         target.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(diff)));
-        (target.transform.GetChild(0) as RectTransform).sizeDelta = new Vector2(40f, d.magnitude * canvas.scaleFactor);
+        (target.transform.GetChild(0) as RectTransform).sizeDelta = new Vector2(40f, d.magnitude);
         dragged = true;
         //Debug.Log("TargetPos: " + transform.localPosition);
     }

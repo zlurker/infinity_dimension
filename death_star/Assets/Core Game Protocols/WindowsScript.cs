@@ -12,7 +12,7 @@ public interface IWindowsDragEvent {
 public class WindowsScript : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler {
 
     public Image hotspot;
-    public IWindowsDragEvent[] onDrag;
+    public List<IWindowsDragEvent> onDrag;
     Vector2 pointInObject;
     Vector3 trackedPos;
 
@@ -27,9 +27,18 @@ public class WindowsScript : MonoBehaviour, IPointerDownHandler, IDragHandler, I
         hotspot.color = originalColor;
     }
 
+    
+
     // Update is called once per frame
     void Update() {
 
+    }
+
+    public void AddEvent(IWindowsDragEvent evt) {
+        if(onDrag == null)
+            onDrag = new List<IWindowsDragEvent>();
+
+        onDrag.Add(evt);
     }
 
     public void OnPointerDown(PointerEventData eventData) {
@@ -48,7 +57,7 @@ public class WindowsScript : MonoBehaviour, IPointerDownHandler, IDragHandler, I
         transform.parent.localPosition = currMousePos - pointInObject;
 
         if(onDrag != null)
-            for(int i = 0; i < onDrag.Length; i++)
+            for(int i = 0; i < onDrag.Count; i++)
                 onDrag[i].OnDrag();
     }
 }

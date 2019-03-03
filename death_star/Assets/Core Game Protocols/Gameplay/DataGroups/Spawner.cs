@@ -200,7 +200,8 @@ public class Spawner : MonoBehaviour, ISingleton
     public Pool<ScriptableObjectConstruction> sOC; //scriptableObjectConstruction
     public ObjectDefaultSettings[] oDS; //objectDefaultSettings
     public List<TypeIterator> aTS;
-    public OnSpawnDelegates[] oSD; //onSpawnDelegates
+    public EnhancedList<ScriptableObject> sO; //spawnedObjects
+    string name;
     //public static Spawner i;
     protected Type[] bB;  //baseBlocks
 
@@ -209,31 +210,15 @@ public class Spawner : MonoBehaviour, ISingleton
         aTS = new List<TypeIterator>();
 
         bOL = new Pool<ScriptableObject>(CreateBaseObject, null);
+        sO = new EnhancedList<ScriptableObject>();
         bB = new Type[0];
-
+        name = GetType().Name;
         CreateDefaultSettings();
-        CreateOnSpawnDelegates();
     }
 
     public virtual void CreateDefaultSettings()
     {
         oDS = new ObjectDefaultSettings[0];
-    }
-
-    public virtual void CreateOnSpawnDelegates()
-    {
-        oSD = new OnSpawnDelegates[0];
-    }
-
-    protected void OnSpawn(string delegateName, ScriptableObject inst, object[] cP) //Adds created pool element in as target, then set whatever variables it needs by delegate
-    {
-        object[] fP = new object[cP.Length + 1];
-        fP[0] = inst;
-
-        for (int i = 1; i < fP.Length; i++)
-            fP[i] = cP[i - 1];
-
-        Iterator.ReturnObject<OnSpawnDelegates>(oSD, delegateName).d.d(fP);
     }
 
     public void Remove(ScriptableObject inst)
@@ -324,6 +309,22 @@ public class Spawner : MonoBehaviour, ISingleton
         return scripts;
     }
 
+    public ScriptableObject CalibrateScripts(ScriptableObject baseObject) {
+        int id = sO.Add(baseObject);
+        Debug.Log(id);
+        baseObject.gameObject.name = name + "-ScriptableObject" + id.ToString();
+
+        for(int i = 0; i < baseObject.scripts.Length; i++) {
+            if(baseObject.scripts[i].transform.parent == null)
+                baseObject.scripts[i].transform.SetParent(baseObject.transform);
+
+            baseObject.scripts[i].transform.localPosition = Vector3.zero;
+            baseObject.scripts[i].gameObject.name = id.ToString();
+        }
+
+        return baseObject;
+    }
+
     public virtual ScriptableObject CreateScriptedObject(Type[] type)
     {
         ScriptableObject baseObject = CustomiseBaseObject();
@@ -333,40 +334,16 @@ public class Spawner : MonoBehaviour, ISingleton
             scripts[i] = CreateComponent(type[i]);
 
         baseObject.scripts = ConvertToSingleArray(scripts);
-
-        for (int i = 0; i < baseObject.scripts.Length; i++)
-        {
-            if (baseObject.scripts[i].transform.parent == null)
-                baseObject.scripts[i].transform.SetParent(baseObject.transform);
-
-            baseObject.scripts[i].transform.localPosition = Vector3.zero;
-        }
-       
-        return baseObject;
+    
+        return CalibrateScripts(baseObject);
     }
 
     public virtual ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts, DelegateInfo[] onSpawn = null)
     {
         ScriptableObject baseObject = CustomiseBaseObject();
         baseObject.scripts = ConvertToSingleArray(scripts);
-
-        for (int i = 0; i < baseObject.scripts.Length; i++)
-        {
-            if (baseObject.scripts[i].transform.parent == null)
-                baseObject.scripts[i].transform.SetParent(baseObject.transform);
-
-            baseObject.scripts[i].transform.localPosition = Vector3.zero;
-        }
-
-        if (onSpawn != null)
-            for (int i = 0; i < onSpawn.Length; i++)
-                OnSpawn(onSpawn[i].dN, baseObject, onSpawn[i].p);
-
-        //InputField test = GetCType<InputField>(baseObject);
-        //if (test != null)
-        //  test.textComponent = GetCType<Text>(baseObject);
-
-        return baseObject;
+ 
+        return CalibrateScripts(baseObject);
     }
 
     public MonoBehaviour[] ConvertToSingleArray(MonoBehaviour[][] scripts)

@@ -69,6 +69,7 @@ public class AddOnData : Iterator
 public class Group : Iterator
 {
     public List<ScriptableObject> gE; //groupElements
+    public List<Transform> transforms;
     public List<Group> g;//groups
     public List<AddOnData> aO;
 
@@ -83,6 +84,7 @@ public class Group : Iterator
     public void ResetGroup()
     {       
         gE = new List<ScriptableObject>();
+        transforms = new List<Transform>();
         g = new List<Group>();
         aO = new List<AddOnData>();
         n = "";
@@ -107,6 +109,11 @@ public class Group : Iterator
         g.Add(group);
         Root(group.gP);
         //group.gP.transform.parent = gP.transform;
+    }
+
+    public void AddItem(Transform transform) {
+        transforms.Add(transform);
+        Root(transform);
     }
 
     void Root(Transform target)
@@ -180,6 +187,13 @@ public class PatternControl : MonoBehaviour, ISingleton
 
     public Group GetGroup(string name)
     {
+        Group instance = Iterator.ReturnObject<Group>(groups.ToArray(), name);
+
+        if(instance == null) {
+            Singleton.GetSingleton<PatternControl>().ModifyGroup(name, new object[0]);
+            instance = Iterator.ReturnObject<Group>(groups.ToArray(), name);
+        }
+
         return Iterator.ReturnObject<Group>(groups.ToArray(), name);
     }
 
@@ -224,6 +238,9 @@ public class PatternControl : MonoBehaviour, ISingleton
                         for (int j = 0; j < target.aO.Count; j++)
                             target.aO[j].i.Add(objects[i] as ScriptableObject);
                     }
+
+                    if (objects[i] is Transform)
+                        target.AddItem(objects[i] as Transform);
                 }
                 break;
         }

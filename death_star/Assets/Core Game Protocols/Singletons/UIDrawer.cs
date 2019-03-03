@@ -92,33 +92,6 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
         };
     }
 
-    public override void CreateOnSpawnDelegates() {
-        oSD = new OnSpawnDelegates[]
-        {
-            new OnSpawnDelegates("Position",new DH((p) =>
-            {
-                ScriptableObject p0 = p[0] as ScriptableObject;
-                Vector3 p1 = (Vector3) p[1];
-
-                p0.transform.position = p1;
-            })),
-            new OnSpawnDelegates("UIPosition",new DH((p) =>
-            {
-                ScriptableObject p0 = p[0] as ScriptableObject;
-                Vector3 p1 = (Vector3) p[1];
-
-                p0.transform.position = UIDrawer.UINormalisedPosition(p1);
-            }))
-        };
-    }
-
-    public override ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts, DelegateInfo[] onSpawn = null) {
-        ScriptableObject instance = base.CreateScriptedObject(scripts, onSpawn);
-        UpdateMainObject(instance);
-
-        return instance;
-    }
-
     public override ScriptableObject CreateScriptedObject(Type[] type) {
         ScriptableObject instance = base.CreateScriptedObject(type);
 
@@ -127,6 +100,12 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
         return instance;
     }
 
+    public override ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts, DelegateInfo[] onSpawn = null) {
+        ScriptableObject instance= base.CreateScriptedObject(scripts, onSpawn);
+        UpdateMainObject(instance);
+
+        return instance;
+    }
     public static void ChangeUISize(ScriptableObject target, Type type, Vector2 size) {
         (GetCType(target, type).transform as RectTransform).sizeDelta = size;
         UpdateMainObject(target);
