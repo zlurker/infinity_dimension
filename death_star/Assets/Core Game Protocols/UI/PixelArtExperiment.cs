@@ -6,8 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System;
 
-public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IDragHandler
-{
+public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IDragHandler {
 
     Texture2D colorTest;
     Color[] colors;
@@ -26,32 +25,26 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
     Vector2 lw;
     Vector2 mPos;
 
+    string currPath;
 
+    Color[,] colorData;
 
-    // Use this for initialization
-    void Start()
-    {
+    void Start() {
         mPos = new Vector2();
         rcs = 16;
         dimensions = 450;
         PNGDimensions = 1024;
-        scaleFactor = dimensions / rcs;
 
-        imageData = new ScriptableObject[rcs, rcs];
-
-        Vector2 imageDimensions = new Vector2(dimensions, dimensions);
-        (transform as RectTransform).sizeDelta = imageDimensions;
-        transform.localPosition = -(imageDimensions / 2);
-
-        lw = new Vector2(dimensions / rcs, dimensions / rcs);
-
-        pixelOffset = lw / 2;
+        CalibrateEditor();
 
         ScriptableObject sO = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
         UIDrawer.GetCType<Button>(sO).onClick.AddListener(SavePNG);
 
+        currPath = FileSaver.PathGenerator(Application.dataPath, new string[] { "Pixel Art", "Test" });
+        GeneratePixels();
         CreateNewPixel();
 
+        
         /*colors = new Color[1000];
         for (int i = 0; i < colors.Length; i++)
             if (i < 500)
@@ -65,86 +58,123 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         File.WriteAllBytes(Application.dataPath + "/../test6.png", colorTest.EncodeToPNG());*/
     }
 
+    void GeneratePixels() {
+        byte[] fileData;
+        string path;
+        Texture2D tex;
+        colorData = new Color[100,10];
+
+        path = Path.Combine(new string[] { Application.dataPath, "Pixel Art", "Test", "PixelCharacer" });
+        path += ".png";
+
+        if(File.Exists(path)) {
+            fileData = File.ReadAllBytes(path);
+            tex = new Texture2D(1, 1);
+            ImageConversion.LoadImage(tex, fileData);
+
+            //display.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2());
+            colorData = ImageFileReader.ReadImageFile(tex.GetPixels());
+        }
+
+        for (int i=0; i < colorData.GetLength(0); i++) 
+            for (int j =0; j < colorData.GetLength(1); j++) 
+                if (colorData[i,j].a > 0) {
+                    ScriptableObject inst = CreatePixel();
+                    Spawner.GetCType<Image>(inst).color = colorData[i, j];
+                    inst.transform.localPosition = new Vector2(scaleFactor *i,scaleFactor*j) + pixelOffset;
+                    imageData[i, j] = inst;
+                }          
+            
+        
+    }
+
+    void CalibrateEditor() {
+        scaleFactor = dimensions / rcs;
+        imageData = new ScriptableObject[rcs, rcs];
+        Vector2 imageDimensions = new Vector2(dimensions, dimensions);
+        (transform as RectTransform).sizeDelta = imageDimensions;
+        transform.localPosition = -(imageDimensions / 2);
+
+        lw = new Vector2(dimensions / rcs, dimensions / rcs);
+
+        pixelOffset = lw / 2;
+    }
+
     // Update is called once per frame
-    void Update()
-    {
-        if (inObject)
-        {
+    void Update() {
+        if(inObject) {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(transform as RectTransform, Input.mousePosition, cam, out mPos);
 
-            for (int i = 0; i < 2; i++)
+            for(int i = 0; i < 2; i++)
                 mPos[i] = mPos[i] - (mPos[i] % scaleFactor);
 
             pointer.transform.localPosition = mPos + pixelOffset;
         }
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        if (!cam)
+    public void OnPointerEnter(PointerEventData eventData) {
+        if(!cam)
             cam = eventData.pressEventCamera;
 
-        Debug.Log(Input.mousePosition);
-        Debug.Log(eventData.position);
+        //Debug.Log(Input.mousePosition);
+        //sDebug.Log(eventData.position);
 
         inObject = true;
     }
 
-    public void OnPointerExit(PointerEventData eventData)
-    {
+    public void OnPointerExit(PointerEventData eventData) {
         inObject = false;
     }
 
-    void CreateNewPixel()
-    {
-        if (imageData[Mathf.RoundToInt(mPos.x / scaleFactor), Mathf.RoundToInt(mPos.y / scaleFactor)] == null)
-        {
+    void CreateNewPixel() {
+        if(imageData[Mathf.RoundToInt(mPos.x / scaleFactor), Mathf.RoundToInt(mPos.y / scaleFactor)] == null) {
             imageData[Mathf.RoundToInt(mPos.x / scaleFactor), Mathf.RoundToInt(mPos.y / scaleFactor)] = pointer;
-            ScriptableObject inst = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] {typeof(Image) });
-            (Spawner.GetCType<Image>(inst).transform as RectTransform).sizeDelta = lw;
-            inst.transform.parent = transform;
-            pointer = inst;
+            
+            pointer = CreatePixel();
         }
     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
+    public void OnPointerDown(PointerEventData eventData) {
         CreateNewPixel();
     }
 
-    public void OnDrag(PointerEventData eventData)
-    {
+    public void OnDrag(PointerEventData eventData) {
         //Debug.Log("Dragging");
         CreateNewPixel();
     }
 
-    public void SavePNG()
-    {
+    ScriptableObject CreatePixel() {
+        ScriptableObject inst = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Image) });
+        (Spawner.GetCType<Image>(inst).transform as RectTransform).sizeDelta = lw;
+        inst.transform.parent = transform;
+
+        return inst;
+    }
+
+    public void SavePNG() {
         colors = new Color[PNGDimensions * PNGDimensions];
         int pngScaleFactor = PNGDimensions / rcs;
         int totalValueModified = 0;
 
-        for (int i = 0; i < rcs; i++)
-        {
+        for(int i = 0; i < rcs; i++) {
             int xStartPos = pngScaleFactor * i;
-            for (int j = 0; j < rcs; j++)
-            {
+            for(int j = 0; j < rcs; j++) {
                 int yStartPos = pngScaleFactor * j;
 
-                if (imageData[i, j] != null)         
-                    for (int k = xStartPos; k < pngScaleFactor+xStartPos; k++)
-                        for (int l = yStartPos; l < pngScaleFactor+yStartPos; l++)
-                        {
+                for(int k = xStartPos; k < pngScaleFactor + xStartPos; k++)
+                    for(int l = yStartPos; l < pngScaleFactor + yStartPos; l++) {
+                        if(imageData[i, j] != null) {
                             colors[(PNGDimensions * l) + k] = Color.black;
                             totalValueModified++;
-                        }               
+                        }                      
+                    }
             }
         }
 
-        colorTest = new Texture2D(PNGDimensions,PNGDimensions);
+        colorTest = new Texture2D(PNGDimensions, PNGDimensions);
         colorTest.SetPixels(colors);
 
-        Debug.LogFormat("Pixels modified. Total modified: {0}",pngScaleFactor);
-        File.WriteAllBytes(Application.dataPath + "/../PixelCharacter.png", colorTest.EncodeToPNG());
+        Debug.LogFormat("Pixels modified. Total modified: {0}", pngScaleFactor);
+        File.WriteAllBytes(Path.Combine(currPath, "PixelCharacer.PNG"), colorTest.EncodeToPNG());
     }
 }

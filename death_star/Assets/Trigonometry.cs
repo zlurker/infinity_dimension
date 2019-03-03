@@ -17,10 +17,10 @@ public class Trigonometry : MonoBehaviour, IDragHandler {
     void Start() {
         canvas = GetComponent<Canvas>();
         Debug.Log(Math.CalculateAngle(new Vector3(-1f, -0.5f)));
-
     }
 
     void Update() {
+        
     }
 
     public void OnDrag(PointerEventData eventData) {

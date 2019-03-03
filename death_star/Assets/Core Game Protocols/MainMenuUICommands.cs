@@ -72,7 +72,6 @@ public class SavedDataCommit {
     }
 }
 
-
 public class SavedData {
     public List<RuntimeParameters> fields;
     public int connectedInt;
@@ -137,6 +136,29 @@ public class UICalibrator : Iterator {
 }
 
 public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
+
+    public class ButtonData {
+        public Transform root;
+        public int[] p;
+        public bool active;
+    }
+
+    public class LineUpdater:IWindowsDragEvent {
+        public string gN;
+
+        public LineUpdater(string groupName) {
+            gN = groupName;
+        }
+
+        public void OnDrag() {
+            Group lines = Singleton.GetSingleton<PatternControl>().GetGroup(gN);
+
+            for (int i =0; i< lines.gE.Count; i++) 
+                Spawner.GetCType<Line>(lines.gE[i]).EstablishJoint();
+            
+        }
+    }
+
     public static List<SavedData> savedData;
 
     SavedData testGP;
@@ -159,9 +181,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     UICalibrator[] uiCalibration;
 
     //Line Drawing System
-    bool drawLine;
-    ScriptableObject sLine;
     Camera cam;
+    ButtonData bD;
 
     string[] layers;
 
@@ -177,11 +198,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     void InitialiseInIt() //Contains MethodRunners to help prepare field for use.
     {
         interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
+        bD = new ButtonData();
 
         uiCalibration = new UICalibrator[]
         {
             new UICalibrator<InputField>((t,p)=>{
-                Debug.Log(t.contentType);
                 string outputIndex = "";
                 for (int i=0; i < p.Length; i++)
                     outputIndex += p[i].ToString();
@@ -216,12 +237,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
                 }
             });}), new UICalibrator<Button>((t,p)=>{
                 t.onClick.AddListener(()=>{
-                    ScriptableObject line = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[]{typeof(Image)});
-                    line.transform.position = t.transform.position;
-                    sLine = line;
-                    UIDrawer.ChangeUISize(line,typeof(Image),new Vector2(30,300));
-                    Spawner.GetCType<Image>(line).rectTransform.pivot = new Vector2(0.5f,0);
-                    drawLine = true;
+                    bD.active = true;
+                    bD.root = t.transform;
+                    bD.p = p;
                 });
             })
         };
@@ -245,7 +263,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
         SavedData[] prevData = SavedData.CreateLoadFile(path);
         savedData = new List<SavedData>(prevData);
-        SpawnUIFromData(prevData);
+        SpawnUIFromData();
+        GenerateLines();
 
         Singleton.GetSingleton<PatternControl>().ModifyGroup("Test", new object[] { Singleton.GetSingleton<UIDrawer>().CustomiseBaseObject(), Singleton.GetSingleton<Spawner>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<Spawner>().CreateComponent<LinearLayout>() }) });
 
@@ -263,7 +282,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
         ScriptableObject saveButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Button>() });
         Spawner.GetCType<Button>(saveButton).onClick.AddListener(() => {
-            FileSaver.SaveFile(new string[] { "DataFiles", "TestFile" }, JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(savedData.ToArray())));
+            FileSaver.SaveFile(JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(savedData.ToArray())));
             Debug.Log(JsonConvert.SerializeObject(savedData));
         });
 
@@ -271,9 +290,29 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         saveButton.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.1f));
     }
 
-    public void SpawnUIFromData(SavedData[] data) {
-        for(int i = 0; i < data.Length; i++)
-            CreateWindow(data[i]);
+    public void SpawnUIFromData() {
+        for(int i = 0; i < savedData.Count; i++)
+            CreateWindow(savedData[i]);
+    }
+
+    public void GenerateLines() {
+
+        for(int i = 0; i < savedData.Count; i++) {
+            if(savedData[i].connectedInt > -1) {
+                Group linkedGroup = Singleton.GetSingleton<PatternControl>().GetGroup("windows" + savedData[i].connectedInt.ToString());
+                Group currGroup = Singleton.GetSingleton<PatternControl>().GetGroup("windows" + i.ToString());
+          
+                ScriptableObject line = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Line) });
+                UIDrawer.ChangeUISize(line, typeof(Image), new Vector2(10, 500));
+                Spawner.GetCType<Image>(line).rectTransform.pivot = new Vector2(0.5f, 0);
+                //line.transform.position = bD.root.position;
+                Spawner.GetCType<Line>(line).target = linkedGroup.gE[0].transform;
+                Spawner.GetCType<Line>(line).lineRoot = currGroup.gE[0].transform;
+                Spawner.GetCType<Line>(line).EstablishJoint();
+
+                Singleton.GetSingleton<PatternControl>().ModifyGroup("line" + savedData[i].connectedInt.ToString(),new object[] {line });
+            }
+        }
     }
 
     public void WindowSpawnState(int index) {
@@ -285,6 +324,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     }
 
     public void OnPointerDown(PointerEventData eventData) {
+        if(!cam)
+            cam = eventData.pressEventCamera;
+
         if(windowSpawnMode) {
             windowSpawnMode = false;
             windowSpawner.gameObject.SetActive(false);
@@ -301,9 +343,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
                 window.transform.localPosition = cursorPos;
             }
         }
-
-        if(!cam)
-            cam = eventData.pressEventCamera;
     }
 
     public SavedData[] GetDefaultWindows(SavedData[] root) {
@@ -329,26 +368,38 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
 
     public ScriptableObject CreateWindow(SavedData runtimePara) {
-        string windowNo = windowsCount.ToString();
+        string windowNo = "windows" +windowsCount.ToString();
         int currWindow = windowsCount;
         windowsCount++;
 
         ScriptableObject window = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>() });
         ScriptableObject lL = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
-        ScriptableObject windowsConnector = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Image) });
-        UIDrawer.ChangeUISize(windowsConnector, typeof(Image), new Vector2(0, 0));
+        ScriptableObject windowsConnector = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
         Spawner.GetCType<Image>(windowsConnector).color = Color.black;
 
+        Spawner.GetCType<Button>(windowsConnector).onClick.AddListener(() => { //Generates line when clicked on
+            if(bD.active) {
+                bD.active = false;
+                ScriptableObject line = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Line) });
+                line.transform.position = bD.root.position;
+                UIDrawer.ChangeUISize(line, typeof(Image), new Vector2(10, 500));
+                Spawner.GetCType<Image>(line).rectTransform.pivot = new Vector2(0.5f, 0);
+                Spawner.GetCType<Line>(line).target = Spawner.GetCType<Button>(windowsConnector).transform;
+                Spawner.GetCType<Line>(line).EstablishJoint();
+
+                (savedData[bD.p[0]].fields[bD.p[1]] as RuntimeParameters<EditableLinkInstance>).v.LinkObject(savedData[currWindow]);
+            }
+        });
+
         Singleton.GetSingleton<PatternControl>().ModifyGroup(windowNo, new object[] { window, windowsConnector, lL });
-        Spawner.GetCType<LinearLayout>(lL).Add(windowsConnector);
         Spawner.GetCType<LinearLayout>(lL).Add(window);
-        UIDrawer.ChangeUISize(windowsConnector, typeof(Image), new Vector2(20, 20));
+        UIDrawer.ChangeUISize(windowsConnector, new Vector2(20, 20));
 
         for(int i = 0; i < runtimePara.fields.Count; i++) {
             string generatedString = windowNo + " - " + i.ToString();
             ScriptableObject elementName = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });
             ScriptableObject align = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
-            ScriptableObject element = ReturnElementField(runtimePara.fields[i].t);
+            ScriptableObject element = ReturnElementField(runtimePara.fields[i].t,window,runtimePara.fields[i]);
             Spawner.GetCType<Text>(elementName).text = runtimePara.fields[i].n;
             Spawner.GetCType<Text>(elementName).color = Color.white;
             Spawner.GetCType<LinearLayout>(align).o = LinearLayout.Orientation.X;
@@ -362,7 +413,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         return window;
     }
 
-    public ScriptableObject ReturnElementField(Type t) {
+    public ScriptableObject ReturnElementField(Type t, ScriptableObject window,RuntimeParameters variable) {
         ScriptableObject element = null;
 
         if(t == typeof(string)) {
@@ -380,8 +431,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             Spawner.GetCType<InputField>(element).contentType = InputField.ContentType.DecimalNumber;
         }
 
-        if(t == typeof(EditableLinkInstance))
+        if(t == typeof(EditableLinkInstance)) {
+            string generatedName = "line" + (variable as RuntimeParameters<EditableLinkInstance>).v.linkId.ToString();
             element = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
+            Spawner.GetCType<WindowsScript>(window).onDrag = new IWindowsDragEvent[] { new LineUpdater(generatedName) };
+        }
 
         return element;
     }
@@ -398,13 +452,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         if(windowSpawnMode)
             windowSpawner.transform.position = Input.mousePosition;
 
-        if(drawLine) {
-            Vector2 wP;
-            Vector3 diff;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(transform as RectTransform, Input.mousePosition, cam, out wP);
-            diff = new Vector3(wP.x, wP.y) - sLine.transform.localPosition;
-
-            sLine.transform.rotation = Quaternion.Euler(new Vector3(0,0,Math.CalculateAngle(diff)));
-        }
+        /*if(drawLine) {
+            Vector3 wP;
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(transform as RectTransform, Input.mousePosition, cam, out wP);
+            Spawner.GetCType<Line>(sLine).EstablishJoint(wP);
+        }*/
     }
 }

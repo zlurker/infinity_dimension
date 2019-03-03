@@ -81,6 +81,13 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
                  //t.transform.name = "Panel";
                  (t.transform as RectTransform).sizeDelta = new Vector2(0,0);
                  //sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>());
+            }),
+
+            new ObjectDefaultSettings<Line>((t, sOC)=>{
+                 //t.transform.name = "Panel";
+                 (t.transform as RectTransform).sizeDelta = new Vector2(0,0);
+                 sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Image>());
+                 //sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>());
             })
         };
     }
@@ -122,6 +129,13 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
 
     public static void ChangeUISize(ScriptableObject target, Type type, Vector2 size) {
         (GetCType(target, type).transform as RectTransform).sizeDelta = size;
+        UpdateMainObject(target);
+    }
+
+    public static void ChangeUISize(ScriptableObject target, Vector2 size) {
+        for(int i = 0; i < target.scripts.Length; i++)
+            (target.scripts[i].transform as RectTransform).sizeDelta = size;
+
         UpdateMainObject(target);
     }
 

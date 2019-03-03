@@ -44,13 +44,16 @@ public class StartupLinkerHelper {
             if(target[i].connectedInt > -1) {
                 groupId = GetGroupByID(target[i].connectedInt.ToString());
                 EditableLinkInstance.links[groupId].linkedData.Add(target[i]);
-            }
+                Debug.Log("Exception: " + target[i].connectedInt);
+            } 
+                
 
             for(int j = 0; j < target[i].fields.Count; j++) {
                 RuntimeParameters<EditableLinkInstance> instance = target[i].fields[j] as RuntimeParameters<EditableLinkInstance>;
 
                 if(instance != null) {
                     groupId = GetGroupByID(instance.v.linkIdStr);
+                    Debug.Log(instance.v.linkIdStr);
                     EditableLinkInstance.links[groupId].l = instance.v;
                 }
             }
@@ -78,11 +81,11 @@ public class EditableLinkInstance {
     public string linkIdStr;
 
     public EditableLinkInstance() {
-        //Debug.Log("Called" + links.Count);
+        Debug.Log("Called" + links.Count);
     }
 
     public EditableLinkInstance(SavedData[] startingObjects) {
-        //Debug.Log("Called" + links.Count);
+        Debug.Log("Called" + links.Count);
         linkId = links.Count;
         linkIdStr = linkId.ToString();
         links.Add(new EditableLinkObjects(this));

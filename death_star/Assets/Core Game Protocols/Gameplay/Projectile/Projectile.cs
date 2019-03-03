@@ -6,45 +6,16 @@ using System.Reflection;
 
 public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
 {
-
-    public float cA; //currAngle
-    public PointData[] aC; //angleChanges
-    public float tD; //totalDistance
-    public float tT; //totalTime
-    public int pF; //patternFrequency
-
-    //float i; //interval
-    int aCG; //actualChanges
-    float sT; //startTime
-    Vector3 sV; //startVector
-
+    public RuntimeParameters[] parameters;
+  
     void Start()
     {
-        cA = 0;
-        aC = new PointData[] { new PointData(0, 0.2f), new PointData(50, 0.8f) };
-        tD = 100;
-        tT = 10;
-        pF = 3;
 
-        aCG = 0;
-        sT = Time.time;
-        sV = transform.position;
     }
 
     void Update()
     {
-        float tI = tT * aC[aCG % aC.Length].u;
-        float t = Singleton.GetSingleton<TimeHandler>().ReturnGameTimeUnit(sT, tI);
-
-        /*transform.position = sV + (Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u) * t);
-
-        if (t > 1)
-        {
-            sV += Math.VectorFromAngle(cA) * (tD * aC[aCG % aC.Length].u);
-            sT += tI;
-            aCG++;
-            cA += aC[aCG % aC.Length].aC;
-        }*/
+        transform.parent.position += new Vector3(1, Mathf.Tan(70 * Mathf.Deg2Rad)) * Iterator.ReturnObject<RuntimeParameters<float>>(parameters, "Projectile Speed").v;
     }
 
     public void OnSpawn()
@@ -53,7 +24,6 @@ public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
     }
 
     public RuntimeParameters[] GetRuntimeParameters() {
-
         return new RuntimeParameters[] {
             new RuntimeParameters<string>("Name of Projectile","Marcus Warts"),
             new RuntimeParameters<float>("Projectile Speed", 5),
@@ -64,6 +34,6 @@ public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
     }
 
     public void SetValues(RuntimeParameters[] values) {
-        Debug.Log("Projectile printing");
+        parameters = values; 
     }
 }
