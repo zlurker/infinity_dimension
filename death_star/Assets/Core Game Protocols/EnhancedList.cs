@@ -23,13 +23,13 @@ public class EnhancedList<T> {
 
         if(iNS.Count > 0) {
             index = iNS.Pop();
-            Debug.LogFormat("Popped index {0}", index);
+            //Debug.LogFormat("Popped index {0}", index);
             l[index] = element;
         } else {
             index = l.Count;
             l.Add(element);
         }
-        Debug.Log("Supposed Index" + index);
+        //Debug.Log("Supposed Index" + index);
         return index;
     }
 

@@ -311,7 +311,6 @@ public class Spawner : MonoBehaviour, ISingleton
 
     public ScriptableObject CalibrateScripts(ScriptableObject baseObject) {
         int id = sO.Add(baseObject);
-        Debug.Log(id);
         baseObject.gameObject.name = name + "-ScriptableObject" + id.ToString();
 
         for(int i = 0; i < baseObject.scripts.Length; i++) {

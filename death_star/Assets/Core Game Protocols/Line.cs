@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[Obsolete("Not used any more", true)]
 public class LineUpdater : IWindowsDragEvent {
     public string gN;
 
@@ -36,8 +38,6 @@ public class Line : MonoBehaviour {
         if(sO == null)
             sO = Singleton.GetSingleton<UIDrawer>().sO.l[int.Parse(gameObject.name)];
 
-        Vector2 d = oppEnd - transform.parent.position;
-        Spawner.GetCType<Image>(sO).rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
-        transform.parent.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(oppEnd - transform.parent.position)));
+        
     }
 }

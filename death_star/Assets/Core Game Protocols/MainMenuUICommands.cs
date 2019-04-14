@@ -10,6 +10,7 @@ using System.IO;
 
 public class WindowsData {
     public SavedData lD;
+    public EditableWindow eW;
     public int wN;
 
     public WindowsData(SavedData linkedData) {
@@ -17,8 +18,38 @@ public class WindowsData {
     }
 
     public void RemoveWindows() {
-        Singleton.GetSingleton<PatternControl>().GetGroup("windows" + wN.ToString()).gP.gameObject.SetActive(false);
-        
+        eW.window.gameObject.SetActive(false);
+    }
+}
+
+public class EditableWindow {
+
+    public ScriptableObject window;
+    public LinearLayout lL;
+    public ScriptableObject windowsConnector;
+    public ScriptableObject windowsDeleter;
+    public LineManager lineManager;
+
+    public EditableWindow() {
+        window = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>() });
+        lL = Spawner.GetCType<LinearLayout>(Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() }));
+        windowsConnector = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
+        windowsDeleter = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
+        lineManager = new LineManager();
+
+        Spawner.GetCType<Image>(windowsConnector).color = Color.black;
+        Spawner.GetCType<Image>(windowsDeleter).color = Color.red;
+
+        windowsConnector.transform.SetParent(window.transform);
+        windowsDeleter.transform.SetParent(window.transform);
+        lL.transform.SetParent(window.transform);
+
+        windowsConnector.transform.position = UIDrawer.UINormalisedPosition(window.transform as RectTransform, new Vector2(0.15f, 0.5f));
+        windowsDeleter.transform.position = UIDrawer.UINormalisedPosition(window.transform as RectTransform, new Vector2(0.85f, 0.5f));
+        lL.transform.position = UIDrawer.UINormalisedPosition(window.transform as RectTransform, new Vector2(0f, -1));
+
+        UIDrawer.ChangeUISize(windowsConnector, new Vector2(20, 20));
+        UIDrawer.ChangeUISize(windowsDeleter, new Vector2(20, 20));
     }
 }
 
@@ -76,7 +107,7 @@ public class SavedDataCommit {
 
             for(int i = 0; i < instance.fields.Count; i++) {
                 int j = Iterator.ReturnKey(members.ToArray(), instance.fields[i].n, (t) => { return t.n; });
-                //Debug.Log(selectedInterface.GetType().Name);
+
                 if(j > -1)
                     instance.fields[i] = VariableTypeIndex.ReturnRuntimeType(members[j].vI, members[j].sO);
             }
@@ -157,7 +188,20 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         public bool active;
     }
 
+    public class SourceData {
+        public Transform src;
+        public int taggedId;
+
+        public SourceData(Transform source, int tagged) {
+            src = source;
+            taggedId = tagged;
+        }
+    }
+
     public static EnhancedList<WindowsData> savedData;
+    public static AutoPopulationList<SourceData> srcData;
+
+    public ScriptableObject mainClassSelection;
 
     public Font font;
     Text instance;
@@ -259,6 +303,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
         SavedData[] prevData = SavedData.CreateLoadFile(path);
         savedData = new EnhancedList<WindowsData>();
+        srcData = new AutoPopulationList<SourceData>();
 
         for(int i = 0; i < prevData.Length; i++) {
             WindowsData inst = new WindowsData(prevData[i]);
@@ -268,29 +313,33 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         SpawnUIFromData();
         GenerateLines();
 
-        Singleton.GetSingleton<PatternControl>().ModifyGroup("Test", new object[] { Singleton.GetSingleton<UIDrawer>().CustomiseBaseObject(), Singleton.GetSingleton<Spawner>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<Spawner>().CreateComponent<LinearLayout>() }) });
+        mainClassSelection = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(LinearLayout) });
+        //Singleton.GetSingleton<PatternControl>().ModifyGroup("Test", new object[] { Singleton.GetSingleton<UIDrawer>().CustomiseBaseObject(), Singleton.GetSingleton<Spawner>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<Spawner>().CreateComponent<LinearLayout>() }) });
 
         ScriptableObject[] buttons = new ScriptableObject[interfaces.Length];
         for(int i = 0; i < interfaces.Length; i++) {
             ScriptableObject buttonTest = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Button>() });
             Iterator.ReturnObject<DelegateIterator>(inIt, "WindowSpawner").d.Invoke(new object[] { buttonTest, i });
 
-            Singleton.GetSingleton<PatternControl>().ModifyGroup("Test", new object[] { buttonTest });
+            Spawner.GetCType<LinearLayout>(mainClassSelection).Add(buttonTest.transform as RectTransform);
         }
 
-        Singleton.GetSingleton<PatternControl>().GetGroup("Test").gP.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
+        mainClassSelection.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
         windowSpawner = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Image>(), Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });
         windowSpawner.gameObject.SetActive(false);
 
         ScriptableObject saveButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Button>() });
         Spawner.GetCType<Button>(saveButton).onClick.AddListener(() => {
-            SavedData[] data = new SavedData[savedData.l.Count];
-            for(int i = 0; i < data.Length; i++)
-                data[i] = savedData.l[i].lD;
+            SavedData[] data;
 
+            List<SavedData> sDL = new List<SavedData>();
+            for(int i = 0; i < savedData.l.Count; i++) {
+                if(savedData.l[i].lD != null)
+                    sDL.Add(savedData.l[i].lD);
+            }
+
+            data = sDL.ToArray();
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { "TestFile101" }, JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(data)));
-           // FileSaver.SaveFile(JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(data)));
-            Debug.Log(JsonConvert.SerializeObject(savedData));
         });
 
         Spawner.GetCType<Text>(saveButton).text = "Save JSON";
@@ -306,10 +355,17 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
         for(int i = 0; i < savedData.l.Count; i++) {
             if(savedData.l[i].lD.connectedInt > -1) {
-                Group linkedGroup = Singleton.GetSingleton<PatternControl>().GetGroup("lineStart" + savedData.l[i].lD.connectedInt.ToString());
-                Group currGroup = Singleton.GetSingleton<PatternControl>().GetGroup("windows" + i.ToString());
 
-                //Debug.Log("lineStart" + savedData[i].connectedInt.ToString() + " " +  linkedGroup.transforms.Count);
+                EditableWindow currGroup = savedData.l[i].eW;
+                LineData lineData = new LineData(srcData.l[savedData.l[i].lD.connectedInt].src, currGroup.windowsConnector.transform);
+
+                savedData.l[srcData.l[savedData.l[i].lD.connectedInt].taggedId].eW.lineManager.lineData.Add(lineData);
+                savedData.l[srcData.l[savedData.l[i].lD.connectedInt].taggedId].eW.lineManager.lineData.Add(lineData);
+                currGroup.lineManager.lineData.Add(lineData);
+                Debug.Log("Data added");
+                currGroup.lineManager.UpdateLines();
+
+                /*
                 ScriptableObject line = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Line) });
                 UIDrawer.ChangeUISize(line, typeof(Image), new Vector2(10, 500));
                 Spawner.GetCType<Image>(line).rectTransform.pivot = new Vector2(0.5f, 0);
@@ -318,8 +374,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
                 Spawner.GetCType<Line>(line).lineRoot = currGroup.gE[0].transform;
                 Spawner.GetCType<Line>(line).EstablishJoint();
 
-                Singleton.GetSingleton<PatternControl>().ModifyGroup("lineStart" + savedData.l[i].lD.connectedInt.ToString(), new object[] { line });
-                Singleton.GetSingleton<PatternControl>().ModifyGroup("lineEnd" + i.ToString(), new object[] { line });
+                */
+                //Singleton.GetSingleton<PatternControl>().ModifyGroup("lineStart" + savedData.l[i].lD.connectedInt.ToString(), new object[] { line });
+                //Singleton.GetSingleton<PatternControl>().ModifyGroup("lineEnd" + i.ToString(), new object[] { line });
             }
         }
     }
@@ -379,65 +436,48 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     public ScriptableObject CreateWindow(WindowsData runtimePara) {
         string windowNo = "windows" + runtimePara.wN.ToString();
 
-        ScriptableObject window = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>() });
-        ScriptableObject lL = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
-        ScriptableObject windowsConnector = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
-        ScriptableObject windowsDeleter = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
-        Spawner.GetCType<Image>(windowsConnector).color = Color.black;
-        Spawner.GetCType<Image>(windowsDeleter).color = Color.red;
+        EditableWindow editWindow = new EditableWindow();
+        runtimePara.eW = editWindow;
 
-        string generatedName = "lineEnd" + runtimePara.wN.ToString();
-        
-        Spawner.GetCType<WindowsScript>(window).AddEvent(new LineUpdater(generatedName));
+        Spawner.GetCType<WindowsScript>(editWindow.window).AddEvent(editWindow.lineManager);
 
-        Spawner.GetCType<Button>(windowsConnector).onClick.AddListener(() => { //Generates line when clicked on
+        Spawner.GetCType<Button>(editWindow.windowsConnector).onClick.AddListener(() => { //Generates line when clicked on
             if(bD.active) {
                 bD.active = false;
-                ScriptableObject line = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Line) });
-                line.transform.position = bD.root.position;
-                UIDrawer.ChangeUISize(line, typeof(Image), new Vector2(10, 500));
-                Spawner.GetCType<Image>(line).rectTransform.pivot = new Vector2(0.5f, 0);
-                Spawner.GetCType<Line>(line).target = Spawner.GetCType<Button>(windowsConnector).transform;
-                Spawner.GetCType<Line>(line).EstablishJoint();
-
+                LineData lineData = new LineData(savedData.l[bD.p[0]].eW.window.transform, editWindow.windowsConnector.transform);
+                editWindow.lineManager.lineData.Add(lineData);
+                editWindow.lineManager.UpdateLines();
                 (savedData.l[bD.p[0]].lD.fields[bD.p[1]] as RuntimeParameters<EditableLinkInstance>).v.LinkObject(savedData.l[runtimePara.wN].lD);
-
-                Singleton.GetSingleton<PatternControl>().ModifyGroup(generatedName, new object[] { line });
-                Singleton.GetSingleton<PatternControl>().ModifyGroup("lineStart" + EditableLinkInstance.links.l[runtimePara.lD.connectedInt].l.linkId, new object[] { line });           
             }
         });
 
-        Spawner.GetCType<Button>(windowsDeleter).onClick.AddListener(() => { //Deletes windows when clicked on
+        Spawner.GetCType<Button>(editWindow.windowsDeleter).onClick.AddListener(() => { //Deletes windows when clicked on
             runtimePara.RemoveWindows();
         });
 
-        Singleton.GetSingleton<PatternControl>().ModifyGroup(windowNo, new object[] { window, windowsConnector, windowsDeleter, lL });
-
-        windowsConnector.transform.position = UIDrawer.UINormalisedPosition(window.transform as RectTransform, new Vector2(0.15f, 0.5f));
-        windowsDeleter.transform.position = UIDrawer.UINormalisedPosition(window.transform as RectTransform, new Vector2(0.85f, 0.5f));
-        Spawner.GetCType<LinearLayout>(lL).Add(window);
-        UIDrawer.ChangeUISize(windowsConnector, new Vector2(20, 20));
-        UIDrawer.ChangeUISize(windowsDeleter, new Vector2(20, 20));
 
         for(int i = 0; i < runtimePara.lD.fields.Count; i++) {
             string generatedString = windowNo + " - " + i.ToString();
             ScriptableObject elementName = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });
-            ScriptableObject align = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
-            ScriptableObject element = ReturnElementField(runtimePara.lD.fields[i], Spawner.GetCType<WindowsScript>(window));
+            ScriptableObject element = ReturnElementField(runtimePara.lD.fields[i], runtimePara);
             Spawner.GetCType<Text>(elementName).text = runtimePara.lD.fields[i].n;
             Spawner.GetCType<Text>(elementName).color = Color.white;
-            Spawner.GetCType<LinearLayout>(align).o = LinearLayout.Orientation.X;
 
-            Singleton.GetSingleton<PatternControl>().ModifyGroup(generatedString, new object[] { Singleton.GetSingleton<UIDrawer>().CustomiseBaseObject(), align, elementName, element });
-            Singleton.GetSingleton<PatternControl>().ModifyGroup(windowNo, new object[] { Singleton.GetSingleton<PatternControl>().GetGroup(generatedString) });
+            ScriptableObject align = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
+
+            Spawner.GetCType<LinearLayout>(align).o = LinearLayout.Orientation.X;
+            Spawner.GetCType<LinearLayout>(align).Add(elementName.transform as RectTransform);
+            Spawner.GetCType<LinearLayout>(align).Add(element.transform as RectTransform);
+            (align.transform as RectTransform).sizeDelta = (Spawner.GetCType<LinearLayout>(align).transform as RectTransform).sizeDelta;
+            editWindow.lL.Add(align.transform as RectTransform);
 
             UICalibrator(element, new int[] { runtimePara.wN, i });
         }
 
-        return window;
+        return editWindow.window;
     }
 
-    public ScriptableObject ReturnElementField(RuntimeParameters variable,WindowsScript window) {
+    public ScriptableObject ReturnElementField(RuntimeParameters variable, WindowsData window) {
         ScriptableObject element = null;
 
         if(variable.t == typeof(string)) {
@@ -456,12 +496,13 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         }
 
         if(variable.t == typeof(EditableLinkInstance)) {
-            string generatedString = "lineStart" + (variable as RuntimeParameters<EditableLinkInstance>).v.linkId.ToString();
             element = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
-            ScriptableObject lineHolder = Singleton.GetSingleton<Spawner>().CustomiseBaseObject();
-            lineHolder.transform.parent = element.transform;
-            Singleton.GetSingleton<PatternControl>().ModifyGroup(generatedString, new object[] { lineHolder.transform });
-            window.AddEvent(new LineUpdater(generatedString));
+            srcData.ModifyElementAt((variable as RuntimeParameters<EditableLinkInstance>).v.linkId, new SourceData(element.transform, window.wN));
+            //(variable as RuntimeParameters<EditableLinkInstance>).v.src = element.transform;
+            //ScriptableObject lineHolder = Singleton.GetSingleton<Spawner>().CustomiseBaseObject();
+            //lineHolder.transform.parent = element.transform;
+            //Singleton.GetSingleton<PatternControl>().ModifyGroup(generatedString, new object[] { lineHolder.transform });
+            //window.AddEvent(new LineUpdater(generatedString));
         }
 
         return element;
@@ -475,18 +516,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         }
     }
 
-    public void DeleteWindows() {
-
-    }
-
     void Update() {
         if(windowSpawnMode)
             windowSpawner.transform.position = Input.mousePosition;
-
-        /*if(drawLine) {
-            Vector3 wP;
-            RectTransformUtility.ScreenPointToWorldPointInRectangle(transform as RectTransform, Input.mousePosition, cam, out wP);
-            Spawner.GetCType<Line>(sLine).EstablishJoint(wP);
-        }*/
     }
 }

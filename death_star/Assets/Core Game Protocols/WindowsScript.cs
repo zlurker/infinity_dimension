@@ -15,6 +15,7 @@ public class WindowsScript : MonoBehaviour, IPointerDownHandler, IDragHandler, I
     public List<IWindowsDragEvent> onDrag;
     Vector2 pointInObject;
     Vector3 trackedPos;
+   
 
     // Use this for initialization
     void Start() {
@@ -25,13 +26,6 @@ public class WindowsScript : MonoBehaviour, IPointerDownHandler, IDragHandler, I
         Color originalColor = hotspot.color;
         originalColor.a = 0;
         hotspot.color = originalColor;
-    }
-
-    
-
-    // Update is called once per frame
-    void Update() {
-
     }
 
     public void AddEvent(IWindowsDragEvent evt) {

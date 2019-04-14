@@ -5,8 +5,7 @@ using UnityEngine;
 
 public interface IAddOn
 {
-    void Add(object target);
-    void LinkedGroup(Group linkedGroup);
+    void Add(RectTransform target);
 }
 
 public class AddOnData : Iterator
@@ -65,7 +64,7 @@ public class AddOnData : Iterator
             gE.Add(items[i]);
     }
 }*/
-
+[Obsolete("Not used any more", true)]
 public class Group : Iterator
 {
     public List<ScriptableObject> gE; //groupElements
@@ -162,6 +161,7 @@ public enum GroupArgs
     NONE, ADD_PARAMETER_OBJECTS, REMOVE_PARAMETER_OBJECTS, REMOVE_ALL_CURRENT_OBJECTS, REMOVE_GROUP
 }
 
+[Obsolete("Not used any more", true)]
 public class PatternControl : MonoBehaviour, ISingleton
 {
     //List<GroupElement> g; //groups 
@@ -218,8 +218,8 @@ public class PatternControl : MonoBehaviour, ISingleton
                     {
                         target.AddItem(objects[i] as Group);
 
-                        for (int j = 0; j < target.aO.Count; j++)
-                            target.aO[j].i.Add(objects[i] as Group);
+                        //for (int j = 0; j < target.aO.Count; j++)
+                            ///target.aO[j].i.Add(objects[i] as Group);
                     }
 
                     if (objects[i] is ScriptableObject)
@@ -232,11 +232,11 @@ public class PatternControl : MonoBehaviour, ISingleton
                             {
                                 IAddOn iAOinst = sO.scripts[j] as IAddOn;
                                 target.AddItem(iAOinst);
-                                iAOinst.LinkedGroup(target);
+                                //iAOinst.LinkedGroup(target);
                             }
 
-                        for (int j = 0; j < target.aO.Count; j++)
-                            target.aO[j].i.Add(objects[i] as ScriptableObject);
+                        //for (int j = 0; j < target.aO.Count; j++)
+                            ///target.aO[j].i.Add(objects[i] as ScriptableObject);
                     }
 
                     if (objects[i] is Transform)
