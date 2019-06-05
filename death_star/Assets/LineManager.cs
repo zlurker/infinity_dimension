@@ -38,7 +38,7 @@ public class LineManager:IWindowsDragEvent {
             Vector2 d = lineData[i].e.position - lineData[i].s.position;
             Spawner.GetCType<Image>(lineData[i].line).rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
             lineData[i].line.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(d)));
-            Debug.Log("Working");
+            //Debug.Log("Working");
         }
         
     }

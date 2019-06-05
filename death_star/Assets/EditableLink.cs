@@ -38,8 +38,8 @@ public class StartupLinkerHelper {
 
         for(int i = 0; i < target.Length; i++) {
             int groupId;
-            if(target[i].connectedInt > -1) {
-                groupId = GetGroupByID(target[i].connectedInt.ToString());
+            for (int j=0; j < target[i].connectedInt.Count; j++) {
+                groupId = GetGroupByID(target[i].connectedInt[j].ToString());
                 EditableLinkInstance.links.l[groupId].linkedData.Add(target[i]);
             }
 
@@ -62,7 +62,7 @@ public class StartupLinkerHelper {
             }
 
             for(int j = 0; j < EditableLinkInstance.links.l[i].linkedData.Count; j++)
-                EditableLinkInstance.links.l[i].linkedData[j].connectedInt = cI;
+                EditableLinkInstance.links.l[i].linkedData[j].connectedInt.Add(cI);
         }
     }
 }
@@ -88,7 +88,7 @@ public class EditableLinkInstance {
     }
 
     public void LinkObject(SavedData target) {
-        target.connectedInt = linkId;
+        target.connectedInt.Add(linkId);
         links.l[linkId].linkedData.Add(target);
     }
 }

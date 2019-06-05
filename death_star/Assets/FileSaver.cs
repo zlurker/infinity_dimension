@@ -6,10 +6,12 @@ using UnityEngine;
 
 public class FileSaveTemplate<T> : FileSaveTemplate {
     public Action<string, T> s;
+    
 
-    public FileSaveTemplate(string catergory, string[] filePath, Action<string, T> save) { //filePath followed by DataPath
+    public FileSaveTemplate(string catergory, string[] filePath,string extension, Action<string, T> save) { //filePath followed by DataPath
         c = catergory;
         s = save;
+        ext = "." + extension;
 
         fP = FileSaver.PathGenerator(Application.dataPath, filePath);
     }
@@ -18,19 +20,25 @@ public class FileSaveTemplate<T> : FileSaveTemplate {
 public class FileSaveTemplate {
     public string c;
     public string fP;
+    public string ext;
 
     public void GenericSaveTrigger<T>(string[] addtionalPath, T data) {
         string generatedPath = FileSaver.PathGenerator(fP,addtionalPath);
+        Debug.Log(fP);
 
-        (this as FileSaveTemplate<T>).s(generatedPath, data);
+        (this as FileSaveTemplate<T>).s(generatedPath + ext, data);
+    }
+
+    public string GetBaseLevelPath(string[] inBetween) {
+        string bP = FileSaver.PathGenerator(fP, inBetween);
+        return bP + ext;
     }
 }
 
 
 public class FileSaver {
     public static FileSaveTemplate[] sFT = new FileSaveTemplate[] {
-        new FileSaveTemplate<string>("Datafile", new string[]{ "Datafiles","Experimental" },(fP, t)=>{
-        fP += ".json";
+        new FileSaveTemplate<string>("Datafile", new string[]{ "Datafiles" },"json",(fP, t)=>{
 
         if (!File.Exists(fP))
             File.Create(fP).Dispose();

@@ -40,6 +40,9 @@ public class EditableWindow {
         Spawner.GetCType<Image>(windowsConnector).color = Color.black;
         Spawner.GetCType<Image>(windowsDeleter).color = Color.red;
 
+        Spawner.GetCType<Text>(windowsConnector).text = "";
+        Spawner.GetCType<Text>(windowsDeleter).text = "";
+
         windowsConnector.transform.SetParent(window.transform);
         windowsDeleter.transform.SetParent(window.transform);
         lL.transform.SetParent(window.transform);
@@ -58,7 +61,7 @@ public class SavedDataCommit {
     public List<SavedDataCommit> members;
     public string n;
     public int vI;
-    public int cI;
+    public int[] cI;
     public string sO;
 
     public SavedDataCommit(string name, string soValue, int variableIndex) {
@@ -68,7 +71,7 @@ public class SavedDataCommit {
         vI = variableIndex;
     }
 
-    public SavedDataCommit(string name, int connectedInt) {
+    public SavedDataCommit(string name, int[] connectedInt) {
         members = new List<SavedDataCommit>();
         cI = connectedInt;
         n = name;
@@ -82,7 +85,7 @@ public class SavedDataCommit {
         List<SavedDataCommit> commit = new List<SavedDataCommit>();
 
         for(int i = 0; i < target.Length; i++) {
-            SavedDataCommit commitHeader = new SavedDataCommit(target[i].classType.Name, target[i].connectedInt);
+            SavedDataCommit commitHeader = new SavedDataCommit(target[i].classType.Name, target[i].connectedInt.ToArray());
             commit.Add(commitHeader);
             //RuntimeParameters<SavedData> inst = target.fields[i] as RuntimeParameters<SavedData>;
 
@@ -103,7 +106,7 @@ public class SavedDataCommit {
 
         if(selectedInterface != null) {
             instance = new SavedData(selectedInterface.GetType());
-            instance.connectedInt = cI;
+            instance.connectedInt = new List<int>(cI);
 
             for(int i = 0; i < instance.fields.Count; i++) {
                 int j = Iterator.ReturnKey(members.ToArray(), instance.fields[i].n, (t) => { return t.n; });
@@ -119,7 +122,7 @@ public class SavedDataCommit {
 
 public class SavedData {
     public List<RuntimeParameters> fields;
-    public int connectedInt;
+    public List<int> connectedInt;
     public Type classType;
 
     public SavedData(Type t) {
@@ -130,7 +133,7 @@ public class SavedData {
 
         classType = t;
         fields = new List<RuntimeParameters>(selectedInterface.GetRuntimeParameters());
-        connectedInt = -1;
+        connectedInt = new List<int>();
     }
 
     public static SavedData[] LoadData(string filePath) {
@@ -301,7 +304,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     void Start() {
         InitialiseInIt();
 
+        path = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GetBaseLevelPath(new string[] { "TestFile101" });
+
         SavedData[] prevData = SavedData.CreateLoadFile(path);
+        Debug.Log(path);
         savedData = new EnhancedList<WindowsData>();
         srcData = new AutoPopulationList<SourceData>();
 
@@ -354,13 +360,13 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     public void GenerateLines() {
 
         for(int i = 0; i < savedData.l.Count; i++) {
-            if(savedData.l[i].lD.connectedInt > -1) {
+            for (int j=0;j< savedData.l[i].lD.connectedInt.Count; j++) {
 
                 EditableWindow currGroup = savedData.l[i].eW;
-                LineData lineData = new LineData(srcData.l[savedData.l[i].lD.connectedInt].src, currGroup.windowsConnector.transform);
+                LineData lineData = new LineData(srcData.l[savedData.l[i].lD.connectedInt[j]].src, currGroup.windowsConnector.transform);
 
-                savedData.l[srcData.l[savedData.l[i].lD.connectedInt].taggedId].eW.lineManager.lineData.Add(lineData);
-                savedData.l[srcData.l[savedData.l[i].lD.connectedInt].taggedId].eW.lineManager.lineData.Add(lineData);
+                savedData.l[srcData.l[savedData.l[i].lD.connectedInt[j]].taggedId].eW.lineManager.lineData.Add(lineData);
+                savedData.l[srcData.l[savedData.l[i].lD.connectedInt[j]].taggedId].eW.lineManager.lineData.Add(lineData);
                 currGroup.lineManager.lineData.Add(lineData);
                 Debug.Log("Data added");
                 currGroup.lineManager.UpdateLines();
@@ -434,9 +440,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
 
     public ScriptableObject CreateWindow(WindowsData runtimePara) {
-        string windowNo = "windows" + runtimePara.wN.ToString();
 
         EditableWindow editWindow = new EditableWindow();
+        editWindow.window.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.5f));
         runtimePara.eW = editWindow;
 
         Spawner.GetCType<WindowsScript>(editWindow.window).AddEvent(editWindow.lineManager);
@@ -457,7 +463,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
 
         for(int i = 0; i < runtimePara.lD.fields.Count; i++) {
-            string generatedString = windowNo + " - " + i.ToString();
             ScriptableObject elementName = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });
             ScriptableObject element = ReturnElementField(runtimePara.lD.fields[i], runtimePara);
             Spawner.GetCType<Text>(elementName).text = runtimePara.lD.fields[i].n;

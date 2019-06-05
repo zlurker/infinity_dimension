@@ -17,7 +17,7 @@ public class ClassFilter {
     public Type t;
 }
 
-public class GenericTrigger {
+/*public class GenericTrigger {
     public static IPlayerEditable GenericMethod<T>(T parameter, Type type) {
         IPlayerEditable instance = null;
 
@@ -46,13 +46,14 @@ public class AbilityHandler : MonoBehaviour {
         int abilityId = (int)p[0];
 
         for(int i = 0; i < loadedData.Length; i++) {
-            if(loadedData[i].connectedInt < 0) {
+            for (int j= 0; j < loadedData[i].connectedInt.Count; j++) {
 
                 IPlayerEditable inst = GenericTrigger.GenericMethod(loadedData[i].classType, loadedData[i].classType);
+
                 if(inst != null)
                     inst.SetValues(loadedData[i].fields.ToArray());
             }
         }
     }
-}
+}*/
 
