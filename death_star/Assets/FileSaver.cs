@@ -6,12 +6,13 @@ using UnityEngine;
 
 public class FileSaveTemplate<T> : FileSaveTemplate {
     public Action<string, T> s;
-    
 
-    public FileSaveTemplate(string catergory, string[] filePath,string extension, Action<string, T> save) { //filePath followed by DataPath
+
+
+    public FileSaveTemplate(string catergory, string[] filePath, string[] extension, Action<string, T> save) { //filePath followed by DataPath
         c = catergory;
         s = save;
-        ext = "." + extension;
+        ext = extension;
 
         fP = FileSaver.PathGenerator(Application.dataPath, filePath);
     }
@@ -20,25 +21,33 @@ public class FileSaveTemplate<T> : FileSaveTemplate {
 public class FileSaveTemplate {
     public string c;
     public string fP;
-    public string ext;
+    public string[] ext;
 
-    public void GenericSaveTrigger<T>(string[] addtionalPath, T data) {
-        string generatedPath = FileSaver.PathGenerator(fP,addtionalPath);
-        Debug.Log(fP);
+    public void GenericSaveTrigger<T>(string[] addtionalPath, int file, T data) {
+        string generatedPath = FileSaver.PathGenerator(fP, addtionalPath);
 
-        (this as FileSaveTemplate<T>).s(generatedPath + ext, data);
+        (this as FileSaveTemplate<T>).s(Path.Combine(generatedPath,  ext[file]), data);
     }
 
-    public string GetBaseLevelPath(string[] inBetween) {
+    public string ApendPath(string[] inBetween, int extIndex) {
         string bP = FileSaver.PathGenerator(fP, inBetween);
-        return bP + ext;
+        return Path.Combine(bP, ext[extIndex]);
+    }
+
+    public void GenerateNewSubDirectory(string[] addtionalPath) {
+        string path = FileSaver.PathGenerator(fP, addtionalPath);
+
+        Debug.Log(path);
+
+        for(int i = 0; i < ext.Length; i++)
+            File.Create(Path.Combine(path, ext[i])).Dispose();
     }
 }
 
 
 public class FileSaver {
     public static FileSaveTemplate[] sFT = new FileSaveTemplate[] {
-        new FileSaveTemplate<string>("Datafile", new string[]{ "Datafiles" },"json",(fP, t)=>{
+        new FileSaveTemplate<string>("Datafile", new string[]{ "Datafiles" },new string[]{"Ability.json","Info.json" },(fP, t)=>{
 
         if (!File.Exists(fP))
             File.Create(fP).Dispose();

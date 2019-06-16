@@ -7,9 +7,22 @@ using System.IO;
 public class AbilityPageScript : MonoBehaviour {
 
     ScriptableObject lL;
+    public static int selectedAbility;
     // Use this for initialization
     void Start() {
         GenerateMenuElements();
+        LoadCurrentFiles();
+    }
+
+    void LoadCurrentFiles() {
+        FileSaveTemplate fST = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; });
+        DirectoryInfo dir = Directory.CreateDirectory(fST.fP);
+
+        DirectoryInfo[] files = dir.GetDirectories();
+
+        for (int i=0; i < files.Length; i++) 
+            GenerateAbilityElement(int.Parse(files[i].Name));
+        
     }
 
     void GenerateMenuElements() {
@@ -30,33 +43,28 @@ public class AbilityPageScript : MonoBehaviour {
     }
 
     void CreateAbility() {
-        string bPath = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).fP;
+        FileSaveTemplate fST = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; });
         string path = "";
-        int i = 0;
+        int i = -1;
 
         do {
-            path = Path.Combine(bPath,i.ToString());
             i++;
+            path = Path.Combine(fST.fP, i.ToString());
+
         } while(Directory.Exists(path));
 
-        Directory.CreateDirectory(path);
-
-        Spawner.GetCType<LinearLayout>(lL).Add(GenerateAbilityElement(path).transform as RectTransform);
+        fST.GenerateNewSubDirectory(new string[] { i.ToString() });
+        GenerateAbilityElement(i);
     }
 
-    ScriptableObject GenerateAbilityElement(string fp) {
-        //ScriptableObject background = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new System.Type[] { typeof(Image) });
+    void GenerateAbilityElement(int index) {
         ScriptableObject abilityButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new System.Type[] { typeof(Button) });
         Spawner.GetCType<Button>(abilityButton).onClick.AddListener(() => {
-
+            selectedAbility = index;
+            SceneTransitionData.LoadScene("Lobby");
         });
 
         UIDrawer.ChangeUISize(abilityButton, new Vector2(200, 30));
-        return abilityButton;
-    }
-
-    // Update is called once per frame
-    void Update() {
-
+        Spawner.GetCType<LinearLayout>(lL).Add(abilityButton.transform as RectTransform);
     }
 }

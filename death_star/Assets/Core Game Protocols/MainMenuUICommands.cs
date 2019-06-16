@@ -304,7 +304,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     void Start() {
         InitialiseInIt();
 
-        path = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GetBaseLevelPath(new string[] { "TestFile101" });
+        path = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).ApendPath(new string[] { AbilityPageScript.selectedAbility.ToString() },0);
 
         SavedData[] prevData = SavedData.CreateLoadFile(path);
         Debug.Log(path);
@@ -339,13 +339,14 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             SavedData[] data;
 
             List<SavedData> sDL = new List<SavedData>();
+
             for(int i = 0; i < savedData.l.Count; i++) {
-                if(savedData.l[i].lD != null)
+                if(savedData.l[i]!= null)
                     sDL.Add(savedData.l[i].lD);
             }
 
             data = sDL.ToArray();
-            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { "TestFile101" }, JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(data)));
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() },0, JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(data)));
         });
 
         Spawner.GetCType<Text>(saveButton).text = "Save JSON";
@@ -363,12 +364,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             for (int j=0;j< savedData.l[i].lD.connectedInt.Count; j++) {
 
                 EditableWindow currGroup = savedData.l[i].eW;
+                Debug.Log(savedData.l[i].lD.connectedInt[j]);
                 LineData lineData = new LineData(srcData.l[savedData.l[i].lD.connectedInt[j]].src, currGroup.windowsConnector.transform);
 
                 savedData.l[srcData.l[savedData.l[i].lD.connectedInt[j]].taggedId].eW.lineManager.lineData.Add(lineData);
-                savedData.l[srcData.l[savedData.l[i].lD.connectedInt[j]].taggedId].eW.lineManager.lineData.Add(lineData);
+                //savedData.l[srcData.l[savedData.l[i].lD.connectedInt[j]].taggedId].eW.lineManager.lineData.Add(lineData);
                 currGroup.lineManager.lineData.Add(lineData);
-                Debug.Log("Data added");
                 currGroup.lineManager.UpdateLines();
 
                 /*
@@ -458,6 +459,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         });
 
         Spawner.GetCType<Button>(editWindow.windowsDeleter).onClick.AddListener(() => { //Deletes windows when clicked on
+            savedData.Remove(runtimePara.wN);
             runtimePara.RemoveWindows();
         });
 

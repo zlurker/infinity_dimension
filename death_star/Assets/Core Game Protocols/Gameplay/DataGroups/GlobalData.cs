@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
-using System.Reflection;
 using Newtonsoft.Json;
 
 #region Gameplay Data Structures
@@ -23,7 +22,6 @@ public interface ISingleton
 
 public interface ISpawnable
 {
-    //void OnSpawn();
 }
 
 public class AdditonalDefault {
@@ -35,17 +33,6 @@ public class AdditonalDefault {
         aD = additionalDefaults;
     }
 }
-/*public class CustomClassFirer : Iterator
-{
-    public List<object[]> p; //Allows mutiple methods to be called. Every one object[] is one method. 
-
-    public CustomClassFirer(object[] parameters, string name)
-    {
-        p = new List<object[]>();
-        p.Add(parameters);
-        n = name; //In this case, it is the name of the class.
-    }
-}*/
 
 public class RuntimeParameters<T>:RuntimeParameters {
     public T v;
@@ -90,20 +77,6 @@ public struct EffectTemplate
     }
 }
 
-/*public struct JudgementRange
-{
-    public string name;
-    public float maxWindow;
-    public int counter;
-
-    public JudgementRange(string n, float mW, int c)
-    {
-        name = n;
-        maxWindow = mW;
-        counter = c;
-    }
-}*/
-
 public class Stat : Iterator
 {
     public float v;
@@ -115,18 +88,6 @@ public class Stat : Iterator
         v = val;
     }
 }
-
-/*[System.Serializable]
-public class UIElement : BaseIterator {
-    public MaskableGraphic u;
-    public float dAT;
-    
-
-    public UIElement(string name, MaskableGraphic ui, float deActivateTiming) {
-        n = name;
-        u = ui;
-    }
-}*/
 
 public struct PointData
 {
@@ -209,7 +170,6 @@ public class Iterator
             if (string.Equals(tA[i].n, k))
                 return (T)(tA[i] as object);
 
-        //Debug.LogErrorFormat("The key: {0} does not exist.", k);
         return (T)(null as object);
     }
 
@@ -383,6 +343,10 @@ public static class SceneTransitionData
     {
         int sI = (int)p[0] + sO;
         SceneManager.LoadScene(sI);
+    }
+
+    public static void LoadScene(string scene) {
+        SceneManager.LoadScene(scene);
     }
 
     public static void OnSceneLoad(Scene arg0, LoadSceneMode arg1)

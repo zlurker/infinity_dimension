@@ -55,14 +55,15 @@ public class StartupLinkerHelper {
 
         for(int i = 0; i < EditableLinkInstance.links.l.Count; i++) {
             int cI = -1;
+
             if(EditableLinkInstance.links.l[i].l != null) {
                 EditableLinkInstance.links.l[i].l.linkId = i;
                 EditableLinkInstance.links.l[i].l.linkIdStr = i.ToString();
                 cI = i;
-            }
 
-            for(int j = 0; j < EditableLinkInstance.links.l[i].linkedData.Count; j++)
-                EditableLinkInstance.links.l[i].linkedData[j].connectedInt.Add(cI);
+                for(int j = 0; j < EditableLinkInstance.links.l[i].linkedData.Count; j++)
+                    EditableLinkInstance.links.l[i].linkedData[j].connectedInt.Add(cI);
+            }
         }
     }
 }
