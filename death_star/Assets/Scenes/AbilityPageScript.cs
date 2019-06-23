@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
+using Newtonsoft.Json;
 
 public class AbilityPageScript : MonoBehaviour {
 
     ScriptableObject lL;
     public static int selectedAbility;
+    AutoPopulationList<AbilityDescription> descriptions;
+
     // Use this for initialization
     void Start() {
+        descriptions = new AutoPopulationList<AbilityDescription>();
         GenerateMenuElements();
         LoadCurrentFiles();
     }
@@ -20,9 +24,16 @@ public class AbilityPageScript : MonoBehaviour {
 
         DirectoryInfo[] files = dir.GetDirectories();
 
-        for (int i=0; i < files.Length; i++) 
-            GenerateAbilityElement(int.Parse(files[i].Name));
-        
+        for(int i = 0; i < files.Length; i++) {
+            int fileInt = int.Parse(files[i].Name);
+
+            string data = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { fileInt.ToString() }, 1);
+            AbilityDescription inst = JsonConvert.DeserializeObject<AbilityDescription>(data);
+
+            descriptions.ModifyElementAt(fileInt, inst);
+            
+            GenerateAbilityElement(fileInt);         
+        }
     }
 
     void GenerateMenuElements() {
@@ -54,11 +65,18 @@ public class AbilityPageScript : MonoBehaviour {
         } while(Directory.Exists(path));
 
         fST.GenerateNewSubDirectory(new string[] { i.ToString() });
+
+        AbilityDescription inst = new AbilityDescription();
+        Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger<string>(new string[] { i.ToString() }, 1, JsonConvert.SerializeObject(inst));
+        
+        descriptions.ModifyElementAt(i, inst);
         GenerateAbilityElement(i);
     }
 
     void GenerateAbilityElement(int index) {
         ScriptableObject abilityButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new System.Type[] { typeof(Button) });
+
+        Spawner.GetCType<Text>(abilityButton).text = descriptions.GetElementAt(index).n;
         Spawner.GetCType<Button>(abilityButton).onClick.AddListener(() => {
             selectedAbility = index;
             SceneTransitionData.LoadScene("Lobby");

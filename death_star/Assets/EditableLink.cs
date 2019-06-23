@@ -27,9 +27,9 @@ public class StartupLinkerHelper {
     public static int GetGroupByID(string id) {
         int a = Iterator.ReturnKey<EditableLinkObjects>(EditableLinkInstance.links.l.ToArray(), id, (p) => { return p.n; });
 
-        if(a == -1) 
+        if(a == -1)
             a = EditableLinkInstance.links.Add(new EditableLinkObjects(id));
-        
+
         return a;
     }
 
@@ -38,10 +38,12 @@ public class StartupLinkerHelper {
 
         for(int i = 0; i < target.Length; i++) {
             int groupId;
-            for (int j=0; j < target[i].connectedInt.Count; j++) {
+            for(int j = 0; j < target[i].connectedInt.Count; j++) {
                 groupId = GetGroupByID(target[i].connectedInt[j].ToString());
                 EditableLinkInstance.links.l[groupId].linkedData.Add(target[i]);
             }
+
+            target[i].connectedInt = new List<int>();
 
             for(int j = 0; j < target[i].fields.Count; j++) {
                 RuntimeParameters<EditableLinkInstance> instance = target[i].fields[j] as RuntimeParameters<EditableLinkInstance>;
@@ -79,7 +81,7 @@ public class EditableLinkInstance {
     public EditableLinkInstance(SavedData[] startingObjects) {
         linkId = links.Add(new EditableLinkObjects(this));
         linkIdStr = linkId.ToString();
-        
+
         for(int i = 0; i < startingObjects.Length; i++)
             LinkObject(startingObjects[i]);
     }
@@ -90,6 +92,7 @@ public class EditableLinkInstance {
 
     public void LinkObject(SavedData target) {
         target.connectedInt.Add(linkId);
+
         links.l[linkId].linkedData.Add(target);
     }
 }

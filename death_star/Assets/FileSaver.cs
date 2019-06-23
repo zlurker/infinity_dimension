@@ -26,7 +26,21 @@ public class FileSaveTemplate {
     public void GenericSaveTrigger<T>(string[] addtionalPath, int file, T data) {
         string generatedPath = FileSaver.PathGenerator(fP, addtionalPath);
 
-        (this as FileSaveTemplate<T>).s(Path.Combine(generatedPath,  ext[file]), data);
+        (this as FileSaveTemplate<T>).s(Path.Combine(generatedPath, ext[file]), data);
+    }
+
+    public string GenericLoadTrigger(string[] addtionalPath, int file) {
+        string generatedPath = FileSaver.PathGenerator(fP, addtionalPath);
+        generatedPath = Path.Combine(generatedPath, ext[file]);
+        string text = "";
+
+        using(StreamReader reader = new StreamReader(generatedPath)) {
+            text = reader.ReadToEnd();
+            reader.Close();
+        }
+
+        return text;
+
     }
 
     public string ApendPath(string[] inBetween, int extIndex) {

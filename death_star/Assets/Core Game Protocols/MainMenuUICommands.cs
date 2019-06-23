@@ -63,6 +63,7 @@ public class SavedDataCommit {
     public int vI;
     public int[] cI;
     public string sO;
+    public float[] wL;
 
     public SavedDataCommit(string name, string soValue, int variableIndex) {
         members = new List<SavedDataCommit>();
@@ -71,9 +72,12 @@ public class SavedDataCommit {
         vI = variableIndex;
     }
 
-    public SavedDataCommit(string name, int[] connectedInt) {
+    public SavedDataCommit(string name, int[] connectedInt, Vector3 windowsLocation) {
         members = new List<SavedDataCommit>();
         cI = connectedInt;
+        wL = new float[2];
+        wL[0] = windowsLocation[0];
+        wL[1] = windowsLocation[1];
         n = name;
     }
 
@@ -81,16 +85,16 @@ public class SavedDataCommit {
         members = new List<SavedDataCommit>();
     }
 
-    public static SavedDataCommit[] ConvertToCommit(SavedData[] target) {
+    public static SavedDataCommit[] ConvertToCommit(WindowsData[] target) {
         List<SavedDataCommit> commit = new List<SavedDataCommit>();
 
         for(int i = 0; i < target.Length; i++) {
-            SavedDataCommit commitHeader = new SavedDataCommit(target[i].classType.Name, target[i].connectedInt.ToArray());
+            SavedDataCommit commitHeader = new SavedDataCommit(target[i].lD.classType.Name, target[i].lD.connectedInt.ToArray(), target[i].eW.window.transform.position);
             commit.Add(commitHeader);
             //RuntimeParameters<SavedData> inst = target.fields[i] as RuntimeParameters<SavedData>;
 
-            for(int j = 0; j < target[i].fields.Count; j++)
-                commitHeader.members.Add(new SavedDataCommit(target[i].fields[j].n, target[i].fields[j].GetSerializedObject(), target[i].fields[j].vI));
+            for(int j = 0; j < target[i].lD.fields.Count; j++)
+                commitHeader.members.Add(new SavedDataCommit(target[i].lD.fields[j].n, target[i].lD.fields[j].GetSerializedObject(), target[i].lD.fields[j].vI));
         }
 
         return commit.ToArray();
@@ -136,29 +140,19 @@ public class SavedData {
         connectedInt = new List<int>();
     }
 
-    public static SavedData[] LoadData(string filePath) {
+    public static SavedData[] CreateLoadFile(SavedDataCommit[] sDC) {
         List<SavedData> instance = new List<SavedData>();
-        SavedDataCommit[] textData;
 
-        using(StreamReader reader = new StreamReader(filePath)) {
-            string text = reader.ReadToEnd();
-            textData = JsonConvert.DeserializeObject<SavedDataCommit[]>(text);
-            reader.Close();
-        }
 
-        if(textData != null) {
-            for(int i = 0; i < textData.Length; i++) {
-                SavedData inst = textData[i].CreateSavedData();
+        if(sDC != null) {
+            for(int i = 0; i < sDC.Length; i++) {
+                SavedData inst = sDC[i].CreateSavedData();
                 if(inst != null)
                     instance.Add(inst);
             }
         }
 
-        return instance.ToArray();
-    }
-
-    public static SavedData[] CreateLoadFile(string filepath) {
-        SavedData[] prevData = LoadData(filepath);
+        SavedData[] prevData = instance.ToArray();
         StartupLinkerHelper.RelinkLoadedData(prevData);
         return prevData;
     }
@@ -230,6 +224,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     string[] layers;
 
     DelegateIterator[] inIt; //InputFiend initialisers
+    SavedDataCommit[] prevDataCommit;
+
+    AbilityDescription abilityDescription;
+
+
 
     public void InitialiseFieldForUse(MonoBehaviour[] target, string[] id) //Makes fields here usable by this script. Auto saves it to the data.
     {
@@ -304,10 +303,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     void Start() {
         InitialiseInIt();
 
-        path = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).ApendPath(new string[] { AbilityPageScript.selectedAbility.ToString() },0);
+        
+        string cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0);
 
-        SavedData[] prevData = SavedData.CreateLoadFile(path);
-        Debug.Log(path);
+        prevDataCommit = JsonConvert.DeserializeObject<SavedDataCommit[]>(cData);
+        SavedData[] prevData = SavedData.CreateLoadFile(prevDataCommit);
+
         savedData = new EnhancedList<WindowsData>();
         srcData = new AutoPopulationList<SourceData>();
 
@@ -321,6 +322,17 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
         mainClassSelection = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(LinearLayout) });
         //Singleton.GetSingleton<PatternControl>().ModifyGroup("Test", new object[] { Singleton.GetSingleton<UIDrawer>().CustomiseBaseObject(), Singleton.GetSingleton<Spawner>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<Spawner>().CreateComponent<LinearLayout>() }) });
+
+        ScriptableObject name = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(InputField) });
+        name.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.9f));
+
+        string data = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1);
+        abilityDescription = JsonConvert.DeserializeObject<AbilityDescription>(data);
+        Spawner.GetCType<InputField>(name).text = abilityDescription.n;
+
+        Spawner.GetCType<InputField>(name).onValueChanged.AddListener((s) => {
+            abilityDescription.n = s;
+        });
 
         ScriptableObject[] buttons = new ScriptableObject[interfaces.Length];
         for(int i = 0; i < interfaces.Length; i++) {
@@ -336,17 +348,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
         ScriptableObject saveButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Button>() });
         Spawner.GetCType<Button>(saveButton).onClick.AddListener(() => {
-            SavedData[] data;
-
-            List<SavedData> sDL = new List<SavedData>();
-
-            for(int i = 0; i < savedData.l.Count; i++) {
-                if(savedData.l[i]!= null)
-                    sDL.Add(savedData.l[i].lD);
-            }
-
-            data = sDL.ToArray();
-            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() },0, JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(data)));
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(savedData.l.ToArray())));
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
         });
 
         Spawner.GetCType<Text>(saveButton).text = "Save JSON";
@@ -354,14 +357,16 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     }
 
     public void SpawnUIFromData() {
-        for(int i = 0; i < savedData.l.Count; i++)
-            CreateWindow(savedData.l[i]);
+        for(int i = 0; i < savedData.l.Count; i++) {
+            Vector2 loc = new Vector2(prevDataCommit[i].wL[0], prevDataCommit[i].wL[1]);
+            CreateWindow(savedData.l[i], loc);
+        }
     }
 
     public void GenerateLines() {
 
         for(int i = 0; i < savedData.l.Count; i++) {
-            for (int j=0;j< savedData.l[i].lD.connectedInt.Count; j++) {
+            for(int j = 0; j < savedData.l[i].lD.connectedInt.Count; j++) {
 
                 EditableWindow currGroup = savedData.l[i].eW;
                 Debug.Log(savedData.l[i].lD.connectedInt[j]);
@@ -410,7 +415,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             for(int i = 0; i < allWindows.Length; i++) {
                 WindowsData inst = new WindowsData(allWindows[i]);
                 inst.wN = savedData.Add(inst);
-                ScriptableObject window = CreateWindow(inst);
+                ScriptableObject window = CreateWindow(inst, new Vector3());
                 Vector2 cursorPos;
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
                 window.transform.localPosition = cursorPos;
@@ -440,10 +445,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     }
 
 
-    public ScriptableObject CreateWindow(WindowsData runtimePara) {
+    public ScriptableObject CreateWindow(WindowsData runtimePara, Vector3 location) {
 
         EditableWindow editWindow = new EditableWindow();
-        editWindow.window.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.5f));
+        editWindow.window.transform.position = location;
         runtimePara.eW = editWindow;
 
         Spawner.GetCType<WindowsScript>(editWindow.window).AddEvent(editWindow.lineManager);

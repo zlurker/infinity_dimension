@@ -11,14 +11,21 @@ public class AutoPopulationList<T> {
     }
 
     public void ModifyElementAt(int index, T element) {
+        Resize(index);
+
+        l[index] = element;
+    }
+
+    public T GetElementAt(int index) {
+        Resize(index);
+        return l[index];
+
+    }
+
+    public void Resize(int index) {
         int diff = index - l.Count;
 
-        for(int i = 0; i <= diff; i++) {
-            l.Add(default(T));
-            Debug.Log(l.Count);
-        }
-
-        Debug.Log(l.Count);
-        l[index] = element;
+        for(int i = 0; i <= diff; i++) 
+            l.Add(default(T));    
     }
 }
