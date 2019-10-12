@@ -1,1 +1,8 @@
-[{"members":[{"members":[],"n":"UI","vI":0,"cI":null,"sO":"{\"v\":\"ohohoho\",\"vI\":0,\"n\":\"UI\",\"t\":\"System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","wL":null}],"n":"UIDrawer","vI":0,"cI":[],"sO":null,"wL":[375.0,197.5]}]
+[{"cT":"UIDrawer, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","wL":[105.5,58.4999847],
+"rP":[],
+"l":[],
+"vT":[]}, 
+{"cT":"Projectile, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","wL":[-79.0,110.999985],
+"rP":["\"{\\\"v\\\":\\\"Marcus Warts\\\",\\\"vI\\\":0,\\\"n\\\":\\\"Name of Projectile\\\",\\\"t\\\":\\\"System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\\\"}\"","\"{\\\"v\\\":5.0,\\\"vI\\\":1,\\\"n\\\":\\\"Projectile Speed\\\",\\\"t\\\":\\\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\\\"}\"","\"{\\\"v\\\":20.0,\\\"vI\\\":1,\\\"n\\\":\\\"Projectile Damage\\\",\\\"t\\\":\\\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\\\"}\"","\"{\\\"v\\\":15,\\\"vI\\\":2,\\\"n\\\":\\\"Multiplier\\\",\\\"t\\\":\\\"System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\\\"}\""],
+"l":["[]","[]","[]","[]"],
+"vT":[0,1,1,2]}]

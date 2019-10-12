@@ -29,7 +29,6 @@ public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
             new RuntimeParameters<float>("Projectile Speed", 5),
             new RuntimeParameters<float>("Projectile Damage", 20),
             new RuntimeParameters<int>("Multiplier", 15),
-            new RuntimeParameters<EditableLinkInstance>("On Hit",new EditableLinkInstance(new SavedData[0]))
         };
     }
 

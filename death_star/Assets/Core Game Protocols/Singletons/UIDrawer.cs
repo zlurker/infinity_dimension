@@ -179,7 +179,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
 
     public RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<string>("UI","What the fuck nigga"),
+            //new RuntimeParameters<string>("UI","What the fuck nigga"),
         };
     }
 

@@ -22,15 +22,11 @@ public class GameObjectSpawner : Spawner
     }
 
     public RuntimeParameters[] GetRuntimeParameters() {
-        SavedData projectile = new SavedData(typeof(Projectile));
-        SavedData amazingshit = new SavedData(typeof(UIDrawer));
-
         return new RuntimeParameters[] {
             new RuntimeParameters<string>("Name of Projectile","Marcus Warts"),
             new RuntimeParameters<float>("Projectile Speed", 5),
             new RuntimeParameters<float>("Projectile Damage", 20),
             new RuntimeParameters<int>("Multiplier", 15),
-            new RuntimeParameters<EditableLinkInstance>("On Hit",new EditableLinkInstance(new SavedData[]{projectile,amazingshit }))     
         };
     }
 

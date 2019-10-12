@@ -9,12 +9,12 @@ using Newtonsoft.Json;
 using System.IO;
 
 public class WindowsData {
-    public SavedData lD;
+    public int id;
     public EditableWindow eW;
-    public int wN;
 
-    public WindowsData(SavedData linkedData) {
-        lD = linkedData;
+    public WindowsData(int dataId, EditableWindow editableWindow) {
+        id = dataId;
+        eW = editableWindow;
     }
 
     public void RemoveWindows() {
@@ -56,108 +56,6 @@ public class EditableWindow {
     }
 }
 
-public class SavedDataCommit {
-
-    public List<SavedDataCommit> members;
-    public string n;
-    public int vI;
-    public int[] cI;
-    public string sO;
-    public float[] wL;
-
-    public SavedDataCommit(string name, string soValue, int variableIndex) {
-        members = new List<SavedDataCommit>();
-        n = name;
-        sO = soValue;
-        vI = variableIndex;
-    }
-
-    public SavedDataCommit(string name, int[] connectedInt, Vector3 windowsLocation) {
-        members = new List<SavedDataCommit>();
-        cI = connectedInt;
-        wL = new float[2];
-        wL[0] = windowsLocation[0];
-        wL[1] = windowsLocation[1];
-        n = name;
-    }
-
-    public SavedDataCommit() {
-        members = new List<SavedDataCommit>();
-    }
-
-    public static SavedDataCommit[] ConvertToCommit(WindowsData[] target) {
-        List<SavedDataCommit> commit = new List<SavedDataCommit>();
-
-        for(int i = 0; i < target.Length; i++) {
-            SavedDataCommit commitHeader = new SavedDataCommit(target[i].lD.classType.Name, target[i].lD.connectedInt.ToArray(), target[i].eW.window.transform.position);
-            commit.Add(commitHeader);
-            //RuntimeParameters<SavedData> inst = target.fields[i] as RuntimeParameters<SavedData>;
-
-            for(int j = 0; j < target[i].lD.fields.Count; j++)
-                commitHeader.members.Add(new SavedDataCommit(target[i].lD.fields[j].n, target[i].lD.fields[j].GetSerializedObject(), target[i].lD.fields[j].vI));
-        }
-
-        return commit.ToArray();
-    }
-
-    public SavedData CreateSavedData() {
-        IPlayerEditable[] interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
-        IPlayerEditable selectedInterface = Iterator.ReturnObject<IPlayerEditable>(interfaces, n, (p) => {
-            return p.GetType().Name;
-        });
-
-        SavedData instance = null;
-
-        if(selectedInterface != null) {
-            instance = new SavedData(selectedInterface.GetType());
-            instance.connectedInt = new List<int>(cI);
-
-            for(int i = 0; i < instance.fields.Count; i++) {
-                int j = Iterator.ReturnKey(members.ToArray(), instance.fields[i].n, (t) => { return t.n; });
-
-                if(j > -1)
-                    instance.fields[i] = VariableTypeIndex.ReturnRuntimeType(members[j].vI, members[j].sO);
-            }
-        }
-
-        return instance;
-    }
-}
-
-public class SavedData {
-    public List<RuntimeParameters> fields;
-    public List<int> connectedInt;
-    public Type classType;
-
-    public SavedData(Type t) {
-        IPlayerEditable[] interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
-        IPlayerEditable selectedInterface = Iterator.ReturnObject(interfaces, t, (p) => {
-            return p.GetType();
-        });
-
-        classType = t;
-        fields = new List<RuntimeParameters>(selectedInterface.GetRuntimeParameters());
-        connectedInt = new List<int>();
-    }
-
-    public static SavedData[] CreateLoadFile(SavedDataCommit[] sDC) {
-        List<SavedData> instance = new List<SavedData>();
-
-
-        if(sDC != null) {
-            for(int i = 0; i < sDC.Length; i++) {
-                SavedData inst = sDC[i].CreateSavedData();
-                if(inst != null)
-                    instance.Add(inst);
-            }
-        }
-
-        SavedData[] prevData = instance.ToArray();
-        StartupLinkerHelper.RelinkLoadedData(prevData);
-        return prevData;
-    }
-}
-
 public class UICalibrator<T> : UICalibrator where T : Component {
     public Action<T, int[]> calibrationDeleg;
 
@@ -195,8 +93,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         }
     }
 
-    public static EnhancedList<WindowsData> savedData;
+    //public static EnhancedList<WindowsData> savedData;
     public static AutoPopulationList<SourceData> srcData;
+    public static AbilityData abilityData;
+    public EnhancedList<WindowsData> windows;
 
     public ScriptableObject mainClassSelection;
 
@@ -224,11 +124,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     string[] layers;
 
     DelegateIterator[] inIt; //InputFiend initialisers
-    SavedDataCommit[] prevDataCommit;
 
     AbilityDescription abilityDescription;
-
-
 
     public void InitialiseFieldForUse(MonoBehaviour[] target, string[] id) //Makes fields here usable by this script. Auto saves it to the data.
     {
@@ -251,30 +148,31 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
                 switch (t.contentType){
                         case InputField.ContentType.Standard:
-                            t.text = (savedData.l[p[0]].lD.fields[p[1]] as RuntimeParameters<string>).v;//SavedData.GetData<string>(savedData,p);
+                        
+                            t.text = (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<string>).v;//SavedData.GetData<string>(savedData,p);
                             break;
 
                         case InputField.ContentType.IntegerNumber:
-                            t.text = (savedData.l[p[0]].lD.fields[p[1]] as RuntimeParameters<int>).v.ToString();
+                            t.text = (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<int>).v.ToString();
                             break;
 
                         case InputField.ContentType.DecimalNumber:
-                            t.text = (savedData.l[p[0]].lD.fields[p[1]] as RuntimeParameters<float>).v.ToString();
+                            t.text = (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<float>).v.ToString();
                             break;
                 }
 
                 t.onValueChanged.AddListener((s) => {
                     switch (t.contentType){
                         case InputField.ContentType.Standard:
-                            (savedData.l[p[0]].lD.fields[p[1]] as RuntimeParameters<string>).v = s;
+                            (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<string>).v = s;
                             break;
 
                         case InputField.ContentType.IntegerNumber:
-                            (savedData.l[p[0]].lD.fields[p[1]] as RuntimeParameters<int>).v = int.Parse(s);
+                            (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<int>).v = int.Parse(s);
                             break;
 
                         case InputField.ContentType.DecimalNumber:
-                            (savedData.l[p[0]].lD.fields[p[1]] as RuntimeParameters<float>).v = float.Parse(s);
+                            (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<float>).v = float.Parse(s);
                             break;
                 }
             });}), new UICalibrator<Button>((t,p)=>{
@@ -301,27 +199,27 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     }
 
     void Start() {
+       
         InitialiseInIt();
 
+        AutoPopulationList<string> test = new AutoPopulationList<string>();
         
         string cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0);
 
-        prevDataCommit = JsonConvert.DeserializeObject<SavedDataCommit[]>(cData);
-        SavedData[] prevData = SavedData.CreateLoadFile(prevDataCommit);
+        if(cData != "")
+            abilityData = new AbilityData(JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(cData)));
+        else
+            abilityData = new AbilityData();
 
-        savedData = new EnhancedList<WindowsData>();
+        Debug.Log(abilityData);
+
         srcData = new AutoPopulationList<SourceData>();
-
-        for(int i = 0; i < prevData.Length; i++) {
-            WindowsData inst = new WindowsData(prevData[i]);
-            inst.wN = savedData.Add(inst);
-        }
+        windows = new EnhancedList<WindowsData>();
 
         SpawnUIFromData();
-        GenerateLines();
+        //GenerateLines();
 
         mainClassSelection = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(LinearLayout) });
-        //Singleton.GetSingleton<PatternControl>().ModifyGroup("Test", new object[] { Singleton.GetSingleton<UIDrawer>().CustomiseBaseObject(), Singleton.GetSingleton<Spawner>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<Spawner>().CreateComponent<LinearLayout>() }) });
 
         ScriptableObject name = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(InputField) });
         name.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.9f));
@@ -348,7 +246,18 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
         ScriptableObject saveButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Button>() });
         Spawner.GetCType<Button>(saveButton).onClick.AddListener(() => {
-            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(SavedDataCommit.ConvertToCommit(savedData.l.ToArray())));
+
+            int[] aEle = windows.ReturnActiveElements();
+            
+
+            for (int i =0; i < aEle.Length; i++) {
+
+                abilityData.subclasses.l[windows.l[aEle[i]].id].wL[0] =  windows.l[aEle[i]].eW.window.transform.localPosition.x;
+                abilityData.subclasses.l[windows.l[aEle[i]].id].wL[1] = windows.l[aEle[i]].eW.window.transform.localPosition.y;
+            }
+
+
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(abilityData.RelinkSubclass())));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
         });
 
@@ -357,13 +266,13 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     }
 
     public void SpawnUIFromData() {
-        for(int i = 0; i < savedData.l.Count; i++) {
-            Vector2 loc = new Vector2(prevDataCommit[i].wL[0], prevDataCommit[i].wL[1]);
-            CreateWindow(savedData.l[i], loc);
+        for(int i = 0; i < abilityData.subclasses.l.Count; i++) {
+            Vector2 loc = new Vector2(abilityData.subclasses.l[i].wL[0], abilityData.subclasses.l[i].wL[1]);
+            CreateWindow(i,loc);
         }
     }
 
-    public void GenerateLines() {
+    /*public void GenerateLines() {
 
         for(int i = 0; i < savedData.l.Count; i++) {
             for(int j = 0; j < savedData.l[i].lD.connectedInt.Count; j++) {
@@ -386,12 +295,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
                 Spawner.GetCType<Line>(line).lineRoot = currGroup.gE[0].transform;
                 Spawner.GetCType<Line>(line).EstablishJoint();
 
-                */
+                
                 //Singleton.GetSingleton<PatternControl>().ModifyGroup("lineStart" + savedData.l[i].lD.connectedInt.ToString(), new object[] { line });
                 //Singleton.GetSingleton<PatternControl>().ModifyGroup("lineEnd" + i.ToString(), new object[] { line });
             }
         }
-    }
+    }*/
 
     public void WindowSpawnState(int index) {
         Spawner.GetCType<Text>(windowSpawner).text = index.ToString();
@@ -409,51 +318,33 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             windowSpawnMode = false;
             windowSpawner.gameObject.SetActive(false);
 
-            SavedData newClass = new SavedData(interfaces[dataIndex].GetType());
+            int id = abilityData.subclasses.Add(new AbilityDataSubclass(interfaces[dataIndex].GetType()));
 
-            SavedData[] allWindows = GetDefaultWindows(new SavedData[] { newClass });
+            Vector2 cursorPos;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
+            CreateWindow(id, cursorPos);
+
+            /*SavedData newClass = new SavedData();
+
             for(int i = 0; i < allWindows.Length; i++) {
                 WindowsData inst = new WindowsData(allWindows[i]);
                 inst.wN = savedData.Add(inst);
                 ScriptableObject window = CreateWindow(inst, new Vector3());
-                Vector2 cursorPos;
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
+                
                 window.transform.localPosition = cursorPos;
-            }
+            }*/
         }
     }
 
-    public SavedData[] GetDefaultWindows(SavedData[] root) {
-        List<SavedData> additionalWindows = new List<SavedData>();
-
-        for(int j = 0; j < root.Length; j++) {
-            additionalWindows.Add(root[j]);
-
-            for(int i = 0; i < root[j].fields.Count; i++) {
-                RuntimeParameters<EditableLinkInstance> link = root[j].fields[i] as RuntimeParameters<EditableLinkInstance>;
-
-                if(link != null)
-                    if(link.v != null) {
-                        SavedData[] returnedWindows = GetDefaultWindows(link.v.GetLinkedObjects());
-
-                        for(int k = 0; k < returnedWindows.Length; k++)
-                            additionalWindows.Add(returnedWindows[k]);
-                    }
-            }
-        }
-        return additionalWindows.ToArray();
-    }
-
-
-    public ScriptableObject CreateWindow(WindowsData runtimePara, Vector3 location) {
+    public ScriptableObject CreateWindow(int id,Vector3 location) {
 
         EditableWindow editWindow = new EditableWindow();
-        editWindow.window.transform.position = location;
-        runtimePara.eW = editWindow;
+        editWindow.window.transform.localPosition = location;
+        int windowsId = windows.Add(new WindowsData(id, editWindow));
 
-        Spawner.GetCType<WindowsScript>(editWindow.window).AddEvent(editWindow.lineManager);
+        //Spawner.GetCType<WindowsScript>(editWindow.window).AddEvent(editWindow.lineManager);
 
-        Spawner.GetCType<Button>(editWindow.windowsConnector).onClick.AddListener(() => { //Generates line when clicked on
+        /*Spawner.GetCType<Button>(editWindow.windowsConnector).onClick.AddListener(() => { //Generates line when clicked on
             if(bD.active) {
                 bD.active = false;
                 LineData lineData = new LineData(savedData.l[bD.p[0]].eW.window.transform, editWindow.windowsConnector.transform);
@@ -461,18 +352,18 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
                 editWindow.lineManager.UpdateLines();
                 (savedData.l[bD.p[0]].lD.fields[bD.p[1]] as RuntimeParameters<EditableLinkInstance>).v.LinkObject(savedData.l[runtimePara.wN].lD);
             }
-        });
+        });*/
 
         Spawner.GetCType<Button>(editWindow.windowsDeleter).onClick.AddListener(() => { //Deletes windows when clicked on
-            savedData.Remove(runtimePara.wN);
-            runtimePara.RemoveWindows();
+            //savedData.Remove(runtimePara.wN);
+            //runtimePara.RemoveWindows();
         });
 
 
-        for(int i = 0; i < runtimePara.lD.fields.Count; i++) {
+        for(int i = 0; i < abilityData.subclasses.l[id].var.Length; i++) {
             ScriptableObject elementName = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });
-            ScriptableObject element = ReturnElementField(runtimePara.lD.fields[i], runtimePara);
-            Spawner.GetCType<Text>(elementName).text = runtimePara.lD.fields[i].n;
+            ScriptableObject element = ReturnElementField(abilityData.subclasses.l[id].var[i].field);
+            Spawner.GetCType<Text>(elementName).text = abilityData.subclasses.l[id].var[i].field.n;
             Spawner.GetCType<Text>(elementName).color = Color.white;
 
             ScriptableObject align = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
@@ -483,13 +374,13 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             (align.transform as RectTransform).sizeDelta = (Spawner.GetCType<LinearLayout>(align).transform as RectTransform).sizeDelta;
             editWindow.lL.Add(align.transform as RectTransform);
 
-            UICalibrator(element, new int[] { runtimePara.wN, i });
+            UICalibrator(element, new int[] { id, i });
         }
 
         return editWindow.window;
     }
 
-    public ScriptableObject ReturnElementField(RuntimeParameters variable, WindowsData window) {
+    public ScriptableObject ReturnElementField(RuntimeParameters variable) {
         ScriptableObject element = null;
 
         if(variable.t == typeof(string)) {
@@ -505,16 +396,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         if(variable.t == typeof(float)) {
             element = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(InputField) });
             Spawner.GetCType<InputField>(element).contentType = InputField.ContentType.DecimalNumber;
-        }
-
-        if(variable.t == typeof(EditableLinkInstance)) {
-            element = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
-            srcData.ModifyElementAt((variable as RuntimeParameters<EditableLinkInstance>).v.linkId, new SourceData(element.transform, window.wN));
-            //(variable as RuntimeParameters<EditableLinkInstance>).v.src = element.transform;
-            //ScriptableObject lineHolder = Singleton.GetSingleton<Spawner>().CustomiseBaseObject();
-            //lineHolder.transform.parent = element.transform;
-            //Singleton.GetSingleton<PatternControl>().ModifyGroup(generatedString, new object[] { lineHolder.transform });
-            //window.AddEvent(new LineUpdater(generatedString));
         }
 
         return element;

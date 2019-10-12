@@ -7,8 +7,6 @@ using UnityEngine;
 public class FileSaveTemplate<T> : FileSaveTemplate {
     public Action<string, T> s;
 
-
-
     public FileSaveTemplate(string catergory, string[] filePath, string[] extension, Action<string, T> save) { //filePath followed by DataPath
         c = catergory;
         s = save;
@@ -40,7 +38,16 @@ public class FileSaveTemplate {
         }
 
         return text;
+    }
 
+    public string[] GenericLoadAll(int file) {
+        DirectoryInfo[] currDirs = new DirectoryInfo(fP).GetDirectories();
+        string[] files = new string[currDirs.Length];
+
+        for (int i=0; i < currDirs.Length; i++) 
+            files[i] = GenericLoadTrigger(new string[] { currDirs[i].Name }, file);
+   
+        return files;
     }
 
     public string ApendPath(string[] inBetween, int extIndex) {
@@ -50,8 +57,6 @@ public class FileSaveTemplate {
 
     public void GenerateNewSubDirectory(string[] addtionalPath) {
         string path = FileSaver.PathGenerator(fP, addtionalPath);
-
-        Debug.Log(path);
 
         for(int i = 0; i < ext.Length; i++)
             File.Create(Path.Combine(path, ext[i])).Dispose();

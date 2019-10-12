@@ -16,9 +16,6 @@ public class VariableTypeIndex {
         if(type == typeof(int))
             return 2;
 
-        if(type == typeof(EditableLinkInstance))
-            return 3;
-
         return -1;
     }
 
@@ -34,10 +31,7 @@ public class VariableTypeIndex {
                 break;
             case 2:
                 inst = JsonConvert.DeserializeObject<RuntimeParameters<int>>(sO);
-                break;  
-            case 3:
-                inst = JsonConvert.DeserializeObject<RuntimeParameters<EditableLinkInstance>>(sO);
-                break;
+                break; 
         }
         return inst;
     }

@@ -16,6 +16,8 @@ public class AbilityPageScript : MonoBehaviour {
         descriptions = new AutoPopulationList<AbilityDescription>();
         GenerateMenuElements();
         LoadCurrentFiles();
+
+        Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new System.Type[] { typeof(ScrollRect) });
     }
 
     void LoadCurrentFiles() {

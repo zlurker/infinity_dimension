@@ -26,7 +26,7 @@ public class LinearLayout : MonoBehaviour, IAddOn, ISpawn
         RecalculateBounds();
     }
 
-    public void RecalculateBounds() {
+    void RecalculateBounds() {
         sizeConstrain = new Vector3();
 
         for(int i = 0; i < objects.Count; i++)
@@ -35,7 +35,7 @@ public class LinearLayout : MonoBehaviour, IAddOn, ISpawn
         (transform as RectTransform).sizeDelta = sizeConstrain;
     }
 
-    public void SlotItemIn(RectTransform target)
+    void SlotItemIn(RectTransform target)
     {
         int altIndex = (int)o == 1 ? 0 : 1;
         Vector3 lengthAddition = new Vector3();

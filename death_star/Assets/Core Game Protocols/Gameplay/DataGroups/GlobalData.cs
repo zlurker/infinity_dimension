@@ -24,18 +24,12 @@ public interface ISpawnable
 {
 }
 
-public class AdditonalDefault {
-    public string n;
-    public SavedData[] aD;
-
-    public AdditonalDefault(string name,SavedData[] additionalDefaults ) {
-        n = name;
-        aD = additionalDefaults;
-    }
-}
 
 public class RuntimeParameters<T>:RuntimeParameters {
     public T v;
+
+    public RuntimeParameters() {
+    }
 
     public RuntimeParameters(string name,T value) {       
         n = name;

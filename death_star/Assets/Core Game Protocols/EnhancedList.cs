@@ -33,8 +33,26 @@ public class EnhancedList<T> {
         return index;
     }
 
+    public int[] ReturnActiveElements() {
+        List<int> all = new List<int>();
+
+        for(int i = 0; i < l.Count; i++)
+            all.Add(i);
+
+        int[] insArray = iNS.ToArray();
+
+        for(int i = 0; i < insArray.Length; i++)
+            all.Remove(insArray[i]);
+
+        return all.ToArray();
+    }
+
     public void Remove(int index) {
         l[index] = default (T);
         iNS.Push(index);
+    }
+
+    public int[] ReturnINS() {
+        return iNS.ToArray();
     }
 }
