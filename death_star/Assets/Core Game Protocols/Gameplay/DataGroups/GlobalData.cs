@@ -212,74 +212,11 @@ public class DH
     }
 }
 
-public class DelegateIterator : Iterator
-{
-    public DH d;
-
-    public DelegateIterator(string name, DH deleg)
-    {
-        n = name;
-        d = deleg;
-    }
-
-    public DelegateIterator(Type type, DH deleg)
-    {
-        t = type;
-        d = deleg;
-    }
-}
-
-
-/*public class MethodRunner<T> : MethodRunner
-{
-    public Action<T, object[]> d; //delegate
-
-    public MethodRunner(Action<T, object[]> del)
-    {
-        d = del;
-    }
-
-    public override void Run(object[] args)
-    {
-        d(args);
-    }
-}*/
-
-/*public class MethodRunner
-{
-    public virtual void Run(object[] args)
-    {
-
-    }
-}*/
-
-/*public class PointerGroup : Iterator
-{
-    public PointerHolder[] cP;//classPointers;
-
-    public PointerGroup(string scriptName, PointerHolder[] classPointers)
-    {
-        n = scriptName;
-        cP = classPointers;
-    }
-}*/
-
-
-
-/*public class PointerHolderCreatorBase
-{
-    public PointerHolder[] p;//pointers
-}*/
 #endregion
 
 public static class GlobalData
 {
     #region Gameplay Global Data
-    public static float bpm;
-    public static float offset;
-    public static bool followsBeat = false;
-
-    public static AudioClip song;
 
     #endregion
 

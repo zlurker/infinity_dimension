@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +12,6 @@ public class ManualBeatDetector : MonoBehaviour {
 
     void Start() {
         music = GetComponent<AudioSource>();
-        GlobalData.song = music.clip;
         beatTimings = new List<float>();
 
         Singleton.GetSingleton<PlayerInput>().AddNewInput(KeyCode.L, new DH(SceneTransitionData.LoadScene,new object[] {1 }),0);
@@ -56,3 +55,4 @@ public class ManualBeatDetector : MonoBehaviour {
         calibration = 0;
     }
 }
+*/

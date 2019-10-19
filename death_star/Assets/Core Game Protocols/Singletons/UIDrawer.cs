@@ -101,7 +101,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
     }
 
     public override ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts, DelegateInfo[] onSpawn = null) {
-        ScriptableObject instance= base.CreateScriptedObject(scripts, onSpawn);
+        ScriptableObject instance = base.CreateScriptedObject(scripts, onSpawn);
         UpdateMainObject(instance);
 
         return instance;
@@ -153,7 +153,7 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
         return UINormalisedPosition(t.transform as RectTransform, c);
     }
 
-    public static Vector3 UINormalisedPosition(RectTransform target,Vector2 c) {//coordinates: Returns back position to the decimal of 1.
+    public static Vector3 UINormalisedPosition(RectTransform target, Vector2 c) {//coordinates: Returns back position to the decimal of 1.
         c -= target.pivot;
         for(int i = 0; i < 2; i++) {
             c[i] = (c[i] / 1) * target.sizeDelta[i];

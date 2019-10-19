@@ -4,24 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public struct LineData {
-    public Transform s;
-    public Transform e;
-    public ScriptableObject line;
 
-    public LineData(Transform start, Transform end) {
-        s = start;
-        e = end;
-        line = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Image) });
-        Spawner.GetCType<Image>(line).rectTransform.pivot = new Vector2(0.5f,0);
-    }
-}
-
-public class LineManager:IWindowsDragEvent {
+public class WindowLineManager {
 
     public List<LineData> lineData;
 
-	public LineManager() {
+	public WindowLineManager() {
         lineData = new List<LineData>();
     }
 

@@ -30,7 +30,7 @@ public static class JSONFileConvertor {
             for (int j =0; j < aDS[i].var.Length; j++) {
                 Debug.Log(aDS[i].var[j].field.GetSerializedObject());
                 convertedFormat[i].rP[j] = aDS[i].var[j].field.GetSerializedObject();
-                convertedFormat[i].l[j] = JsonConvert.SerializeObject(aDS[i].var[j].links.ToArray());
+                convertedFormat[i].l[j] = JsonConvert.SerializeObject(aDS[i].var[j].links);
                 convertedFormat[i].vT[j] = aDS[i].var[j].field.vI;
             }
         }
@@ -49,10 +49,8 @@ public static class JSONFileConvertor {
             convertedFormat[i].wL = sFs[i].wL;
             convertedFormat[i].var = new Variable[sFs[i].l.Length];
 
-            for(int j = 0; j < convertedFormat[i].var.Length; j++) {
-                Debug.Log(sFs[i].rP[j]);
-                convertedFormat[i].var[j] = new Variable(VariableTypeIndex.ReturnRuntimeType(sFs[i].vT[j], sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
-            }
+            for(int j = 0; j < convertedFormat[i].var.Length; j++) 
+                convertedFormat[i].var[j] = new Variable(VariableTypeIndex.ReturnRuntimeType(sFs[i].vT[j], sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));       
         }
 
         return convertedFormat;

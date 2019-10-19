@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [Obsolete("Not used any more", true)]
-public class LineUpdater : IWindowsDragEvent {
+public class LineUpdater  {
     public string gN;
 
     public LineUpdater(string groupName) {

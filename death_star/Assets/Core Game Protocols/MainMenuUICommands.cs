@@ -8,213 +8,91 @@ using UnityEngine.EventSystems;
 using Newtonsoft.Json;
 using System.IO;
 
-public class WindowsData {
-    public int id;
-    public EditableWindow eW;
-
-    public WindowsData(int dataId, EditableWindow editableWindow) {
-        id = dataId;
-        eW = editableWindow;
-    }
-
-    public void RemoveWindows() {
-        eW.window.gameObject.SetActive(false);
-    }
+public interface ILineHandler {
+    void UpdateLines(int[] id);
 }
 
-public class EditableWindow {
+public class EditableWindow : WindowsScript {
 
-    public ScriptableObject window;
     public LinearLayout lL;
-    public ScriptableObject windowsConnector;
     public ScriptableObject windowsDeleter;
-    public LineManager lineManager;
+    public List<int> linesRelated;
+    public ILineHandler link;
 
-    public EditableWindow() {
-        window = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>() });
+    public void InitialiseWindow() {
         lL = Spawner.GetCType<LinearLayout>(Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() }));
-        windowsConnector = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
         windowsDeleter = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
-        lineManager = new LineManager();
+        linesRelated = new List<int>();
 
-        Spawner.GetCType<Image>(windowsConnector).color = Color.black;
         Spawner.GetCType<Image>(windowsDeleter).color = Color.red;
-
-        Spawner.GetCType<Text>(windowsConnector).text = "";
         Spawner.GetCType<Text>(windowsDeleter).text = "";
 
-        windowsConnector.transform.SetParent(window.transform);
-        windowsDeleter.transform.SetParent(window.transform);
-        lL.transform.SetParent(window.transform);
+        windowsDeleter.transform.SetParent(transform);
+        lL.transform.SetParent(transform);
 
-        windowsConnector.transform.position = UIDrawer.UINormalisedPosition(window.transform as RectTransform, new Vector2(0.15f, 0.5f));
-        windowsDeleter.transform.position = UIDrawer.UINormalisedPosition(window.transform as RectTransform, new Vector2(0.85f, 0.5f));
-        lL.transform.position = UIDrawer.UINormalisedPosition(window.transform as RectTransform, new Vector2(0f, -1));
+        windowsDeleter.transform.position = UIDrawer.UINormalisedPosition(transform as RectTransform, new Vector2(0.85f, 0.5f));
+        lL.transform.position = UIDrawer.UINormalisedPosition(transform as RectTransform, new Vector2(0f, 0.1f));
 
-        UIDrawer.ChangeUISize(windowsConnector, new Vector2(20, 20));
         UIDrawer.ChangeUISize(windowsDeleter, new Vector2(20, 20));
     }
-}
 
-public class UICalibrator<T> : UICalibrator where T : Component {
-    public Action<T, int[]> calibrationDeleg;
-
-    public UICalibrator(Action<T, int[]> deleg) {
-        calibrationDeleg = deleg;
-        t = typeof(T);
-    }
-
-    public override void RunCalibrator(MonoBehaviour script, int[] parameters) {
-        calibrationDeleg(script as T, parameters);
+    public override void OnDrag(PointerEventData eventData) {
+        base.OnDrag(eventData);
+        link.UpdateLines(linesRelated.ToArray());
     }
 }
 
-public class UICalibrator : Iterator {
-    public virtual void RunCalibrator(MonoBehaviour script, int[] parameters) {
+public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandler {
 
-    }
-}
+    public class LinkageHandler { //To handle linkage work.
+        public VariableAction vA;
+        public int[] path;
+        public bool alt;
+        public Transform target;
 
-public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
-
-    public class ButtonData {
-        public Transform root;
-        public int[] p;
-        public bool active;
-    }
-
-    public class SourceData {
-        public Transform src;
-        public int taggedId;
-
-        public SourceData(Transform source, int tagged) {
-            src = source;
-            taggedId = tagged;
+        public LinkageHandler() {
+            alt = false;
         }
     }
 
-    //public static EnhancedList<WindowsData> savedData;
-    public static AutoPopulationList<SourceData> srcData;
-    public static AbilityData abilityData;
-    public EnhancedList<WindowsData> windows;
+    public UIAbilityData abilityData;
+    //public EnhancedList<WindowsData> windows;
+    public AutoPopulationList<EditableWindow> abilityWindows;
+    public EnhancedList<LineData> lineData;
 
     public ScriptableObject mainClassSelection;
 
     public Font font;
     Text instance;
 
-    //Load test data
-    public string path;
+    IPlayerEditable[] interfaces;
 
-    //General data
-    public static IPlayerEditable[] interfaces;
-
-    //Windows system essentials
     ScriptableObject windowSpawner;
     bool windowSpawnMode;
     int dataIndex;
 
-    //UICalibration
-    UICalibrator[] uiCalibration;
-
+    LinkageHandler lH;
     //Line Drawing System
     Camera cam;
-    ButtonData bD;
-
-    string[] layers;
-
-    DelegateIterator[] inIt; //InputFiend initialisers
 
     AbilityDescription abilityDescription;
 
-    public void InitialiseFieldForUse(MonoBehaviour[] target, string[] id) //Makes fields here usable by this script. Auto saves it to the data.
-    {
-        for(int k = 0; k < target.Length; k++)
-            if(target[k] is Selectable)
-                Iterator.ReturnObject<DelegateIterator>(inIt, target[k].GetType().Name).d.Invoke(new object[] { target[k], id });
-    }
-
-    void InitialiseInIt() //Contains MethodRunners to help prepare field for use.
-    {
-        interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
-        bD = new ButtonData();
-
-        uiCalibration = new UICalibrator[]
-        {
-            new UICalibrator<InputField>((t,p)=>{
-                string outputIndex = "";
-                for (int i=0; i < p.Length; i++)
-                    outputIndex += p[i].ToString();
-
-                switch (t.contentType){
-                        case InputField.ContentType.Standard:
-                        
-                            t.text = (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<string>).v;//SavedData.GetData<string>(savedData,p);
-                            break;
-
-                        case InputField.ContentType.IntegerNumber:
-                            t.text = (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<int>).v.ToString();
-                            break;
-
-                        case InputField.ContentType.DecimalNumber:
-                            t.text = (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<float>).v.ToString();
-                            break;
-                }
-
-                t.onValueChanged.AddListener((s) => {
-                    switch (t.contentType){
-                        case InputField.ContentType.Standard:
-                            (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<string>).v = s;
-                            break;
-
-                        case InputField.ContentType.IntegerNumber:
-                            (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<int>).v = int.Parse(s);
-                            break;
-
-                        case InputField.ContentType.DecimalNumber:
-                            (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<float>).v = float.Parse(s);
-                            break;
-                }
-            });}), new UICalibrator<Button>((t,p)=>{
-                t.onClick.AddListener(()=>{
-                    bD.active = true;
-                    bD.root = t.transform;
-                    bD.p = p;
-                });
-            })
-        };
-
-        inIt = new DelegateIterator[]
-        {
-            new DelegateIterator("WindowSpawner", new DH((p) =>
-            {
-                Button button = Spawner.GetCType<Button>(p[0] as ScriptableObject);
-                int id = (int) p[1];
-
-                Spawner.GetCType<Text>(p[0] as ScriptableObject).text = id.ToString();
-
-                button.onClick.AddListener(()=>{ WindowSpawnState(id); });
-            }))
-        };
-    }
-
     void Start() {
-       
-        InitialiseInIt();
 
-        AutoPopulationList<string> test = new AutoPopulationList<string>();
-        
+        interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
+
+        lH = new LinkageHandler();
+
         string cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0);
 
         if(cData != "")
-            abilityData = new AbilityData(JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(cData)));
+            abilityData = new UIAbilityData(JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(cData)));
         else
-            abilityData = new AbilityData();
+            abilityData = new UIAbilityData();
 
-        Debug.Log(abilityData);
-
-        srcData = new AutoPopulationList<SourceData>();
-        windows = new EnhancedList<WindowsData>();
+        //windows = new EnhancedList<WindowsData>();
+        abilityWindows = new AutoPopulationList<EditableWindow>();
+        lineData = new EnhancedList<LineData>();
 
         SpawnUIFromData();
         //GenerateLines();
@@ -233,10 +111,16 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         });
 
         ScriptableObject[] buttons = new ScriptableObject[interfaces.Length];
+
         for(int i = 0; i < interfaces.Length; i++) {
             ScriptableObject buttonTest = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Button>() });
-            Iterator.ReturnObject<DelegateIterator>(inIt, "WindowSpawner").d.Invoke(new object[] { buttonTest, i });
 
+            Button button = Spawner.GetCType<Button>(buttonTest);
+
+            Spawner.GetCType<Text>(buttonTest).text = i.ToString();
+
+            int eleId = i;
+            button.onClick.AddListener(() => { WindowSpawnState(eleId); });
             Spawner.GetCType<LinearLayout>(mainClassSelection).Add(buttonTest.transform as RectTransform);
         }
 
@@ -245,15 +129,15 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         windowSpawner.gameObject.SetActive(false);
 
         ScriptableObject saveButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Button>() });
+
         Spawner.GetCType<Button>(saveButton).onClick.AddListener(() => {
 
-            int[] aEle = windows.ReturnActiveElements();
-            
+            int[] aEle = abilityData.subclasses.ReturnActiveElementIndex();
 
-            for (int i =0; i < aEle.Length; i++) {
 
-                abilityData.subclasses.l[windows.l[aEle[i]].id].wL[0] =  windows.l[aEle[i]].eW.window.transform.localPosition.x;
-                abilityData.subclasses.l[windows.l[aEle[i]].id].wL[1] = windows.l[aEle[i]].eW.window.transform.localPosition.y;
+            for(int i = 0; i < aEle.Length; i++) {
+                abilityData.subclasses.l[aEle[i]].wL[0] = abilityWindows.l[aEle[i]].transform.parent.position.x;
+                abilityData.subclasses.l[aEle[i]].wL[1] = abilityWindows.l[aEle[i]].transform.parent.position.y;
             }
 
 
@@ -268,39 +152,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
     public void SpawnUIFromData() {
         for(int i = 0; i < abilityData.subclasses.l.Count; i++) {
             Vector2 loc = new Vector2(abilityData.subclasses.l[i].wL[0], abilityData.subclasses.l[i].wL[1]);
-            CreateWindow(i,loc);
+            CreateWindow(i, loc);
         }
     }
-
-    /*public void GenerateLines() {
-
-        for(int i = 0; i < savedData.l.Count; i++) {
-            for(int j = 0; j < savedData.l[i].lD.connectedInt.Count; j++) {
-
-                EditableWindow currGroup = savedData.l[i].eW;
-                Debug.Log(savedData.l[i].lD.connectedInt[j]);
-                LineData lineData = new LineData(srcData.l[savedData.l[i].lD.connectedInt[j]].src, currGroup.windowsConnector.transform);
-
-                savedData.l[srcData.l[savedData.l[i].lD.connectedInt[j]].taggedId].eW.lineManager.lineData.Add(lineData);
-                //savedData.l[srcData.l[savedData.l[i].lD.connectedInt[j]].taggedId].eW.lineManager.lineData.Add(lineData);
-                currGroup.lineManager.lineData.Add(lineData);
-                currGroup.lineManager.UpdateLines();
-
-                /*
-                ScriptableObject line = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Line) });
-                UIDrawer.ChangeUISize(line, typeof(Image), new Vector2(10, 500));
-                Spawner.GetCType<Image>(line).rectTransform.pivot = new Vector2(0.5f, 0);
-                //line.transform.position = bD.root.position;
-                Spawner.GetCType<Line>(line).target = linkedGroup.transforms[0].transform;
-                Spawner.GetCType<Line>(line).lineRoot = currGroup.gE[0].transform;
-                Spawner.GetCType<Line>(line).EstablishJoint();
-
-                
-                //Singleton.GetSingleton<PatternControl>().ModifyGroup("lineStart" + savedData.l[i].lD.connectedInt.ToString(), new object[] { line });
-                //Singleton.GetSingleton<PatternControl>().ModifyGroup("lineEnd" + i.ToString(), new object[] { line });
-            }
-        }
-    }*/
 
     public void WindowSpawnState(int index) {
         Spawner.GetCType<Text>(windowSpawner).text = index.ToString();
@@ -318,41 +172,21 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
             windowSpawnMode = false;
             windowSpawner.gameObject.SetActive(false);
 
-            int id = abilityData.subclasses.Add(new AbilityDataSubclass(interfaces[dataIndex].GetType()));
+            int id = abilityData.Add(new AbilityDataSubclass(interfaces[dataIndex].GetType()));
 
             Vector2 cursorPos;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
             CreateWindow(id, cursorPos);
-
-            /*SavedData newClass = new SavedData();
-
-            for(int i = 0; i < allWindows.Length; i++) {
-                WindowsData inst = new WindowsData(allWindows[i]);
-                inst.wN = savedData.Add(inst);
-                ScriptableObject window = CreateWindow(inst, new Vector3());
-                
-                window.transform.localPosition = cursorPos;
-            }*/
         }
     }
 
-    public ScriptableObject CreateWindow(int id,Vector3 location) {
+    public void CreateWindow(int id, Vector3 location) {
 
-        EditableWindow editWindow = new EditableWindow();
-        editWindow.window.transform.localPosition = location;
-        int windowsId = windows.Add(new WindowsData(id, editWindow));
-
-        //Spawner.GetCType<WindowsScript>(editWindow.window).AddEvent(editWindow.lineManager);
-
-        /*Spawner.GetCType<Button>(editWindow.windowsConnector).onClick.AddListener(() => { //Generates line when clicked on
-            if(bD.active) {
-                bD.active = false;
-                LineData lineData = new LineData(savedData.l[bD.p[0]].eW.window.transform, editWindow.windowsConnector.transform);
-                editWindow.lineManager.lineData.Add(lineData);
-                editWindow.lineManager.UpdateLines();
-                (savedData.l[bD.p[0]].lD.fields[bD.p[1]] as RuntimeParameters<EditableLinkInstance>).v.LinkObject(savedData.l[runtimePara.wN].lD);
-            }
-        });*/
+        EditableWindow editWindow = Spawner.GetCType<EditableWindow>(Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<EditableWindow>() }));
+        editWindow.InitialiseWindow();
+        editWindow.link = this;
+        editWindow.transform.parent.position = location;
+        abilityWindows.ModifyElementAt(id, editWindow);
 
         Spawner.GetCType<Button>(editWindow.windowsDeleter).onClick.AddListener(() => { //Deletes windows when clicked on
             //savedData.Remove(runtimePara.wN);
@@ -361,26 +195,85 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
 
 
         for(int i = 0; i < abilityData.subclasses.l[id].var.Length; i++) {
-            ScriptableObject elementName = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });
-            ScriptableObject element = ReturnElementField(abilityData.subclasses.l[id].var[i].field);
-            Spawner.GetCType<Text>(elementName).text = abilityData.subclasses.l[id].var[i].field.n;
-            Spawner.GetCType<Text>(elementName).color = Color.white;
+            ScriptableObject[] var = CreateVariableField(id, i);
+
+            ScriptableObject get = CreateVariableLinkage(VariableAction.GET, new int[] { id, i });
+            ScriptableObject set = CreateVariableLinkage(VariableAction.SET, new int[] { id, i });
+
+            Spawner.GetCType<Image>(get).color = Color.red;
+            Spawner.GetCType<Image>(set).color = Color.green;
 
             ScriptableObject align = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<LinearLayout>() });
-
             Spawner.GetCType<LinearLayout>(align).o = LinearLayout.Orientation.X;
-            Spawner.GetCType<LinearLayout>(align).Add(elementName.transform as RectTransform);
-            Spawner.GetCType<LinearLayout>(align).Add(element.transform as RectTransform);
+
+            Spawner.GetCType<LinearLayout>(align).Add(get.transform as RectTransform);
+
+            for(int j = 0; j < var.Length; j++)
+                Spawner.GetCType<LinearLayout>(align).Add(var[j].transform as RectTransform);
+
+            Spawner.GetCType<LinearLayout>(align).Add(set.transform as RectTransform);
+
             (align.transform as RectTransform).sizeDelta = (Spawner.GetCType<LinearLayout>(align).transform as RectTransform).sizeDelta;
             editWindow.lL.Add(align.transform as RectTransform);
-
-            UICalibrator(element, new int[] { id, i });
         }
-
-        return editWindow.window;
     }
 
-    public ScriptableObject ReturnElementField(RuntimeParameters variable) {
+    ScriptableObject CreateVariableLinkage(VariableAction variableAction, int[] path) {
+
+        ScriptableObject linkageButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
+
+        Spawner.GetCType<Image>(linkageButton).color = Color.black;
+        Spawner.GetCType<Text>(linkageButton).text = "";
+        UIDrawer.ChangeUISize(linkageButton, new Vector2(20, 20));
+
+        Spawner.GetCType<Button>(linkageButton).onClick.AddListener(() => {
+            switch(lH.alt) {
+                case false:
+
+                    //Registers everything that was on first click, so we may be able to perform
+                    //actions on second click.
+                    lH.vA = variableAction;
+                    lH.path = path;
+                    lH.target = linkageButton.transform;
+                    lH.alt = true;
+                    break;
+
+                case true:
+
+                    //Adds current selected path to previously selected path.
+                    int[] currPath = new int[] { path[0], path[1], (int)variableAction };
+                    abilityData.linksEdit.l[lH.path[0]][lH.path[1]].Add(currPath);
+                    lH.alt = false;
+
+                    //Creates the graphical strings.
+                    LineData line = new LineData(linkageButton.transform, lH.target);
+                    int lineId = lineData.Add(line);
+
+                    //Make sure both ends will feedback if window was dragged.
+                    abilityWindows.l[path[0]].linesRelated.Add(lineId);
+                    abilityWindows.l[lH.path[0]].linesRelated.Add(lineId);
+                    UpdateLines(new int[] { lineId });
+
+                    //To add break link, Reverse flow option.
+
+                    break;
+            }
+        });
+
+        return linkageButton;
+    }
+
+    ScriptableObject[] CreateVariableField(int id, int varId) {
+        ScriptableObject elementName = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });
+        ScriptableObject element = ReturnElementField(abilityData.subclasses.l[id].var[varId].field);
+        Spawner.GetCType<Text>(elementName).text = abilityData.subclasses.l[id].var[varId].field.n;
+        Spawner.GetCType<Text>(elementName).color = Color.white;
+        TextfieldCalibrator(Spawner.GetCType<InputField>(element), new int[] { id, varId });
+
+        return new ScriptableObject[] { elementName, element };
+    }
+
+    ScriptableObject ReturnElementField(RuntimeParameters variable) {
         ScriptableObject element = null;
 
         if(variable.t == typeof(string)) {
@@ -401,16 +294,50 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler {
         return element;
     }
 
-    public void UICalibrator(ScriptableObject target, int[] id) {
-        for(int i = 0; i < target.scripts.Length; i++) {
-            UICalibrator uiC = Iterator.ReturnObject(uiCalibration, target.scripts[i].GetType()) as UICalibrator;
-            if(uiC != null)
-                uiC.RunCalibrator(target.scripts[i], id);
+    public void TextfieldCalibrator(InputField t, int[] p) {
+        switch(t.contentType) {
+            case InputField.ContentType.Standard:
+                t.text = (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<string>).v;//SavedData.GetData<string>(savedData,p);
+                break;
+
+            case InputField.ContentType.IntegerNumber:
+                t.text = (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<int>).v.ToString();
+                break;
+
+            case InputField.ContentType.DecimalNumber:
+                t.text = (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<float>).v.ToString();
+                break;
         }
+
+        t.onValueChanged.AddListener((s) => {
+            switch(t.contentType) {
+                case InputField.ContentType.Standard:
+                    (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<string>).v = s;
+                    break;
+
+                case InputField.ContentType.IntegerNumber:
+                    (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<int>).v = int.Parse(s);
+                    break;
+
+                case InputField.ContentType.DecimalNumber:
+                    (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<float>).v = float.Parse(s);
+                    break;
+            }
+        });
     }
 
     void Update() {
         if(windowSpawnMode)
             windowSpawner.transform.position = Input.mousePosition;
+    }
+
+    public void UpdateLines(int[] id) {
+        for(int i = 0; i < id.Length; i++)
+            if(lineData.l[id[i]].line != null) {
+                lineData.l[id[i]].line.transform.position = lineData.l[id[i]].s.position;
+                Vector2 d = lineData.l[id[i]].e.position - lineData.l[id[i]].s.position;
+                Spawner.GetCType<Image>(lineData.l[id[i]].line).rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
+                lineData.l[id[i]].line.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(d)));
+            }
     }
 }
