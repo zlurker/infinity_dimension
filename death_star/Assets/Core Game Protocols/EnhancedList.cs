@@ -29,7 +29,7 @@ public class EnhancedList<T> {
             index = l.Count;
             l.Add(element);
         }
-        //Debug.Log("Supposed Index" + index);
+
         return index;
     }
 

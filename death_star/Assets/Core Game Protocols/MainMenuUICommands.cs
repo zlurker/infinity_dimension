@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using System.Reflection;
 using UnityEngine.EventSystems;
 using Newtonsoft.Json;
-using System.IO;
 
 public interface ILineHandler {
     void UpdateLines(int[] id);
@@ -14,7 +12,12 @@ public interface ILineHandler {
 
 public class EditableWindow : WindowsScript {
 
+    //Main linear layout.
     public LinearLayout lL;
+
+    //Variable linear layout.
+    public LinearLayout[] variables;
+
     public ScriptableObject windowsDeleter;
     public List<int> linesRelated;
     public ILineHandler link;
@@ -44,19 +47,21 @@ public class EditableWindow : WindowsScript {
 
 public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandler {
 
-    public class LinkageHandler { //To handle linkage work.
+    //To handle linkage work.
+    public class LinkageHandler {
         public VariableAction vA;
         public int[] path;
         public bool alt;
+        public bool createDataLinkage;
         public Transform target;
 
         public LinkageHandler() {
             alt = false;
+            createDataLinkage = false;
         }
     }
 
     public UIAbilityData abilityData;
-    //public EnhancedList<WindowsData> windows;
     public AutoPopulationList<EditableWindow> abilityWindows;
     public EnhancedList<LineData> lineData;
 
@@ -90,12 +95,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         else
             abilityData = new UIAbilityData();
 
-        //windows = new EnhancedList<WindowsData>();
         abilityWindows = new AutoPopulationList<EditableWindow>();
         lineData = new EnhancedList<LineData>();
 
         SpawnUIFromData();
-        //GenerateLines();
 
         mainClassSelection = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(LinearLayout) });
 
@@ -140,9 +143,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 abilityData.subclasses.l[aEle[i]].wL[1] = abilityWindows.l[aEle[i]].transform.parent.position.y;
             }
 
+            AbilityDataSubclass[] cAD = abilityData.RelinkSubclass();
 
-            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(abilityData.RelinkSubclass())));
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(cAD)));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
+
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 3, JsonConvert.SerializeObject(AbilityDataSubclass.ReturnFirstClasses(cAD)));
         });
 
         Spawner.GetCType<Text>(saveButton).text = "Save JSON";
@@ -150,10 +156,20 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     }
 
     public void SpawnUIFromData() {
+
+        //Creates windows UI from data. 
         for(int i = 0; i < abilityData.subclasses.l.Count; i++) {
             Vector2 loc = new Vector2(abilityData.subclasses.l[i].wL[0], abilityData.subclasses.l[i].wL[1]);
             CreateWindow(i, loc);
         }
+
+        //Creates linkage from data.
+        for(int i = 0; i < abilityData.subclasses.l.Count; i++)
+            for(int j = 0; j < abilityData.subclasses.l[i].var.Length; j++)
+                for(int k = 0; k < abilityData.subclasses.l[i].var[j].links.Length; k++)
+                    CreateVariableLinkage(new int[] { i, j }, abilityData.subclasses.l[i].var[j].links[k]);
+
+        lH.createDataLinkage = true;
     }
 
     public void WindowSpawnState(int index) {
@@ -174,8 +190,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             int id = abilityData.Add(new AbilityDataSubclass(interfaces[dataIndex].GetType()));
 
-            Vector2 cursorPos;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
+            Vector3 cursorPos;
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
             CreateWindow(id, cursorPos);
         }
     }
@@ -185,6 +201,21 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         EditableWindow editWindow = Spawner.GetCType<EditableWindow>(Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<EditableWindow>() }));
         editWindow.InitialiseWindow();
         editWindow.link = this;
+
+        //Runs deletion delegate.
+        Button del = Spawner.GetCType<Button>(editWindow.windowsDeleter);
+
+        del.onClick.AddListener(() => {
+            //Handles UI deletion.
+            editWindow.gameObject.SetActive(false);
+
+            for(int i = 0; i < editWindow.linesRelated.Count; i++)
+                lineData.l[editWindow.linesRelated[i]].line.gameObject.SetActive(false);
+
+            //Handles UI Data deletion.
+            abilityData.subclasses.Remove(id);
+        });
+
         editWindow.transform.parent.position = location;
         abilityWindows.ModifyElementAt(id, editWindow);
 
@@ -193,12 +224,14 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             //runtimePara.RemoveWindows();
         });
 
+        //Initialises variable linear layouts.
+        editWindow.variables = new LinearLayout[abilityData.subclasses.l[id].var.Length];
 
         for(int i = 0; i < abilityData.subclasses.l[id].var.Length; i++) {
             ScriptableObject[] var = CreateVariableField(id, i);
 
-            ScriptableObject get = CreateVariableLinkage(VariableAction.GET, new int[] { id, i });
-            ScriptableObject set = CreateVariableLinkage(VariableAction.SET, new int[] { id, i });
+            ScriptableObject get = CreateVariableLinkerUI(VariableAction.GET, new int[] { id, i });
+            ScriptableObject set = CreateVariableLinkerUI(VariableAction.SET, new int[] { id, i });
 
             Spawner.GetCType<Image>(get).color = Color.red;
             Spawner.GetCType<Image>(set).color = Color.green;
@@ -215,10 +248,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             (align.transform as RectTransform).sizeDelta = (Spawner.GetCType<LinearLayout>(align).transform as RectTransform).sizeDelta;
             editWindow.lL.Add(align.transform as RectTransform);
+            editWindow.variables[i] = Spawner.GetCType<LinearLayout>(align);
         }
     }
 
-    ScriptableObject CreateVariableLinkage(VariableAction variableAction, int[] path) {
+    ScriptableObject CreateVariableLinkerUI(VariableAction variableAction, int[] path) {
 
         ScriptableObject linkageButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
 
@@ -230,37 +264,73 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             switch(lH.alt) {
                 case false:
 
-                    //Registers everything that was on first click, so we may be able to perform
-                    //actions on second click.
+                    /*Registers everything that was on first click, so we may be able to perform
+                    actions on second click.*/
                     lH.vA = variableAction;
                     lH.path = path;
-                    lH.target = linkageButton.transform;
+
+                    //Completes the loop.
                     lH.alt = true;
                     break;
 
                 case true:
 
-                    //Adds current selected path to previously selected path.
-                    int[] currPath = new int[] { path[0], path[1], (int)variableAction };
-                    abilityData.linksEdit.l[lH.path[0]][lH.path[1]].Add(currPath);
+                    //Register previous path.
+                    int[] prevPath = new int[] { lH.path[0], lH.path[1] };
+
+                    /*Adds current selected path to previously selected path, with VariableAction to know what
+                    action to take with this linkage.*/
+                    int[] currPath = new int[] { path[0], path[1], (int)lH.vA };
+
+                    //Creates linkage
+                    CreateVariableLinkage(prevPath, currPath);
+
+                    //Completes the loop.
                     lH.alt = false;
-
-                    //Creates the graphical strings.
-                    LineData line = new LineData(linkageButton.transform, lH.target);
-                    int lineId = lineData.Add(line);
-
-                    //Make sure both ends will feedback if window was dragged.
-                    abilityWindows.l[path[0]].linesRelated.Add(lineId);
-                    abilityWindows.l[lH.path[0]].linesRelated.Add(lineId);
-                    UpdateLines(new int[] { lineId });
-
-                    //To add break link, Reverse flow option.
 
                     break;
             }
         });
 
         return linkageButton;
+    }
+
+    void CreateVariableLinkage(int[] prevPath, int[] currPath) {
+
+        //Handles the data linkage.
+        if(lH.createDataLinkage)
+            abilityData.linksEdit.l[prevPath[0]][prevPath[1]].Add(currPath);
+
+        //Gets the UI data of both paths.
+        Transform[] linePoints = new Transform[2];
+
+        switch((VariableAction)currPath[2]) {
+
+            case VariableAction.GET:
+
+                linePoints[0] = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects[0];
+
+                int lI0 = abilityWindows.l[currPath[0]].variables[currPath[1]].objects.Count - 1;
+                linePoints[1] = abilityWindows.l[currPath[0]].variables[currPath[1]].objects[lI0];
+                break;
+
+            case VariableAction.SET:
+
+                int lI1 = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects.Count - 1;
+                linePoints[0] = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects[lI1];
+
+                linePoints[1] = abilityWindows.l[currPath[0]].variables[currPath[1]].objects[0];
+                break;
+        }
+
+        //Creates the graphical strings.
+        LineData line = new LineData(linePoints[0], linePoints[1]);
+        int lineId = lineData.Add(line);
+
+        //Make sure both ends will feedback if window was dragged.
+        abilityWindows.l[currPath[0]].linesRelated.Add(lineId);
+        abilityWindows.l[prevPath[0]].linesRelated.Add(lineId);
+        UpdateLines(new int[] { lineId });
     }
 
     ScriptableObject[] CreateVariableField(int id, int varId) {

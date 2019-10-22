@@ -8,8 +8,11 @@ public enum VariableAction {
 }
 
 public class Variable {
+    //Variable details
     public RuntimeParameters field;
-    public int[][] links; //Addressed to [ subclass, variable, get(0)/set(1) enum]
+
+    //Addressed to [ subclass, variable, get(0)/set(1) enum]
+    public int[][] links;
 
     public Variable() {
     }
@@ -31,7 +34,6 @@ public class AbilityDataSubclass {
     public float[] wL;
 
     public AbilityDataSubclass() {
-
     }
 
     public AbilityDataSubclass(Type t) {
@@ -50,9 +52,30 @@ public class AbilityDataSubclass {
 
         wL = new float[2];
     }
+
+    //Returns all root classes.
+    public static int[] ReturnFirstClasses(AbilityDataSubclass[] target) {
+
+        List<int> rootClasses = new List<int>();
+        AutoPopulationList<bool> connected = new AutoPopulationList<bool>(target.Length);
+
+        for(int i = 0; i < target.Length; i++)
+            for(int j = 0; j < target[i].var.Length; j++)
+                for(int k = 0; k < target[i].var[j].links.Length; k++) {
+                    connected.ModifyElementAt(target[i].var[j].links[k][0], true);
+                }
+
+        for(int i = 0; i < connected.l.Count; i++)
+            if(!connected.l[i])
+                rootClasses.Add(i);
+
+        return rootClasses.ToArray();
+    }
 }
 
-public class UIAbilityData { //Refer to notebook if unsure, Line & windows
+//Contains list of functions/data structures to assist with the UI side of ability data.
+//Refer to notebook if unsure, Line & windows
+public class UIAbilityData {
     public EnhancedList<AbilityDataSubclass> subclasses;
     public AutoPopulationList<EnhancedList<int[]>[]> linksEdit;
 
@@ -80,7 +103,7 @@ public class UIAbilityData { //Refer to notebook if unsure, Line & windows
     public int Add(AbilityDataSubclass inst) {
         int instId = subclasses.Add(inst);
         CreateLinkSpaces(instId, inst.var.Length);
-        
+
         return instId;
     }
 
@@ -93,41 +116,53 @@ public class UIAbilityData { //Refer to notebook if unsure, Line & windows
         linksEdit.ModifyElementAt(id, varLinks);
     }
 
-    public void SaveLinkEdits() {
+    public AbilityDataSubclass[] RelinkSubclass() {
 
-        int[] aE = subclasses.ReturnActiveElementIndex();
+        int[] globalAddress = new int[subclasses.l.Count];
+        int[] active = subclasses.ReturnActiveElementIndex();
 
-        for(int i = 0; i < aE.Length; i++)
-            for(int j = 0; j < subclasses.l[aE[i]].var.Length; j++) {
-                subclasses.l[aE[i]].var[j].links = linksEdit.GetElementAt(aE[i])[j].ReturnActiveElements();
+        AbilityDataSubclass[] relinkedClasses = new AbilityDataSubclass[active.Length];
+
+        //Floods global address with negative values first.
+        for(int i = 0; i < globalAddress.Length; i++)
+            globalAddress[i] = -1;
+
+        //Fills global address up with valid classes.
+        for(int i = 0; i < active.Length; i++)
+            globalAddress[active[i]] = i;
+
+        //Loop to relink classes.
+        for(int i = 0; i < active.Length; i++) { 
+            for(int j = 0; j < subclasses.l[active[i]].var.Length; j++) {
+
+                //Code to check if the link is a active link and not broken.
+                List<int[]> linkCheck = new List<int[]>();
+
+                //Gets current ability link values.
+                int[][] linkValues = linksEdit.GetElementAt(active[i])[j].ReturnActiveElements();
+
+                for(int k = 0; k < linkValues.Length; k++) {
+
+                    //previousId
+                    int oldId = linkValues[k][0];
+                    
+                    if(globalAddress[oldId] > -1) {
+
+                        //Replaces with new id if current mapped ID is active.
+                        linkValues[k][0] = globalAddress[oldId];
+
+                        //Adds active link into array.
+                        linkCheck.Add(linkValues[k]);
+                    }                    
+                }
+
+                //Sets array with updated link values.
+                subclasses.l[active[i]].var[j].links = linkCheck.ToArray();
             }
-    }
 
-    public AbilityDataSubclass[] RelinkSubclass() { //Amend this
+            relinkedClasses[i] = subclasses.l[active[i]];
+        }
 
-        SaveLinkEdits();
-
-        int[] pathId = new int[subclasses.l.Count];
-        int[] emptyElements = subclasses.ReturnINS();
-        AbilityDataSubclass[] activeInstances = new AbilityDataSubclass[subclasses.l.Count - emptyElements.Length];
-
-        for(int i = 0; i < emptyElements.Length; i++)
-            pathId[emptyElements[i]] = -1;
-
-        int actualInt = 0;
-
-        for(int i = 0; i < pathId.Length; i++)
-            if(pathId[i] != -1) {
-                pathId[i] = actualInt;
-                activeInstances[actualInt] = subclasses.l[i];
-                actualInt++;
-            }
-
-        for(int i = 0; i < activeInstances.Length; i++)
-            for(int j = 0; j < activeInstances[i].var.Length; j++)
-                for(int k = 0; k < activeInstances[i].var[j].links.Length; k++)
-                    activeInstances[i].var[j].links[k][0] = pathId[activeInstances[i].var[j].links[k][0]];
-
-        return activeInstances;
+        return relinkedClasses;
     }
 }

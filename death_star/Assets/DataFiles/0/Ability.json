@@ -1,1 +1,15 @@
-[{"cT":"UIDrawer, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","wL":[135.5,82.4999847],"rP":[],"l":[],"vT":[]},{"cT":"Projectile, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","wL":[-190.0,58.5],"rP":["{\"v\":\"Marcus Warts\",\"vI\":0,\"n\":\"Name of Projectile\",\"t\":\"System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":123.0,\"vI\":1,\"n\":\"Projectile Speed\",\"t\":\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":456.0,\"vI\":1,\"n\":\"Projectile Damage\",\"t\":\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":789,\"vI\":2,\"n\":\"Multiplier\",\"t\":\"System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}"],"l":["[]","[]","[]","[]"],"vT":[0,1,1,2]}]
+[{"cT":"Projectile, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","wL":
+[199.5,270.0],"rP":
+["{\"v\":\"0\",\"vI\":0,\"n\":\"Name of Projectile\",\"t\":\"System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":5.0,\"vI\":1,\"n\":\"Projectile Speed\",\"t\":\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":20.0,\"vI\":1,\"n\":\"Projectile Damage\",\"t\":\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":15,\"vI\":2,\"n\":\"Multiplier\",\"t\":\"System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}"],"l":
+["[[0,0,1]]","[]","[]","[]"],"vT":
+[0,1,1,2]}, 
+{"cT":"Projectile, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","wL":
+[1117.5,340.5],"rP":
+["{\"v\":\"2\",\"vI\":0,\"n\":\"Name of Projectile\",\"t\":\"System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":5.0,\"vI\":1,\"n\":\"Projectile Speed\",\"t\":\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":20.0,\"vI\":1,\"n\":\"Projectile Damage\",\"t\":\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":15,\"vI\":2,\"n\":\"Multiplier\",\"t\":\"System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}"],"l":
+["[]","[]","[]","[]"],"vT":
+[0,1,1,2]}, 
+{"cT":"Projectile, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","wL":
+[928.5,657.0],"rP":
+["{\"v\":\"3\",\"vI\":0,\"n\":\"Name of Projectile\",\"t\":\"System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":5.0,\"vI\":1,\"n\":\"Projectile Speed\",\"t\":\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":20.0,\"vI\":1,\"n\":\"Projectile Damage\",\"t\":\"System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}","{\"v\":15,\"vI\":2,\"n\":\"Multiplier\",\"t\":\"System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089\"}"],"l":
+["[]","[]","[]","[]"],"vT":
+[0,1,1,2]}]

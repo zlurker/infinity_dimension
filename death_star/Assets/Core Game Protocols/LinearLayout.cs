@@ -40,16 +40,14 @@ public class LinearLayout : MonoBehaviour, IAddOn, ISpawn
         int altIndex = (int)o == 1 ? 0 : 1;
         Vector3 lengthAddition = new Vector3();
 
-        //target.pivot = new Vector2(0,0.5f);//need to take pivot into account.
         lengthAddition[(int)o] = sizeConstrain[(int)o] * multiplier[(int)o];
         sizeConstrain[altIndex] = sizeConstrain[altIndex] < target.sizeDelta[altIndex] ? target.sizeDelta[altIndex] : sizeConstrain[altIndex];
         Vector3 finalPos = new Vector3();
-        finalPos[(int)o] = lengthAddition[(int)o];
+        finalPos[(int)o] = lengthAddition[(int)o] + (target.pivot[(int)0] * target.sizeDelta[(int)o]);
         target.localPosition = finalPos;
 
+        /* Adds the targeted object's targeted dimension into the sizeconstrain
+        to be tracked for future calculations.*/
         sizeConstrain[(int)o] += target.sizeDelta[(int)o];
-    }
-
-
-    
+    }   
 }

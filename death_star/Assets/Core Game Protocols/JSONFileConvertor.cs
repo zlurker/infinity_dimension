@@ -28,7 +28,6 @@ public static class JSONFileConvertor {
             convertedFormat[i].vT = new int[aDS[i].var.Length];
 
             for (int j =0; j < aDS[i].var.Length; j++) {
-                Debug.Log(aDS[i].var[j].field.GetSerializedObject());
                 convertedFormat[i].rP[j] = aDS[i].var[j].field.GetSerializedObject();
                 convertedFormat[i].l[j] = JsonConvert.SerializeObject(aDS[i].var[j].links);
                 convertedFormat[i].vT[j] = aDS[i].var[j].field.vI;
