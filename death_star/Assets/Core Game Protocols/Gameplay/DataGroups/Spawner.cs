@@ -194,7 +194,7 @@ public struct DelegateInfo
     }
 }
 
-public class Spawner : MonoBehaviour, ISingleton
+public class Spawner : AbilityTreeNode, ISingleton
 {
     public Pool<ScriptableObject> bOL; //baseObjectList
     public Pool<ScriptableObjectConstruction> sOC; //scriptableObjectConstruction
@@ -386,4 +386,11 @@ public class Spawner : MonoBehaviour, ISingleton
     public void RunOnCreated()
     {
     }
+
+    public override RuntimeParameters[] GetRuntimeParameters() {
+        return new RuntimeParameters[] {
+            new RuntimeParameters<string>("UI0","test1")
+        };
+    }
+
 }

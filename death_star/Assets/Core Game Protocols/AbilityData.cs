@@ -37,8 +37,8 @@ public class AbilityDataSubclass {
     }
 
     public AbilityDataSubclass(Type t) {
-        IPlayerEditable[] interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
-        IPlayerEditable selectedInterface = Iterator.ReturnObject(interfaces, t, (p) => {
+        AbilityTreeNode[] interfaces = (Iterator.ReturnObject<AbilityTreeNode>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as AbilityTreeNode[];
+        AbilityTreeNode selectedInterface = Iterator.ReturnObject(interfaces, t, (p) => {
             return p.GetType();
         });
 

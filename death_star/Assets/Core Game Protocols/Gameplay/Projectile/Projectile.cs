@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 
-public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
+public class Projectile : AbilityTreeNode,ISpawnable
 {
     public RuntimeParameters[] parameters;
   
@@ -23,7 +23,7 @@ public class Projectile : MonoBehaviour,ISpawnable,IPlayerEditable
        
     }
 
-    public RuntimeParameters[] GetRuntimeParameters() {
+    public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
             new RuntimeParameters<string>("Name of Projectile","Marcus Warts"),
             new RuntimeParameters<float>("Projectile Speed", 5),

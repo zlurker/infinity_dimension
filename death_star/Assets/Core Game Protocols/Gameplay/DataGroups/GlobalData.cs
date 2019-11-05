@@ -8,11 +8,11 @@ using Newtonsoft.Json;
 
 #region Gameplay Data Structures
 
-public interface IPlayerEditable
+/*public interface IPlayerEditable
 {
     RuntimeParameters[] GetRuntimeParameters();
     void SetValues(RuntimeParameters[] runtimeParameters);
-}
+}*/
 
 public interface ISingleton
 {
@@ -253,7 +253,7 @@ public class Singleton : Iterator
 
 public static class LoadedData
 {
-    public static IPlayerEditable[] gIPEI; //globalIPlayerEditableInstances
+    //public static IPlayerEditable[] gIPEI; //globalIPlayerEditableInstances
     //public static IPlayerEditable[] uL; //uiLoaders
     public static Singleton[] sL; //singletonList
     public static InterfaceLoader[] lI; //loadedInterfaces
@@ -307,7 +307,7 @@ public static class PresetGameplayData
         new Stat("Movespeed", 1),
         new Stat("Health Regeneration", 1)  };
 
-    public static ClassFilter[] standaloneClass = new ClassFilter[] {
+    /*public static ClassFilter[] standaloneClass = new ClassFilter[] {
         new ClassFilter<Type>(typeof(ISpawnable), (t)=>{
             ScriptableObject scriptableObject = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[]{ t});
             return Spawner.GetCType(scriptableObject,t) as IPlayerEditable;
@@ -315,7 +315,7 @@ public static class PresetGameplayData
         new ClassFilter<Type>(typeof(ISingleton), (t) => {
             return Singleton.GetSingleton(t) as IPlayerEditable;
         })
-    };
+    };*/
 
 
 }

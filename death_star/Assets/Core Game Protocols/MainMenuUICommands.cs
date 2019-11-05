@@ -70,7 +70,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     public Font font;
     Text instance;
 
-    IPlayerEditable[] interfaces;
+    AbilityTreeNode[] interfaces;
 
     ScriptableObject windowSpawner;
     bool windowSpawnMode;
@@ -84,7 +84,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
     void Start() {
 
-        interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
+        interfaces = (Iterator.ReturnObject<AbilityTreeNode>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as AbilityTreeNode[];
 
         lH = new LinkageHandler();
 

@@ -13,7 +13,7 @@ public class Layer {
     }
 }
 
-public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
+public class UIDrawer : Spawner, ISingleton {
     public static Canvas t; //target
     public DH uiCreator;
     public Layer uL; //uiLayer
@@ -177,9 +177,9 @@ public class UIDrawer : Spawner, ISingleton, IPlayerEditable {
         return baseObject;
     }
 
-    public RuntimeParameters[] GetRuntimeParameters() {
+    public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            //new RuntimeParameters<string>("UI","What the fuck nigga"),
+            new RuntimeParameters<string>("UI","What the fuck nigga")
         };
     }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class ClassFilter<T> : ClassFilter { //Unless i use this as the parameter.
+/*public class ClassFilter<T> : ClassFilter { //Unless i use this as the parameter.
     public Func<T, IPlayerEditable> gI;
 
 
@@ -15,7 +15,7 @@ public class ClassFilter<T> : ClassFilter { //Unless i use this as the parameter
 
 public class ClassFilter {
     public Type t;
-}
+}*/
 
 /*public class GenericTrigger {
     public static IPlayerEditable GenericMethod<T>(T parameter, Type type) {

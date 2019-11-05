@@ -10,19 +10,39 @@ using UnityEngine.UI;
 /// <summary>
 /// Class which loads all singletons/editable classes.
 /// </summary>
+/// 
+
+public enum ClassType {
+    INTERFACE,BASECLASS
+
+}
 public class InterfaceLoader<T> : InterfaceLoader where T : class
 {
     public T[] lI; //loadedInterfaces
 
-    public InterfaceLoader()
+    public InterfaceLoader(ClassType filter)
     {
         List<T> typeInstances = new List<T>();
 
         t = typeof(T);
 
-        Type[] types = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(s => s.GetTypes())
-            .Where(p => t.IsAssignableFrom(p)).ToArray();
+        Type[] types = new Type[0];
+
+        switch(filter) {
+
+            case ClassType.INTERFACE:
+                types = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(s => s.GetTypes())
+                        .Where(p => t.IsAssignableFrom(p)).ToArray();
+                break;
+
+            case ClassType.BASECLASS:
+                types = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(s => s.GetTypes())
+                        .Where(p => p.IsSubclassOf(t)).ToArray();
+                break;
+        }
+
 
         //lI = new T[types.Length];
 
@@ -55,11 +75,11 @@ public class LoadClasses : MonoBehaviour
 {   
     void Start()
     {
-        LoadedData.lI = new InterfaceLoader[] { new InterfaceLoader<IPlayerEditable>(), new InterfaceLoader<ISingleton>()};
+        LoadedData.lI = new InterfaceLoader[] { /*new InterfaceLoader<IPlayerEditable>(ClassType.INTERFACE),*/ new InterfaceLoader<ISingleton>(ClassType.INTERFACE), new InterfaceLoader<AbilityTreeNode>(ClassType.BASECLASS)};
         //LoadPointerData();
         LoadSingletonClasses();
         //LoadEditableClasses();
-        IPlayerEditable[] interfaces = (Iterator.ReturnObject<IPlayerEditable>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as IPlayerEditable[];
+        AbilityTreeNode[] interfaces = (Iterator.ReturnObject<AbilityTreeNode>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as AbilityTreeNode[];
 
         for (int i = 0; i < interfaces.Length; i++)
         {
@@ -84,7 +104,6 @@ public class LoadClasses : MonoBehaviour
             LoadedData.sL[i] = new Singleton(singleton as ISingleton);
         }
 
-        Debug.Log(Singleton.GetSingleton<UIDrawer>());
         /*List<ISingleton> singletonInstances = new List<ISingleton>();
 
         Type type = typeof(ISingleton);
