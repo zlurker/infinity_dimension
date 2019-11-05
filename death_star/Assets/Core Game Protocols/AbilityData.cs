@@ -12,19 +12,23 @@ public class Variable {
     public RuntimeParameters field;
 
     //Addressed to [ subclass, variable, get(0)/set(1) enum]
-    public int[][] links;
+    //public int[][] links;
+    public int[][] get;
+    public int[][] set;
 
     public Variable() {
     }
 
-    public Variable(RuntimeParameters f, int[][] ls) {
+    public Variable(RuntimeParameters f, int[][] g, int[][] s) {
         field = f;
-        links = ls;
+        get = g;
+        set = s;
     }
 
     public Variable(RuntimeParameters f) {
         field = f;
-        links = new int[0][];
+        get = new int[0][];
+        set = new int[0][];
     }
 }
 
@@ -61,8 +65,8 @@ public class AbilityDataSubclass {
 
         for(int i = 0; i < target.Length; i++)
             for(int j = 0; j < target[i].var.Length; j++)
-                for(int k = 0; k < target[i].var[j].links.Length; k++) {
-                    connected.ModifyElementAt(target[i].var[j].links[k][0], true);
+                for(int k = 0; k < target[i].var[j].set.Length; k++) {
+                    connected.ModifyElementAt(target[i].var[j].set[k][0], true);
                 }
 
         for(int i = 0; i < connected.l.Count; i++)
@@ -77,26 +81,42 @@ public class AbilityDataSubclass {
 //Refer to notebook if unsure, Line & windows
 public class UIAbilityData {
     public EnhancedList<AbilityDataSubclass> subclasses;
-    public AutoPopulationList<EnhancedList<int[]>[]> linksEdit;
+    public AutoPopulationList<EnhancedList<int[]>[]>[] linksEdit;
+    //public AutoPopulationList<EnhancedList<int[]>[]> linksEdit;
 
     public UIAbilityData() {
         subclasses = new EnhancedList<AbilityDataSubclass>();
-        linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
+        linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>[2];
+
+        // Get
+        linksEdit[0] = new AutoPopulationList<EnhancedList<int[]>[]>();
+
+        // Set
+        linksEdit[1] = new AutoPopulationList<EnhancedList<int[]>[]>();
     }
 
     public UIAbilityData(AbilityDataSubclass[] elements) {
         subclasses = new EnhancedList<AbilityDataSubclass>(elements);
-        linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
+
+        linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>[2];
+
+        // Get
+        linksEdit[0] = new AutoPopulationList<EnhancedList<int[]>[]>();
+
+        // Set
+        linksEdit[1] = new AutoPopulationList<EnhancedList<int[]>[]>();
 
         for(int i = 0; i < elements.Length; i++) {
-            EnhancedList<int[]>[] cList = new EnhancedList<int[]>[elements[i].var.Length];
+            EnhancedList<int[]>[] g = new EnhancedList<int[]>[elements[i].var.Length];
+            EnhancedList<int[]>[] s = new EnhancedList<int[]>[elements[i].var.Length];
 
             for(int j = 0; j < elements[i].var.Length; j++) {
-                EnhancedList<int[]> dynaLink = new EnhancedList<int[]>(elements[i].var[j].links);
-                cList[j] = dynaLink;
+                g[j] = new EnhancedList<int[]>(elements[i].var[j].get);
+                s[j] = new EnhancedList<int[]>(elements[i].var[j].set);
             }
 
-            linksEdit.ModifyElementAt(i, cList);
+            linksEdit[(int)VariableAction.GET].ModifyElementAt(i, g);
+            linksEdit[(int)VariableAction.SET].ModifyElementAt(i, s);
         }
     }
 
@@ -108,12 +128,16 @@ public class UIAbilityData {
     }
 
     void CreateLinkSpaces(int id, int length) {
-        EnhancedList<int[]>[] varLinks = new EnhancedList<int[]>[length];
+        EnhancedList<int[]>[] get = new EnhancedList<int[]>[length];
+        EnhancedList<int[]>[] set = new EnhancedList<int[]>[length];
 
-        for(int i = 0; i < length; i++)
-            varLinks[i] = new EnhancedList<int[]>();
+        for(int i = 0; i < length; i++) {
+            get[i] = new EnhancedList<int[]>();
+            set[i] = new EnhancedList<int[]>();
+        }
 
-        linksEdit.ModifyElementAt(id, varLinks);
+        linksEdit[(int) VariableAction.GET].ModifyElementAt(id, get);
+        linksEdit[(int) VariableAction.SET].ModifyElementAt(id, set);
     }
 
     public AbilityDataSubclass[] RelinkSubclass() {
