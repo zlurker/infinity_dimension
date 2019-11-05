@@ -71,6 +71,34 @@ public class AbilityDataSubclass {
 
         return rootClasses.ToArray();
     }
+
+    public static int[][][][] ReturnGetterAndSetters(AbilityDataSubclass[] target) {
+        int[][][][] compiled = new int[target.Length][][][];
+
+        for(int i = 0; i < target.Length; i++) {
+            compiled[i] = new int[target[i].var.Length][][];
+
+            for(int k = 0; k < target[i].var.Length; k++) {
+                compiled[i][k] = new int[2][];
+
+                List<int>[] gs = new List<int>[2];
+                gs[0] = new List<int>();
+                gs[1] = new List<int>();
+
+                for(int j = 0; j < target[i].var[k].links.Length; j++) 
+                    gs[target[i].var[k].links[j][2]].Add(j);
+
+                for(int l = 0; l < gs.Length; l++)
+                    compiled[i][k][l] = gs[l].ToArray();
+
+                
+            }
+        }
+
+        return compiled;
+    }
+
+
 }
 
 //Contains list of functions/data structures to assist with the UI side of ability data.
@@ -132,7 +160,7 @@ public class UIAbilityData {
             globalAddress[active[i]] = i;
 
         //Loop to relink classes.
-        for(int i = 0; i < active.Length; i++) { 
+        for(int i = 0; i < active.Length; i++) {
             for(int j = 0; j < subclasses.l[active[i]].var.Length; j++) {
 
                 //Code to check if the link is a active link and not broken.
@@ -145,7 +173,7 @@ public class UIAbilityData {
 
                     //previousId
                     int oldId = linkValues[k][0];
-                    
+
                     if(globalAddress[oldId] > -1) {
 
                         //Replaces with new id if current mapped ID is active.
@@ -153,7 +181,7 @@ public class UIAbilityData {
 
                         //Adds active link into array.
                         linkCheck.Add(linkValues[k]);
-                    }                    
+                    }
                 }
 
                 //Sets array with updated link values.
