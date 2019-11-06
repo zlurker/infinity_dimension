@@ -224,15 +224,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             //Handles UI Data deletion.
             abilityData.subclasses.Remove(id);
+            abilityData.linksEdit.ModifyElementAt(id, null);
         });
 
         editWindow.transform.parent.position = location;
         abilityWindows.ModifyElementAt(id, editWindow);
-
-        Spawner.GetCType<Button>(editWindow.windowsDeleter).onClick.AddListener(() => { //Deletes windows when clicked on
-            //savedData.Remove(runtimePara.wN);
-            //runtimePara.RemoveWindows();
-        });
 
         //Initialises variable linear layouts.
         editWindow.variables = new LinearLayout[abilityData.subclasses.l[id].var.Length];

@@ -60,8 +60,11 @@ public class AbilityDataSubclass {
         for(int i = 0; i < target.Length; i++)
             for(int j = 0; j < target[i].var.Length; j++)
                 for(int k = 0; k < target[i].var[j].links.Length; k++)
-                    for(int l = 0; l < target[i].var[j].links[k].Length; l++) 
-                        connected.ModifyElementAt(target[i].var[j].links[k][l][0], true);                  
+                    for(int l = 0; l < target[i].var[j].links[k].Length; l++) {
+                       
+                        Debug.Log(i + "\n" + target[i].var[j].links[k][l][0]);
+                        connected.ModifyElementAt(target[i].var[j].links[k][l][0], true);
+                    }
 
         for(int i = 0; i < connected.l.Count; i++)
             if(!connected.l[i])
