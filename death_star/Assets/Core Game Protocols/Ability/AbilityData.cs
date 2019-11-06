@@ -31,7 +31,6 @@ public class Variable {
 public class AbilityDataSubclass {
     public Variable[] var;
     public Type classType;
-    public float[] wL;
 
     public AbilityDataSubclass() {
     }
@@ -50,7 +49,6 @@ public class AbilityDataSubclass {
         for(int i = 0; i < var.Length; i++)
             var[i] = new Variable(fields[i]);
 
-        wL = new float[2];
     }
 
     //Returns all root classes.
@@ -104,6 +102,7 @@ public class AbilityDataSubclass {
 public class UIAbilityData {
     public EnhancedList<AbilityDataSubclass> subclasses;
     public AutoPopulationList<EnhancedList<int[]>[]> linksEdit;
+    public float[][] loadedWindowsLocation;
 
     public UIAbilityData() {
         subclasses = new EnhancedList<AbilityDataSubclass>();
@@ -111,8 +110,7 @@ public class UIAbilityData {
     }
 
     public UIAbilityData(AbilityDataSubclass[] elements, float[][] windowsLocation) {
-        for (int i=0; i < windowsLocation.Length; i++)
-            elements[i].wL = windowsLocation[i];
+        loadedWindowsLocation = windowsLocation;
 
         subclasses = new EnhancedList<AbilityDataSubclass>(elements);
         linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();

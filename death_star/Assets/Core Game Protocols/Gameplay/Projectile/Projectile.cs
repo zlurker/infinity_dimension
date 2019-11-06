@@ -15,7 +15,7 @@ public class Projectile : AbilityTreeNode,ISpawnable
 
     void Update()
     {
-        transform.parent.position += new Vector3(1, Mathf.Tan(70 * Mathf.Deg2Rad)) * Iterator.ReturnObject<RuntimeParameters<float>>(parameters, "Projectile Speed").v;
+        //transform.parent.position += new Vector3(1, Mathf.Tan(70 * Mathf.Deg2Rad)) * Iterator.ReturnObject<RuntimeParameters<float>>(parameters, "Projectile Speed").v;
     }
 
     public void OnSpawn()

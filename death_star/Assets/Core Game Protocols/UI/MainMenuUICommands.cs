@@ -140,12 +140,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             int[] aEle = abilityData.subclasses.ReturnActiveElementIndex();
 
-
-            for(int i = 0; i < aEle.Length; i++) {
-                abilityData.subclasses.l[aEle[i]].wL[0] = abilityWindows.l[aEle[i]].transform.parent.position.x;
-                abilityData.subclasses.l[aEle[i]].wL[1] = abilityWindows.l[aEle[i]].transform.parent.position.y;
-            }
-
             AbilityDataSubclass[] cAD = abilityData.RelinkSubclass();
 
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(cAD)));
@@ -155,8 +149,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             // Gets all window locations.
             float[][] windowLocations = new float[cAD.Length][];
 
-            for (int i=0; i < cAD.Length; i++) 
-                windowLocations[i] = cAD[i].wL;           
+            for(int i = 0; i < windowLocations.Length; i++) {
+                windowLocations[i] = new float[2];
+
+                windowLocations[i][0] = abilityWindows.l[aEle[i]].transform.parent.position.x;
+                windowLocations[i][1] = abilityWindows.l[aEle[i]].transform.parent.position.y;
+            }
 
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 2, JsonConvert.SerializeObject(windowLocations));
             
@@ -171,7 +169,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         //Creates windows UI from data. 
         for(int i = 0; i < abilityData.subclasses.l.Count; i++) {
-            Vector2 loc = new Vector2(abilityData.subclasses.l[i].wL[0], abilityData.subclasses.l[i].wL[1]);
+            Vector2 loc = new Vector2(abilityData.loadedWindowsLocation[i][0], abilityData.loadedWindowsLocation[i][1]);
             CreateWindow(i, loc);
         }
 
