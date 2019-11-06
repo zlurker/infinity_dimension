@@ -6,7 +6,6 @@ using Newtonsoft.Json;
 
 public class StandardJSONFileFormat {    
     public Type cT;
-    public float[] wL;
     public string[] rP;
     public string[] l;
     public int[] vT; //variableType
@@ -21,7 +20,7 @@ public static class JSONFileConvertor {
         for (int i =0; i < convertedFormat.Length; i++) {
             convertedFormat[i] = new StandardJSONFileFormat();
             convertedFormat[i].cT = aDS[i].classType;
-            convertedFormat[i].wL = aDS[i].wL;
+            //convertedFormat[i].wL = aDS[i].wL;
 
             convertedFormat[i].rP = new string[aDS[i].var.Length];
             convertedFormat[i].l = new string[aDS[i].var.Length];
@@ -45,7 +44,7 @@ public static class JSONFileConvertor {
             convertedFormat[i] = new AbilityDataSubclass();
 
             convertedFormat[i].classType = sFs[i].cT;
-            convertedFormat[i].wL = sFs[i].wL;
+            //convertedFormat[i].wL = sFs[i].wL;
             convertedFormat[i].var = new Variable[sFs[i].l.Length];
 
             for(int j = 0; j < convertedFormat[i].var.Length; j++) 

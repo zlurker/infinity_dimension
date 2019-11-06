@@ -75,16 +75,17 @@ public class LoadClasses : MonoBehaviour
 {   
     void Start()
     {
-        LoadedData.lI = new InterfaceLoader[] { /*new InterfaceLoader<IPlayerEditable>(ClassType.INTERFACE),*/ new InterfaceLoader<ISingleton>(ClassType.INTERFACE), new InterfaceLoader<AbilityTreeNode>(ClassType.BASECLASS)};
-        //LoadPointerData();
+        LoadedData.lI = new InterfaceLoader[] { new InterfaceLoader<ISingleton>(ClassType.INTERFACE), new InterfaceLoader<AbilityTreeNode>(ClassType.BASECLASS)};
+
         LoadSingletonClasses();
+
         //LoadEditableClasses();
-        AbilityTreeNode[] interfaces = (Iterator.ReturnObject<AbilityTreeNode>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as AbilityTreeNode[];
+        /*AbilityTreeNode[] interfaces = (Iterator.ReturnObject<AbilityTreeNode>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as AbilityTreeNode[];
 
         for (int i = 0; i < interfaces.Length; i++)
         {
             Debug.Log(interfaces[i].GetType());
-        }
+        }*/
 
         SceneTransitionData.Initialise();
     }

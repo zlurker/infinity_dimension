@@ -63,8 +63,7 @@ public class AbilityDataSubclass {
             for(int j = 0; j < target[i].var.Length; j++)
                 for(int k = 0; k < target[i].var[j].links.Length; k++)
                     for(int l = 0; l < target[i].var[j].links[k].Length; l++) 
-                        connected.ModifyElementAt(target[i].var[j].links[k][l][0], true);
-                    
+                        connected.ModifyElementAt(target[i].var[j].links[k][l][0], true);                  
 
         for(int i = 0; i < connected.l.Count; i++)
             if(!connected.l[i])
@@ -98,8 +97,6 @@ public class AbilityDataSubclass {
 
         return compiled;
     }*/
-
-
 }
 
 //Contains list of functions/data structures to assist with the UI side of ability data.
@@ -113,7 +110,10 @@ public class UIAbilityData {
         linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
     }
 
-    public UIAbilityData(AbilityDataSubclass[] elements) {
+    public UIAbilityData(AbilityDataSubclass[] elements, float[][] windowsLocation) {
+        for (int i=0; i < windowsLocation.Length; i++)
+            elements[i].wL = windowsLocation[i];
+
         subclasses = new EnhancedList<AbilityDataSubclass>(elements);
         linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
 
