@@ -12,19 +12,19 @@ public class Variable {
     public RuntimeParameters field;
 
     //Addressed to [ subclass, variable, get(0)/set(1) enum]
-    public int[][] links;
+    public int[][][] links;
 
     public Variable() {
     }
 
-    public Variable(RuntimeParameters f, int[][] ls) {
+    public Variable(RuntimeParameters f, int[][][] ls) {
         field = f;
         links = ls;
     }
 
     public Variable(RuntimeParameters f) {
         field = f;
-        links = new int[0][];
+        links = new int[0][][];
     }
 }
 
@@ -61,9 +61,10 @@ public class AbilityDataSubclass {
 
         for(int i = 0; i < target.Length; i++)
             for(int j = 0; j < target[i].var.Length; j++)
-                for(int k = 0; k < target[i].var[j].links.Length; k++) {
-                    connected.ModifyElementAt(target[i].var[j].links[k][0], true);
-                }
+                for(int k = 0; k < target[i].var[j].links.Length; k++)
+                    for(int l = 0; l < target[i].var[j].links[k].Length; l++) 
+                        connected.ModifyElementAt(target[i].var[j].links[k][l][0], true);
+                    
 
         for(int i = 0; i < connected.l.Count; i++)
             if(!connected.l[i])
@@ -72,7 +73,7 @@ public class AbilityDataSubclass {
         return rootClasses.ToArray();
     }
 
-    public static int[][][][] ReturnGetterAndSetters(AbilityDataSubclass[] target) {
+    /*public static int[][][][] ReturnGetterAndSetters(AbilityDataSubclass[] target) {
         int[][][][] compiled = new int[target.Length][][][];
 
         for(int i = 0; i < target.Length; i++) {
@@ -96,7 +97,7 @@ public class AbilityDataSubclass {
         }
 
         return compiled;
-    }
+    }*/
 
 
 }
@@ -120,7 +121,12 @@ public class UIAbilityData {
             EnhancedList<int[]>[] cList = new EnhancedList<int[]>[elements[i].var.Length];
 
             for(int j = 0; j < elements[i].var.Length; j++) {
-                EnhancedList<int[]> dynaLink = new EnhancedList<int[]>(elements[i].var[j].links);
+                EnhancedList<int[]> dynaLink = new EnhancedList<int[]>();//new EnhancedList<int[]>(elements[i].var[j].links);
+
+                for(int k = 0; k < elements[i].var[j].links.Length; k++)
+                    for(int l = 0; l < elements[i].var[j].links[k].Length; l++)
+                        dynaLink.Add(new int[] { elements[i].var[j].links[k][l][0], elements[i].var[j].links[k][l][1], k });
+
                 cList[j] = dynaLink;
             }
 
@@ -184,8 +190,23 @@ public class UIAbilityData {
                     }
                 }
 
-                //Sets array with updated link values.
-                subclasses.l[active[i]].var[j].links = linkCheck.ToArray();
+                subclasses.l[active[i]].var[j].links = new int[2][][];
+
+                // Prepares get set list.
+                List<int[]>[] gser = new List<int[]>[2];
+                gser[0] = new List<int[]>();
+                gser[1] = new List<int[]>();
+                
+                for(int l = 0; l < linkCheck.Count; l++)
+                    gser[linkCheck[l][2]].Add(new int[] { linkCheck[l][0], linkCheck[l][1] });
+
+                // Sets array with updated link values.
+                for(int l =0; l < 2; l++) {
+                    subclasses.l[active[i]].var[j].links[l] = new int[gser[l].Count][];
+
+                    for (int o=0; o < gser[l].Count; o++) 
+                        subclasses.l[active[i]].var[j].links[l][o] = gser[l][o];                   
+                }
             }
 
             relinkedClasses[i] = subclasses.l[active[i]];

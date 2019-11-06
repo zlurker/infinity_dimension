@@ -149,7 +149,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
 
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 3, JsonConvert.SerializeObject(AbilityDataSubclass.ReturnFirstClasses(cAD)));
-            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(AbilityDataSubclass.ReturnGetterAndSetters(cAD)));
+            //Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(AbilityDataSubclass.ReturnGetterAndSetters(cAD)));
         });
 
         Spawner.GetCType<Text>(saveButton).text = "Save JSON";
@@ -165,10 +165,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         }
 
         //Creates linkage from data.
-        for(int i = 0; i < abilityData.subclasses.l.Count; i++)
-            for(int j = 0; j < abilityData.subclasses.l[i].var.Length; j++)
-                for(int k = 0; k < abilityData.subclasses.l[i].var[j].links.Length; k++)
-                    CreateVariableLinkage(new int[] { i, j }, abilityData.subclasses.l[i].var[j].links[k]);
+        for(int i = 0; i < abilityData.linksEdit.l.Count; i++)
+            for(int j = 0; j < abilityData.linksEdit.l[i].Length; j++)
+                for(int k = 0; k < abilityData.linksEdit.l[i][j].l.Count; k++)
+                    CreateVariableLinkage(new int[] { i, j }, abilityData.linksEdit.l[i][j].l[k]);
 
         lH.createDataLinkage = true;
     }
