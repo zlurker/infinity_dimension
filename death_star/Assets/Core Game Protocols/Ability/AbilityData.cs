@@ -11,8 +11,8 @@ public class Variable {
     //Variable details
     public RuntimeParameters field;
 
-    //Addressed to [ subclass, variable, get(0)/set(1) enum]
-    public int[][][] links;
+    //Addressed to [ get(0)/set(1) enum, subclass, variable]
+    public int[][][] links; 
 
     public Variable() {
     }

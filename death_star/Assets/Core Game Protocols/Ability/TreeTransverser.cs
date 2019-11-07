@@ -20,9 +20,8 @@ public class TreeTransverser {
 
     public void TransversePoint(int nodeId, int variableId, VariableAction action) {
         int[][] nextNodeIdArray = AbilityTreeNode.globalList.l[abilityNodes][nodeId].runtimeParameters[variableId].links[(int)action];
-        
-        for (int i= 0; i < nextNodeIdArray.Length; i++) {
 
-        }
+        for(int i = 0; i < nextNodeIdArray.Length; i++) 
+            AbilityTreeNode.globalList.l[abilityNodes][nextNodeIdArray[i][0]].NodeCallback(nodeId, action);        
     }
 }

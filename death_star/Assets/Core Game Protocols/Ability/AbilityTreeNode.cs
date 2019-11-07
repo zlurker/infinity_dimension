@@ -7,7 +7,7 @@ public class AbilityTreeNode : MonoBehaviour {
     public static EnhancedList<AbilityTreeNode[]> globalList = new EnhancedList<AbilityTreeNode[]>();
 
     // Given node ID.
-    int nodeId;
+    public int nodeId;
 
     // Link to tree transverser.
     public int treeTransverser;
@@ -27,10 +27,14 @@ public class AbilityTreeNode : MonoBehaviour {
         return new RuntimeParameters[0];
     }
 
-    public virtual void NodeCallback(int nodeId, VariableAction action) {
+    public virtual void NodeCallback(int nId, VariableAction action) {
         if(!gameObject.activeSelf)
             gameObject.SetActive(true);
 
-        Debug.Log("called by: " + nodeId);
+        Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
+    }
+
+    public TreeTransverser GetTransverser() {
+        return TreeTransverser.globalList.l[treeTransverser];
     }
 }
