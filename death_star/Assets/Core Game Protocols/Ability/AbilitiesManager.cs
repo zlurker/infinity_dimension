@@ -25,9 +25,8 @@ public class AbilitiesManager : MonoBehaviour {
 
         for(int i = 0; i < a.Length; i++) {
             a[i] = Spawner.GetCType(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new System.Type[] { ability[i].classType }), ability[i].classType) as AbilityTreeNode;
-            a[i].runtimeParameters = ability[i].var;
-            a[i].treeTransverser = tId;
-            a[i].nodeId = i;
+            a[i].gameObject.SetActive(false);
+            a[i].RunNodeInitialisation(ability[i].var,i,tId);            
         }
 
         defaultTransverser.abilityNodes = AbilityTreeNode.globalList.Add(a);
