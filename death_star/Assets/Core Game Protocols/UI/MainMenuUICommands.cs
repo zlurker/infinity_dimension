@@ -225,6 +225,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             //Handles UI Data deletion.
             abilityData.subclasses.Remove(id);
             abilityData.linksEdit.ModifyElementAt(id, null);
+            abilityData.ResetTunnelEnd(id);
         });
 
         editWindow.transform.parent.position = location;
@@ -301,11 +302,14 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         return linkageButton;
     }
 
+    
     void CreateVariableLinkage(int[] prevPath, int[] currPath) {
 
         //Handles the data linkage.
-        if(lH.createDataLinkage)
-            abilityData.linksEdit.l[prevPath[0]][prevPath[1]].Add(currPath);
+        // I should look for a way to shift this to AbilityData, since this is data and not UI, make it clear cut.
+        if(lH.createDataLinkage) 
+            abilityData.CreateLink(prevPath, currPath);
+        
 
         //Gets the UI data of both paths.
         Transform[] linePoints = new Transform[2];
@@ -329,14 +333,14 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 break;
         }
 
-        //Creates the graphical strings.
+        // Creates the graphical strings.
         LineData line = new LineData(linePoints[0], linePoints[1]);
         int lineId = lineData.Add(line);
 
-        //Make sure both ends will feedback if window was dragged.
+        // Make sure both ends will feedback if window was dragged.
         abilityWindows.l[currPath[0]].linesRelated.Add(lineId);
         abilityWindows.l[prevPath[0]].linesRelated.Add(lineId);
-        UpdateLines(new int[] { lineId });
+        UpdateLines(new int[] { lineId });        
     }
 
     ScriptableObject[] CreateVariableField(int id, int varId) {

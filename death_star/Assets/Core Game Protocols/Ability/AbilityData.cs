@@ -61,7 +61,7 @@ public class AbilityDataSubclass {
             for(int j = 0; j < target[i].var.Length; j++)
                 for(int k = 0; k < target[i].var[j].links.Length; k++)
                     for(int l = 0; l < target[i].var[j].links[k].Length; l++) {
-                       
+
                         Debug.Log(i + "\n" + target[i].var[j].links[k][l][0]);
                         connected.ModifyElementAt(target[i].var[j].links[k][l][0], true);
                     }
@@ -105,11 +105,26 @@ public class AbilityDataSubclass {
 public class UIAbilityData {
     public EnhancedList<AbilityDataSubclass> subclasses;
     public AutoPopulationList<EnhancedList<int[]>[]> linksEdit;
+    public AutoPopulationList<List<int[]>> linkTunnelEnd;
+
     public float[][] loadedWindowsLocation;
 
     public UIAbilityData() {
         subclasses = new EnhancedList<AbilityDataSubclass>();
         linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
+        linkTunnelEnd = new AutoPopulationList<List<int[]>>();
+    }
+
+    public void ResetTunnelEnd(int id) {
+        for(int i = 0; i < linkTunnelEnd.l[id].Count; i++)
+            for(int j = 0; j < linkTunnelEnd.l[id].Count; j++) {
+                int[] path = linkTunnelEnd.l[id][j];
+
+                Debug.LogFormat("Path : {0} , {1} , {2}", path[0], path[1], path[2]);
+                linksEdit.l[path[0]][path[1]].Remove(path[2]);
+            }
+
+        linkTunnelEnd.ModifyElementAt(id, new List<int[]>());
     }
 
     public UIAbilityData(AbilityDataSubclass[] elements, float[][] windowsLocation) {
@@ -117,6 +132,10 @@ public class UIAbilityData {
 
         subclasses = new EnhancedList<AbilityDataSubclass>(elements);
         linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
+        linkTunnelEnd = new AutoPopulationList<List<int[]>>();
+
+        for(int i = 0; i < elements.Length; i++)
+            linkTunnelEnd.ModifyElementAt(i, new List<int[]>());
 
         for(int i = 0; i < elements.Length; i++) {
             EnhancedList<int[]>[] cList = new EnhancedList<int[]>[elements[i].var.Length];
@@ -125,14 +144,31 @@ public class UIAbilityData {
                 EnhancedList<int[]> dynaLink = new EnhancedList<int[]>();//new EnhancedList<int[]>(elements[i].var[j].links);
 
                 for(int k = 0; k < elements[i].var[j].links.Length; k++)
-                    for(int l = 0; l < elements[i].var[j].links[k].Length; l++)
-                        dynaLink.Add(new int[] { elements[i].var[j].links[k][l][0], elements[i].var[j].links[k][l][1], k });
+                    for(int l = 0; l < elements[i].var[j].links[k].Length; l++) {
+                        int id = dynaLink.Add(new int[] { elements[i].var[j].links[k][l][0], elements[i].var[j].links[k][l][1], k });
+                        CreateLinkShadow(elements[i].var[j].links[k][l][0], new int[] { i, j, id });
+                    }
+
 
                 cList[j] = dynaLink;
             }
 
             linksEdit.ModifyElementAt(i, cList);
         }
+    }
+
+    public void CreateLink(int[] prevPath, int[] currPath) {
+        int dataId = linksEdit.l[prevPath[0]][prevPath[1]].Add(currPath);
+        Debug.Log(linkTunnelEnd.l.Count);
+        Debug.Log(currPath[0]);
+
+        CreateLinkShadow(currPath[0], new int[] { prevPath[0], prevPath[1], dataId });
+    }
+
+    public void CreateLinkShadow(int classAffected, int[] pathRoot) {
+        //linkTunnelEnd.l[currPath[0]].Add(new int[] { prevPath[0], prevPath[1], dataId });
+        linkTunnelEnd.l[classAffected].Add(pathRoot);
+
     }
 
     public int Add(AbilityDataSubclass inst) {
@@ -149,6 +185,7 @@ public class UIAbilityData {
             varLinks[i] = new EnhancedList<int[]>();
 
         linksEdit.ModifyElementAt(id, varLinks);
+        linkTunnelEnd.ModifyElementAt(id, new List<int[]>());
     }
 
     public AbilityDataSubclass[] RelinkSubclass() {
@@ -197,16 +234,16 @@ public class UIAbilityData {
                 List<int[]>[] gser = new List<int[]>[2];
                 gser[0] = new List<int[]>();
                 gser[1] = new List<int[]>();
-                
+
                 for(int l = 0; l < linkCheck.Count; l++)
                     gser[linkCheck[l][2]].Add(new int[] { linkCheck[l][0], linkCheck[l][1] });
 
                 // Sets array with updated link values.
-                for(int l =0; l < 2; l++) {
+                for(int l = 0; l < 2; l++) {
                     subclasses.l[active[i]].var[j].links[l] = new int[gser[l].Count][];
 
-                    for (int o=0; o < gser[l].Count; o++) 
-                        subclasses.l[active[i]].var[j].links[l][o] = gser[l][o];                   
+                    for(int o = 0; o < gser[l].Count; o++)
+                        subclasses.l[active[i]].var[j].links[l][o] = gser[l][o];
                 }
             }
 
