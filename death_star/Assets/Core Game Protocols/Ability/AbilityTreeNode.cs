@@ -13,7 +13,7 @@ public class AbilityTreeNode : MonoBehaviour {
     int treeTransverser;
 
     // Variables in node.
-    public Variable[] runtimeParameters;
+    Variable[] runtimeParameters;
 
     // Counts in tranversing for outgoing notes on get and set.
     int[,] transverseCount;
@@ -23,6 +23,10 @@ public class AbilityTreeNode : MonoBehaviour {
         nodeId = nid;
         treeTransverser = tt;
         transverseCount = new int[runtimeParameters.Length, 2];
+    }
+
+    public Variable[] GetVariables() {
+        return runtimeParameters;
     }
 
     public virtual RuntimeParameters[] GetRuntimeParameters() {
