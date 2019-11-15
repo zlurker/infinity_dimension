@@ -7,54 +7,12 @@ public enum VariableAction {
     GET, SET
 }
 
-public class RecursivePath {
-
-    AbilityDataSubclass[] target;
-
-    public RecursivePath(AbilityDataSubclass[] t) {
-        target = t;
-    }
-
-
-    public int[][] RecursivePathing(int[] path) {
-
-        List<int[]> paths = new List<int[]>();
-        bool noLinks = true;
-
-        for(int i = 0; i < target[path[path.Length - 1]].var.Length; i++)
-            for(int j = 0; j < target[path[path.Length - 1]].var[i].links.Length; j++) {
-                for(int k = 0; k < target[path[path.Length - 1]].var[i].links[j].Length; k++) {
-                    List<int> cP = new List<int>(path);
-
-                    cP.Add(target[path[path.Length - 1]].var[i].links[j][k][0]);
-
-                    int[][] gatheredPaths = RecursivePathing(cP.ToArray());
-
-                    for(int l = 0; l < gatheredPaths.Length; l++)
-                        paths.Add(gatheredPaths[l]);
-                }
-
-                if(target[path[path.Length - 1]].var[i].links[0].Length > 0 ||
-                    target[path[path.Length - 1]].var[i].links[1].Length > 0)
-                    noLinks = false;
-            }
-
-
-        if(noLinks) {
-            Debug.Log("P:" + path[path.Length - 1]);
-            return new int[][] { path };
-        }
-
-        return paths.ToArray();
-    }
-}
-
 public class Variable {
     //Variable details
     public RuntimeParameters field;
 
     //Addressed to [ get(0)/set(1) enum, subclass, variable]
-    public int[][][] links;
+    public int[][][] links; 
 
     public Variable() {
     }
@@ -115,23 +73,6 @@ public class AbilityDataSubclass {
         return rootClasses.ToArray();
     }
 
-    // Returns all possible ends for every node.
-    public static int[][] ReturnNodeEndData(AbilityDataSubclass[] target, int[] root) {
-
-        RecursivePath test = new RecursivePath(target);
-        List<int[]> paths = new List<int[]>();
-
-        for(int i = 0; i < root.Length; i++) {
-            int[][] tp = test.RecursivePathing(new int[] { root[i] });
-
-            for(int j = 0; j < tp.Length; j++)
-                paths.Add(tp[j]);
-        }
-
-        return paths.ToArray();
-    }
-
-
     /*public static int[][][][] ReturnGetterAndSetters(AbilityDataSubclass[] target) {
         int[][][][] compiled = new int[target.Length][][][];
 
@@ -179,7 +120,7 @@ public class UIAbilityData {
             for(int j = 0; j < linkTunnelEnd.l[id].Count; j++) {
                 int[] path = linkTunnelEnd.l[id][j];
 
-                //Debug.LogFormat("Path : {0} , {1} , {2}", path[0], path[1], path[2]);
+                Debug.LogFormat("Path : {0} , {1} , {2}", path[0], path[1], path[2]);
                 linksEdit.l[path[0]][path[1]].Remove(path[2]);
             }
 
