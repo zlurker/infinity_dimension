@@ -7,7 +7,7 @@ public enum VariableAction {
     GET, SET
 }
 
-public class RecursivePath {
+/*public class RecursivePath {
 
     AbilityDataSubclass[] target;
 
@@ -47,7 +47,7 @@ public class RecursivePath {
 
         return paths.ToArray();
     }
-}
+}*/
 
 public class Variable {
     //Variable details
@@ -116,7 +116,7 @@ public class AbilityDataSubclass {
     }
 
     // Returns all possible ends for every node.
-    public static int[][] ReturnNodeEndData(AbilityDataSubclass[] target, int[] root) {
+    /*public static int[][] ReturnNodeEndData(AbilityDataSubclass[] target, int[] root) {
 
         RecursivePath test = new RecursivePath(target);
         List<int[]> paths = new List<int[]>();
@@ -129,7 +129,7 @@ public class AbilityDataSubclass {
         }
 
         return paths.ToArray();
-    }
+    }*/
 
 
     /*public static int[][][][] ReturnGetterAndSetters(AbilityDataSubclass[] target) {
