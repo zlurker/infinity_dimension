@@ -15,14 +15,12 @@ public class AbilityTreeNode : MonoBehaviour {
     // Variables in node.
     Variable[] runtimeParameters;
 
-    // Counts in tranversing for outgoing notes on get and set.
-    int[,] transverseCount;
+    int currFireCount;
 
     public void RunNodeInitialisation(Variable[] rP, int nid, int tt) {
         runtimeParameters = rP;
         nodeId = nid;
         treeTransverser = tt;
-        transverseCount = new int[runtimeParameters.Length, 2];
     }
 
     public Variable[] GetVariables() {
@@ -37,11 +35,16 @@ public class AbilityTreeNode : MonoBehaviour {
         GetTransverser().TransversePoint(nodeId, variable, action);
     }
 
-    public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {
-        if(!gameObject.activeSelf)
-            gameObject.SetActive(true);
+    public virtual bool NodeCallback(int nId, int variableCalled, VariableAction action) {
+        bool firstCallback = false;
 
+        if(!gameObject.activeSelf) {
+            gameObject.SetActive(true);
+            firstCallback = true;
+        }
+       
         Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
+        return firstCallback;
     }
 
     public TreeTransverser GetTransverser() {

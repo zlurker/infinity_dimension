@@ -7,6 +7,7 @@ public class AbilitiesManager : MonoBehaviour {
 
     AbilityDataSubclass[] ability;
     int[] rootSubclasses;
+    int[] lengthData;
 
     void Start() {
 
@@ -17,6 +18,9 @@ public class AbilitiesManager : MonoBehaviour {
         //Deserializes root classes.
         cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { "0" }, 3);
         rootSubclasses = JsonConvert.DeserializeObject<int[]>(cData);
+
+        cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { "0" }, 4);
+        lengthData = JsonConvert.DeserializeObject<int[]>(cData);
 
         TreeTransverser defaultTransverser = new TreeTransverser();
         int tId = TreeTransverser.globalList.Add(defaultTransverser);
@@ -29,7 +33,7 @@ public class AbilitiesManager : MonoBehaviour {
             a[i].RunNodeInitialisation(ability[i].var, i, tId);
         }
 
-        defaultTransverser.SetTargetNodesId(AbilityTreeNode.globalList.Add(a));
+        defaultTransverser.SetNodeData(AbilityTreeNode.globalList.Add(a),lengthData,rootSubclasses.Length);
 
         for(int i = 0; i < rootSubclasses.Length; i++) {
 

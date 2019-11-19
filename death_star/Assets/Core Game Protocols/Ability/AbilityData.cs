@@ -115,6 +115,22 @@ public class AbilityDataSubclass {
         return rootClasses.ToArray();
     }
 
+    public static int[] ReturnNodeEndData(AbilityDataSubclass[] target) {
+        int[] paths = new int[target.Length];
+
+        for(int i = 0; i < target.Length; i++) {
+            int cummulativeTotal = 0;
+
+            for(int j = 0; j < target[i].var.Length; j++)
+                for(int k = 0; k < target[i].var[j].links.Length; k++)
+                    cummulativeTotal += target[i].var[j].links[k].Length;
+
+            paths[i] = cummulativeTotal;
+        }
+
+        return paths;
+    }
+
     // Returns all possible ends for every node.
     /*public static int[][] ReturnNodeEndData(AbilityDataSubclass[] target, int[] root) {
 

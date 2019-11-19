@@ -9,23 +9,39 @@ public class TreeTransverser {
     // Link to ability nodes.
     int abilityNodes;
 
-    // Max trasversing of a point in tree allowed.
-    int maxTransverse;
+    int branchCount;
+
+    int[] branchEndData;
 
     public TreeTransverser() {
 
         // Sets default max transvering.
-        maxTransverse = 1;
+        branchCount = 0;
     }
 
-    public void SetTargetNodesId(int id) {
-
+    public void SetNodeData(int id, int[] eD,int root) {
+        abilityNodes = id;
+        branchEndData = eD;
+        branchCount = root;
     }
 
     public void TransversePoint(int nodeId, int variableId, VariableAction action) {
         int[][] nextNodeIdArray = AbilityTreeNode.globalList.l[abilityNodes][nodeId].GetVariables()[variableId].links[(int)action];
 
-        for(int i = 0; i < nextNodeIdArray.Length; i++) 
-            AbilityTreeNode.globalList.l[abilityNodes][nextNodeIdArray[i][0]].NodeCallback(nodeId, variableId, action);        
+        if(branchEndData[nodeId] == 0)
+            branchCount--;
+
+        Debug.LogFormat("Curr node: {0}, Curr pathCount: {1}", nodeId,branchCount);
+
+        if(branchCount == 0)
+            Debug.Log("We have reached the end of the path.");
+
+        for(int i = 0; i < nextNodeIdArray.Length; i++) {            
+            bool result = AbilityTreeNode.globalList.l[abilityNodes][nextNodeIdArray[i][0]].NodeCallback(nodeId, variableId, action);
+
+            if(result)
+                if(branchEndData[nextNodeIdArray[i][0]] > 1)
+                    branchCount += branchEndData[abilityNodes];
+        }      
     }
 }
