@@ -40,7 +40,7 @@ public class AbilitiesManager : MonoBehaviour {
             Variable[] variables = a[rootSubclasses[i]].GetVariables();
 
             for(int j = 0; j < variables.Length; j++) {
-                defaultTransverser.TransversePoint(rootSubclasses[i], j, (VariableAction)0);
+                //defaultTransverser.TransversePoint(rootSubclasses[i], j, (VariableAction)0);
                 defaultTransverser.TransversePoint(rootSubclasses[i], j, (VariableAction)1);
             }
         }

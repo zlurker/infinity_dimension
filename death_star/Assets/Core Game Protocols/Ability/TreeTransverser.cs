@@ -28,6 +28,11 @@ public class TreeTransverser {
     public void TransversePoint(int nodeId, int variableId, VariableAction action) {
         int[][] nextNodeIdArray = AbilityTreeNode.globalList.l[abilityNodes][nodeId].GetVariables()[variableId].links[(int)action];
 
+        if(branchEndData[nodeId] > 1) {
+            branchCount += branchEndData[nodeId] - 1;
+            Debug.Log("Bcount:" + branchCount);
+        }
+
         if(branchEndData[nodeId] == 0)
             branchCount--;
 
@@ -36,12 +41,8 @@ public class TreeTransverser {
         if(branchCount == 0)
             Debug.Log("We have reached the end of the path.");
 
-        for(int i = 0; i < nextNodeIdArray.Length; i++) {            
-            bool result = AbilityTreeNode.globalList.l[abilityNodes][nextNodeIdArray[i][0]].NodeCallback(nodeId, variableId, action);
-
-            if(result)
-                if(branchEndData[nextNodeIdArray[i][0]] > 1)
-                    branchCount += branchEndData[abilityNodes];
-        }      
+        for(int i = 0; i < nextNodeIdArray.Length; i++)          
+            AbilityTreeNode.globalList.l[abilityNodes][nextNodeIdArray[i][0]].NodeCallback(nodeId, variableId, action);                
+        
     }
 }
