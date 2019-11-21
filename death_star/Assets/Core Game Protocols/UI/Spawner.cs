@@ -393,11 +393,8 @@ public class Spawner : AbilityTreeNode, ISingleton
         };
     }
 
-    public override bool NodeCallback(int nId, int variableCalled, VariableAction action) {
-        bool firstCallback = base.NodeCallback(nId, variableCalled, action);
+    public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
         FireNode(0, VariableAction.SET);
-
-        return firstCallback;
     }
 
 }

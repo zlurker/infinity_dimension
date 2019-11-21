@@ -12,20 +12,17 @@ public class AbilityTreeNode : MonoBehaviour {
     // Link to tree transverser.
     int treeTransverser;
 
-    // Variables in node.
-    Variable[] runtimeParameters;
-
     int currFireCount;
 
-    public void RunNodeInitialisation(Variable[] rP, int nid, int tt) {
-        runtimeParameters = rP;
+    public void RunNodeInitialisation(int nid, int tt) {
+        //runtimeParameters = rP;
         nodeId = nid;
         treeTransverser = tt;
     }
 
-    public Variable[] GetVariables() {
-        return runtimeParameters;
-    }
+    /*public Variable[] GetVariables() {
+        //return runtimeParameters;
+    }*/
 
     public virtual RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[0];
@@ -35,16 +32,8 @@ public class AbilityTreeNode : MonoBehaviour {
         GetTransverser().TransversePoint(nodeId, variable, action);
     }
 
-    public virtual bool NodeCallback(int nId, int variableCalled, VariableAction action) {
-        bool firstCallback = false;
-
-        if(!gameObject.activeSelf) {
-            gameObject.SetActive(true);
-            firstCallback = true;
-        }
-       
+    public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {       
         Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
-        return firstCallback;
     }
 
     public TreeTransverser GetTransverser() {

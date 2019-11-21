@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class AbilitiesManager : MonoBehaviour {
 
@@ -27,23 +28,21 @@ public class AbilitiesManager : MonoBehaviour {
 
         AbilityTreeNode[] a = new AbilityTreeNode[ability.Length];
 
-        for(int i = 0; i < a.Length; i++) {
-            a[i] = Spawner.GetCType(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new System.Type[] { ability[i].classType }), ability[i].classType) as AbilityTreeNode;
-            a[i].gameObject.SetActive(false);
-            a[i].RunNodeInitialisation(ability[i].var, i, tId);
+        Variable[][] tempVar = new Variable[ability.Length][];
+        Type[] tempTypes = new Type[ability.Length]; 
+
+        for(int i = 0; i < ability.Length; i++) {
+            tempVar[i] = ability[i].var;
+            tempTypes[i] = ability[i].classType;
+            //a[i] = Spawner.GetCType(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new System.Type[] { ability[i].classType }), ability[i].classType) as AbilityTreeNode;
+            //a[i].gameObject.SetActive(false);
+            //a[i].RunNodeInitialisation(i, tId);
         }
 
-        defaultTransverser.SetNodeData(AbilityTreeNode.globalList.Add(a),lengthData,rootSubclasses.Length);
-
-        for(int i = 0; i < rootSubclasses.Length; i++) {
-
-            Variable[] variables = a[rootSubclasses[i]].GetVariables();
-
-            for(int j = 0; j < variables.Length; j++) {
-                //defaultTransverser.TransversePoint(rootSubclasses[i], j, (VariableAction)0);
-                defaultTransverser.TransversePoint(rootSubclasses[i], j, (VariableAction)1);
-            }
-        }
+        defaultTransverser.SetVariableNetworkData(tempVar, tempTypes);
+        defaultTransverser.SetNodeData(AbilityTreeNode.globalList.Add(a),lengthData,rootSubclasses,rootSubclasses.Length);
+        defaultTransverser.SetTransverserId(tId);
+        defaultTransverser.StartTreeTransverse();
     }
 
     // Update is called once per frame
