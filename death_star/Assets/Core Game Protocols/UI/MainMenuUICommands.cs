@@ -97,7 +97,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             abilityData = new UIAbilityData();
 
         
-
         abilityWindows = new AutoPopulationList<EditableWindow>();
         lineData = new EnhancedList<LineData>();
 

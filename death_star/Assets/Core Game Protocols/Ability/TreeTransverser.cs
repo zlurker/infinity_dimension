@@ -79,8 +79,9 @@ public class TreeTransverser {
     public void CreateNewNodeIfNull(int nodeId) {
         if(!AbilityTreeNode.globalList.l[abilityNodes][nodeId]) {
             AbilityTreeNode.globalList.l[abilityNodes][nodeId] = Spawner.GetCType(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[] { subclassTypes[nodeId] }), subclassTypes[nodeId]) as AbilityTreeNode;
-            AbilityTreeNode.globalList.l[abilityNodes][nodeId].RunNodeInitialisation(nodeId, transverserId);
-            DoBranchCalculation(nodeId);
+            AbilityTreeNode.globalList.l[abilityNodes][nodeId].RunNodeInitialisation(nodeId, transverserId);           
         }
+
+        DoBranchCalculation(nodeId);
     }
 }

@@ -6,47 +6,72 @@ using System;
 
 public class AbilitiesManager : MonoBehaviour {
 
-    AbilityDataSubclass[] ability;
-    int[] rootSubclasses;
-    int[] lengthData;
+    public class AbilityData {
+        Variable[][] dataVar;
+        Type[] dataType;
+        int[] rootSubclasses;
+        int[] lengthData;
 
-    void Start() {
-
-        //Deserializes ability.
-        string cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { "0" }, 0);
-        ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(cData));
-
-        //Deserializes root classes.
-        cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { "0" }, 3);
-        rootSubclasses = JsonConvert.DeserializeObject<int[]>(cData);
-
-        cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { "0" }, 4);
-        lengthData = JsonConvert.DeserializeObject<int[]>(cData);
-
-        TreeTransverser defaultTransverser = new TreeTransverser();
-        int tId = TreeTransverser.globalList.Add(defaultTransverser);
-
-        AbilityTreeNode[] a = new AbilityTreeNode[ability.Length];
-
-        Variable[][] tempVar = new Variable[ability.Length][];
-        Type[] tempTypes = new Type[ability.Length]; 
-
-        for(int i = 0; i < ability.Length; i++) {
-            tempVar[i] = ability[i].var;
-            tempTypes[i] = ability[i].classType;
-            //a[i] = Spawner.GetCType(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new System.Type[] { ability[i].classType }), ability[i].classType) as AbilityTreeNode;
-            //a[i].gameObject.SetActive(false);
-            //a[i].RunNodeInitialisation(i, tId);
+        public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] lD) {
+            dataVar = dV;
+            dataType = dT;
+            rootSubclasses = rS;
+            lengthData = lD;
         }
 
-        defaultTransverser.SetVariableNetworkData(tempVar, tempTypes);
-        defaultTransverser.SetNodeData(AbilityTreeNode.globalList.Add(a),lengthData,rootSubclasses,rootSubclasses.Length);
-        defaultTransverser.SetTransverserId(tId);
-        defaultTransverser.StartTreeTransverse();
+        public void CreateAbility(object[] p) {
+            TreeTransverser defaultTransverser = new TreeTransverser();
+            int tId = TreeTransverser.globalList.Add(defaultTransverser);
+
+            AbilityTreeNode[] a = new AbilityTreeNode[dataVar.Length];
+
+            defaultTransverser.SetVariableNetworkData(dataVar, dataType);
+            defaultTransverser.SetNodeData(AbilityTreeNode.globalList.Add(a), lengthData, rootSubclasses, rootSubclasses.Length);
+            defaultTransverser.SetTransverserId(tId);
+            defaultTransverser.StartTreeTransverse();
+        }
     }
 
-    // Update is called once per frame
-    void Update() {
+    AbilityData[] aData;
+
+    void Start() {
+        string[] abilityNodeData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(0);
+        string[] abilityRootData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(3);
+        string[] abilityEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(4);
+
+        aData = new AbilityData[abilityNodeData.Length];
+
+        for(int i = 0; i < abilityNodeData.Length; i++) {
+            AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData[i]));
+            int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
+            int[] lengthData = JsonConvert.DeserializeObject<int[]>(abilityEndData[i]);
+
+            Variable[][] tempVar = new Variable[ability.Length][];
+            Type[] tempTypes = new Type[ability.Length];
+
+            for(int j = 0; j < ability.Length; j++) {
+                tempVar[j] = ability[j].var;
+                tempTypes[j] = ability[j].classType;
+                //a[i] = Spawner.GetCType(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new System.Type[] { ability[i].classType }), ability[i].classType) as AbilityTreeNode;
+                //a[i].gameObject.SetActive(false);
+                //a[i].RunNodeInitialisation(i, tId);
+            }
+
+            aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, lengthData);
+            Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].CreateAbility), 0);
+        }
+
+        //Deserializes ability.
+        //string cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { "0" }, 0);
+
+
+        //Deserializes root classes.        
+
+
+
+
+
+
 
     }
 }

@@ -32,7 +32,7 @@ public class AbilityTreeNode : MonoBehaviour {
         GetTransverser().TransversePoint(nodeId, variable, action);
     }
 
-    public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {       
+    public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {
         Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
     }
 
