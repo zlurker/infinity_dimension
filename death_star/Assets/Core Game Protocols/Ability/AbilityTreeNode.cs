@@ -39,4 +39,9 @@ public class AbilityTreeNode : MonoBehaviour {
     public TreeTransverser GetTransverser() {
         return TreeTransverser.globalList.l[treeTransverser];
     }
+
+    // Call this on node tasking finish.
+    public void NodeTaskingFinish() {
+        GetTransverser().NodeTaskingFinished();
+    }
 }

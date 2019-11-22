@@ -394,7 +394,8 @@ public class Spawner : AbilityTreeNode, ISingleton
     }
 
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
-        FireNode(0, VariableAction.SET);
+        NodeTaskingFinish();
+        FireNode(0, VariableAction.SET);       
     }
 
 }

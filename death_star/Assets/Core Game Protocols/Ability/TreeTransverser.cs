@@ -70,10 +70,7 @@ public class TreeTransverser {
             branchCount += branchEndData[nodeId] - 1;
         
         if(branchEndData[nodeId] == 0)
-            branchCount--;
-
-        if(branchCount == 0)
-            Debug.Log("We have reached the end of the path.");
+            branchCount--;       
     }
 
     public void CreateNewNodeIfNull(int nodeId) {
@@ -83,5 +80,10 @@ public class TreeTransverser {
         }
 
         DoBranchCalculation(nodeId);
+    }
+
+    public void NodeTaskingFinished() {
+        if(branchCount == 0)
+            Debug.Log("We have reached the end of the path.");
     }
 }
