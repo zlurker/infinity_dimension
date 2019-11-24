@@ -21,12 +21,13 @@ public class AbilitiesManager : MonoBehaviour {
 
         public void CreateAbility(object[] p) {
             TreeTransverser defaultTransverser = new TreeTransverser();
-            int tId = TreeTransverser.globalList.Add(defaultTransverser);
+            int tId = TreeTransverser.globalListTree.Add(defaultTransverser);
 
             AbilityTreeNode[] a = new AbilityTreeNode[dataVar.Length];
+            int nId = AbilityTreeNode.globalList.Add(a);
 
-            defaultTransverser.SetVariableNetworkData(dataVar, dataType);
-            defaultTransverser.SetNodeData(AbilityTreeNode.globalList.Add(a), lengthData, rootSubclasses, rootSubclasses.Length);
+            defaultTransverser.SetVariableNetworkData(dataVar, dataType,tId);
+            defaultTransverser.SetNodeData(nId, lengthData, rootSubclasses, rootSubclasses.Length);
             defaultTransverser.SetTransverserId(tId);
             defaultTransverser.StartTreeTransverse();
         }

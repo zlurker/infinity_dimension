@@ -9,15 +9,33 @@ public class AbilityTreeNode : MonoBehaviour {
     // Given node ID.
     int nodeId;
 
-    // Link to tree transverser.
+    // Link to current parent tree transverser.
     int treeTransverser;
 
-    int currFireCount;
+    // Link to root tree transverser.
+    int rootTreeTransverser;
 
-    public void RunNodeInitialisation(int nid, int tt) {
+    public int GetNodeId() {
+        return nodeId;
+    }
+
+    public void SetRootTransverer(int id) {
+        rootTreeTransverser = id;
+    }
+
+    public int GetRootTransverser() {
+        return rootTreeTransverser;
+    }
+
+    public void SetParentTransverser(int id) {
+        treeTransverser = id;
+    }
+
+    public virtual void RunNodeInitialisation(int nid, int tt,int rtt) {
         //runtimeParameters = rP;
         nodeId = nid;
         treeTransverser = tt;
+        rootTreeTransverser = rtt;
     }
 
     /*public Variable[] GetVariables() {
@@ -37,7 +55,11 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public TreeTransverser GetTransverser() {
-        return TreeTransverser.globalList.l[treeTransverser];
+
+        if(treeTransverser < 0 || treeTransverser >= TreeTransverser.globalListTree.l.Count)
+            return null;
+
+        return TreeTransverser.globalListTree.l[treeTransverser];
     }
 
     // Call this on node tasking finish.
