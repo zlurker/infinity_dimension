@@ -50,7 +50,7 @@ public class TreeTransverser : AbilityTreeNode {
             for(int j = 0; j < GetRootTransverserObject().runtimeParameters[GetRootTransverserObject().branchStartData[i]].Length; j++) {
                 //defaultTransverser.TransversePoint(rootSubclasses[i], j, (VariableAction)0);
                 CreateNewNodeIfNull(GetRootTransverserObject().branchStartData[i]);
-                AbilityTreeNode.globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]].NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);
+                GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]]).NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);
                 // To be changed.
 
                 //TransversePoint(GetRootTransverserObject().branchStartData[i], j, (VariableAction)1);
@@ -65,7 +65,7 @@ public class TreeTransverser : AbilityTreeNode {
 
         for(int i = 0; i < nextNodeIdArray.Length; i++) {
             CreateNewNodeIfNull(nextNodeIdArray[i][0]);
-            AbilityTreeNode.globalList.l[GetRootTransverserObject().abilityNodes][nextNodeIdArray[i][0]].NodeCallback(nodeId, variableId, action);
+            GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nextNodeIdArray[i][0]]).NodeCallback(nodeId, variableId, action);
         }
     }
 
@@ -79,11 +79,15 @@ public class TreeTransverser : AbilityTreeNode {
 
     public void CreateNewNodeIfNull(int nodeId) {
         if(!AbilityTreeNode.globalList.l[GetRootTransverserObject().abilityNodes][nodeId]) {
-            AbilityTreeNode.globalList.l[GetRootTransverserObject().abilityNodes][nodeId] = Spawner.GetCType(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[] { GetRootTransverserObject().subclassTypes[nodeId] }), GetRootTransverserObject().subclassTypes[nodeId]) as AbilityTreeNode;
-            AbilityTreeNode.globalList.l[GetRootTransverserObject().abilityNodes][nodeId].RunNodeInitialisation(nodeId, transverserId, GetRootTransverser());
+            AbilityTreeNode.globalList.l[GetRootTransverserObject().abilityNodes][nodeId] = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[] { GetRootTransverserObject().subclassTypes[nodeId] });
+            GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nodeId]).RunNodeInitialisation(nodeId, transverserId, GetRootTransverser());
         }
 
         DoBranchCalculation(nodeId);
+    }
+
+    public AbilityTreeNode GetNodeFromScriptable(ScriptableObject inst) {
+        return Spawner.GetCType<AbilityTreeNode>(inst);
     }
 
     // Method will be called on every node tasking end.
@@ -99,7 +103,12 @@ public class TreeTransverser : AbilityTreeNode {
                 parent.branchCount -= GetRootTransverserObject().branchEndData[GetNodeId()];
                 NodeTaskingFinish();               
             } else {
-                //Debug.Log("");
+                for(int i = 0; i < AbilityTreeNode.globalList.l[abilityNodes].Length; i++) {
+                    GetNodeFromScriptable(globalList.l[abilityNodes][i]).ClearObject();
+                    Singleton.GetSingleton<Spawner>().Remove(AbilityTreeNode.globalList.l[abilityNodes][i]);
+                }
+                
+                globalList.Remove(abilityNodes);
             }
         }
     }

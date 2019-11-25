@@ -4,16 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-public interface IDespawn
-{
-    void OnDespawn();
-}
-
-public interface ISpawn
-{
-    void OnSpawn();
-}
-
 public class ScriptableObject : MonoBehaviour
 {
     public MonoBehaviour[] scripts;
@@ -129,9 +119,6 @@ public class TypeIterator<T> : TypeIterator where T : Component
 
     public override void Remove(MonoBehaviour p)
     {
-        if (p is IDespawn)
-            (p as IDespawn).OnDespawn();
-
         p.gameObject.SetActive(false);
         p.transform.SetParent(null);
         tP.Store(p as T);
@@ -171,28 +158,6 @@ public class TypeIterator : Iterator
     }
 }
 
-public class OnSpawnDelegates : Iterator
-{
-    public DH d;
-
-    public OnSpawnDelegates(string name, DH deleg)
-    {
-        n = name;
-        d = deleg;
-    }
-}
-
-public struct DelegateInfo
-{
-    public string dN;//delegateNAme
-    public object[] p; //parameters
-
-    public DelegateInfo(string delegateName, object[] paramters)
-    {
-        dN = delegateName;
-        p = paramters;
-    }
-}
 
 public class Spawner : AbilityTreeNode, ISingleton
 {
@@ -223,6 +188,7 @@ public class Spawner : AbilityTreeNode, ISingleton
 
     public void Remove(ScriptableObject inst)
     {
+        Debug.Log("Removing...");
         for (int i = 0; i < inst.scripts.Length; i++)
             (Iterator.ReturnObject(aTS.ToArray(), inst.scripts[i].GetType()) as TypeIterator).Remove(inst.scripts[i]);
 
@@ -280,10 +246,6 @@ public class Spawner : AbilityTreeNode, ISingleton
 
         MonoBehaviour[] scripts = inst.Retrive();
 
-        for (int i = 0; i < scripts.Length; i++)
-            if (scripts[i] is ISpawn)
-                (scripts[i] as ISpawn).OnSpawn();
-
         return scripts;
     }
 
@@ -301,10 +263,6 @@ public class Spawner : AbilityTreeNode, ISingleton
         }
 
         MonoBehaviour[] scripts = inst.Retrive();
-
-        for (int i = 0; i < scripts.Length; i++)
-            if (scripts[i] is ISpawn)
-                (scripts[i] as ISpawn).OnSpawn();
 
         return scripts;
     }
@@ -337,7 +295,7 @@ public class Spawner : AbilityTreeNode, ISingleton
         return CalibrateScripts(baseObject);
     }
 
-    public virtual ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts, DelegateInfo[] onSpawn = null)
+    public virtual ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts)
     {
         ScriptableObject baseObject = CustomiseBaseObject();
         baseObject.scripts = ConvertToSingleArray(scripts);

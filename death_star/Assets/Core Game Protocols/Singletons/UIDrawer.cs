@@ -100,8 +100,8 @@ public class UIDrawer : Spawner, ISingleton {
         return instance;
     }
 
-    public override ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts, DelegateInfo[] onSpawn = null) {
-        ScriptableObject instance = base.CreateScriptedObject(scripts, onSpawn);
+    public override ScriptableObject CreateScriptedObject(MonoBehaviour[][] scripts) {
+        ScriptableObject instance = base.CreateScriptedObject(scripts);
         UpdateMainObject(instance);
 
         return instance;

@@ -23,7 +23,7 @@ public class AbilitiesManager : MonoBehaviour {
             TreeTransverser defaultTransverser = new TreeTransverser();
             int tId = TreeTransverser.globalListTree.Add(defaultTransverser);
 
-            AbilityTreeNode[] a = new AbilityTreeNode[dataVar.Length];
+            ScriptableObject[] a = new ScriptableObject[dataVar.Length];
             int nId = AbilityTreeNode.globalList.Add(a);
 
             defaultTransverser.SetVariableNetworkData(dataVar, dataType,tId);
@@ -53,26 +53,10 @@ public class AbilitiesManager : MonoBehaviour {
             for(int j = 0; j < ability.Length; j++) {
                 tempVar[j] = ability[j].var;
                 tempTypes[j] = ability[j].classType;
-                //a[i] = Spawner.GetCType(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new System.Type[] { ability[i].classType }), ability[i].classType) as AbilityTreeNode;
-                //a[i].gameObject.SetActive(false);
-                //a[i].RunNodeInitialisation(i, tId);
             }
 
             aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, lengthData);
             Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].CreateAbility), 0);
         }
-
-        //Deserializes ability.
-        //string cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { "0" }, 0);
-
-
-        //Deserializes root classes.        
-
-
-
-
-
-
-
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AbilityTreeNode : MonoBehaviour {
 
-    public static EnhancedList<AbilityTreeNode[]> globalList = new EnhancedList<AbilityTreeNode[]>();
+    public static EnhancedList<ScriptableObject[]> globalList = new EnhancedList<ScriptableObject[]>();
 
     // Given node ID.
     int nodeId;
@@ -73,5 +73,9 @@ public class AbilityTreeNode : MonoBehaviour {
     // Call this on node tasking finish.
     public void NodeTaskingFinish() {
         GetTransverserObject().NodeTaskingFinished();
+    }
+
+    public virtual void ClearObject() {
+        Debug.Log("For extra functions when this is required.");
     }
 }
