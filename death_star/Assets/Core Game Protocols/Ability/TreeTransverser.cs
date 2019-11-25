@@ -51,6 +51,8 @@ public class TreeTransverser : AbilityTreeNode {
                 //defaultTransverser.TransversePoint(rootSubclasses[i], j, (VariableAction)0);
                 CreateNewNodeIfNull(GetRootTransverserObject().branchStartData[i]);
                 AbilityTreeNode.globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]].NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);
+                // To be changed.
+
                 //TransversePoint(GetRootTransverserObject().branchStartData[i], j, (VariableAction)1);
             }
     }
@@ -59,7 +61,7 @@ public class TreeTransverser : AbilityTreeNode {
         //runtimeParameters[nodeId][variableId].links
         int[][] nextNodeIdArray = GetRootTransverserObject().runtimeParameters[nodeId][variableId].links[(int)action];
 
-        Debug.LogFormat("Curr node: {0}, Curr pathCount: {1}", ((RuntimeParameters<string>)GetRootTransverserObject().runtimeParameters[nodeId][variableId].field).v, branchCount);
+        Debug.LogFormat("Curr node: {0}, Curr pathCount: {1}, id {2}", ((RuntimeParameters<string>)GetRootTransverserObject().runtimeParameters[nodeId][variableId].field).v, branchCount, transverserId);
 
         for(int i = 0; i < nextNodeIdArray.Length; i++) {
             CreateNewNodeIfNull(nextNodeIdArray[i][0]);
@@ -86,31 +88,29 @@ public class TreeTransverser : AbilityTreeNode {
 
     // Method will be called on every node tasking end.
     public void NodeTaskingFinished() {
-        Debug.Log("bc" + branchCount);
+
         if(branchCount == 0) {
-            Debug.Log("We have reached the end of the path.");
+            Debug.LogFormat("We have reached the end of the path, id {0}.",transverserId);
 
-            TreeTransverser parent = GetTransverser();
+            TreeTransverser parent = GetTransverserObject();
 
-            if(parent != null) {
+            if(GetTransverser() > -1) {
+                Debug.LogFormat("Task Finished Called {0}", transverserId);
                 parent.branchCount -= GetRootTransverserObject().branchEndData[GetNodeId()];
-                NodeTaskingFinish();
+                NodeTaskingFinish();               
             } else {
-
+                //Debug.Log("");
             }
         }
     }
 
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
-        base.NodeCallback(nId, variableCalled, action);
+        //base.NodeCallback(nId, variableCalled, action);
 
         Variable[] nodeVariables = GetRootTransverserObject().runtimeParameters[GetNodeId()];
 
-        for(int i = 0; i < nodeVariables.Length; i++) {
-            for(int j = 0; j < nodeVariables[i].links[(int)VariableAction.SET].Length; j++) {
-                TransversePoint(nodeVariables[i].links[(int)VariableAction.SET][j][0], nodeVariables[i].links[(int)VariableAction.SET][j][1], VariableAction.SET);
-            }
-        }
+        for(int i = 0; i < nodeVariables.Length; i++) 
+            TransversePoint(GetNodeId(), i, VariableAction.SET);       
     }
 
     public TreeTransverser GetRootTransverserObject() {

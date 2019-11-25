@@ -47,23 +47,31 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public void FireNode(int variable, VariableAction action) {
-        GetTransverser().TransversePoint(nodeId, variable, action);
+        GetTransverserObject().TransversePoint(nodeId, variable, action);
     }
 
     public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {
         Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
     }
 
-    public TreeTransverser GetTransverser() {
+    public int GetTransverser() {
+        return treeTransverser;
+    }
+
+    public TreeTransverser GetTransverserObject() {
+        //Debug.Log(treeTransverser);
+        //Debug.Log(treeTransverser < 0);
+        //Debug.Log(treeTransverser >= TreeTransverser.globalListTree.l.Count);
 
         if(treeTransverser < 0 || treeTransverser >= TreeTransverser.globalListTree.l.Count)
             return null;
 
+        //Debug.Log(TreeTransverser.globalListTree.l[treeTransverser]);
         return TreeTransverser.globalListTree.l[treeTransverser];
     }
 
     // Call this on node tasking finish.
     public void NodeTaskingFinish() {
-        GetTransverser().NodeTaskingFinished();
+        GetTransverserObject().NodeTaskingFinished();
     }
 }
