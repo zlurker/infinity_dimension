@@ -72,7 +72,12 @@ public class AbilityTreeNode : MonoBehaviour {
 
     // Call this on node tasking finish.
     public void NodeTaskingFinish() {
-        GetTransverserObject().NodeTaskingFinished(nodeId);
+        if(GetTransverserObject() != null)
+            GetTransverserObject().NodeTaskingFinished(nodeId);
+    }
+
+    public AbilityTreeNode GetNodeFromScriptable(ScriptableObject inst) {
+        return Spawner.GetCType<AbilityTreeNode>(inst);
     }
 
     public virtual void ClearObject() {

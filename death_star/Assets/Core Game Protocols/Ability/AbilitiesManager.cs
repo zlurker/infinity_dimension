@@ -20,7 +20,7 @@ public class AbilitiesManager : MonoBehaviour {
         }
 
         public void CreateAbility(object[] p) {
-            TreeTransverser defaultTransverser = new TreeTransverser();
+            TreeTransverser defaultTransverser = Spawner.GetCType<TreeTransverser>(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[]{ typeof(TreeTransverser) }));
             int tId = TreeTransverser.globalListTree.Add(defaultTransverser);
 
             ScriptableObject[] a = new ScriptableObject[dataVar.Length];
