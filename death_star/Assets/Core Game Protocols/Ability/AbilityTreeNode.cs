@@ -31,7 +31,7 @@ public class AbilityTreeNode : MonoBehaviour {
         treeTransverser = id;
     }
 
-    public virtual void RunNodeInitialisation(int nid, int tt,int rtt) {
+    public virtual void RunNodeInitialisation(int nid, int tt, int rtt) {
         //runtimeParameters = rP;
         nodeId = nid;
         treeTransverser = tt;
@@ -72,10 +72,10 @@ public class AbilityTreeNode : MonoBehaviour {
 
     // Call this on node tasking finish.
     public void NodeTaskingFinish() {
-        GetTransverserObject().NodeTaskingFinished();
+        GetTransverserObject().NodeTaskingFinished(nodeId);
     }
 
     public virtual void ClearObject() {
-        Debug.Log("For extra functions when this is required.");
+        //Debug.Log("For extra functions when this is required.");
     }
 }

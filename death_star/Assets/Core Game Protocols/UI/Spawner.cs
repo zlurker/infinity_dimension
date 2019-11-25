@@ -4,6 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
+public interface ISpawn {
+    void OnSpawn();
+}
+
+
 public class ScriptableObject : MonoBehaviour
 {
     public MonoBehaviour[] scripts;
@@ -165,17 +170,15 @@ public class Spawner : AbilityTreeNode, ISingleton
     public Pool<ScriptableObjectConstruction> sOC; //scriptableObjectConstruction
     public ObjectDefaultSettings[] oDS; //objectDefaultSettings
     public List<TypeIterator> aTS;
-    public EnhancedList<ScriptableObject> sO; //spawnedObjects
-    string name;
     //public static Spawner i;
     protected Type[] bB;  //baseBlocks
+    string name;
 
     public Spawner()
     {
         aTS = new List<TypeIterator>();
 
         bOL = new Pool<ScriptableObject>(CreateBaseObject, null);
-        sO = new EnhancedList<ScriptableObject>();
         bB = new Type[0];
         name = GetType().Name;
         CreateDefaultSettings();
@@ -188,7 +191,7 @@ public class Spawner : AbilityTreeNode, ISingleton
 
     public void Remove(ScriptableObject inst)
     {
-        Debug.Log("Removing...");
+        //Debug.Log("Removing...");
         for (int i = 0; i < inst.scripts.Length; i++)
             (Iterator.ReturnObject(aTS.ToArray(), inst.scripts[i].GetType()) as TypeIterator).Remove(inst.scripts[i]);
 
@@ -246,6 +249,11 @@ public class Spawner : AbilityTreeNode, ISingleton
 
         MonoBehaviour[] scripts = inst.Retrive();
 
+        for(int i = 0; i < scripts.Length; i++)
+            if(scripts[i] is ISpawn)
+                (scripts[i] as ISpawn).OnSpawn();
+
+
         return scripts;
     }
 
@@ -264,19 +272,22 @@ public class Spawner : AbilityTreeNode, ISingleton
 
         MonoBehaviour[] scripts = inst.Retrive();
 
+        for(int i = 0; i < scripts.Length; i++)
+            if(scripts[i] is ISpawn)
+                (scripts[i] as ISpawn).OnSpawn();
+
+
         return scripts;
     }
 
     public ScriptableObject CalibrateScripts(ScriptableObject baseObject) {
-        int id = sO.Add(baseObject);
-        baseObject.gameObject.name = name + "-ScriptableObject" + id.ToString();
+        baseObject.gameObject.name = name + "-ScriptableObject";
 
         for(int i = 0; i < baseObject.scripts.Length; i++) {
             if(baseObject.scripts[i].transform.parent == null)
                 baseObject.scripts[i].transform.SetParent(baseObject.transform);
 
             baseObject.scripts[i].transform.localPosition = Vector3.zero;
-            baseObject.scripts[i].gameObject.name = id.ToString();
         }
 
         return baseObject;
@@ -352,8 +363,9 @@ public class Spawner : AbilityTreeNode, ISingleton
     }
 
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
-        NodeTaskingFinish();
-        FireNode(0, VariableAction.SET);       
+        FireNode(0, VariableAction.SET);
+        //Debug.Log("Node callback!");
+        NodeTaskingFinish();        
     }
 
 }

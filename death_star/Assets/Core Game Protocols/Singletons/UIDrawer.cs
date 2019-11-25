@@ -132,22 +132,14 @@ public class UIDrawer : Spawner, ISingleton {
         (target.transform as RectTransform).sizeDelta = dimensions;
     }
 
-    public void ModifyLayer(int layerNumber, string groupName = "", bool removeAllSucessors = true) {
+    /*public void ModifyLayer(int layerNumber, string groupName = "", bool removeAllSucessors = true) {
         while(layerNumber >= uL.uE.Count)
             uL.uE.Add("");
 
         int loopCount = removeAllSucessors ? uL.uE.Count : layerNumber + 1;
 
-        for(int i = layerNumber; i < loopCount; i++)
-            if(uL.uE[i] != "") {
-                /*PatternControl.i.Pattern_Args(null, new object[][] {
-                new object[]{ Patterns.GROUP_PATTERN, uL.uE[i], GroupArgs.REMOVE_ALL_CURRENT_OBJECTS }
-                });
-                uL.uE[i] = "";*/
-            }
-
         uL.uE[layerNumber] = groupName;
-    }
+    }*/
 
     public static Vector3 UINormalisedPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.
         return UINormalisedPosition(t.transform as RectTransform, c);
@@ -181,9 +173,5 @@ public class UIDrawer : Spawner, ISingleton {
         return new RuntimeParameters[] {
             new RuntimeParameters<string>("UI","What the fuck nigga")
         };
-    }
-
-    public void SetValues(RuntimeParameters[] values) {
-        Debug.Log("UICalled");
     }
 }

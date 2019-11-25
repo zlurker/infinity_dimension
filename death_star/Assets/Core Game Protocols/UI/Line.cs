@@ -35,8 +35,8 @@ public class Line : MonoBehaviour {
         if(lineRoot != null)
             transform.parent.position = lineRoot.position;
 
-        if(sO == null)
-            sO = Singleton.GetSingleton<UIDrawer>().sO.l[int.Parse(gameObject.name)];
+        //if(sO == null)
+           // sO = Singleton.GetSingleton<UIDrawer>().sO.l[int.Parse(gameObject.name)];
 
         
     }

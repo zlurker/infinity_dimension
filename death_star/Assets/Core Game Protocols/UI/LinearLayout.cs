@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LinearLayout : MonoBehaviour, IAddOn
+public class LinearLayout : MonoBehaviour, IAddOn, ISpawn
 {
     public enum Orientation
     {
