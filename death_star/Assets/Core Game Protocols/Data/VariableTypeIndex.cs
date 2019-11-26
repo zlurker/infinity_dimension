@@ -6,33 +6,30 @@ using Newtonsoft.Json;
 
 public class VariableTypeIndex {
 
-	public static int ReturnVariableIndex(Type type) {
-        if(type == typeof(string))
-            return 0;
+    public class RuntimeParameterConversion<T> : RuntimeParameterConversion {
 
-        if(type == typeof(float))
-            return 1;
+        public RuntimeParameterConversion() {
+            rPT = typeof(T);
+        }
 
-        if(type == typeof(int))
-            return 2;
-
-        return -1;
+        public override RuntimeParameters ReturnRuntimeType(string sO) {
+            return JsonConvert.DeserializeObject<RuntimeParameters<T>>(sO);
+        }
     }
 
-    public static RuntimeParameters ReturnRuntimeType(int index,string sO) {
-        RuntimeParameters inst = null;
+    public class RuntimeParameterConversion {
+        public Type rPT;
 
-        switch(index) {
-            case 0:
-                inst = JsonConvert.DeserializeObject<RuntimeParameters<string>>(sO);
-                break;
-            case 1:
-                inst = JsonConvert.DeserializeObject<RuntimeParameters<float>>(sO);
-                break;
-            case 2:
-                inst = JsonConvert.DeserializeObject<RuntimeParameters<int>>(sO);
-                break; 
+        public virtual RuntimeParameters ReturnRuntimeType(string sO) {
+            return null;
         }
-        return inst;
+    }
+
+    public static RuntimeParameterConversion[] convertors = new RuntimeParameterConversion[] {
+        new RuntimeParameterConversion<string>(), new RuntimeParameterConversion<float>(), new RuntimeParameterConversion<int>()
+    };
+
+    public static int ReturnVariableIndex(Type type) {
+        return Iterator.ReturnKey<RuntimeParameterConversion, Type>(convertors, type, (p) => { return p.rPT; });
     }
 }
