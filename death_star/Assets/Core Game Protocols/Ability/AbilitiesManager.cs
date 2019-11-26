@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class AbilitiesManager : MonoBehaviour {
+public sealed class AbilitiesManager : MonoBehaviour {
+
+    public static EnhancedList<ScriptableObject> defaultTreeTransversers;
 
     public class AbilityData {
         Variable[][] dataVar;
@@ -20,13 +22,16 @@ public class AbilitiesManager : MonoBehaviour {
         }
 
         public void CreateAbility(object[] p) {
-            TreeTransverser defaultTransverser = Spawner.GetCType<TreeTransverser>(Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[]{ typeof(TreeTransverser) }));
+            ScriptableObject treeObject = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[] { typeof(TreeTransverser) });
+            TreeTransverser defaultTransverser = Spawner.GetCType<TreeTransverser>(treeObject);
             int tId = TreeTransverser.globalListTree.Add(defaultTransverser);
 
             ScriptableObject[] a = new ScriptableObject[dataVar.Length];
             int nId = AbilityTreeNode.globalList.Add(a);
 
-            defaultTransverser.SetVariableNetworkData(dataVar, dataType,tId);
+            int dId = defaultTreeTransversers.Add(treeObject);
+
+            defaultTransverser.SetVariableNetworkData(dataVar, dataType,tId, dId);
             defaultTransverser.SetNodeData(nId, lengthData, rootSubclasses, rootSubclasses.Length);
             defaultTransverser.SetTransverserId(tId);
             defaultTransverser.StartTreeTransverse();
@@ -36,6 +41,9 @@ public class AbilitiesManager : MonoBehaviour {
     AbilityData[] aData;
 
     void Start() {
+
+        defaultTreeTransversers = new EnhancedList<ScriptableObject>();
+
         string[] abilityNodeData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(0);
         string[] abilityRootData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(3);
         string[] abilityEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(4);
@@ -58,5 +66,10 @@ public class AbilitiesManager : MonoBehaviour {
             aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, lengthData);
             Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].CreateAbility), 0);
         }
+    }
+
+    public static void RemoveExpiredTree(int id) {
+        Singleton.GetSingleton<Spawner>().Remove(defaultTreeTransversers.l[id]);
+        defaultTreeTransversers.Remove(id);
     }
 }

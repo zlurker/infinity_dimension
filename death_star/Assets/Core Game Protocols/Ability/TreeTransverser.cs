@@ -8,6 +8,9 @@ public class TreeTransverser : AbilityTreeNode {
     public static EnhancedList<TreeTransverser> globalListTree = new EnhancedList<TreeTransverser>();
 
     int transverserId;
+    bool treeTransverseCompleted;
+
+    // Variables below are carried by main transversers.
 
     // Variables in node.
     Variable[][] runtimeParameters;
@@ -15,14 +18,11 @@ public class TreeTransverser : AbilityTreeNode {
 
     // Link to ability nodes.
     int abilityNodes;
-
     int branchCount;
-
     int[] branchEndData;
     int[] branchStartData;
-
-    bool treeTransverseCompleted;
-
+    int defaultId;
+    
     public void ResetTransverser() {
         treeTransverseCompleted = false;
     }
@@ -38,12 +38,13 @@ public class TreeTransverser : AbilityTreeNode {
         transverserId = id;
     }
 
-    public void SetVariableNetworkData(Variable[][] rP, Type[] t, int rtt) {
+    public void SetVariableNetworkData(Variable[][] rP, Type[] t, int rtt, int dId) {
         runtimeParameters = rP;
         subclassTypes = t;
         SetRootTransverer(rtt);
         SetParentTransverser(-1);
         treeTransverseCompleted = false;
+        defaultId = dId;
         ResetTransverser();
     }
 
@@ -97,7 +98,6 @@ public class TreeTransverser : AbilityTreeNode {
         DoBranchCalculation(nodeId);
     }
 
-    // Method will be called on every node tasking end.
     public void NodeTaskingFinished(int nodeId) {
 
         if(!treeTransverseCompleted)
@@ -119,12 +119,11 @@ public class TreeTransverser : AbilityTreeNode {
 
                     globalList.Remove(abilityNodes);
                     globalListTree.Remove(transverserId);
+                    AbilitiesManager.RemoveExpiredTree(defaultId);
 
                     Debug.Log("------END-----");
                 }
             }
-
-
     }
 
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
