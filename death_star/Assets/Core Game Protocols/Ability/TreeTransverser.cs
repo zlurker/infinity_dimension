@@ -7,11 +7,12 @@ public class TreeTransverser : AbilityTreeNode {
 
     public static EnhancedList<TreeTransverser> globalListTree = new EnhancedList<TreeTransverser>();
 
+    //Variables here are used by both main and sub.
     int transverserId;
     bool treeTransverseCompleted;
 
-    // Variables below are carried by main transversers.
 
+    // Variables below are carried by main transversers.
     // Variables in node.
     Variable[][] runtimeParameters;
     Type[] subclassTypes;
@@ -141,7 +142,7 @@ public class TreeTransverser : AbilityTreeNode {
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<string>("Test","V20")
+            new RuntimeParameters<int>("Iterator Times",1)
         };
     }
 
