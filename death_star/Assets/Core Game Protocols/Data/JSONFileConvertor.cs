@@ -48,7 +48,7 @@ public static class JSONFileConvertor {
             convertedFormat[i].var = new Variable[sFs[i].l.Length];
 
             for(int j = 0; j < convertedFormat[i].var.Length; j++) 
-                convertedFormat[i].var[j] = new Variable(VariableTypeIndex.ReturnRuntimeType(sFs[i].vT[j], sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][][]>(sFs[i].l[j]));       
+                convertedFormat[i].var[j] = new Variable(VariableTypeIndex.convertors[sFs[i].vT[j]].ReturnRuntimeType(sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][][]>(sFs[i].l[j]));       
         }
 
         return convertedFormat;

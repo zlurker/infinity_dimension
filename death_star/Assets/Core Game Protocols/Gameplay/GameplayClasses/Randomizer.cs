@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class Randomizer : AbilityTreeNode {
 
-    public static int LOWEST_RANGE =0;
+    public static int LOWEST_RANGE = 0;
     public static int HIGHEST_RANGE = 1;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-]	void Update () {
-		
-	}
+    // Use this for initialization
+    void Start() {
+
+    }
+
+    void Update() {
+
+    }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {

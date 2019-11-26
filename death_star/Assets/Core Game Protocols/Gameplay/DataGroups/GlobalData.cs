@@ -131,6 +131,14 @@ public class Iterator
         return -1;
     }
 
+    public static int ReturnKey<T1,T2>(T1[] tA, T2 k, Func<T1, T2> iI) {
+        for(int i = 0; i < tA.Length; i++)
+            if(object.Equals(iI(tA[i]),k))
+                return i;
+
+        return -1;
+    }
+
     public static T ReturnObject<T>(T[] tA, Type k, Func<T, Type> iI) {
         
         for(int i = 0; i < tA.Length; i++)
