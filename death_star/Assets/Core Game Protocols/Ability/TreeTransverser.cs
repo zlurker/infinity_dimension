@@ -80,13 +80,16 @@ public class TreeTransverser : AbilityTreeNode {
         }
     }
 
-    public void DoBranchCalculation(int nodeId) {
+    public void AddBranches(int nodeId) {
         if(GetRootTransverserObject().branchEndData[nodeId] > 1)
-            branchCount += GetRootTransverserObject().branchEndData[nodeId] - 1;
+            branchCount += GetRootTransverserObject().branchEndData[nodeId] - 1;       
+    }
 
+    public void RemoveBranches(int nodeId) {
         if(GetRootTransverserObject().branchEndData[nodeId] == 0)
             branchCount--;
     }
+
 
     public void CreateNewNodeIfNull(int nodeId) {
         if(!globalList.l[GetRootTransverserObject().abilityNodes][nodeId]) {
@@ -94,10 +97,12 @@ public class TreeTransverser : AbilityTreeNode {
             GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nodeId]).RunNodeInitialisation(nodeId, transverserId, GetRootTransverser());
         }
 
-        DoBranchCalculation(nodeId);
+        AddBranches(nodeId);
     }
 
     public void NodeTaskingFinished(int nodeId) {
+
+        RemoveBranches(nodeId);
 
         if(!treeTransverseCompleted)
             if(branchCount == 0) {
