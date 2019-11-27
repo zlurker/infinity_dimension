@@ -122,7 +122,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             Button button = Spawner.GetCType<Button>(buttonTest);
 
-            Spawner.GetCType<Text>(buttonTest).text = i.ToString();
+            Spawner.GetCType<Text>(buttonTest).text = interfaces[i].GetType().Name;
 
             int eleId = i;
             button.onClick.AddListener(() => { WindowSpawnState(eleId); });

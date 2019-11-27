@@ -28,6 +28,10 @@ public class TreeTransverser : AbilityTreeNode {
         treeTransverseCompleted = false;
     }
 
+    public Variable[] GetVariable(int id) {
+        return runtimeParameters[id];
+    }
+
     public override void RunNodeInitialisation(int nid, int tt, int rtt) {
         base.RunNodeInitialisation(nid, tt, rtt);
         transverserId = globalListTree.Add(this);

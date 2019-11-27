@@ -7,30 +7,23 @@ public class Randomizer : AbilityTreeNode {
     public static int LOWEST_RANGE = 0;
     public static int HIGHEST_RANGE = 1;
 
+    int nodeId;
     // Use this for initialization
     void Start() {
 
     }
 
     void Update() {
-
+        GetVariableValue<GameObject>(nodeId, 0).transform.position += new Vector3(1,1);
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<float>("Lowest Range", -10),
-            new RuntimeParameters<float>("Highest Range", 10)
+            new RuntimeParameters<GameObject>("Input Object", null)
         };
     }
 
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
-        FireNode(0, VariableAction.GET);
-        FireNode(1, VariableAction.GET);
-
-        Random.Range(GetVariableValue<float>(LOWEST_RANGE), GetVariableValue<float>(HIGHEST_RANGE));
-
-        FireNode(0, VariableAction.SET);
-        FireNode(1, VariableAction.SET);
-        NodeTaskingFinish();
+        nodeId = nId;
     }
 }

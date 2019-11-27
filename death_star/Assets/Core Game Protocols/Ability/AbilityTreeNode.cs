@@ -52,15 +52,19 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {
         Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
-        NodeTaskingFinish();
+        //NodeTaskingFinish();
     }
 
     public int GetTransverser() {
         return treeTransverser;
     }
 
-    public T GetVariableValue<T>(int variableId) {
-        return (TreeTransverser.globalListTree.l[rootTreeTransverser].GetRuntimeParameters()[variableId] as RuntimeParameters<T>).v;
+    public T GetVariableValue<T>(int node,int variableId) {
+        return (TreeTransverser.globalListTree.l[rootTreeTransverser].GetVariable(node)[variableId].field as RuntimeParameters<T>).v;
+    }
+
+    public void SetVariableValue<T>(int variableId, T value) {
+        (TreeTransverser.globalListTree.l[rootTreeTransverser].GetVariable(nodeId)[variableId].field as RuntimeParameters<T>).v = value;//GetRuntimeParameters()[variableId] as RuntimeParameters<T>).v = value;
     }
 
     public TreeTransverser GetTransverserObject() {
