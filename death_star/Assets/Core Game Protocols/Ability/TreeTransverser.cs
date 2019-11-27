@@ -58,14 +58,8 @@ public class TreeTransverser : AbilityTreeNode {
 
     public void StartTreeTransverse() {
         for(int i = 0; i < branchStartData.Length; i++) {
-
-            int bSData = GetRootTransverserObject().runtimeParameters[GetRootTransverserObject().branchStartData[i]].Length;
-
-            for(int j = 0; j < bSData; j++) {
-
                 CreateNewNodeIfNull(GetRootTransverserObject().branchStartData[i]);
-                GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]]).NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);
-            }
+                GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]]).NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);           
         }
     }
 
@@ -73,7 +67,7 @@ public class TreeTransverser : AbilityTreeNode {
 
         int[][] nextNodeIdArray = GetRootTransverserObject().runtimeParameters[nodeId][variableId].links[(int)action];
 
-        Debug.LogFormat("Curr node: {0}, Curr pathCount: {1}, id {2}", ((RuntimeParameters<string>)GetRootTransverserObject().runtimeParameters[nodeId][variableId].field).v, branchCount, transverserId);
+        Debug.LogFormat("Curr node: {0}, Curr pathCount: {1}, id {2}", nodeId, branchCount, transverserId);
 
         for(int i = 0; i < nextNodeIdArray.Length; i++) {
             CreateNewNodeIfNull(nextNodeIdArray[i][0]);

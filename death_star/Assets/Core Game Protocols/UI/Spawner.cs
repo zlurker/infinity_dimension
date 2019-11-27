@@ -358,13 +358,14 @@ public class Spawner : AbilityTreeNode, ISingleton
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<int>("Spawner",0)
+            new RuntimeParameters<int>("Spawner",0),
+            new RuntimeParameters<GameObject>("Test",null)
         };
     }
 
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
 
-        FireNode(0, VariableAction.GET);
+        FireNode(1, VariableAction.SET);
 
         /*switch(variableCalled) {
             case 0:

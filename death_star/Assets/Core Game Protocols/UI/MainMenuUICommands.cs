@@ -96,7 +96,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         else
             abilityData = new UIAbilityData();
 
-        
+
         abilityWindows = new AutoPopulationList<EditableWindow>();
         lineData = new EnhancedList<LineData>();
 
@@ -144,7 +144,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             int[] endNodeData = AbilityDataSubclass.ReturnNodeEndData(cAD);
 
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(cAD)));
-            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));            
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 3, JsonConvert.SerializeObject(rootClasses));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(endNodeData));
 
@@ -159,7 +159,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             }
 
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 2, JsonConvert.SerializeObject(windowLocations));
-            
+
             //Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(AbilityDataSubclass.ReturnGetterAndSetters(cAD)));
         });
 
@@ -304,14 +304,14 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         return linkageButton;
     }
 
-    
+
     void CreateVariableLinkage(int[] prevPath, int[] currPath) {
 
         //Handles the data linkage.
         // I should look for a way to shift this to AbilityData, since this is data and not UI, make it clear cut.
-        if(lH.createDataLinkage) 
+        if(lH.createDataLinkage)
             abilityData.CreateLink(prevPath, currPath);
-        
+
 
         //Gets the UI data of both paths.
         Transform[] linePoints = new Transform[2];
@@ -342,7 +342,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         // Make sure both ends will feedback if window was dragged.
         abilityWindows.l[currPath[0]].linesRelated.Add(lineId);
         abilityWindows.l[prevPath[0]].linesRelated.Add(lineId);
-        UpdateLines(new int[] { lineId });        
+        UpdateLines(new int[] { lineId });
     }
 
     ScriptableObject[] CreateVariableField(int id, int varId) {
@@ -350,9 +350,13 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         ScriptableObject element = ReturnElementField(abilityData.subclasses.l[id].var[varId].field);
         Spawner.GetCType<Text>(elementName).text = abilityData.subclasses.l[id].var[varId].field.n;
         Spawner.GetCType<Text>(elementName).color = Color.white;
-        TextfieldCalibrator(Spawner.GetCType<InputField>(element), new int[] { id, varId });
 
-        return new ScriptableObject[] { elementName, element };
+        if(element != null) {
+            TextfieldCalibrator(Spawner.GetCType<InputField>(element), new int[] { id, varId });
+            return new ScriptableObject[] { elementName, element };
+        }
+
+        return new ScriptableObject[] { elementName };
     }
 
     ScriptableObject ReturnElementField(RuntimeParameters variable) {
