@@ -15,6 +15,7 @@ public class Randomizer : AbilityTreeNode {
 
     void Update() {
         GetVariableValue<GameObject>(nodeId, 0).transform.position += new Vector3(1,1);
+        NodeTaskingFinish();
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {

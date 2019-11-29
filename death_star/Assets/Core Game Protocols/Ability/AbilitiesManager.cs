@@ -31,10 +31,10 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
             int dId = defaultTreeTransversers.Add(treeObject);
 
-            defaultTransverser.SetVariableNetworkData(dataVar, dataType,tId, dId);
+            defaultTransverser.SetRootTransverserData(dataVar, dataType,tId, dId);
             defaultTransverser.SetNodeData(nId, lengthData, rootSubclasses, rootSubclasses.Length);
             defaultTransverser.SetTransverserId(tId);
-            defaultTransverser.StartTreeTransverse();
+            defaultTransverser.BeginNodeCallback();
         }
     }
 

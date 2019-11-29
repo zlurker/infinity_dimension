@@ -11,6 +11,9 @@ public class TreeTransverser : AbilityTreeNode {
     int transverserId;
     bool treeTransverseCompleted;
 
+    // Iteration count used by treetransverser to track cycle.
+    int givenIterationCount = 1;
+    int currIterationCount = 0;
 
     // Variables below are carried by main transversers.
     // Variables in node.
@@ -23,7 +26,7 @@ public class TreeTransverser : AbilityTreeNode {
     int[] branchEndData;
     int[] branchStartData;
     int defaultId;
-    
+
     public void ResetTransverser() {
         treeTransverseCompleted = false;
     }
@@ -43,12 +46,14 @@ public class TreeTransverser : AbilityTreeNode {
         transverserId = id;
     }
 
-    public void SetVariableNetworkData(Variable[][] rP, Type[] t, int rtt, int dId) {
+    public void SetRootTransverserData(Variable[][] rP, Type[] t, int rtt, int dId) {
         runtimeParameters = rP;
         subclassTypes = t;
+
         SetRootTransverer(rtt);
         SetParentTransverser(-1);
-        treeTransverseCompleted = false;
+        SetNodeId(-1);
+
         defaultId = dId;
         ResetTransverser();
     }
@@ -60,13 +65,6 @@ public class TreeTransverser : AbilityTreeNode {
         branchCount = root;
     }
 
-    public void StartTreeTransverse() {
-        for(int i = 0; i < branchStartData.Length; i++) {
-                CreateNewNodeIfNull(GetRootTransverserObject().branchStartData[i]);
-                GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]]).NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);           
-        }
-    }
-
     public void TransversePoint(int nodeId, int variableId, VariableAction action) {
 
         int[][] nextNodeIdArray = GetRootTransverserObject().runtimeParameters[nodeId][variableId].links[(int)action];
@@ -75,14 +73,13 @@ public class TreeTransverser : AbilityTreeNode {
 
         for(int i = 0; i < nextNodeIdArray.Length; i++) {
             CreateNewNodeIfNull(nextNodeIdArray[i][0]);
-
             GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nextNodeIdArray[i][0]]).NodeCallback(nodeId, variableId, action);
         }
     }
 
     public void AddBranches(int nodeId) {
         if(GetRootTransverserObject().branchEndData[nodeId] > 1)
-            branchCount += GetRootTransverserObject().branchEndData[nodeId] - 1;       
+            branchCount += GetRootTransverserObject().branchEndData[nodeId] - 1;
     }
 
     public void RemoveBranches(int nodeId) {
@@ -109,6 +106,9 @@ public class TreeTransverser : AbilityTreeNode {
                 treeTransverseCompleted = true;
                 Debug.LogFormat("We have reached the end of the path, id {0}.", transverserId);
 
+                if(BeginNodeCallback())
+                    return;
+
                 if(GetTransverser() > -1) {
                     Debug.LogFormat("Task Finished Called {0}", transverserId);
                     GetTransverserObject().branchCount -= GetRootTransverserObject().branchEndData[GetNodeId()];
@@ -130,13 +130,39 @@ public class TreeTransverser : AbilityTreeNode {
             }
     }
 
+    public bool BeginNodeCallback() {
+
+        bool below = false;
+
+        if(currIterationCount < givenIterationCount) {
+
+            below = true;
+            ResetTransverser();
+            currIterationCount++;
+
+            if(GetNodeId() > -1) {
+                // Node callback for elements in a node group.
+
+                Variable[] nodeVariables = GetRootTransverserObject().runtimeParameters[GetNodeId()];
+
+                for(int i = 0; i < nodeVariables.Length; i++)
+                    TransversePoint(GetNodeId(), i, VariableAction.SET);
+
+            } else {
+                // Callback for root.
+
+                for(int i = 0; i < branchStartData.Length; i++) {
+                    CreateNewNodeIfNull(GetRootTransverserObject().branchStartData[i]);
+                    GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]]).NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);
+                }
+            }
+        }
+       
+        return below;
+    }
+
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
-        //base.NodeCallback(nId, variableCalled, action);
-
-        Variable[] nodeVariables = GetRootTransverserObject().runtimeParameters[GetNodeId()];
-
-        for(int i = 0; i < nodeVariables.Length; i++)
-            TransversePoint(GetNodeId(), i, VariableAction.SET);
+        BeginNodeCallback();
     }
 
     public TreeTransverser GetRootTransverserObject() {

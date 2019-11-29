@@ -19,6 +19,10 @@ public class AbilityTreeNode : MonoBehaviour {
         return nodeId;
     }
 
+    public void SetNodeId(int id) {
+        nodeId = id;
+    }
+
     public void SetRootTransverer(int id) {
         rootTreeTransverser = id;
     }
