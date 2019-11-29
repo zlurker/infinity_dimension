@@ -26,5 +26,6 @@ public class Randomizer : AbilityTreeNode {
 
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
         nodeId = nId;
+        Debug.Log("Called0!!!!!!!!!");
     }
 }

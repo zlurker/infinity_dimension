@@ -12,7 +12,7 @@ public class TreeTransverser : AbilityTreeNode {
     bool treeTransverseCompleted;
 
     // Iteration count used by treetransverser to track cycle.
-    int givenIterationCount = 1;
+    int givenIterationCount = 5;
     int currIterationCount = 0;
 
     // Variables below are carried by main transversers.
@@ -58,11 +58,10 @@ public class TreeTransverser : AbilityTreeNode {
         ResetTransverser();
     }
 
-    public void SetNodeData(int id, int[] eD, int[] sD, int root) {
+    public void SetNodeData(int id, int[] eD, int[] sD) {
         abilityNodes = id;
         branchEndData = eD;
         branchStartData = sD;
-        branchCount = root;
     }
 
     public void TransversePoint(int nodeId, int variableId, VariableAction action) {
@@ -109,6 +108,8 @@ public class TreeTransverser : AbilityTreeNode {
                 if(BeginNodeCallback())
                     return;
 
+                Debug.Log("Past Completion");
+
                 if(GetTransverser() > -1) {
                     Debug.LogFormat("Task Finished Called {0}", transverserId);
                     GetTransverserObject().branchCount -= GetRootTransverserObject().branchEndData[GetNodeId()];
@@ -150,7 +151,7 @@ public class TreeTransverser : AbilityTreeNode {
 
             } else {
                 // Callback for root.
-
+                branchCount = branchStartData.Length;
                 for(int i = 0; i < branchStartData.Length; i++) {
                     CreateNewNodeIfNull(GetRootTransverserObject().branchStartData[i]);
                     GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]]).NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);
