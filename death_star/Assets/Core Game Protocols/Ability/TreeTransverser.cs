@@ -12,7 +12,7 @@ public class TreeTransverser : AbilityTreeNode {
     bool treeTransverseCompleted;
 
     // Iteration count used by treetransverser to track cycle.
-    int givenIterationCount = 5;
+    int givenIterationCount = 100;
     int currIterationCount = 0;
 
     // Variables below are carried by main transversers.
@@ -29,6 +29,7 @@ public class TreeTransverser : AbilityTreeNode {
 
     public void ResetTransverser() {
         treeTransverseCompleted = false;
+        currIterationCount = 0;
     }
 
     public Variable[] GetVariable(int id) {
@@ -68,7 +69,7 @@ public class TreeTransverser : AbilityTreeNode {
 
         int[][] nextNodeIdArray = GetRootTransverserObject().runtimeParameters[nodeId][variableId].links[(int)action];
 
-        Debug.LogFormat("Curr node: {0}, Curr pathCount: {1}, id {2}", nodeId, branchCount, transverserId);
+        //Debug.LogFormat("Curr node: {0}, Curr pathCount: {1}, id {2}", nodeId, branchCount, transverserId);
 
         for(int i = 0; i < nextNodeIdArray.Length; i++) {
             CreateNewNodeIfNull(nextNodeIdArray[i][0]);
@@ -103,15 +104,15 @@ public class TreeTransverser : AbilityTreeNode {
         if(!treeTransverseCompleted)
             if(branchCount == 0) {
                 treeTransverseCompleted = true;
-                Debug.LogFormat("We have reached the end of the path, id {0}.", transverserId);
+                //Debug.LogFormat("We have reached the end of the path, id {0}.", transverserId);
 
                 if(BeginNodeCallback())
                     return;
 
-                Debug.Log("Past Completion");
+                //Debug.Log("Past Completion");
 
                 if(GetTransverser() > -1) {
-                    Debug.LogFormat("Task Finished Called {0}", transverserId);
+                   // Debug.LogFormat("Task Finished Called {0}", transverserId);
                     GetTransverserObject().branchCount -= GetRootTransverserObject().branchEndData[GetNodeId()];
                     NodeTaskingFinish();
 
@@ -126,19 +127,20 @@ public class TreeTransverser : AbilityTreeNode {
                     globalListTree.Remove(transverserId);
                     AbilitiesManager.RemoveExpiredTree(defaultId);
 
-                    Debug.Log("------END-----");
+                    //Debug.Log("------END-----");
+
                 }
             }
     }
 
-    public bool BeginNodeCallback() {
+    public bool BeginNodeCallback() {   
 
         bool below = false;
 
         if(currIterationCount < givenIterationCount) {
 
             below = true;
-            ResetTransverser();
+            treeTransverseCompleted = false;
             currIterationCount++;
 
             if(GetNodeId() > -1) {

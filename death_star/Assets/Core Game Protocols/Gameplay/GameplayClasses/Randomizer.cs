@@ -14,8 +14,7 @@ public class Randomizer : AbilityTreeNode {
     }
 
     void Update() {
-        GetVariableValue<GameObject>(nodeId, 0).transform.position += new Vector3(1,1);
-        NodeTaskingFinish();
+        
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
@@ -26,6 +25,7 @@ public class Randomizer : AbilityTreeNode {
 
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
         nodeId = nId;
-        Debug.Log("Called0!!!!!!!!!");
+        //GetVariableValue<GameObject>(nodeId, 0).transform.position += new Vector3(1, 1);
+        NodeTaskingFinish();
     }
 }
