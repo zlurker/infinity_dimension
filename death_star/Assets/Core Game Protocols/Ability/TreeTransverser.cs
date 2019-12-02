@@ -22,9 +22,11 @@ public class TreeTransverser : AbilityTreeNode {
 
     // Link to ability nodes.
     int abilityNodes;
+
     int branchCount;
     int[] branchEndData;
     int[] branchStartData;
+    int[] nodeType;
     int defaultId;
 
     public void ResetTransverser() {
@@ -59,10 +61,11 @@ public class TreeTransverser : AbilityTreeNode {
         ResetTransverser();
     }
 
-    public void SetNodeData(int id, int[] eD, int[] sD) {
+    public void SetNodeData(int id, int[] eD, int[] sD, int[] nT) {
         abilityNodes = id;
         branchEndData = eD;
         branchStartData = sD;
+        nodeType = nT;
     }
 
     public void TransversePoint(int nodeId, int variableId, VariableAction action) {

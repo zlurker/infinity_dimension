@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum NodeType {
+    DEFAULT, GETEND
+}
+
 public class AbilityTreeNode : MonoBehaviour {
 
     public static EnhancedList<ScriptableObject[]> globalList = new EnhancedList<ScriptableObject[]>();
