@@ -141,14 +141,14 @@ public class AbilityDataSubclass {
                     for(int l = 0; l < target[id[i]].var[j].links[k].Length; l++) {
 
                         if(prevAction == 1)
-                            lastSet = target[id[i]].var[j].links[k][l];
+                            lastSet = new int[] { id[i],j };
 
                         int[][] setData = ReturnGetEndNode(target, new int[] { target[id[i]].var[j].links[k][l][0] }, lastSet, k);
 
                         for(int a = 0; a < setData.Length; a++)
                             sets.Add(setData[a]);
                     }
-
+                Debug.LogFormat("ID: {0}, prevAct: {1}", id[i],prevAction);
                 if(prevAction == 0)
                     if(target[id[i]].var[j].links[0].Length == 0 && target[id[i]].var[j].links[1].Length == 0)
                         sets.Add(new int[] { id[i], j, lastSet[0], lastSet[1] });
