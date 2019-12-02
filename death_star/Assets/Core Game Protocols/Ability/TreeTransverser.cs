@@ -12,7 +12,7 @@ public class TreeTransverser : AbilityTreeNode {
     bool treeTransverseCompleted;
 
     // Iteration count used by treetransverser to track cycle.
-    int givenIterationCount = 100;
+    int givenIterationCount = 1000;
     int currIterationCount = 0;
 
     // Variables below are carried by main transversers.

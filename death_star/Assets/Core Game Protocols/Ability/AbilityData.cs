@@ -131,6 +131,32 @@ public class AbilityDataSubclass {
         return paths;
     }
 
+    public static int[][] ReturnGetEndNode(AbilityDataSubclass[] target, int[] id, int[] lastSet = null, int prevAction = 1) {
+
+        List<int[]> sets = new List<int[]>();
+
+        for(int i = 0; i < id.Length; i++)
+            for(int j = 0; j < target[id[i]].var.Length; j++) {
+                for(int k = 0; k < target[id[i]].var[j].links.Length; k++)
+                    for(int l = 0; l < target[id[i]].var[j].links[k].Length; l++) {
+
+                        if(prevAction == 1)
+                            lastSet = target[id[i]].var[j].links[k][l];
+
+                        int[][] setData = ReturnGetEndNode(target, new int[] { target[id[i]].var[j].links[k][l][0] }, lastSet, k);
+
+                        for(int a = 0; a < setData.Length; a++)
+                            sets.Add(setData[a]);
+                    }
+
+                if(prevAction == 0)
+                    if(target[id[i]].var[j].links[0].Length == 0 && target[id[i]].var[j].links[1].Length == 0)
+                        sets.Add(new int[] { id[i], j, lastSet[0], lastSet[1] });
+            }
+
+        return sets.ToArray();
+    }
+
     // Returns all possible ends for every node.
     /*public static int[][] ReturnNodeEndData(AbilityDataSubclass[] target, int[] root) {
 
