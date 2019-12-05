@@ -78,7 +78,11 @@ public sealed class AbilitiesManager : MonoBehaviour {
                     temp[k] = tempVar[getEndData[j][0]][getEndData[j][1]].links[1][k];
 
                 temp[temp.Length - 1] = new int[] { getEndData[j][2], getEndData[j][3]};
+                
             }
+
+            for(int j = 0; j < nodeType.Length; j++)
+                Debug.Log(j);
             
             aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, lengthData,nodeType);
             Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].CreateAbility), 0);

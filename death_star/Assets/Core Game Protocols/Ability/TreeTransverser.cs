@@ -38,6 +38,10 @@ public class TreeTransverser : AbilityTreeNode {
         return runtimeParameters[id];
     }
 
+    public int GetVariableCount(int id) {
+        return runtimeParameters[id].Length;
+    }
+
     public override void RunNodeInitialisation(int nid, int tt, int rtt) {
         base.RunNodeInitialisation(nid, tt, rtt);
         transverserId = globalListTree.Add(this);
@@ -76,8 +80,27 @@ public class TreeTransverser : AbilityTreeNode {
 
         for(int i = 0; i < nextNodeIdArray.Length; i++) {
             CreateNewNodeIfNull(nextNodeIdArray[i][0]);
-            GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nextNodeIdArray[i][0]]).NodeCallback(nodeId, variableId, action);
+
+            switch((NodeType)GetRootTransverserObject().nodeType[nodeId]) {
+                case NodeType.DEFAULT:
+                    RunAllGetInNode(nextNodeIdArray[i][0]);
+                    break;
+
+                case NodeType.GETEND:
+                    // Starting get nodes is only available for the default nodes as this only allows us to get back a variable.
+                    break;
+            }
+
+            GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nextNodeIdArray[i][0]]).NodeCallback(nodeId, variableId, action);           
         }
+    }
+
+    public void RunAllGetInNode(int nodeId) {
+        int varCount = TreeTransverser.globalListTree.l[GetRootTransverser()].GetVariableCount(nodeId);
+
+        for(int i = 0; i < varCount; i++) 
+            GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nodeId]).FireNode(i, VariableAction.GET);
+        
     }
 
     public void AddBranches(int nodeId) {
@@ -115,7 +138,7 @@ public class TreeTransverser : AbilityTreeNode {
                 //Debug.Log("Past Completion");
 
                 if(GetTransverser() > -1) {
-                   // Debug.LogFormat("Task Finished Called {0}", transverserId);
+                    // Debug.LogFormat("Task Finished Called {0}", transverserId);
                     GetTransverserObject().branchCount -= GetRootTransverserObject().branchEndData[GetNodeId()];
                     NodeTaskingFinish();
 
@@ -136,7 +159,7 @@ public class TreeTransverser : AbilityTreeNode {
             }
     }
 
-    public bool BeginNodeCallback() {   
+    public bool BeginNodeCallback() {
 
         bool below = false;
 
@@ -148,7 +171,6 @@ public class TreeTransverser : AbilityTreeNode {
 
             if(GetNodeId() > -1) {
                 // Node callback for elements in a node group.
-
                 Variable[] nodeVariables = GetRootTransverserObject().runtimeParameters[GetNodeId()];
 
                 for(int i = 0; i < nodeVariables.Length; i++)
@@ -159,11 +181,12 @@ public class TreeTransverser : AbilityTreeNode {
                 branchCount = branchStartData.Length;
                 for(int i = 0; i < branchStartData.Length; i++) {
                     CreateNewNodeIfNull(GetRootTransverserObject().branchStartData[i]);
-                    GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]]).NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);
+                    RunAllGetInNode(branchStartData[i]);
+                    //GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][GetRootTransverserObject().branchStartData[i]]).NodeCallback(GetRootTransverserObject().branchStartData[i], 0, 0);            
                 }
             }
         }
-       
+
         return below;
     }
 
