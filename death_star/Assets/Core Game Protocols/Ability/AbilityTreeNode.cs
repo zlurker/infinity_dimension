@@ -46,24 +46,17 @@ public class AbilityTreeNode : MonoBehaviour {
         rootTreeTransverser = rtt;
     }
 
-    /*public Variable[] GetVariables() {
-        //return runtimeParameters;
-    }*/
-
     public virtual RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[0];
     }
 
     public void FireNode(int variable, VariableAction action) {
-        //Debug.Log("Firing called from " + nodeId);
         GetTransverserObject().TransversePoint(nodeId, variable, action);
     }
 
     public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {
         Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
-
-       
-        //NodeTaskingFinish();
+        Debug.Log((GetTransverserObject().GetVariable(nId)[variableCalled].field as RuntimeParameters<string>).v);
     }
 
     public int GetTransverser() {

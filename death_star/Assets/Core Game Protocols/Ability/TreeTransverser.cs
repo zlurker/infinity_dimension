@@ -78,6 +78,7 @@ public class TreeTransverser : AbilityTreeNode {
 
         //Debug.LogFormat("Curr node: {0}, Curr pathCount: {1}, id {2}", nodeId, branchCount, transverserId);
         //Debug.Log("Next trnse:" + nextNodeIdArray.Length);
+
         for(int i = 0; i < nextNodeIdArray.Length; i++) {
             CreateNewNodeIfNull(nextNodeIdArray[i][0]);
 
@@ -88,20 +89,19 @@ public class TreeTransverser : AbilityTreeNode {
 
                 case NodeType.GETEND:
                     Debug.Log("It is a getend, next node: " + nextNodeIdArray[i][0]);
+                    //Debug.Log("nodeid: " + GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nextNodeIdArray[i][0]]).GetNodeId());
                     //int[][] temp = GetRootTransverserObject().runtimeParameters[nodeId][variableId].links[(int)action];
                     // Starting get nodes is only available for the default nodes as this only allows us to get back a variable.
                     break;
             }
 
+           
             GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nextNodeIdArray[i][0]]).NodeCallback(nodeId, variableId, action);           
         }
     }
 
     public void RunAllGetInNode(int nodeId) {
-        int varCount = TreeTransverser.globalListTree.l[GetRootTransverser()].GetVariableCount(nodeId);
-
-        //Debug.Log("error:" + nodeId);
-        //Debug.Log("is this the error:" + globalList.l[GetRootTransverserObject().abilityNodes][nodeId]);
+        int varCount = globalListTree.l[GetRootTransverser()].GetVariableCount(nodeId);
 
         for(int i = 0; i < varCount; i++) 
             GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nodeId]).FireNode(i, VariableAction.GET);        
@@ -167,7 +167,6 @@ public class TreeTransverser : AbilityTreeNode {
         if(currIterationCount < givenIterationCount) {
 
             below = true;
-            treeTransverseCompleted = false;
             currIterationCount++;
 
             if(GetNodeId() > -1) {

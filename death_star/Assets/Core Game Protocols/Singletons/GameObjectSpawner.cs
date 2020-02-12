@@ -39,6 +39,7 @@ public class GameObjectSpawner : Spawner
     }
 
     public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
+        Debug.Log("1, Callback was called by:" + nId);
         Debug.Log((GetTransverserObject().GetVariable(nId)[variableCalled].field as RuntimeParameters<string>).v);
         NodeTaskingFinish();       
     }

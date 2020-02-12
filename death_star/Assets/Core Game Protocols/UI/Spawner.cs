@@ -363,12 +363,12 @@ public class Spawner : AbilityTreeNode, ISingleton
         };
     }
 
-    public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
+    /*public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
 
         //ScriptableObject inst = CreateScriptedObject(new Type[] { });
         //SetVariableValue<GameObject>(0, inst.gameObject);
         //FireNode(0, VariableAction.SET);
         NodeTaskingFinish();        
-    }
+    }*/
 
 }
