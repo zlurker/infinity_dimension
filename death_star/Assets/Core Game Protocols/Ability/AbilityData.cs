@@ -131,31 +131,71 @@ public class AbilityDataSubclass {
         return paths;
     }
 
-    public static int[][] ReturnGetEndNode(AbilityDataSubclass[] target, int[] id, int[] lastSet = null, int prevAction = 1) {
+    public static int[][] ReturnGetEndNode(AbilityDataSubclass[] target, int[] startId) {
 
+        List<int[]> compiledList = new List<int[]>();
+
+        for (int i =0; i < startId.Length; i++) 
+            for(int j = 0; j < target[startId[i]].var.Length; j++) {
+                int[][] output = RunNestedVariables(target, new int[] { startId[i], j });
+
+                for(int k = 0; k < output.Length; k++)
+                    compiledList.Add(output[k]);
+            }
+
+        return compiledList.ToArray();      
+    }
+
+    public static int[][] RunNestedVariables(AbilityDataSubclass[] target, int[] id, int[] lastSet = null, int prevAction = 1) {
         List<int[]> sets = new List<int[]>();
 
-        for(int i = 0; i < id.Length; i++)
-            for(int j = 0; j < target[id[i]].var.Length; j++) {
-                for(int k = 0; k < target[id[i]].var[j].links.Length; k++)
-                    for(int l = 0; l < target[id[i]].var[j].links[k].Length; l++) {
+        for(int k = 0; k < target[id[0]].var[id[1]].links.Length; k++)
+            for(int l = 0; l < target[id[0]].var[id[1]].links[k].Length; l++) {
 
-                        if(prevAction == 1)
-                            lastSet = new int[] { id[i],j };
+                if(prevAction == 1)
+                    lastSet = new int[] { id[0], id[1] };
 
-                        int[][] setData = ReturnGetEndNode(target, new int[] { target[id[i]].var[j].links[k][l][0] }, lastSet, k);
+                Debug.LogFormat("currnode{0}/var{1}", id[0], id[1]);
+                Debug.LogFormat("nextnode{0}/nextvar{1}", target[id[0]].var[id[1]].links[k][l][0], target[id[0]].var[id[1]].links[k][l][1]);
 
-                        for(int a = 0; a < setData.Length; a++)
-                            sets.Add(setData[a]);
-                    }
+                int[][] setData = RunNestedVariables(target, target[id[0]].var[id[1]].links[k][l], lastSet, k);
 
-                if(prevAction == 0)
-                    if(target[id[i]].var[j].links[0].Length == 0 && target[id[i]].var[j].links[1].Length == 0)
-                        sets.Add(new int[] { id[i], j, lastSet[0], lastSet[1] });
+                for(int a = 0; a < setData.Length; a++)
+                    sets.Add(setData[a]);              
             }
+
+        if(prevAction == 0)
+            if(target[id[0]].var[id[1]].links[0].Length == 0)
+                sets.Add(new int[] { id[0], id[1], lastSet[0], lastSet[1] });
 
         return sets.ToArray();
     }
+
+    /*public static int[][] ReturnGetEndNode(AbilityDataSubclass[] target, int[] id, int[] lastSet = null, int prevAction = 1) {
+
+         List<int[]> sets = new List<int[]>();
+
+         for(int i = 0; i < id.Length; i++)
+             for(int j = 0; j < target[id[i]].var.Length; j++) {
+                 for(int k = 0; k < target[id[i]].var[j].links.Length; k++)
+                     for(int l = 0; l < target[id[i]].var[j].links[k].Length; l++) {
+
+                         if(prevAction == 1)
+                             lastSet = new int[] { id[i],j };
+
+                         int[][] setData = ReturnGetEndNode(target, new int[] { target[id[i]].var[j].links[k][l][0] }, lastSet, k);
+
+                         for(int a = 0; a < setData.Length; a++)
+                             sets.Add(setData[a]);
+                     }
+
+                 if(prevAction == 0)
+                     if(target[id[i]].var[j].links[0].Length == 0 && target[id[i]].var[j].links[1].Length == 0)
+                         sets.Add(new int[] { id[i], j, lastSet[0], lastSet[1] });
+             }
+
+         return sets.ToArray();
+     }*/
 
     // Returns all possible ends for every node.
     /*public static int[][] ReturnNodeEndData(AbilityDataSubclass[] target, int[] root) {
@@ -193,7 +233,7 @@ public class AbilityDataSubclass {
                 for(int l = 0; l < gs.Length; l++)
                     compiled[i][k][l] = gs[l].ToArray();
 
-                
+
             }
         }
 

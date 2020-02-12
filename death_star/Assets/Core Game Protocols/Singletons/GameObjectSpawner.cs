@@ -37,4 +37,9 @@ public class GameObjectSpawner : Spawner
     public void SetValues(RuntimeParameters[] runtimeParameters) {
         Debug.Log("GOS Called");
     }
+
+    public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
+        Debug.Log((GetTransverserObject().GetVariable(nId)[variableCalled].field as RuntimeParameters<string>).v);
+        NodeTaskingFinish();       
+    }
 }
