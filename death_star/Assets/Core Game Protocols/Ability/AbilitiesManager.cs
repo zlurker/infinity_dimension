@@ -78,7 +78,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
                     temp[k] = tempVar[getEndData[j][0]][getEndData[j][1]].links[1][k];
 
                 temp[temp.Length - 1] = new int[] { getEndData[j][2], getEndData[j][3]};
-                
+                tempVar[getEndData[j][0]][getEndData[j][1]].links[1] = temp;
             }
             
             aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, lengthData,nodeType);

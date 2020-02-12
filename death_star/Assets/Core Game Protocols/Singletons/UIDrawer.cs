@@ -174,4 +174,11 @@ public class UIDrawer : Spawner, ISingleton {
             new RuntimeParameters<string>("UI","What the fuck nigga")
         };
     }
+
+    public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
+        //base.NodeCallback(nId, variableCalled, action);
+        Debug.Log((GetTransverserObject().GetVariable(nId)[variableCalled].field as RuntimeParameters<string>).v);
+        FireNode(variableCalled, VariableAction.SET);
+        NodeTaskingFinish();
+    }
 }

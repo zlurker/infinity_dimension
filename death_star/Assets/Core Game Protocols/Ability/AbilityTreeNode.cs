@@ -55,11 +55,14 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public void FireNode(int variable, VariableAction action) {
+        //Debug.Log("Firing called from " + nodeId);
         GetTransverserObject().TransversePoint(nodeId, variable, action);
     }
 
     public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {
         Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
+
+       
         //NodeTaskingFinish();
     }
 
