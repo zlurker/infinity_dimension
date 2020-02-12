@@ -12,7 +12,7 @@ public class TreeTransverser : AbilityTreeNode {
     bool treeTransverseCompleted;
 
     // Iteration count used by treetransverser to track cycle.
-    int givenIterationCount = 1000;
+    int givenIterationCount = 1;
     int currIterationCount = 0;
 
     // Variables below are carried by main transversers.
@@ -99,8 +99,7 @@ public class TreeTransverser : AbilityTreeNode {
         int varCount = TreeTransverser.globalListTree.l[GetRootTransverser()].GetVariableCount(nodeId);
 
         for(int i = 0; i < varCount; i++) 
-            GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nodeId]).FireNode(i, VariableAction.GET);
-        
+            GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nodeId]).FireNode(i, VariableAction.GET);        
     }
 
     public void AddBranches(int nodeId) {
@@ -130,7 +129,7 @@ public class TreeTransverser : AbilityTreeNode {
         if(!treeTransverseCompleted)
             if(branchCount == 0) {
                 treeTransverseCompleted = true;
-                //Debug.LogFormat("We have reached the end of the path, id {0}.", transverserId);
+                Debug.LogFormat("We have reached the end of the path, id {0}.", transverserId);
 
                 if(BeginNodeCallback())
                     return;
@@ -152,9 +151,6 @@ public class TreeTransverser : AbilityTreeNode {
                     globalList.Remove(abilityNodes);
                     globalListTree.Remove(transverserId);
                     AbilitiesManager.RemoveExpiredTree(defaultId);
-
-                    //Debug.Log("------END-----");
-
                 }
             }
     }
