@@ -22,10 +22,4 @@ public class Randomizer : AbilityTreeNode {
             new RuntimeParameters<GameObject>("Input Object", null)
         };
     }
-
-    public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
-        nodeId = nId;
-        //GetVariableValue<GameObject>(nodeId, 0).transform.position += new Vector3(1, 1);
-        NodeTaskingFinish();
-    }
 }

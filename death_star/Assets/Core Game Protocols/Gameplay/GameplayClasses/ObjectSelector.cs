@@ -20,8 +20,4 @@ public class ObjectSelector : AbilityTreeNode {
             new RuntimeParameters<int>("PosY", 0)
         };
     }
-
-    public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
-        
-    }
 }
