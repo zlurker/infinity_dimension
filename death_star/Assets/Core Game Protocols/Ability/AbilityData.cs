@@ -166,10 +166,7 @@ public class AbilityDataSubclass {
 
                 if(prevAction == 1)
                     lastSet = new int[] { id[0], id[1] };
-
-                Debug.LogFormat("currnode{0}/var{1}", id[0], id[1]);
-                Debug.LogFormat("nextnode{0}/nextvar{1}", target[id[0]].var[id[1]].links[k][l][0], target[id[0]].var[id[1]].links[k][l][1]);
-
+                
                 int[][] setData = RunNestedVariables(target, target[id[0]].var[id[1]].links[k][l], lastSet, k);
 
                 for(int a = 0; a < setData.Length; a++)
@@ -182,6 +179,24 @@ public class AbilityDataSubclass {
 
         return sets.ToArray();
     }
+
+    /*public static int[] ReturnGetMarkedNodes(AbilityDataSubclass[] target, int[][] getSEInfo) {
+        List<int> get = new List<int>();
+        bool[] markedAsGet = new bool[target.Length];
+
+        for (int i=0; i < getSEInfo.Length; i++) {
+            markedAsGet[getSEInfo[i][0]] = true;
+            markedAsGet[getSEInfo[i][2]] = true;
+        }
+
+        for(int i = 0; i < target.var.Length; i++) {
+            if (target.var[i].links[0].Length > 0 && !markedAsGet[i]) {
+                get.Add(i);
+            }
+        }
+
+        return get.ToArray();
+    }*/
 
     /*public static int[][] ReturnGetEndNode(AbilityDataSubclass[] target, int[] id, int[] lastSet = null, int prevAction = 1) {
 

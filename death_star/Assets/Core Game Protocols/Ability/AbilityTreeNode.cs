@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum NodeType {
-    DEFAULT, GETEND
+    DEFAULT, GETEND, GET
 }
 
 public class AbilityTreeNode : MonoBehaviour {
@@ -36,8 +36,9 @@ public class AbilityTreeNode : MonoBehaviour {
         return new RuntimeParameters[0];
     }
 
-    public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {        
-        Debug.LogFormat("prev nodeId {0}, curr node {1}", nId,nodeId);
-        TravelThread.globalCentralList.l[centralThreadId].NodeVariableCallback(nodeThreadId, 0, VariableAction.SET);
+    public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {
+
+        Debug.LogFormat("prev nodeId {0}, curr node {1}, nodeValue{2}", nId, nodeId, TravelThread.globalCentralList.l[centralThreadId].ReturnVariable<string>(nodeId, 0).v);
+        TravelThread.globalCentralList.l[centralThreadId].NodeVariableCallback<string>(nodeThreadId, 0, TravelThread.globalCentralList.l[centralThreadId].ReturnVariable<string>(nodeId, 0).v);
     }
 }
