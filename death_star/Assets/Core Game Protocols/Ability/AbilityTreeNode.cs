@@ -36,9 +36,8 @@ public class AbilityTreeNode : MonoBehaviour {
         return new RuntimeParameters[0];
     }
 
-    public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {
-        
-        Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
-        TravelThread.globalCentralList.l[centralThreadId].NodeVariableCallback(nodeThreadId, 0, 0);
+    public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {        
+        Debug.Log("prev nodeId " + nodeId);
+        TravelThread.globalCentralList.l[centralThreadId].NodeVariableCallback(nodeThreadId, 0, VariableAction.SET);
     }
 }

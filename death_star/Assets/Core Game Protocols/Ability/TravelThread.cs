@@ -74,7 +74,7 @@ public class TravelThread {
 
     EnhancedList<NodeThread> activeThreads;
 
-    public void SetCentralData(int tId,Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT) {
+    public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
@@ -99,37 +99,46 @@ public class TravelThread {
 
     public void NodeVariableCallback(int threadId, int variableId, VariableAction vA) {
 
-        for(int i = 0; i < runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA].Length; i++)
-            for(int j = 0; j < runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA][j].Length; j++) {
+        //Debug.Log(runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA].Length);
+        //Debug.Log(runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA][0][0]);
 
-                bool createNew = activeThreads.l[threadId].CreateNewThread();
-                int threadIdToUse = threadId;
-                int nodeId = runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA][j][0];
+        for(int i = 0; i < runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA].Length; i++) {
 
-                if(createNew)
-                    threadIdToUse = GetNewThread(nodeId);
+            bool createNew = activeThreads.l[threadId].CreateNewThread();
+            int threadIdToUse = threadId;
+            int nodeId = runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA][i][0];
 
-                UpdateThreadNodeData(threadIdToUse,nodeId);
+            if(createNew)
+                threadIdToUse = GetNewThread(nodeId);
+
+            UpdateThreadNodeData(threadIdToUse, nodeId);
         }
     }
 
     public void UpdateThreadNodeData(int threadId, int node) {
-        
+
         AbilityTreeNode inst = CreateNewNodeIfNull(node);
+        int prevNodeId = activeThreads.l[threadId].GetCurrentNodeID();
         inst.SetNodeId(node);
 
         if(inst.GetNodeThreadId() > -1)
             activeThreads.l[threadId].JoinThread(inst.GetNodeThreadId());
-      
-        inst.SetNodeThreadId(threadId);
-        inst.NodeCallback(activeThreads.l[threadId].GetCurrentNodeID(),0,0);
-        activeThreads.l[threadId].SetNodeData(branchStartData[node], nodeBranchingData[node]);
+
+        inst.SetNodeThreadId(threadId);       
+        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
+
+        inst.NodeCallback(prevNodeId, 0, 0);
     }
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {
-        if(!AbilityTreeNode.globalList.l[abilityNodes][nodeId])
-            AbilityTreeNode.globalList.l[abilityNodes][nodeId] = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[] { subclassTypes[nodeId] });
 
+        if(!AbilityTreeNode.globalList.l[abilityNodes][nodeId]) {
+            AbilityTreeNode.globalList.l[abilityNodes][nodeId] = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[] { subclassTypes[nodeId] });
+            AbilityTreeNode inst = Spawner.GetCType<AbilityTreeNode>(AbilityTreeNode.globalList.l[abilityNodes][nodeId]);
+            inst.SetNodeThreadId(-1);
+
+            return inst;
+        }
         return Spawner.GetCType<AbilityTreeNode>(AbilityTreeNode.globalList.l[abilityNodes][nodeId]);
     }
 }
