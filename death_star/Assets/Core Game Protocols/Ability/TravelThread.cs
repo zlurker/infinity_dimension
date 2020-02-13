@@ -25,6 +25,8 @@ public class NodeThread {
     public NodeThread(int sPt) {
         startingPt = sPt;
         loops = 1;
+        currNode = -1;
+        jointThread = -1;
         parentThread = -1;
     }
 
@@ -36,10 +38,17 @@ public class NodeThread {
         jointThread = thread;
     }
 
+    public int GetJointThread() {
+        return jointThread;
+    }
+
     public void SetNodeData(int cN, int pS) {
+        
         generatedNodeThreads = 0;
+        jointThread = -1;
         currNode = cN;
         possiblePaths = pS;
+        Debug.Log("Setvalueofcn" + currNode);
     }
 
     public int GetCurrentNodeID() {
@@ -50,9 +59,9 @@ public class NodeThread {
         generatedNodeThreads++;
 
         if(possiblePaths > generatedNodeThreads)
-            return false;
+            return true;
 
-        return true;
+        return false;
     }
 }
 
@@ -98,9 +107,11 @@ public class TravelThread {
     }
 
     public void NodeVariableCallback(int threadId, int variableId, VariableAction vA) {
+        
+        int jointThreadId = activeThreads.l[threadId].GetJointThread();
 
-        //Debug.Log(runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA].Length);
-        //Debug.Log(runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA][0][0]);
+        if(jointThreadId > -1)
+            NodeVariableCallback(jointThreadId, variableId, vA);
 
         for(int i = 0; i < runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA].Length; i++) {
 
@@ -108,8 +119,11 @@ public class TravelThread {
             int threadIdToUse = threadId;
             int nodeId = runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[(int)vA][i][0];
 
-            if(createNew)
+            if(createNew) 
                 threadIdToUse = GetNewThread(nodeId);
+
+            //if(!createNew && jointThreadId == -1)
+                //CreateNewNodeIfNull(nodeId).SetNodeThreadId(-1);
 
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
@@ -119,14 +133,15 @@ public class TravelThread {
 
         AbilityTreeNode inst = CreateNewNodeIfNull(node);
         int prevNodeId = activeThreads.l[threadId].GetCurrentNodeID();
+
+        //Debug.Log("prevNodeId in func" + prevNodeId);
         inst.SetNodeId(node);
+        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
 
         if(inst.GetNodeThreadId() > -1)
             activeThreads.l[threadId].JoinThread(inst.GetNodeThreadId());
 
-        inst.SetNodeThreadId(threadId);       
-        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
-
+        inst.SetNodeThreadId(threadId);
         inst.NodeCallback(prevNodeId, 0, 0);
     }
 
@@ -139,6 +154,7 @@ public class TravelThread {
 
             return inst;
         }
+
         return Spawner.GetCType<AbilityTreeNode>(AbilityTreeNode.globalList.l[abilityNodes][nodeId]);
     }
 }
