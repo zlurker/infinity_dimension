@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -17,8 +17,12 @@ public class TreeTransverser : AbilityTreeNode {
 
     // Variables below are carried by main transversers.
     // Variables in node.
-    Variable[][] runtimeParameters;
+    Variable[][] runtimeParameters;   
     Type[] subclassTypes;
+
+    // Used to automate when a subclass has completed its functions.
+    bool[][] completion;
+    int[] subclassCompletion;
 
     // Link to ability nodes.
     int abilityNodes;
@@ -32,6 +36,17 @@ public class TreeTransverser : AbilityTreeNode {
     public void ResetTransverser() {
         treeTransverseCompleted = false;
         currIterationCount = 0;
+        SetUpCompletion();
+    }
+
+    public void SetUpCompletion() {
+        completion = new bool[runtimeParameters.Length][];
+        subclassCompletion = new int[runtimeParameters.Length];
+
+        for (int i =0; i < runtimeParameters.Length; i++) {
+            completion[i] = new bool[runtimeParameters[i].Length];
+            subclassCompletion[i] = runtimeParameters[i].Length;
+        }
     }
 
     public Variable[] GetVariable(int id) {
@@ -89,9 +104,6 @@ public class TreeTransverser : AbilityTreeNode {
 
                 case NodeType.GETEND:
                     Debug.Log("It is a getend, next node: " + nextNodeIdArray[i][0]);
-                    //Debug.Log("nodeid: " + GetNodeFromScriptable(globalList.l[GetRootTransverserObject().abilityNodes][nextNodeIdArray[i][0]]).GetNodeId());
-                    //int[][] temp = GetRootTransverserObject().runtimeParameters[nodeId][variableId].links[(int)action];
-                    // Starting get nodes is only available for the default nodes as this only allows us to get back a variable.
                     break;
             }
 
@@ -138,8 +150,6 @@ public class TreeTransverser : AbilityTreeNode {
 
                 if(BeginNodeCallback())
                     return;
-
-                //Debug.Log("Past Completion");
 
                 if(GetTransverser() > -1) {
                     // Debug.LogFormat("Task Finished Called {0}", transverserId);
@@ -209,3 +219,4 @@ public class TreeTransverser : AbilityTreeNode {
         globalListTree.Remove(transverserId);
     }
 }
+*/

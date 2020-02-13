@@ -12,12 +12,26 @@ public class AbilityTreeNode : MonoBehaviour {
 
     // Given node ID.
     int nodeId;
+    int centralThreadId;
+    int nodeThreadId;
+
+    // ------------Beyond this point variables are considered.--------------
 
     // Link to current parent tree transverser.
     int treeTransverser;
 
     // Link to root tree transverser.
     int rootTreeTransverser;
+
+    public int GetNodeThreadId() {
+        return nodeThreadId;
+    }
+
+    public void SetNodeThreadId(int id) {
+        nodeThreadId = id;
+    }
+
+
 
     public int GetNodeId() {
         return nodeId;
@@ -50,20 +64,16 @@ public class AbilityTreeNode : MonoBehaviour {
         return new RuntimeParameters[0];
     }
 
-    public void FireNode(int variable, VariableAction action) {
-        GetTransverserObject().TransversePoint(nodeId, variable, action);
-    }
-
     public virtual void NodeCallback(int nId, int variableCalled, VariableAction action) {
         Debug.Log("nodeId " + nodeId + "\ncalled by : " + nId);
-        Debug.Log((GetTransverserObject().GetVariable(nId)[variableCalled].field as RuntimeParameters<string>).v);
+        //Debug.Log((GetTransverserObject().GetVariable(nId)[variableCalled].field as RuntimeParameters<string>).v);
     }
 
     public int GetTransverser() {
         return treeTransverser;
     }
 
-    public T GetVariableValue<T>(int node,int variableId) {
+    /*public T GetVariableValue<T>(int node,int variableId) {
         return (TreeTransverser.globalListTree.l[rootTreeTransverser].GetVariable(node)[variableId].field as RuntimeParameters<T>).v;
     }
 
@@ -91,9 +101,5 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public AbilityTreeNode GetNodeFromScriptable(ScriptableObject inst) {
         return Spawner.GetCType<AbilityTreeNode>(inst);
-    }
-
-    public virtual void ClearObject() {
-        //Debug.Log("For extra functions when this is required.");
-    }
+    }*/
 }

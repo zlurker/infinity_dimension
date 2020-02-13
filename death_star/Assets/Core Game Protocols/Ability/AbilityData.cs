@@ -131,11 +131,23 @@ public class AbilityDataSubclass {
         return paths;
     }
 
+    public static int[] ReturnNodeBranchData(AbilityDataSubclass[] target) {
+        int[] bData = new int[target.Length];
+
+        for(int i = 0; i < target.Length; i++)
+            for(int j = 0; j < target[i].var.Length; j++)
+                for (int k =0; k < target[i].var[j].links.Length; k++) {
+                    bData[i] += target[i].var[j].links[k].Length;
+                }
+
+        return bData;
+    }
+
     public static int[][] ReturnGetEndNode(AbilityDataSubclass[] target, int[] startId) {
 
         List<int[]> compiledList = new List<int[]>();
 
-        for (int i =0; i < startId.Length; i++) 
+        for(int i = 0; i < startId.Length; i++)
             for(int j = 0; j < target[startId[i]].var.Length; j++) {
                 int[][] output = RunNestedVariables(target, new int[] { startId[i], j });
 
@@ -143,7 +155,7 @@ public class AbilityDataSubclass {
                     compiledList.Add(output[k]);
             }
 
-        return compiledList.ToArray();      
+        return compiledList.ToArray();
     }
 
     public static int[][] RunNestedVariables(AbilityDataSubclass[] target, int[] id, int[] lastSet = null, int prevAction = 1) {
@@ -161,7 +173,7 @@ public class AbilityDataSubclass {
                 int[][] setData = RunNestedVariables(target, target[id[0]].var[id[1]].links[k][l], lastSet, k);
 
                 for(int a = 0; a < setData.Length; a++)
-                    sets.Add(setData[a]);              
+                    sets.Add(setData[a]);
             }
 
         if(prevAction == 0)

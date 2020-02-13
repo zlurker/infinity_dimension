@@ -14,29 +14,33 @@ public sealed class AbilitiesManager : MonoBehaviour {
         int[] rootSubclasses;
         int[] lengthData;
         int[] nodeType;
+        int[] nodeBranchingData;
 
-        public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] lD,int[] nT) {
+        public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] lD,int[] nT, int[] nBD) {
             dataVar = dV;
             dataType = dT;
             rootSubclasses = rS;
             lengthData = lD;
             nodeType = nT;
+            nodeBranchingData = nBD;
         }
 
         public void CreateAbility(object[] p) {
-            ScriptableObject treeObject = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[] { typeof(TreeTransverser) });
-            TreeTransverser defaultTransverser = Spawner.GetCType<TreeTransverser>(treeObject);
-            int tId = TreeTransverser.globalListTree.Add(defaultTransverser);
+            TravelThread centralPool = new TravelThread();
+            int tId = TravelThread.globalCentralList.Add(centralPool);
 
             ScriptableObject[] a = new ScriptableObject[dataVar.Length];
             int nId = AbilityTreeNode.globalList.Add(a);
 
-            int dId = defaultTreeTransversers.Add(treeObject);
+            centralPool.SetCentralData(tId, dataVar, dataType, rootSubclasses,nodeBranchingData, nodeType);
+            centralPool.StartThreads();
 
-            defaultTransverser.SetRootTransverserData(dataVar, dataType,tId, dId);
-            defaultTransverser.SetNodeData(nId, lengthData, rootSubclasses, nodeType);
-            defaultTransverser.SetTransverserId(tId);
-            defaultTransverser.BeginNodeCallback();
+            //int dId = defaultTreeTransversers.Add(treeObject);
+
+            //defaultTransverser.SetRootTransverserData(dataVar, dataType,tId, dId);
+           // defaultTransverser.SetNodeData(nId, lengthData, rootSubclasses, nodeType);
+            //defaultTransverser.SetTransverserId(tId);
+            //defaultTransverser.BeginNodeCallback();
         }
     }
 
@@ -50,6 +54,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         string[] abilityRootData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(3);
         string[] abilityEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(4);
         string[] abilityGetEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(5);
+        string[] abilityNodeBranchingData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(6);
 
         aData = new AbilityData[abilityNodeData.Length];
 
@@ -58,6 +63,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
             int[] lengthData = JsonConvert.DeserializeObject<int[]>(abilityEndData[i]);
             int[][] getEndData = JsonConvert.DeserializeObject<int[][]>(abilityGetEndData[i]);
+            int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData[i]);
 
             Variable[][] tempVar = new Variable[ability.Length][];
             Type[] tempTypes = new Type[ability.Length];
@@ -81,7 +87,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
                 tempVar[getEndData[j][0]][getEndData[j][1]].links[1] = temp;
             }
             
-            aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, lengthData,nodeType);
+            aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, lengthData,nodeType, nodeBranchData);
             Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].CreateAbility), 0);
         }
     }
