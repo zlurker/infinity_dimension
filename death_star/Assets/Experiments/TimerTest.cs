@@ -29,7 +29,7 @@ public class TimerTest : AbilityTreeNode {
         };
     }
 
-    public override void NodeCallback(int nId, int variableCalled, VariableAction action) {
+    public override void NodeCallback(int threadId) {
         initialTimer = Time.time;
     }
 

@@ -25,10 +25,7 @@ public class Projectile : AbilityTreeNode,ISpawnable
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<string>("Name of Projectile","Marcus Warts"),
-            new RuntimeParameters<float>("Projectile Speed", 5),
-            new RuntimeParameters<float>("Projectile Damage", 20),
-            new RuntimeParameters<int>("Multiplier", 15),
+            new RuntimeParameters<int>("Speed", 5)
         };
     }
 

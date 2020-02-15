@@ -23,11 +23,30 @@ public class NodeThread {
     int jointThread;
 
     public NodeThread(int sPt) {
+
         startingPt = sPt;
+        currNode = sPt;
+        currLoop = 0;
         loops = 1;
-        currNode = -1;
+
         jointThread = -1;
         parentThread = -1;
+
+    }
+
+    public NodeThread(int sPt, int l) {
+
+        startingPt = sPt;
+        currNode = sPt;
+        currLoop = 0;
+        loops = l;
+
+        jointThread = -1;
+        parentThread = -1;
+    }
+
+    public int GetStartingPoint() {
+        return startingPt;
     }
 
     public void SetId(int id) {
@@ -61,6 +80,17 @@ public class NodeThread {
             return true;
 
         return false;
+    }
+
+    public void IncrementCompletion() {
+        currLoop++;
+    }
+
+    public bool IsThreadComplete() {
+        if(currLoop < loops)
+            return false;
+
+        return true;
     }
 }
 
@@ -101,6 +131,14 @@ public class TravelThread {
         return activeThreads.Add(new NodeThread(startNode));
     }
 
+    public int AddNewThread(NodeThread inst) {
+        return activeThreads.Add(inst);
+    }
+
+    public NodeThread GetActiveThread(int threadId) {
+        return activeThreads.l[threadId];
+    }
+
     public void StartThreads() {
 
         for(int i = 0; i < branchStartData.Length; i++) {
@@ -109,9 +147,28 @@ public class TravelThread {
         }
     }
 
+    public void SeeNodeThreadLoop(int threadId) {
+        NodeThread inst = activeThreads.l[threadId];
+
+        if(inst.IsThreadComplete()) {
+
+            // When thread finishes looping, call the callback.
+            CreateNewNodeIfNull(inst.GetStartingPoint()).ThreadEndStartCallback(threadId);
+
+        } else {
+
+            // Else, just continue looping.
+            // Run modified UpdateThreadNodeData without joint and node setting.
+            Debug.Log("Loop detected on TT");
+            int node = inst.GetStartingPoint();
+            AbilityTreeNode treeNode = CreateNewNodeIfNull(node);
+            activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
+            treeNode.NodeCallback(threadId);
+        }
+    }
+
     public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
 
-        //Debug.Log("threadId " + threadId);
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
 
         if(jointThreadId > -1)
@@ -126,10 +183,15 @@ public class TravelThread {
             if(createNew)
                 threadIdToUse = GetNewThread(nodeId);
 
-            else if(jointThreadId == -1)
+            else {
                 //If no creation needed, means its the last.
-                // Checks if its the original thread to make sure we only set the thread id once to default.
-                CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID()).SetNodeThreadId(-1);
+                int node = activeThreads.l[threadId].GetCurrentNodeID();
+                AbilityTreeNode inst = CreateNewNodeIfNull(node);
+
+                // Checks if the original thread is equal to the NTID to make sure we only set the thread id once to default.
+                if(inst.GetNodeThreadId() == threadId)
+                    inst.SetNodeThreadId(-1);
+            }
 
             ((RuntimeParameters<T>)runtimeParameters[nodeId][variableId].field).v = value;
             UpdateThreadNodeData(threadIdToUse, nodeId);
@@ -140,14 +202,25 @@ public class TravelThread {
 
         AbilityTreeNode inst = CreateNewNodeIfNull(node);
         int prevNodeId = activeThreads.l[threadId].GetCurrentNodeID();
+        int existingThread = inst.GetNodeThreadId();
 
         activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
 
-        if(inst.GetNodeThreadId() > -1)
-            activeThreads.l[threadId].JoinThread(inst.GetNodeThreadId());
+        if(existingThread > -1)
+            /*if(activeThreads.l[threadId].JoinThread() && activeThreads.l[existingThread].JoinThread()) */{
+            Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadId, existingThread);
+            activeThreads.l[threadId].JoinThread(existingThread);
+        }
 
         inst.SetNodeThreadId(threadId);
-        inst.NodeCallback(prevNodeId, 0, 0);
+        inst.NodeCallback(threadId);
+
+        // Checks if node has no more output
+        if(nodeBranchingData[node] == 0) {
+            inst.SetNodeThreadId(-1);
+            activeThreads.l[threadId].IncrementCompletion();
+            SeeNodeThreadLoop(threadId);
+        }
     }
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {
