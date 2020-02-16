@@ -4,16 +4,24 @@ using UnityEngine;
 
 public class ThreadSplitter : AbilityTreeNode {
 
-    Hashtable threadSet;
+    public class ChildThread : NodeThread {
+
+        int originalThread;
+
+        public ChildThread(int sPt,int l, int oT): base (sPt,l) {
+            originalThread = oT;
+        }
+    }
+
 	// Use this for initialization
-	void Start () {
+	/*void Start () {
 		
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		
-	}
+	}*/
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
@@ -23,18 +31,15 @@ public class ThreadSplitter : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
 
-        if(threadSet == null)
-            threadSet = new Hashtable();
 
         TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
         int threadToUse = threadId;
         int len = inst.ReturnVariable<int>(GetNodeId(), 0).v;
           
-        NodeThread trdInst = new NodeThread(GetNodeId(), len);
-
-        if(!threadSet.ContainsKey(threadId)) {            
+        if(!(inst.GetActiveThread(threadId) is ChildThread)) {
+            ChildThread trdInst = new ChildThread(GetNodeId(), len,threadId);
             threadToUse = inst.AddNewThread(trdInst);
-            threadSet.Add(threadToUse, 0);
+            //threadSet.Add(threadToUse, 0);
         }else
             Debug.Log("Looping!!");
 

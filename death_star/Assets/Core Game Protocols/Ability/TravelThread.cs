@@ -31,7 +31,6 @@ public class NodeThread {
 
         jointThread = -1;
         parentThread = -1;
-
     }
 
     public NodeThread(int sPt, int l) {
@@ -159,6 +158,9 @@ public class TravelThread {
 
             // Else, just continue looping.
             // Run modified UpdateThreadNodeData without joint and node setting.
+
+            // Basically, it CANNOT override node data or be join together with other threads.
+            // Maybe can solve it with preset variables within NodeThread, ie. allowJoin, allowNodeOverride
             Debug.Log("Loop detected on TT");
             int node = inst.GetStartingPoint();
             AbilityTreeNode treeNode = CreateNewNodeIfNull(node);
