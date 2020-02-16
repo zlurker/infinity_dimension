@@ -6,7 +6,7 @@ using System;
 
 public sealed class AbilitiesManager : MonoBehaviour {
 
-    public static EnhancedList<ScriptableObject> defaultTreeTransversers;
+    //public static EnhancedList<ScriptableObject> defaultTreeTransversers;
 
     public class AbilityData {
         Variable[][] dataVar;
@@ -32,6 +32,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             ScriptableObject[] a = new ScriptableObject[dataVar.Length];
             int nId = AbilityTreeNode.globalList.Add(a);
 
+            // Rather than create new instance, everything except variables will be taken from here.
             centralPool.SetCentralData(tId, dataVar, dataType, rootSubclasses,nodeBranchingData, nodeType);
             centralPool.StartThreads();
 
@@ -48,7 +49,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
     void Start() {
 
-        defaultTreeTransversers = new EnhancedList<ScriptableObject>();
+        //defaultTreeTransversers = new EnhancedList<ScriptableObject>();
 
         string[] abilityNodeData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(0);
         string[] abilityRootData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(3);
@@ -93,7 +94,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
     }
 
     public static void RemoveExpiredTree(int id) {
-        Singleton.GetSingleton<Spawner>().Remove(defaultTreeTransversers.l[id]);
-        defaultTreeTransversers.Remove(id);
+        //Singleton.GetSingleton<Spawner>().Remove(defaultTreeTransversers.l[id]);
+        //defaultTreeTransversers.Remove(id);
     }
 }

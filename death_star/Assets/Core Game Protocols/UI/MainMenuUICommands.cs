@@ -145,6 +145,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             int[][] getEndData = AbilityDataSubclass.ReturnGetEndNode(cAD, rootClasses);
             int[] nBranchData = AbilityDataSubclass.ReturnNodeBranchData(cAD);
 
+            Debug.Log("Number of total threads (U): " + AbilityDataSubclass.CalculateNodeThreads(cAD, rootClasses));
+
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(cAD)));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 3, JsonConvert.SerializeObject(rootClasses));

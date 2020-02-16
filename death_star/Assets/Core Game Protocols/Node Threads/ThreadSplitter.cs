@@ -54,14 +54,6 @@ public class ThreadSplitter : AbilityTreeNode {
         int jointThread = inst.GetJointThread();
         inst.IncrementCompletion();
 
-        /*Debug.Log("At loop increment.");
-
-        if(inst is ChildThread) {
-            Debug.Log("Priviledges removed, child thread detected.");
-            inst.SetJoin(false);
-            inst.SetOverride(false);
-        }*/
-
         TravelThread.globalCentralList.l[GetCentralId()].SeeNodeThreadLoop(threadId);
 
         if(jointThread > -1)

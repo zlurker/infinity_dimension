@@ -136,11 +136,42 @@ public class AbilityDataSubclass {
 
         for(int i = 0; i < target.Length; i++)
             for(int j = 0; j < target[i].var.Length; j++)
-                for (int k =0; k < target[i].var[j].links.Length; k++) {
+                for(int k = 0; k < target[i].var[j].links.Length; k++) {
                     bData[i] += target[i].var[j].links[k].Length;
                 }
 
         return bData;
+    }
+
+    public static int CalculateNodeThreads(AbilityDataSubclass[] target, int[] nextId) {
+
+        int total = 0;
+
+        for(int i = 0; i < nextId.Length; i++) {
+
+            int totalLinks = 0;
+
+            for(int j = 0; j < target[nextId[i]].var.Length; j++) {
+                int[] followingIds = new int[target[nextId[i]].var[j].links[1].Length];
+                totalLinks += followingIds.Length;
+
+                for(int k = 0; k < target[nextId[i]].var[j].links[1].Length; k++)
+                    followingIds[k] = target[nextId[i]].var[j].links[1][k][0];
+
+                if(followingIds.Length > 0)
+                    total += CalculateNodeThreads(target, followingIds);
+
+                if(target[nextId[i]].classType == typeof(ReturnValue)) {
+                    Debug.Log("Number of threads for Get:" + CalculateNodeThreads(target, followingIds));
+                }
+            }
+
+            if(totalLinks == 0) {
+                total += 1;
+            }
+        }
+
+        return total;
     }
 
     public static int[][] ReturnGetEndNode(AbilityDataSubclass[] target, int[] startId) {
@@ -166,7 +197,7 @@ public class AbilityDataSubclass {
 
                 if(prevAction == 1)
                     lastSet = new int[] { id[0], id[1] };
-                
+
                 int[][] setData = RunNestedVariables(target, target[id[0]].var[id[1]].links[k][l], lastSet, k);
 
                 for(int a = 0; a < setData.Length; a++)
