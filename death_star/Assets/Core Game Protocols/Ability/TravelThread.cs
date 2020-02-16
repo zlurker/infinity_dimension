@@ -5,7 +5,6 @@ using System;
 
 public class NodeThread {
 
-    int threadId;
     int currNode;
     int startingPt;
     int currLoop;
@@ -16,11 +15,12 @@ public class NodeThread {
     int generatedNodeThreads;
     int possiblePaths;
 
-    // Used for nesting of threads.
-    int parentThread;
-
     // To be used if thread overlaps with thread on the same node.
     int jointThread;
+    bool allowJoin;
+
+    // To be used to decide if thread is able to override node data.
+    bool allowOverride;
 
     public NodeThread(int sPt) {
 
@@ -30,7 +30,8 @@ public class NodeThread {
         loops = 1;
 
         jointThread = -1;
-        parentThread = -1;
+        allowJoin = true;
+        allowOverride = true;
     }
 
     public NodeThread(int sPt, int l) {
@@ -41,15 +42,28 @@ public class NodeThread {
         loops = l;
 
         jointThread = -1;
-        parentThread = -1;
+        allowJoin = true;
+        allowOverride = true;
+    }
+
+    public void SetJoin(bool value) {
+        allowJoin = value;
+    }
+
+    public bool ReturnJoin() {
+        return allowJoin;
+    }
+
+    public void SetOverride(bool value) {
+        allowOverride = value;
+    }
+
+    public bool ReturnOverride() {
+        return allowOverride;
     }
 
     public int GetStartingPoint() {
         return startingPt;
-    }
-
-    public void SetId(int id) {
-        threadId = id;
     }
 
     public void JoinThread(int thread) {
@@ -126,6 +140,10 @@ public class TravelThread {
         nodeType = nT;
     }
 
+    public int GetNodeBranchData(int id) {
+        return nodeBranchingData[id];
+    }
+
     public int GetNewThread(int startNode) {
         return activeThreads.Add(new NodeThread(startNode));
     }
@@ -152,6 +170,7 @@ public class TravelThread {
         if(inst.IsThreadComplete()) {
 
             // When thread finishes looping, call the callback.
+            Debug.Log("Loop completed. Id:" + threadId);
             CreateNewNodeIfNull(inst.GetStartingPoint()).ThreadEndStartCallback(threadId);
 
         } else {
@@ -161,11 +180,11 @@ public class TravelThread {
 
             // Basically, it CANNOT override node data or be join together with other threads.
             // Maybe can solve it with preset variables within NodeThread, ie. allowJoin, allowNodeOverride
-            Debug.Log("Loop detected on TT");
-            int node = inst.GetStartingPoint();
-            AbilityTreeNode treeNode = CreateNewNodeIfNull(node);
-            activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
-            treeNode.NodeCallback(threadId);
+            Debug.Log("Loop detected. Id:" + threadId);
+            CreateNewNodeIfNull(inst.GetStartingPoint()).OnLoopThreadBegin(threadId);
+
+            Debug.Log("OnLoopThreadBegin initialised.");
+            UpdateThreadNodeData(threadId, inst.GetStartingPoint());          
         }
     }
 
@@ -209,12 +228,14 @@ public class TravelThread {
         activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
 
         if(existingThread > -1)
-            /*if(activeThreads.l[threadId].JoinThread() && activeThreads.l[existingThread].JoinThread()) */{
-            Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadId, existingThread);
-            activeThreads.l[threadId].JoinThread(existingThread);
-        }
+            if(activeThreads.l[threadId].ReturnJoin() && activeThreads.l[existingThread].ReturnJoin()) {
+                Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadId, existingThread);
+                activeThreads.l[threadId].JoinThread(existingThread);
+            }
 
-        inst.SetNodeThreadId(threadId);
+        if(activeThreads.l[threadId].ReturnOverride())
+            inst.SetNodeThreadId(threadId);
+
         inst.NodeCallback(threadId);
 
         // Checks if node has no more output
