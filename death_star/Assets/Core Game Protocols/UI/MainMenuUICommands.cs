@@ -67,7 +67,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
     public UIAbilityData abilityData;
     public AutoPopulationList<EditableWindow> abilityWindows;
-    public EnhancedList<LineData> lineData;
+    public AutoPopulationList<LineData> lineData;
 
     public ScriptableObject mainClassSelection;
 
@@ -103,7 +103,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
 
         abilityWindows = new AutoPopulationList<EditableWindow>();
-        lineData = new EnhancedList<LineData>();
+        lineData = new AutoPopulationList<LineData>();
 
         SpawnUIFromData();
 
@@ -188,10 +188,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         }
 
         //Creates linkage from data.
-        for(int i = 0; i < abilityData.linksEdit.l.Count; i++)
+        /*for(int i = 0; i < abilityData.linksEdit.l.Count; i++)
             for(int j = 0; j < abilityData.linksEdit.l[i].Length; j++)
                 for(int k = 0; k < abilityData.linksEdit.l[i][j].l.Count; k++)
-                    CreateVariableLinkage(new int[] { i, j }, abilityData.linksEdit.l[i][j].l[k]);
+                    CreateVariableLinkage(new int[] { i, j }, abilityData.linksEdit.l[i][j].l[k]);*/
 
     }
 
@@ -211,7 +211,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             windowSpawnMode = false;
             windowSpawner.gameObject.SetActive(false);
 
-            int id = abilityData.Add(new AbilityDataSubclass(interfaces[dataIndex].GetType()));
+            int id = abilityData.subclasses.Add(new AbilityDataSubclass(interfaces[dataIndex].GetType()));
 
             Vector3 cursorPos;
             RectTransformUtility.ScreenPointToWorldPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
@@ -237,8 +237,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             //Handles UI Data deletion.
             abilityData.subclasses.Remove(id);
-            abilityData.linksEdit.ModifyElementAt(id, null);
-            abilityData.ResetTunnelEnd(id);
+            //abilityData.linksEdit.ModifyElementAt(id, null);
+            //abilityData.ResetTunnelEnd(id);
         });
 
         editWindow.transform.parent.position = location;
@@ -283,7 +283,26 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         switch(aT) {
             case ActionType.RECIEVE:
                 Spawner.GetCType<Button>(linkageButton).onClick.AddListener(() => {
-                    // Recieve prev path.
+                    // Checks if there's a prev path.
+                    if(prevPath.Length > 0) {
+                                              
+                        int connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0],prevPath[1],id[0],id[1] });
+
+                        // Make sure both ends will feedback if window was dragged.
+                        abilityWindows.l[prevPath[0]].linesRelated.Add(connectionId);
+                        abilityWindows.l[id[0]].linesRelated.Add(connectionId);
+
+                        Transform[] points = new Transform[2];
+
+                        int lastObj = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects.Count - 1;                      
+                        points[0] = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects[lastObj];
+
+                        points[1] = abilityWindows.l[id[0]].variables[prevPath[1]].objects[0];
+
+                        CreateLines(points,connectionId);
+                        // Removes the prev path. 
+                        prevPath = new int[0];
+                    }
                 });
                 break;
 
@@ -295,6 +314,13 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         }
 
         return linkageButton;
+    }
+
+    void CreateLines(Transform[] points, int id) {
+        // Creates the graphical strings.
+        LineData line = new LineData(points[0], points[1]);
+        lineData.ModifyElementAt(id, line);
+        UpdateLines(new int[] { id });
     }
 
     /*ScriptableObject CreateVariableLinkerUI(VariableAction variableAction, int[] path) {
@@ -339,7 +365,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         return linkageButton;
     }*/
-
 
     /*void CreateVariableLinkage(int[] prevPath, int[] currPath) {
 

@@ -307,15 +307,17 @@ public class AbilityDataSubclass {
 //Refer to notebook if unsure, Line & windows
 public class UIAbilityData {
     public EnhancedList<AbilityDataSubclass> subclasses;
-    public AutoPopulationList<EnhancedList<int[]>[]> linksEdit;
+    public EnhancedList<int[]> linkAddresses;
+    // AutoPopulationList<EnhancedList<int[]>[]> linksEdit;
     //public AutoPopulationList<List<int[]>> linkTunnelEnd;
 
     public float[][] loadedWindowsLocation;
 
     public UIAbilityData() {
         subclasses = new EnhancedList<AbilityDataSubclass>();
-        linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
-        linkTunnelEnd = new AutoPopulationList<List<int[]>>();
+        linkAddresses = new EnhancedList<int[]>();
+        //linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
+        //linkTunnelEnd = new AutoPopulationList<List<int[]>>();
     }
 
     /*public void ResetTunnelEnd(int id) {
@@ -334,11 +336,11 @@ public class UIAbilityData {
         loadedWindowsLocation = windowsLocation;
 
         subclasses = new EnhancedList<AbilityDataSubclass>(elements);
-        linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
-        linkTunnelEnd = new AutoPopulationList<List<int[]>>();
+        //linksEdit = new AutoPopulationList<EnhancedList<int[]>[]>();
+        //linkTunnelEnd = new AutoPopulationList<List<int[]>>();
 
-        for(int i = 0; i < elements.Length; i++)
-            linkTunnelEnd.ModifyElementAt(i, new List<int[]>());
+        //for(int i = 0; i < elements.Length; i++)
+            //linkTunnelEnd.ModifyElementAt(i, new List<int[]>());
 
         for(int i = 0; i < elements.Length; i++) {
             EnhancedList<int[]>[] cList = new EnhancedList<int[]>[elements[i].var.Length];
@@ -348,14 +350,14 @@ public class UIAbilityData {
 
                 for(int k = 0; k < elements[i].var[j].links.Length; k++) {
                     int id = dynaLink.Add(new int[] { elements[i].var[j].links[k][0], elements[i].var[j].links[k][1], k });
-                    CreateLinkShadow(elements[i].var[j].links[k][0], new int[] { i, j, id });
+                    //CreateLinkShadow(elements[i].var[j].links[k][0], new int[] { i, j, id });
                 }
 
 
                 cList[j] = dynaLink;
             }
 
-            linksEdit.ModifyElementAt(i, cList);
+            //linksEdit.ModifyElementAt(i, cList);
         }
     }
 
@@ -420,9 +422,9 @@ public class UIAbilityData {
                 List<int[]> linkCheck = new List<int[]>();
 
                 //Gets current ability link values.
-                int[][] linkValues = linksEdit.GetElementAt(active[i])[j].ReturnActiveElements();
+                //int[][] linkValues = linksEdit.GetElementAt(active[i])[j].ReturnActiveElements();
 
-                for(int k = 0; k < linkValues.Length; k++) {
+                /*(int k = 0; k < linkValues.Length; k++) {
 
                     //previousId
                     int oldId = linkValues[k][0];
@@ -435,7 +437,7 @@ public class UIAbilityData {
                         //Adds active link into array.
                         linkCheck.Add(linkValues[k]);
                     }
-                }
+                }*/
 
                 //subclasses.l[active[i]].var[j].links = new int[2][][];
 
@@ -444,7 +446,7 @@ public class UIAbilityData {
                 //gser[0] = new List<int[]>();
                 //gser[1] = new List<int[]>();
 
-                for(int l = 0; l < linkCheck.Count; l++)
+                /*for(int l = 0; l < linkCheck.Count; l++)
                     gser[linkCheck[l][2]].Add(new int[] { linkCheck[l][0], linkCheck[l][1] });
 
                 // Sets array with updated link values.
@@ -453,7 +455,7 @@ public class UIAbilityData {
 
                     for(int o = 0; o < gser[l].Count; o++)
                         subclasses.l[active[i]].var[j].links[l][o] = gser[l][o];
-                }
+                }*/
             }
 
             relinkedClasses[i] = subclasses.l[active[i]];
