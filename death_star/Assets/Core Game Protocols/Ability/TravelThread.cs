@@ -7,13 +7,11 @@ public class NodeThread {
 
     int currNode;
     int startingPt;
-    int currLoop;
-    int loops;
 
     // To be used for creation of new threads when it branches out.
     // generatedNodeTheads/possiblePaths.       
-    int generatedNodeThreads;
-    int possiblePaths;
+    protected int generatedNodeThreads;
+    protected int possiblePaths;
 
     // To be used if thread overlaps with thread on the same node.
     int jointThread;
@@ -26,20 +24,6 @@ public class NodeThread {
 
         startingPt = sPt;
         currNode = sPt;
-        currLoop = 0;
-        loops = 1;
-
-        jointThread = -1;
-        allowJoin = true;
-        allowOverride = true;
-    }
-
-    public NodeThread(int sPt, int l) {
-
-        startingPt = sPt;
-        currNode = sPt;
-        currLoop = 0;
-        loops = l;
 
         jointThread = -1;
         allowJoin = true;
@@ -86,24 +70,13 @@ public class NodeThread {
         return currNode;
     }
 
-    public bool CreateNewThread() {
+    public virtual NodeThread CreateNewThread() {
         generatedNodeThreads++;
 
         if(possiblePaths > generatedNodeThreads)
-            return true;
+            return new NodeThread(startingPt);
 
-        return false;
-    }
-
-    public void IncrementCompletion() {
-        currLoop++;
-    }
-
-    public bool IsThreadComplete() {
-        if(currLoop < loops)
-            return false;
-
-        return true;
+        return null;
     }
 }
 
@@ -164,30 +137,6 @@ public class TravelThread {
         }
     }
 
-    public void SeeNodeThreadLoop(int threadId) {
-        NodeThread inst = activeThreads.l[threadId];
-
-        if(inst.IsThreadComplete()) {
-
-            // When thread finishes looping, call the callback.
-            Debug.Log("Loop completed. Id:" + threadId);
-            CreateNewNodeIfNull(inst.GetStartingPoint()).ThreadEndStartCallback(threadId);
-
-        } else {
-
-            // Else, just continue looping.
-            // Run modified UpdateThreadNodeData without joint and node setting.
-
-            // Basically, it CANNOT override node data or be join together with other threads.
-            // Maybe can solve it with preset variables within NodeThread, ie. allowJoin, allowNodeOverride
-            Debug.Log("Loop detected. Id:" + threadId);
-            CreateNewNodeIfNull(inst.GetStartingPoint()).OnLoopThreadBegin(threadId);
-
-            Debug.Log("OnLoopThreadBegin initialised.");
-            UpdateThreadNodeData(threadId, inst.GetStartingPoint());          
-        }
-    }
-
     public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
 
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
@@ -197,12 +146,12 @@ public class TravelThread {
 
         for(int i = 0; i < runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length; i++) {
 
-            bool createNew = activeThreads.l[threadId].CreateNewThread();
+            NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
             int threadIdToUse = threadId;
             int nodeId = runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1][i][0];
 
-            if(createNew)
-                threadIdToUse = GetNewThread(nodeId);
+            if(newThread != null)
+                threadIdToUse = activeThreads.Add(newThread);
 
             else {
                 //If no creation needed, means its the last.
@@ -241,9 +190,14 @@ public class TravelThread {
         // Checks if node has no more output
         if(nodeBranchingData[node] == 0) {
             inst.SetNodeThreadId(-1);
-            activeThreads.l[threadId].IncrementCompletion();
-            SeeNodeThreadLoop(threadId);
+
+            // Callback to start node.
+            ThreadEndCallback(threadId);
         }
+    }
+
+    public void ThreadEndCallback(int threadId) {
+        CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
     }
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {

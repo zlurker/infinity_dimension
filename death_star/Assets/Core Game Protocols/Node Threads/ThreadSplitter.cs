@@ -8,10 +8,25 @@ public class ThreadSplitter : AbilityTreeNode {
 
         int originalThread;
 
-        public ChildThread(int sPt, int l, int oT) : base(sPt, l) {
+        public ChildThread(int sPt, int oT) : base(sPt) {
             originalThread = oT;
         }
+
+        public override NodeThread CreateNewThread() {
+            generatedNodeThreads++;
+
+            if(possiblePaths > generatedNodeThreads)
+                return new ChildThread(GetStartingPoint(), originalThread);
+
+            return null;
+        }
+
+        public int GetOriginalThread() {
+            return originalThread;
+        }
     }
+
+    Dictionary<int, int> threadMap = new Dictionary<int, int>();
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
@@ -20,35 +35,53 @@ public class ThreadSplitter : AbilityTreeNode {
     }
 
     public override void NodeCallback(int threadId) {
-        TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
-        int threadToUse = threadId;
-        int len = inst.ReturnVariable<int>(GetNodeId(), 0).v;
 
-        if(!(inst.GetActiveThread(threadId) is ChildThread)) {
-            ChildThread trdInst = new ChildThread(GetNodeId(), len, threadId);
-            threadToUse = inst.AddNewThread(trdInst);
-        } else {
-            Debug.Log("Looping, allow node override/join.");
-            inst.GetActiveThread(threadId).SetJoin(true);
-            inst.GetActiveThread(threadId).SetOverride(true);
-        }
-
-        TravelThread.globalCentralList.l[GetCentralId()].NodeVariableCallback<int>(threadToUse, 0, len);
+        threadMap.Add(threadId, 0);
+        ProcessThreads(threadId);
     }
 
     public override void ThreadEndStartCallback(int threadId) {
-        IncrementLoop(GetNodeThreadId());
+        TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
+        NodeThread nT = inst.GetActiveThread(threadId);
+
+        Debug.LogFormat("Thread id {0} has finished looping.", threadId);
+        
+        if(nT is ChildThread) {
+            Debug.LogFormat("Thread id {0} Is a child thread.", threadId);
+            int parentThread = (nT as ChildThread).GetOriginalThread();
+
+            threadMap[parentThread] += 1;
+            ProcessThreads(parentThread);
+        }
     }
 
-    public override void OnLoopThreadBegin(int threadId) {
+    public void ProcessThreads(int threadId) {
+
+        TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
+
+        Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId], inst.ReturnVariable<int>(GetNodeId(), 0).v);
+
+        if(threadMap[threadId] < inst.ReturnVariable<int>(GetNodeId(), 0).v) {
+            Debug.LogFormat("Thread id {0} will reloop.", threadId);
+            ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
+            int threadToUse = inst.AddNewThread(trdInst);
+
+            inst.NodeVariableCallback<int>(threadToUse, 0, 20);
+        } else {
+            Debug.LogFormat("Thread id {0} will end.", threadId);
+            inst.ThreadEndCallback(threadId);
+        }
+    }
+
+    /*public override void OnLoopThreadBegin(int threadId) {
         NodeThread inst = TravelThread.globalCentralList.l[GetCentralId()].GetActiveThread(threadId);
 
         Debug.Log("Privileges removed, child thread detected.");
         inst.SetJoin(false);
         inst.SetOverride(false);
-    }
+    }*/
 
-    public void IncrementLoop(int threadId) {
+    /*public void IncrementLoop(int threadId) {
 
         NodeThread inst = TravelThread.globalCentralList.l[GetCentralId()].GetActiveThread(threadId);
         int jointThread = inst.GetJointThread();
@@ -58,5 +91,5 @@ public class ThreadSplitter : AbilityTreeNode {
 
         if(jointThread > -1)
             IncrementLoop(jointThread);
-    }
+    }*/
 }

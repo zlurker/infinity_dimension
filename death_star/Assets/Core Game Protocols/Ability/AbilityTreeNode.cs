@@ -48,9 +48,9 @@ public class AbilityTreeNode : MonoBehaviour {
         TravelThread.globalCentralList.l[centralThreadId].NodeVariableCallback<int>(nodeThreadId, 0, TravelThread.globalCentralList.l[centralThreadId].ReturnVariable<int>(nodeId, 0).v);
     }
 
-    public virtual void OnLoopThreadBegin(int threadId) {
+    /*public virtual void OnLoopThreadBegin(int threadId) {
 
-    }
+    }*/
 
     public virtual void ThreadEndStartCallback(int threadId) {
 
