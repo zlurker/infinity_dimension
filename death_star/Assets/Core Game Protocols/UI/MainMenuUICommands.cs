@@ -232,9 +232,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             //Handles UI deletion.
             editWindow.gameObject.SetActive(false);
 
-            for(int i = 0; i < editWindow.linesRelated.Count; i++)
+            for(int i = 0; i < editWindow.linesRelated.Count; i++) {
                 lineData.l[editWindow.linesRelated[i]].line.gameObject.SetActive(false);
-
+                abilityData.linkAddresses.Remove(editWindow.linesRelated[i]);
+            }
+          
             //Handles UI Data deletion.
             abilityData.subclasses.Remove(id);
             //abilityData.linksEdit.ModifyElementAt(id, null);

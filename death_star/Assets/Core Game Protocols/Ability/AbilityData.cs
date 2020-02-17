@@ -149,10 +149,10 @@ public class AbilityDataSubclass {
             int totalLinks = 0;
 
             for(int j = 0; j < target[nextId[i]].var.Length; j++) {
-                int[] followingIds = new int[target[nextId[i]].var[j].links[1].Length];
+                int[] followingIds = new int[target[nextId[i]].var[j].links.Length];
                 totalLinks += followingIds.Length;
 
-                for(int k = 0; k < target[nextId[i]].var[j].links[1].Length; k++)
+                for(int k = 0; k < target[nextId[i]].var[j].links.Length; k++)
                     followingIds[k] = target[nextId[i]].var[j].links[k][0];
 
                 int nextNodeValues = 0;
@@ -340,7 +340,7 @@ public class UIAbilityData {
         //linkTunnelEnd = new AutoPopulationList<List<int[]>>();
 
         //for(int i = 0; i < elements.Length; i++)
-            //linkTunnelEnd.ModifyElementAt(i, new List<int[]>());
+        //linkTunnelEnd.ModifyElementAt(i, new List<int[]>());
 
         for(int i = 0; i < elements.Length; i++) {
             EnhancedList<int[]>[] cList = new EnhancedList<int[]>[elements[i].var.Length];
@@ -403,6 +403,7 @@ public class UIAbilityData {
 
         int[] globalAddress = new int[subclasses.l.Count];
         int[] active = subclasses.ReturnActiveElementIndex();
+        int[] activeConnections = linkAddresses.ReturnActiveElementIndex();
 
         AbilityDataSubclass[] relinkedClasses = new AbilityDataSubclass[active.Length];
 
@@ -414,53 +415,33 @@ public class UIAbilityData {
         for(int i = 0; i < active.Length; i++)
             globalAddress[active[i]] = i;
 
-        //Loop to relink classes.
+        List<int[]>[][] vLinks = new List<int[]>[active.Length][];
+
         for(int i = 0; i < active.Length; i++) {
-            for(int j = 0; j < subclasses.l[active[i]].var.Length; j++) {
-
-                //Code to check if the link is a active link and not broken.
-                List<int[]> linkCheck = new List<int[]>();
-
-                //Gets current ability link values.
-                //int[][] linkValues = linksEdit.GetElementAt(active[i])[j].ReturnActiveElements();
-
-                /*(int k = 0; k < linkValues.Length; k++) {
-
-                    //previousId
-                    int oldId = linkValues[k][0];
-
-                    if(globalAddress[oldId] > -1) {
-
-                        //Replaces with new id if current mapped ID is active.
-                        linkValues[k][0] = globalAddress[oldId];
-
-                        //Adds active link into array.
-                        linkCheck.Add(linkValues[k]);
-                    }
-                }*/
-
-                //subclasses.l[active[i]].var[j].links = new int[2][][];
-
-                // Prepares get set list.
-                List<int[]> gser = new List<int[]>();
-                //gser[0] = new List<int[]>();
-                //gser[1] = new List<int[]>();
-
-                /*for(int l = 0; l < linkCheck.Count; l++)
-                    gser[linkCheck[l][2]].Add(new int[] { linkCheck[l][0], linkCheck[l][1] });
-
-                // Sets array with updated link values.
-                for(int l = 0; l < 2; l++) {
-                    subclasses.l[active[i]].var[j].links[l] = new int[gser[l].Count][];
-
-                    for(int o = 0; o < gser[l].Count; o++)
-                        subclasses.l[active[i]].var[j].links[l][o] = gser[l][o];
-                }*/
-            }
-
             relinkedClasses[i] = subclasses.l[active[i]];
+            int varLength = relinkedClasses[i].var.Length;
+            vLinks[i] = new List<int[]>[varLength];
+
+            for(int j = 0; j < varLength; j++)
+                vLinks[i][j] = new List<int[]>();
         }
 
+        // Replaces the values correctly.
+        for(int i = 0; i < activeConnections.Length; i++) {
+            Debug.LogFormat("Start node id changed from {0} to {1}", linkAddresses.l[activeConnections[i]][0], globalAddress[linkAddresses.l[activeConnections[i]][0]]);
+            Debug.LogFormat("End node id changed from {0} to {1}", linkAddresses.l[activeConnections[i]][2], globalAddress[linkAddresses.l[activeConnections[i]][2]]);
+            int modS = globalAddress[linkAddresses.l[activeConnections[i]][0]];
+            int modR = globalAddress[linkAddresses.l[activeConnections[i]][2]];
+
+            int[] linkTarget = new int[] { modR, linkAddresses.l[activeConnections[i]][3] };
+
+            vLinks[modS][linkAddresses.l[activeConnections[i]][1]].Add(linkTarget);
+        }
+
+        for(int i = 0; i < vLinks.Length; i++)
+            for(int j = 0; j < vLinks[i].Length; j++)
+                relinkedClasses[i].var[j].links = vLinks[i][j].ToArray();
+                
         return relinkedClasses;
     }
 }
