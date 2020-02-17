@@ -32,4 +32,8 @@ public class Projectile : AbilityTreeNode,ISpawnable
     public void SetValues(RuntimeParameters[] values) {
         parameters = values; 
     }
+
+    public override void ThreadEndStartCallback(int threadId) {
+        Debug.Log("Ultimate callback by thread " + threadId);
+    }
 }

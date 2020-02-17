@@ -69,7 +69,6 @@ public class ThreadSplitter : AbilityTreeNode {
         Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnVariable<int>(GetNodeId(), 0).v);
 
         if(threadMap[threadId][0] < inst.ReturnVariable<int>(GetNodeId(), 0).v) {
-            Debug.LogFormat("Thread id {0} will reloop.", threadId);
             ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 

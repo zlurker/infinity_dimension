@@ -148,18 +148,21 @@ public class TravelThread {
 
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
 
-        if(jointThreadId > -1)
+        if(jointThreadId > -1) 
             NodeVariableCallback<T>(jointThreadId, variableId, value);
 
-        for(int i = 0; i < runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length; i++) {
+        int currNode = activeThreads.l[threadId].GetCurrentNodeID();
+
+        for(int i = 0; i < runtimeParameters[currNode][variableId].links[1].Length; i++) {
 
             NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
             int threadIdToUse = threadId;
             int nodeId = runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1][i][0];
 
-            if(newThread != null) 
+            if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
-             else {
+                Debug.LogFormat("{0} has been spawned by {1}, ischild: {2}", threadIdToUse, threadId, activeThreads.l[threadId] is ThreadSplitter.ChildThread);
+            } else {
                 //If no creation needed, means its the last.
                 int node = activeThreads.l[threadId].GetCurrentNodeID();
                 AbilityTreeNode inst = CreateNewNodeIfNull(node);
@@ -172,6 +175,8 @@ public class TravelThread {
             ((RuntimeParameters<T>)runtimeParameters[nodeId][variableId].field).v = value;
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
+
+        //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
     }
 
     public void UpdateThreadNodeData(int threadId, int node) {

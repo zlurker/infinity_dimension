@@ -56,7 +56,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         string[] abilityNodeData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(0);
         string[] abilityRootData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(3);
         string[] abilityEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(4);
-        string[] abilityGetEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(5);
+        //string[] abilityGetEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(5);
         string[] abilityNodeBranchingData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(6);
         string[] abilitySpecialisedData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(7);
 
@@ -66,7 +66,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData[i]));
             int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
             int[] lengthData = JsonConvert.DeserializeObject<int[]>(abilityEndData[i]);
-            int[][] getEndData = JsonConvert.DeserializeObject<int[][]>(abilityGetEndData[i]);
+            //int[][] getEndData = JsonConvert.DeserializeObject<int[][]>(abilityGetEndData[i]);
             int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData[i]);
             Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData[i]);
 
@@ -80,7 +80,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
             int[] nodeType = new int[ability.Length];
 
-            for(int j = 0; j < getEndData.Length; j++) {
+            /*for(int j = 0; j < getEndData.Length; j++) {
                 nodeType[getEndData[j][0]] = 1;
 
                 int[][] temp = new int[tempVar[getEndData[j][0]][getEndData[j][1]].links[1].Length + 1][];
@@ -90,7 +90,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
                 temp[temp.Length - 1] = new int[] { getEndData[j][2], getEndData[j][3] };
                 tempVar[getEndData[j][0]][getEndData[j][1]].links[1] = temp;
-            }
+            }*/
 
             aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, lengthData, nodeType, nodeBranchData, specialisedNodeData);
             Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].CreateAbility), 0);
