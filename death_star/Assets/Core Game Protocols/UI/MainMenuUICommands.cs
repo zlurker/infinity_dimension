@@ -6,6 +6,10 @@ using System;
 using UnityEngine.EventSystems;
 using Newtonsoft.Json;
 
+public enum ActionType {
+    RECIEVE, SEND
+}
+
 public interface ILineHandler {
     void UpdateLines(int[] id);
 }
@@ -48,7 +52,7 @@ public class EditableWindow : WindowsScript {
 public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandler {
 
     //To handle linkage work.
-    public class LinkageHandler {
+    /*public class LinkageHandler {
         public VariableAction vA;
         public int[] path;
         public bool alt;
@@ -59,7 +63,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             alt = false;
             createDataLinkage = false;
         }
-    }
+    }*/
 
     public UIAbilityData abilityData;
     public AutoPopulationList<EditableWindow> abilityWindows;
@@ -76,17 +80,18 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     bool windowSpawnMode;
     int dataIndex;
 
-    LinkageHandler lH;
     //Line Drawing System
     Camera cam;
 
     AbilityDescription abilityDescription;
 
+    int[] prevPath;
+
     void Start() {
 
         interfaces = (Iterator.ReturnObject<AbilityTreeNode>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as AbilityTreeNode[];
 
-        lH = new LinkageHandler();
+        //lH = new LinkageHandler();
 
         string cData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0);
         string wData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 2);
@@ -142,7 +147,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             AbilityDataSubclass[] cAD = abilityData.RelinkSubclass();
             int[] rootClasses = AbilityDataSubclass.ReturnFirstClasses(cAD);
             int[] endNodeData = AbilityDataSubclass.ReturnNodeEndData(cAD);
-            int[][] getEndData = AbilityDataSubclass.ReturnGetEndNode(cAD, rootClasses);
+            //int[][] getEndData = AbilityDataSubclass.ReturnGetEndNode(cAD, rootClasses);
             int[] nBranchData = AbilityDataSubclass.ReturnNodeBranchData(cAD);
 
             Dictionary<int, int> specialisedNodeThreadCount = new Dictionary<int, int>();
@@ -152,9 +157,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 3, JsonConvert.SerializeObject(rootClasses));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(endNodeData));
-            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 5, JsonConvert.SerializeObject(getEndData));
-            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 6, JsonConvert.SerializeObject(nBranchData));
-            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 7, JsonConvert.SerializeObject(specialisedNodeThreadCount));
+            //Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 5, JsonConvert.SerializeObject(getEndData));
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 5, JsonConvert.SerializeObject(nBranchData));
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 6, JsonConvert.SerializeObject(specialisedNodeThreadCount));
             // Gets all window locations.
             float[][] windowLocations = new float[cAD.Length][];
 
@@ -188,7 +193,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 for(int k = 0; k < abilityData.linksEdit.l[i][j].l.Count; k++)
                     CreateVariableLinkage(new int[] { i, j }, abilityData.linksEdit.l[i][j].l[k]);
 
-        lH.createDataLinkage = true;
     }
 
     public void WindowSpawnState(int index) {
@@ -246,8 +250,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         for(int i = 0; i < abilityData.subclasses.l[id].var.Length; i++) {
             ScriptableObject[] var = CreateVariableField(id, i);
 
-            ScriptableObject get = CreateVariableLinkerUI(VariableAction.GET, new int[] { id, i });
-            ScriptableObject set = CreateVariableLinkerUI(VariableAction.SET, new int[] { id, i });
+            ScriptableObject get = CreateVariableButtons(ActionType.RECIEVE, new int[] { id, i });
+            ScriptableObject set = CreateVariableButtons(ActionType.SEND, new int[] { id, i });
 
             Spawner.GetCType<Image>(get).color = Color.red;
             Spawner.GetCType<Image>(set).color = Color.green;
@@ -268,7 +272,32 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         }
     }
 
-    ScriptableObject CreateVariableLinkerUI(VariableAction variableAction, int[] path) {
+    ScriptableObject CreateVariableButtons(ActionType aT, int[] id) {
+
+        ScriptableObject linkageButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
+
+        Spawner.GetCType<Image>(linkageButton).color = Color.black;
+        Spawner.GetCType<Text>(linkageButton).text = "";
+        UIDrawer.ChangeUISize(linkageButton, new Vector2(20, 20));
+
+        switch(aT) {
+            case ActionType.RECIEVE:
+                Spawner.GetCType<Button>(linkageButton).onClick.AddListener(() => {
+                    // Recieve prev path.
+                });
+                break;
+
+            case ActionType.SEND:
+                Spawner.GetCType<Button>(linkageButton).onClick.AddListener(() => {
+                    prevPath = id;
+                });
+                break;
+        }
+
+        return linkageButton;
+    }
+
+    /*ScriptableObject CreateVariableLinkerUI(VariableAction variableAction, int[] path) {
 
         ScriptableObject linkageButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
 
@@ -281,7 +310,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 case false:
 
                     /*Registers everything that was on first click, so we may be able to perform
-                    actions on second click.*/
+                    actions on second click.
                     lH.vA = variableAction;
                     lH.path = path;
 
@@ -295,7 +324,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                     int[] prevPath = new int[] { lH.path[0], lH.path[1] };
 
                     /*Adds current selected path to previously selected path, with VariableAction to know what
-                    action to take with this linkage.*/
+                    action to take with this linkage.
                     int[] currPath = new int[] { path[0], path[1], (int)lH.vA };
 
                     //Creates linkage
@@ -309,10 +338,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         });
 
         return linkageButton;
-    }
+    }*/
 
 
-    void CreateVariableLinkage(int[] prevPath, int[] currPath) {
+    /*void CreateVariableLinkage(int[] prevPath, int[] currPath) {
 
         //Handles the data linkage.
         // I should look for a way to shift this to AbilityData, since this is data and not UI, make it clear cut.
@@ -350,7 +379,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         abilityWindows.l[currPath[0]].linesRelated.Add(lineId);
         abilityWindows.l[prevPath[0]].linesRelated.Add(lineId);
         UpdateLines(new int[] { lineId });
-    }
+    }*/
 
     ScriptableObject[] CreateVariableField(int id, int varId) {
         ScriptableObject elementName = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new MonoBehaviour[][] { Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>() });

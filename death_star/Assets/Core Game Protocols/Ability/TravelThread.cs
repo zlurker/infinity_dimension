@@ -161,7 +161,7 @@ public class TravelThread {
 
             NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
             int threadIdToUse = threadId;
-            int nodeId = runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1][i][0];
+            int nodeId = runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[i][0];
 
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);

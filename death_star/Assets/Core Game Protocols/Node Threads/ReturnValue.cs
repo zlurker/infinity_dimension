@@ -54,7 +54,7 @@ public class ReturnValue : AbilityTreeNode {
                 // Return value of target.
                 Variable storedAddress = inst.ReturnVariable(GetNodeId(), 1);
                 //storedAddress.links[1][storedAddress.links[1].Length-1][0]
-                Debug.Log("Variable returned: " + inst.ReturnRuntimeParameter<int>(storedAddress.links[1][storedAddress.links[1].Length - 1][0], storedAddress.links[1][storedAddress.links[1].Length - 1][1]));
+               // Debug.Log("Variable returned: " + inst.ReturnRuntimeParameter<int>(storedAddress.links[storedAddress.links[1].Length - 1][0], storedAddress.links[1][storedAddress.links[1].Length - 1][1]));
             }
         }
     }
