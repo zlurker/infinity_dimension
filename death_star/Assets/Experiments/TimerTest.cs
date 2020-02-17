@@ -15,7 +15,7 @@ public class TimerTest : AbilityTreeNode {
 	void Update () {
 		if (initialTimer + 6 < Time.time && initialTimer > 0) {
             Debug.Log("Current node thread:" + GetNodeThreadId());
-            Debug.LogFormat("curr node {0}, nodeValue{1}", GetNodeId(), TravelThread.globalCentralList.l[GetCentralId()].ReturnVariable<string>(GetNodeId(), 0).v);
+            Debug.LogFormat("curr node {0}, nodeValue{1}", GetNodeId(), TravelThread.globalCentralList.l[GetCentralId()].ReturnRuntimeParameter<string>(GetNodeId(), 0).v);
             TravelThread.globalCentralList.l[GetCentralId()].NodeVariableCallback<string>(GetNodeThreadId(), 0, "Mission Sucess!");
             Debug.Log("Current node thread:" + GetNodeThreadId());
             initialTimer = -1;

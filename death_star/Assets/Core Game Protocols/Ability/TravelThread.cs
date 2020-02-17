@@ -104,7 +104,11 @@ public class TravelThread {
         return specialisedNodeData[threadId];
     }
 
-    public RuntimeParameters<T> ReturnVariable<T>(int node, int variable) {
+    public Variable ReturnVariable(int node, int variable) {
+        return runtimeParameters[node][variable];
+    }
+
+    public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, int variable) {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
@@ -161,7 +165,7 @@ public class TravelThread {
 
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
-                Debug.LogFormat("{0} has been spawned by {1}, ischild: {2}", threadIdToUse, threadId, activeThreads.l[threadId] is ThreadSplitter.ChildThread);
+                Debug.LogFormat("{0} has been spawned by {1}, ischild: {2}", threadIdToUse, threadId, activeThreads.l[threadId] is ChildThread);
             } else {
                 //If no creation needed, means its the last.
                 int node = activeThreads.l[threadId].GetCurrentNodeID();

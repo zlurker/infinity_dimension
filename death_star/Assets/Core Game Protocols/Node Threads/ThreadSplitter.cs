@@ -4,28 +4,6 @@ using UnityEngine;
 
 public class ThreadSplitter : AbilityTreeNode {
 
-    public class ChildThread : NodeThread {
-
-        int originalThread;
-
-        public ChildThread(int sPt, int oT) : base(sPt) {
-            originalThread = oT;
-        }
-
-        public override NodeThread CreateNewThread() {
-            generatedNodeThreads++;
-
-            if(possiblePaths > generatedNodeThreads) 
-                return new ChildThread(GetStartingPoint(), originalThread);
-            
-            return null;
-        }
-
-        public int GetOriginalThread() {
-            return originalThread;
-        }
-    }
-
     Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
     public override RuntimeParameters[] GetRuntimeParameters() {
@@ -66,9 +44,9 @@ public class ThreadSplitter : AbilityTreeNode {
 
         TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
 
-        Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnVariable<int>(GetNodeId(), 0).v);
+        Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
 
-        if(threadMap[threadId][0] < inst.ReturnVariable<int>(GetNodeId(), 0).v) {
+        if(threadMap[threadId][0] < inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v) {
             ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
