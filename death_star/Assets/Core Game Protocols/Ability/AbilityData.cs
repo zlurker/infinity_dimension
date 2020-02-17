@@ -143,7 +143,7 @@ public class AbilityDataSubclass {
         return bData;
     }
 
-    public static int CalculateNodeThreads(AbilityDataSubclass[] target, int[] nextId) {
+    public static int CalculateSpecialisedNodeThreads(AbilityDataSubclass[] target, int[] nextId,Dictionary<int,int> mappedValues) {
 
         int total = 0;
 
@@ -158,12 +158,19 @@ public class AbilityDataSubclass {
                 for(int k = 0; k < target[nextId[i]].var[j].links[1].Length; k++)
                     followingIds[k] = target[nextId[i]].var[j].links[1][k][0];
 
-                if(followingIds.Length > 0)
-                    total += CalculateNodeThreads(target, followingIds);
+                int nextNodeValues = 0;
 
-                if(target[nextId[i]].classType == typeof(ReturnValue)) {
-                    Debug.Log("Number of threads for Get:" + CalculateNodeThreads(target, followingIds));
+                if(followingIds.Length > 0) {
+                    nextNodeValues = CalculateSpecialisedNodeThreads(target, followingIds, mappedValues);
+                    total += nextNodeValues;
                 }
+
+                if(target[nextId[i]].classType == typeof(ThreadSplitter)) {
+                    if(!mappedValues.ContainsKey(nextId[i])) {
+                        mappedValues.Add(nextId[i], nextNodeValues);
+                    }
+                }
+                
             }
 
             if(totalLinks == 0) {

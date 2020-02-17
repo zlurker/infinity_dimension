@@ -145,7 +145,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             int[][] getEndData = AbilityDataSubclass.ReturnGetEndNode(cAD, rootClasses);
             int[] nBranchData = AbilityDataSubclass.ReturnNodeBranchData(cAD);
 
-            Debug.Log("Number of total threads (U): " + AbilityDataSubclass.CalculateNodeThreads(cAD, rootClasses));
+            Dictionary<int, int> specialisedNodeThreadCount = new Dictionary<int, int>();
+            AbilityDataSubclass.CalculateSpecialisedNodeThreads(cAD, rootClasses, specialisedNodeThreadCount);
 
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(cAD)));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
@@ -153,7 +154,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(endNodeData));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 5, JsonConvert.SerializeObject(getEndData));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 6, JsonConvert.SerializeObject(nBranchData));
-
+            Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 7, JsonConvert.SerializeObject(specialisedNodeThreadCount));
             // Gets all window locations.
             float[][] windowLocations = new float[cAD.Length][];
 

@@ -66,7 +66,7 @@ public class FileSaveTemplate {
 
 public class FileSaver {
     public static FileSaveTemplate[] sFT = new FileSaveTemplate[] {
-        new FileSaveTemplate<string>("Datafile", new string[]{ "Datafiles" },new string[]{"Ability.json","Info.json","WindowLocation.json","AbilityLauncher.json","NodeEndData.json","GetNodeEndData.json","NodeBranchData.json"},(fP, t)=>{
+        new FileSaveTemplate<string>("Datafile", new string[]{ "Datafiles" },new string[]{"Ability.json","Info.json","WindowLocation.json","AbilityLauncher.json","NodeEndData.json","GetNodeEndData.json","NodeBranchData.json","SpecialisedNodeData.json"},(fP, t)=>{
 
         if (!File.Exists(fP))
             File.Create(fP).Dispose();
