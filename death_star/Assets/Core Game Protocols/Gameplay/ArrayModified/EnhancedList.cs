@@ -51,15 +51,17 @@ public class EnhancedList<T> {
         int[] eI = ReturnActiveElementIndex();
         T[] aE = new T[eI.Length];
 
-        for (int i=0; i < eI.Length; i++) 
-            aE[i] = l[eI[i]]; 
-        
+        for(int i = 0; i < eI.Length; i++)
+            aE[i] = l[eI[i]];
+
         return aE;
     }
 
     public void Remove(int index) {
-        l[index] = default (T);
-        iNS.Push(index);
+        l[index] = default(T);
+
+        if(!iNS.Contains(index))
+            iNS.Push(index);
     }
 
     public int[] ReturnINS() {

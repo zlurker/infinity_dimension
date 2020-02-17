@@ -232,9 +232,18 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             //Handles UI deletion.
             editWindow.gameObject.SetActive(false);
 
-            for(int i = 0; i < editWindow.linesRelated.Count; i++) {
-                lineData.l[editWindow.linesRelated[i]].line.gameObject.SetActive(false);
-                abilityData.linkAddresses.Remove(editWindow.linesRelated[i]);
+            for(int i = editWindow.linesRelated.Count -1; i >=0; i--) {
+                //lineData.l[editWindow.linesRelated[i]].line.gameObject.SetActive(false);
+                //abilityData.linkAddresses.Remove(editWindow.linesRelated[i]);
+
+                int relatedLine = editWindow.linesRelated[i];
+                lineData.l[relatedLine].line.gameObject.SetActive(false);
+
+                // Removes the linkage from the other to prevent the other window closing linkage.
+                abilityWindows.l[abilityData.linkAddresses.l[relatedLine][0]].linesRelated.Remove(relatedLine);
+                abilityWindows.l[abilityData.linkAddresses.l[relatedLine][2]].linesRelated.Remove(relatedLine);
+
+                abilityData.linkAddresses.Remove(relatedLine);
             }
           
             //Handles UI Data deletion.
@@ -290,6 +299,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                                               
                         int connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0],prevPath[1],id[0],id[1] });
 
+                        Debug.LogFormat("ConnectionID assigned {0}. For {1} and {2}", connectionId, prevPath[0], id[0]);
                         // Make sure both ends will feedback if window was dragged.
                         abilityWindows.l[prevPath[0]].linesRelated.Add(connectionId);
                         abilityWindows.l[id[0]].linesRelated.Add(connectionId);
@@ -299,7 +309,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                         int lastObj = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects.Count - 1;                      
                         points[0] = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects[lastObj];
 
-                        points[1] = abilityWindows.l[id[0]].variables[prevPath[1]].objects[0];
+                        points[1] = abilityWindows.l[id[0]].variables[id[1]].objects[0];
 
                         CreateLines(points,connectionId);
                         // Removes the prev path. 
@@ -487,6 +497,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 Vector2 d = lineData.l[id[i]].e.position - lineData.l[id[i]].s.position;
                 Spawner.GetCType<Image>(lineData.l[id[i]].line).rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
                 lineData.l[id[i]].line.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(d)));
+
+                Debug.Log("Line ID Rendered: " + id[i]);
             }
     }
 }
