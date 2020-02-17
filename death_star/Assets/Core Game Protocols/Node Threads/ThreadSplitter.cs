@@ -15,9 +15,9 @@ public class ThreadSplitter : AbilityTreeNode {
         public override NodeThread CreateNewThread() {
             generatedNodeThreads++;
 
-            if(possiblePaths > generatedNodeThreads)
+            if(possiblePaths > generatedNodeThreads) 
                 return new ChildThread(GetStartingPoint(), originalThread);
-
+            
             return null;
         }
 
@@ -26,7 +26,7 @@ public class ThreadSplitter : AbilityTreeNode {
         }
     }
 
-    Dictionary<int, int> threadMap = new Dictionary<int, int>();
+    Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
@@ -35,8 +35,7 @@ public class ThreadSplitter : AbilityTreeNode {
     }
 
     public override void NodeCallback(int threadId) {
-
-        threadMap.Add(threadId, 0);
+        threadMap.Add(threadId, new int[2]);
         ProcessThreads(threadId);
     }
 
@@ -47,11 +46,19 @@ public class ThreadSplitter : AbilityTreeNode {
         Debug.LogFormat("Thread id {0} has finished looping.", threadId);
         
         if(nT is ChildThread) {
-            Debug.LogFormat("Thread id {0} Is a child thread.", threadId);
+            
             int parentThread = (nT as ChildThread).GetOriginalThread();
 
-            threadMap[parentThread] += 1;
-            ProcessThreads(parentThread);
+            threadMap[parentThread][1] += 1;
+
+            Debug.LogFormat("Thread id {0}, current node collection progress {1}/{2}", threadId, threadMap[parentThread][1], inst.GetSpecialisedNodeData(GetNodeId()));
+
+            if(threadMap[parentThread][1] >= inst.GetSpecialisedNodeData(GetNodeId())) {
+                // Resets thread counter and adds one to loop counter.
+                threadMap[parentThread][0] += 1;
+                threadMap[parentThread][1] = 0;
+                ProcessThreads(parentThread);
+            }         
         }
     }
 
@@ -59,13 +66,15 @@ public class ThreadSplitter : AbilityTreeNode {
 
         TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
 
-        Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId], inst.ReturnVariable<int>(GetNodeId(), 0).v);
+        Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnVariable<int>(GetNodeId(), 0).v);
 
-        if(threadMap[threadId] < inst.ReturnVariable<int>(GetNodeId(), 0).v) {
+        if(threadMap[threadId][0] < inst.ReturnVariable<int>(GetNodeId(), 0).v) {
             Debug.LogFormat("Thread id {0} will reloop.", threadId);
             ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
-            int threadToUse = inst.AddNewThread(trdInst);
+            trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
+            int threadToUse = inst.AddNewThread(trdInst);
+            Debug.LogFormat("Thread id {0} has been created.", threadToUse);
             inst.NodeVariableCallback<int>(threadToUse, 0, 20);
         } else {
             Debug.LogFormat("Thread id {0} will end.", threadId);

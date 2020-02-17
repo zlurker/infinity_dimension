@@ -91,6 +91,8 @@ public class TravelThread {
     int[] nodeBranchingData;
     int[] nodeType;
 
+    Dictionary<int, int> specialisedNodeData;
+
     // Link to ability nodes.
     int abilityNodes;
 
@@ -98,11 +100,15 @@ public class TravelThread {
 
     EnhancedList<NodeThread> activeThreads;
 
+    public int GetSpecialisedNodeData(int threadId) {
+        return specialisedNodeData[threadId];
+    }
+
     public RuntimeParameters<T> ReturnVariable<T>(int node, int variable) {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT) {
+    public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT,Dictionary<int,int> sND) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
@@ -111,6 +117,7 @@ public class TravelThread {
         branchStartData = bSD;
         nodeBranchingData = nBD;
         nodeType = nT;
+        specialisedNodeData = sND;
     }
 
     public int GetNodeBranchData(int id) {
@@ -150,10 +157,9 @@ public class TravelThread {
             int threadIdToUse = threadId;
             int nodeId = runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1][i][0];
 
-            if(newThread != null)
+            if(newThread != null) 
                 threadIdToUse = activeThreads.Add(newThread);
-
-            else {
+             else {
                 //If no creation needed, means its the last.
                 int node = activeThreads.l[threadId].GetCurrentNodeID();
                 AbilityTreeNode inst = CreateNewNodeIfNull(node);
