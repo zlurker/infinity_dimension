@@ -12,16 +12,14 @@ public sealed class AbilitiesManager : MonoBehaviour {
         Variable[][] dataVar;
         Type[] dataType;
         int[] rootSubclasses;
-        int[] lengthData;
         int[] nodeType;
         int[] nodeBranchingData;
         Dictionary<int, int> specialisedNodeData;
 
-        public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] lD, int[] nT, int[] nBD, Dictionary<int, int> sND) {
+        public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] nT, int[] nBD, Dictionary<int, int> sND) {
             dataVar = dV;
             dataType = dT;
             rootSubclasses = rS;
-            lengthData = lD;
             nodeType = nT;
             nodeBranchingData = nBD;
             specialisedNodeData = sND;
@@ -55,17 +53,17 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
         string[] abilityNodeData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(0);
         string[] abilityRootData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(3);
-        string[] abilityEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(4);
+        //string[] abilityEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(4);
         //string[] abilityGetEndData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(5);
-        string[] abilityNodeBranchingData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(5);
-        string[] abilitySpecialisedData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(6);
+        string[] abilityNodeBranchingData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(4);
+        string[] abilitySpecialisedData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(5);
 
         aData = new AbilityData[abilityNodeData.Length];
 
         for(int i = 0; i < abilityNodeData.Length; i++) {
             AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData[i]));
             int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
-            int[] lengthData = JsonConvert.DeserializeObject<int[]>(abilityEndData[i]);
+            //int[] lengthData = JsonConvert.DeserializeObject<int[]>(abilityEndData[i]);
             //int[][] getEndData = JsonConvert.DeserializeObject<int[][]>(abilityGetEndData[i]);
             int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData[i]);
             Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData[i]);
@@ -92,7 +90,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
                 tempVar[getEndData[j][0]][getEndData[j][1]].links[1] = temp;
             }*/
 
-            aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, lengthData, nodeType, nodeBranchData, specialisedNodeData);
+            aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData);
             Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].CreateAbility), 0);
         }
     }

@@ -157,19 +157,19 @@ public class TravelThread {
 
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
 
-        for(int i = 0; i < runtimeParameters[currNode][variableId].links[1].Length; i++) {
+        for(int i = 0; i < runtimeParameters[currNode][variableId].links.Length; i++) {
 
             NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
             int threadIdToUse = threadId;
-            int nodeId = runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[i][0];
+            int nodeId = runtimeParameters[currNode][variableId].links[i][0];
 
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
                 Debug.LogFormat("{0} has been spawned by {1}, ischild: {2}", threadIdToUse, threadId, activeThreads.l[threadId] is ChildThread);
             } else {
                 //If no creation needed, means its the last.
-                int node = activeThreads.l[threadId].GetCurrentNodeID();
-                AbilityTreeNode inst = CreateNewNodeIfNull(node);
+                //int node = activeThreads.l[threadId].GetCurrentNodeID();
+                AbilityTreeNode inst = CreateNewNodeIfNull(currNode);
 
                 // Checks if the original thread is equal to the NTID to make sure we only set the thread id once to default.
                 if(inst.GetNodeThreadId() == threadId)
@@ -206,6 +206,7 @@ public class TravelThread {
         if(nodeBranchingData[node] == 0) {
             inst.SetNodeThreadId(-1);
 
+            Debug.LogFormat("Thread {0} has ended operations.", threadId);
             // Callback to start node.
             ThreadEndCallback(threadId);
         }

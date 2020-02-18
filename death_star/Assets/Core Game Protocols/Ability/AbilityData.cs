@@ -68,30 +68,13 @@ public class AbilityDataSubclass {
         return rootClasses.ToArray();
     }
 
-    public static int[] ReturnNodeEndData(AbilityDataSubclass[] target) {
-        int[] paths = new int[target.Length];
-
-        for(int i = 0; i < target.Length; i++) {
-            int cummulativeTotal = 0;
-
-            for(int j = 0; j < target[i].var.Length; j++)
-                for(int k = 0; k < target[i].var[j].links.Length; k++)
-                    cummulativeTotal += target[i].var[j].links[k].Length;
-
-            paths[i] = cummulativeTotal;
-        }
-
-        return paths;
-    }
-
     public static int[] ReturnNodeBranchData(AbilityDataSubclass[] target) {
         int[] bData = new int[target.Length];
 
         for(int i = 0; i < target.Length; i++)
             for(int j = 0; j < target[i].var.Length; j++)
-                for(int k = 0; k < target[i].var[j].links.Length; k++) {
-                    bData[i] += target[i].var[j].links[k].Length;
-                }
+                bData[i] += target[i].var[j].links.Length;
+
 
         return bData;
     }
@@ -205,7 +188,7 @@ public class UIAbilityData {
         for(int i = 0; i < vLinks.Length; i++)
             for(int j = 0; j < vLinks[i].Length; j++)
                 relinkedClasses[i].var[j].links = vLinks[i][j].ToArray();
-                
+
         return relinkedClasses;
     }
 }
