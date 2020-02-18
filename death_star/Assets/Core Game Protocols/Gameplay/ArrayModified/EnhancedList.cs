@@ -23,7 +23,6 @@ public class EnhancedList<T> {
 
         if(iNS.Count > 0) {
             index = iNS.Pop();
-            //Debug.LogFormat("Popped index {0}", index);
             l[index] = element;
         } else {
             index = l.Count;
@@ -31,6 +30,17 @@ public class EnhancedList<T> {
         }
 
         return index;
+    }
+
+    public void Remove(int index) {
+        l[index] = default(T);
+
+        if(!iNS.Contains(index))
+            iNS.Push(index);
+    }
+
+    public int GetActiveElementsLength() {
+        return l.Count - iNS.Count;
     }
 
     public int[] ReturnActiveElementIndex() {
@@ -55,13 +65,6 @@ public class EnhancedList<T> {
             aE[i] = l[eI[i]];
 
         return aE;
-    }
-
-    public void Remove(int index) {
-        l[index] = default(T);
-
-        if(!iNS.Contains(index))
-            iNS.Push(index);
     }
 
     public int[] ReturnINS() {

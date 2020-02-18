@@ -40,8 +40,6 @@ public class ReturnValue : AbilityTreeNode {
         TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
         NodeThread nT = inst.GetActiveThread(threadId);
 
-        //Debug.LogFormat("Thread id {0} has finished looping.", threadId);
-
         if(nT is ChildThread) {
 
             int parentThread = (nT as ChildThread).GetOriginalThread();

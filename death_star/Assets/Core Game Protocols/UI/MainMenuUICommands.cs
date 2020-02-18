@@ -51,20 +51,6 @@ public class EditableWindow : WindowsScript {
 
 public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandler {
 
-    //To handle linkage work.
-    /*public class LinkageHandler {
-        public VariableAction vA;
-        public int[] path;
-        public bool alt;
-        public bool createDataLinkage;
-        public Transform target;
-
-        public LinkageHandler() {
-            alt = false;
-            createDataLinkage = false;
-        }
-    }*/
-
     public UIAbilityData abilityData;
     public AutoPopulationList<EditableWindow> abilityWindows;
     public AutoPopulationList<LineData> lineData;
@@ -156,8 +142,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(cAD)));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 3, JsonConvert.SerializeObject(rootClasses));
-            //.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(endNodeData));
-            //Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 5, JsonConvert.SerializeObject(getEndData));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(nBranchData));
             Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 5, JsonConvert.SerializeObject(specialisedNodeThreadCount));
             // Gets all window locations.
@@ -437,7 +421,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 Spawner.GetCType<Image>(lineData.l[id[i]].line).rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
                 lineData.l[id[i]].line.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(d)));
 
-                Debug.Log("Line ID Rendered: " + id[i]);
+                //Debug.Log("Line ID Rendered: " + id[i]);
             }
     }
 }

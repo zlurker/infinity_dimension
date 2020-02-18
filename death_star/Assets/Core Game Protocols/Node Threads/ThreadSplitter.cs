@@ -33,6 +33,7 @@ public class ThreadSplitter : AbilityTreeNode {
             Debug.LogFormat("Thread id {0}, current node collection progress {1}/{2}", threadId, threadMap[parentThread][1], inst.GetSpecialisedNodeData(GetNodeId()));
 
             if(threadMap[parentThread][1] >= inst.GetSpecialisedNodeData(GetNodeId())) {
+
                 // Resets thread counter and adds one to loop counter.
                 threadMap[parentThread][0] += 1;
                 threadMap[parentThread][1] = 0;
@@ -56,27 +57,13 @@ public class ThreadSplitter : AbilityTreeNode {
             inst.NodeVariableCallback<int>(threadToUse, 0, 20);
         } else {
             Debug.LogFormat("Thread id {0} will end.", threadId);
-            inst.ThreadEndCallback(threadId);
+            inst.HandleThreadRemoval(threadId);
+            threadMap.Remove(threadId);
+
+            if(threadMap.Count == 0) {
+                Debug.Log("Threadmap empty. Setting node thread id to -1.");
+                SetNodeThreadId(-1);
+            }
         }
     }
-
-    /*public override void OnLoopThreadBegin(int threadId) {
-        NodeThread inst = TravelThread.globalCentralList.l[GetCentralId()].GetActiveThread(threadId);
-
-        Debug.Log("Privileges removed, child thread detected.");
-        inst.SetJoin(false);
-        inst.SetOverride(false);
-    }*/
-
-    /*public void IncrementLoop(int threadId) {
-
-        NodeThread inst = TravelThread.globalCentralList.l[GetCentralId()].GetActiveThread(threadId);
-        int jointThread = inst.GetJointThread();
-        inst.IncrementCompletion();
-
-        TravelThread.globalCentralList.l[GetCentralId()].SeeNodeThreadLoop(threadId);
-
-        if(jointThread > -1)
-            IncrementLoop(jointThread);
-    }*/
 }

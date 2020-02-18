@@ -112,10 +112,11 @@ public class TravelThread {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT,Dictionary<int,int> sND) {
+    public void SetCentralData(int tId,int nId,Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT,Dictionary<int,int> sND) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
+        abilityNodes = nId;
         runtimeParameters = rP;
         subclassTypes = sT;
         branchStartData = bSD;
@@ -148,12 +149,20 @@ public class TravelThread {
         }
     }
 
+    public void SyncDataWithNetwork<T>(int threadId, int variableId, T value) {
+        if (ClientProgram.clientInst != null) {
+            // To send node data out via client.
+
+            return;
+        }
+
+        NodeVariableCallback<T>(threadId, variableId, value);
+    }
+
     public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
 
-        int jointThreadId = activeThreads.l[threadId].GetJointThread();
-
-        if(jointThreadId > -1) 
-            NodeVariableCallback<T>(jointThreadId, variableId, value);
+        //Debug.Log("ThreadId in loop:" + threadId);
+        int jointThreadId = activeThreads.l[threadId].GetJointThread();       
 
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
 
@@ -180,6 +189,9 @@ public class TravelThread {
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
 
+        if(jointThreadId > -1)
+            NodeVariableCallback<T>(jointThreadId, variableId, value);
+
         //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
     }
 
@@ -205,15 +217,25 @@ public class TravelThread {
         // Checks if node has no more output
         if(nodeBranchingData[node] == 0) {
             inst.SetNodeThreadId(-1);
-
-            Debug.LogFormat("Thread {0} has ended operations.", threadId);
-            // Callback to start node.
-            ThreadEndCallback(threadId);
+            HandleThreadRemoval(threadId);
         }
+        
     }
 
-    public void ThreadEndCallback(int threadId) {
+    public void HandleThreadRemoval(int threadId) {
+
+        Debug.LogFormat("Thread {0} has ended operations.", threadId);
+        // Callback to start node.
         CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
+
+        // Removes that thread.
+        activeThreads.Remove(threadId);
+
+        //Debug.LogFormat("{0} threadIdRemoved, 1st Element: {1}", threadId, activeThreads.ReturnActiveElementIndex()[0]);
+
+        if(activeThreads.GetActiveElementsLength() == 0) {
+            Debug.Log("All thread operations has ended.");
+        }
     }
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {

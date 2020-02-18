@@ -6,31 +6,45 @@ public class TimerTest : AbilityTreeNode {
 
 
     float initialTimer;
-	// Use this for initialization
-	void Start () {
-        
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		if (initialTimer + 6 < Time.time && initialTimer > 0) {
-            Debug.Log("Current node thread:" + GetNodeThreadId());
-            Debug.LogFormat("curr node {0}, nodeValue{1}", GetNodeId(), TravelThread.globalCentralList.l[GetCentralId()].ReturnRuntimeParameter<string>(GetNodeId(), 0).v);
-            TravelThread.globalCentralList.l[GetCentralId()].NodeVariableCallback<string>(GetNodeThreadId(), 0, "Mission Sucess!");
-            Debug.Log("Current node thread:" + GetNodeThreadId());
-            initialTimer = -1;
+    bool timerReset = true;
+    bool reset;
+    // Use this for initialization
+    void Start() {
+
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+        Debug.LogFormat("Current timer {0}/{1}, bool {2}", Time.time, initialTimer,timerReset);
+
+        if(initialTimer < Time.time && !timerReset) {
+            Debug.Log("Condition fulfilled, threadID:" + GetNodeThreadId());
+            //Debug.Log("Current node thread:" + GetNodeThreadId());
+            //Debug.LogFormat("curr node {0}, nodeValue{1}", GetNodeId(), TravelThread.globalCentralList.l[GetCentralId()].ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
+            timerReset = true;
+          
+            TravelThread.globalCentralList.l[GetCentralId()].NodeVariableCallback<int>(GetNodeThreadId(), 0, 102);
+            //Debug.Log("Current node thread:" + GetNodeThreadId());            
         }
 
-	}
+        if(reset) {
+            initialTimer = Time.time + 2;
+            timerReset = false;
+            reset = false;
+        }
+
+    }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<string>("Testing","12345")
+            new RuntimeParameters<int>("Testing",102)
         };
     }
 
     public override void NodeCallback(int threadId) {
-        initialTimer = Time.time;
+        Debug.Log("Timer reset.");
+        reset = true;       
     }
 
 }
