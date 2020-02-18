@@ -22,7 +22,7 @@ public class ThreadSplitter : AbilityTreeNode {
         TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
         NodeThread nT = inst.GetActiveThread(threadId);
 
-        Debug.LogFormat("Thread id {0} has finished looping.", threadId);
+        Debug.LogFormat("Thread id {0} has finished looping. Returned to {1}", threadId, (nT as ChildThread).GetOriginalThread());
         
         if(nT is ChildThread) {
             
@@ -54,7 +54,7 @@ public class ThreadSplitter : AbilityTreeNode {
 
             int threadToUse = inst.AddNewThread(trdInst);
             Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-            inst.NodeVariableCallback<int>(threadToUse, 0, 20);
+            inst.NodeVariableCallback<int>(threadToUse, 0, inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
         } else {
             Debug.LogFormat("Thread id {0} will end.", threadId);
             inst.HandleThreadRemoval(threadId);

@@ -96,16 +96,22 @@ public class AbilityDataSubclass {
 
                 int nextNodeValues = 0;
 
-                if(followingIds.Length > 0) {
+                if(followingIds.Length > 0) 
                     nextNodeValues = CalculateSpecialisedNodeThreads(target, followingIds, mappedValues);
-                    total += nextNodeValues;
+                                    
+                if(target[nextId[i]].classType == typeof(ThreadSplitter)) {
+                    if(!mappedValues.ContainsKey(nextId[i])) 
+                        mappedValues.Add(nextId[i], nextNodeValues);
+
+                    // Because these threads will be combined in Threadsplitter,
+                    // We must combine them as 1 so if it is nested it would be counted correctly.
+                    Debug.Log("Previous Value: " + nextNodeValues);
+                    nextNodeValues = 1;
+                    Debug.Log("Current Value: " + nextNodeValues);
                 }
 
-                if(target[nextId[i]].classType == typeof(ThreadSplitter)) {
-                    if(!mappedValues.ContainsKey(nextId[i])) {
-                        mappedValues.Add(nextId[i], nextNodeValues);
-                    }
-                }
+                total += nextNodeValues;
+
             }
 
             if(totalLinks == 0) {
