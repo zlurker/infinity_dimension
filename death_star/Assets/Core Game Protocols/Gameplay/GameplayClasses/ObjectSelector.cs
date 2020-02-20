@@ -4,20 +4,15 @@ using UnityEngine;
 
 public class ObjectSelector : AbilityTreeNode {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public override void NodeCallback(int threadId) {
+        TravelThread central = TravelThread.globalCentralList.l[GetCentralId()];
+        central.NodeVariableCallback(GetNodeThreadId(), 1, GameObject.Find(central.ReturnRuntimeParameter<string>(GetNodeId(), 0).v));
+    }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<int>("PosX", 0),
-            new RuntimeParameters<int>("PosY", 0)
+            new RuntimeParameters<string>("ID","0"),
+            new RuntimeParameters<GameObject>("Object",null)
         };
     }
 }

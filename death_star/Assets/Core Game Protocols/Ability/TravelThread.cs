@@ -171,6 +171,7 @@ public class TravelThread {
             NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
             int threadIdToUse = threadId;
             int nodeId = runtimeParameters[currNode][variableId].links[i][0];
+            int nodeVariableId = runtimeParameters[currNode][variableId].links[i][1];
 
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
@@ -185,7 +186,8 @@ public class TravelThread {
                     inst.SetNodeThreadId(-1);
             }
 
-            ((RuntimeParameters<T>)runtimeParameters[nodeId][variableId].field).v = value;
+            Debug.Log(nodeVariableId);
+            ((RuntimeParameters<T>)runtimeParameters[nodeId][nodeVariableId].field).v = value;
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
 

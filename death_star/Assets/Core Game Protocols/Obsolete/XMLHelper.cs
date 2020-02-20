@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Xml;
@@ -90,7 +90,7 @@ public class XMLHelper : MonoBehaviour, ISingleton
 
         xmlDoc.Save("Ability.xml");
         //SetNode("goodnight");
-    }*/
+    }
 
     public void SetNode(string[] ids, string setValue, XmlNode currNode = null, int currLoop = 0)
     {
@@ -191,5 +191,5 @@ public class XMLHelper : MonoBehaviour, ISingleton
 
         xmlDoc.Save("Ability.xml");
         return node;
-    }*/
-}
+    }
+}*/

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Xml;
@@ -58,4 +58,4 @@ public class XMLTesting : MonoBehaviour {
         xmlWriter.WriteEndDocument();
         xmlWriter.Close();
     }
-}
+}*/

@@ -11,16 +11,22 @@ public class ClientProgram : MonoBehaviour {
     //public bool send;
 
     public static ClientProgram clientInst;
-    
+    public string networkStream;
+
     private List<string> outgoing;
     private Socket clientSock;
     private byte[] _recieveBuffer = new byte[8142];
     private byte[] _sendBuffer = new byte[8142];
 
+    private CommandCentral cc;
+    
+
     private string msg;
 
     void Start () {
         clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+        cc = new CommandCentral();
 
         outgoing = new List<string>();
         DontDestroyOnLoad(this);
@@ -44,14 +50,29 @@ public class ClientProgram : MonoBehaviour {
         Buffer.BlockCopy(_recieveBuffer, 0, recData, 0, recieved);
 
         //Process data here the way you want , all your bytes will be stored in recData
-        Debug.Log(Encoding.Default.GetString(recData, 0, recData.Length));
+        //Debug.Log(Encoding.Default.GetString(recData, 0, recData.Length));
 
+        networkStream += Encoding.Default.GetString(recData, 0, recData.Length);
         //Start receiving again
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
     }
 	
 	// Update is called once per frame
 	void Update () {
+
+        /*if(send) {
+            AddNetworkMessage(toSend);
+            toSend = "";
+            send = false;
+        }*/
+
+        int currNetworkStreamCount = networkStream.Length;
+
+        Debug.Log(currNetworkStreamCount);
+        if (currNetworkStreamCount > 0) {
+            cc.ParseCommands(networkStream.Substring(0, currNetworkStreamCount));
+            networkStream = networkStream.Substring(currNetworkStreamCount - 1);
+        }
 
 		if (outgoing.Count >0) {
              outgoing[outgoing.Count - 1].Replace("\n", string.Empty);
