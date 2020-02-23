@@ -11,8 +11,8 @@ public class ClientProgram : MonoBehaviour {
     //public bool send;
 
     public static ClientProgram clientInst;
-    public string networkStream;
 
+    private List<string> incoming;
     private List<string> outgoing;
     private Socket clientSock;
     private byte[] _recieveBuffer = new byte[8142];
@@ -29,6 +29,7 @@ public class ClientProgram : MonoBehaviour {
         cc = new CommandCentral();
 
         outgoing = new List<string>();
+        incoming = new List<string>();
         DontDestroyOnLoad(this);
         clientInst = this;
 
@@ -52,37 +53,29 @@ public class ClientProgram : MonoBehaviour {
         //Process data here the way you want , all your bytes will be stored in recData
         //Debug.Log(Encoding.Default.GetString(recData, 0, recData.Length));
 
-        networkStream += Encoding.Default.GetString(recData, 0, recData.Length);
         //Start receiving again
+        
+        incoming.Add(Encoding.Default.GetString(recData, 0, recData.Length));
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
     }
 	
 	// Update is called once per frame
 	void Update () {
 
-        /*if(send) {
-            AddNetworkMessage(toSend);
-            toSend = "";
-            send = false;
-        }*/
-
-        int currNetworkStreamCount = networkStream.Length;
-
-        Debug.Log(currNetworkStreamCount);
-        if (currNetworkStreamCount > 0) {
-            cc.ParseCommands(networkStream.Substring(0, currNetworkStreamCount));
-            networkStream = networkStream.Substring(currNetworkStreamCount - 1);
+        if (incoming.Count > 0) {
+            cc.ParseCommands(incoming[0]);
+            incoming.RemoveAt(0);
         }
 
 		if (outgoing.Count >0) {
-             outgoing[outgoing.Count - 1].Replace("\n", string.Empty);
-            _sendBuffer = Encoding.GetEncoding("UTF-8").GetBytes(outgoing[outgoing.Count -1] + '\n');
+             outgoing[0].Replace("\n", string.Empty);
+            _sendBuffer = Encoding.GetEncoding("UTF-8").GetBytes(outgoing[0] + '\n');
             clientSock.BeginSend(_sendBuffer, 0, _sendBuffer.Length, SocketFlags.None, new AsyncCallback(OnSent), null);
-            outgoing.RemoveAt(outgoing.Count - 1);
+            outgoing.RemoveAt(0);
         }
 	}
 
     public void AddNetworkMessage(string msg) {
-        outgoing.Insert(0, msg);
+        outgoing.Add(msg);
     }
 }
