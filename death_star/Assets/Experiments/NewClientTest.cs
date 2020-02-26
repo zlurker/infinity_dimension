@@ -40,18 +40,18 @@ public class NewClientTest : MonoBehaviour {
     }
 
     void OnSent(IAsyncResult asyncResult) {
-        Debug.Log("Msg Sent");
+        Debug.Log("Msg Sent 101");
     }
 
     void OnRecieve(IAsyncResult asyncResult) {
-        //Debug.Log("Recieved!");
+        Debug.Log("Recieved!");
         int recieved = clientSock.EndReceive(asyncResult);
 
         //Copy the recieved data into new buffer , to avoid null bytes
         byte[] recData = new byte[recieved];
-        Buffer.BlockCopy(_recieveBuffer, 0, recData, 0, recieved);
+        Buffer.BlockCopy(_recieveBuffer, 4, recData, 0, recieved -4);
 
-        Debug.Log("Bytes recieved " + recieved);
+        Debug.Log("Bytes recieved " + Encoding.Default.GetString(recData));
         //Process data here the way you want , all your bytes will be stored in recData
         //Debug.Log(Encoding.Default.GetString(recData, 0, recData.Length));
 

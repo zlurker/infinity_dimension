@@ -9,26 +9,8 @@ public class ClientProgram : MonoBehaviour {
 
     public static ClientProgram clientInst;
 
-    // Network commands
-    public const string HOST_CHANNEL = "0";
-    public const string IS_NOT_HOST = "0";
-    public const string IS_HOST = "1";
-
-    public const string SYNC_CHANNEL = "1";
-    public const string SYNC_NODE_DATA = "10";
-
-    public const string ASYNC_CHANNEL = "2";
-    public const string ASYNC_INPUT = "20";
-
-    // Network related parsing.
-    string splitCommands;
-
-    private bool playerIsHost = false;
-
-    private List<string> incoming;
-    private List<string> outgoing;
-    //private List<string> host_pirority_outgoing;
-
+    private List<byte> incoming;
+    private List<byte[]> outgoing;
 
     private Socket clientSock;
     private byte[] _recieveBuffer = new byte[8142];
@@ -37,12 +19,14 @@ public class ClientProgram : MonoBehaviour {
     void Start() {
         clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-        outgoing = new List<string>();
-        incoming = new List<string>();
+        outgoing = new List<byte[]>();
+        incoming = new List<byte>();
         DontDestroyOnLoad(this);
         clientInst = this;
 
         clientSock.Connect("178.128.95.63", 5000);
+
+        AddNetworkMessage(Encoding.UTF8.GetBytes("LOLOLOL hahaah okay gtg you little scums bye."));
 
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
     }
@@ -64,100 +48,46 @@ public class ClientProgram : MonoBehaviour {
 
         //Start receiving again
 
-        incoming.Add(Encoding.Default.GetString(recData, 0, recData.Length));
+        incoming.AddRange(recData);
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
     }
 
     // Update is called once per frame
     void Update() {
-        if(incoming.Count > 0) {
-            ParseCommands(incoming[0]);
-            incoming.RemoveAt(0);
-        }
 
-        /*if(host_pirority_outgoing.Count > 0 && playerIsHost) {
-            host_pirority_outgoing[0].Replace("\n", string.Empty);
-            SendMessage(host_pirority_outgoing[0]);
-            outgoing.RemoveAt(0);
-        }*/
+        ParseCommands();
 
         if(outgoing.Count > 0) {
-            outgoing[0].Replace("\n", string.Empty);
-            SendMessages(outgoing[0]);
+            clientSock.BeginSend(outgoing[0], 0, outgoing[0].Length, SocketFlags.None, new AsyncCallback(OnSent), null);
             outgoing.RemoveAt(0);
         }
     }
 
-    void SendMessages(string msg) {
-        Debug.Log("sending" + msg + '\n');
-        _sendBuffer = Encoding.GetEncoding("UTF-8").GetBytes(msg + '\n');
-        clientSock.BeginSend(_sendBuffer, 0, _sendBuffer.Length, SocketFlags.None, new AsyncCallback(OnSent), null);
-    }
+    public void ParseCommands() {
+        if(incoming.Count > 4) {
+            int currMsgLength = BitConverter.ToInt32( incoming.GetRange(0,4).ToArray(),0);
 
-    public void AddNetworkMessage(string channelType, string msg) {
-        outgoing.Add(channelType + '/' + msg);
-    }
-
-    public void AddPirorityNetworkMessage(string channelType, string msg) {
-        if(clientSock.Available == 0) {
-            Debug.Log("Checking pirority...");
-            outgoing.Add(HOST_CHANNEL);
-            outgoing.Add(channelType + '/' + msg);
-        }
-    }
-
-    public void ParseCommands(string command) {
-
-        string[] commands = HandleIncomingCommands(command);
-
-        for(int i = 0; i < commands.Length; i++) {
-
-            string[] commandDir = commands[i].Split(new char[] { '/' }, 2);
-            Debug.Log(commandDir[0]);
-
-            switch(commandDir[0]) {
-
-                /*case HOST_CHANNEL:
-                    switch(commandDir[1]) {
-                        case IS_HOST:
-                            //playerIsHost = true;
-                            break;
-                        case IS_NOT_HOST:
-                            //playerIsHost = false;
-                            //host_pirority_outgoing.RemoveRange(0, host_pirority_outgoing.Count);
-                            break;
-                    }
-                    break;*/
-
-                case SYNC_CHANNEL:
-                    break;
-
-                case SYNC_NODE_DATA:
-                    Debug.Log("Supposed to recieve node data here.");
-                    break;
-
-                case ASYNC_CHANNEL:
-                    break;
-
-                case ASYNC_INPUT:
-                    AbilitiesManager.aData[int.Parse(commandDir[1].ToString())].CreateAbility(null);
-                    break;
+            if (incoming.Count >= currMsgLength) {
+                HandleCommand(incoming.GetRange(4, currMsgLength - 4).ToArray());
+                incoming.RemoveRange(0, currMsgLength);
+                ParseCommands();
             }
         }
     }
 
-    public string[] HandleIncomingCommands(string command) {
-        if(!command.Contains("\n")) {
-            splitCommands = command;
-            return new string[0];
-        }
+    public void AddNetworkMessage(byte[] message) {
+        int msgLen = message.Length + 4;
 
-        bool keepLastCommand = false;
-        keepLastCommand = command[command.Length - 1] != '\n' ? true : false;
+        byte[] lenBytes = BitConverter.GetBytes(msgLen);
+        byte[] processedMsg = new byte[msgLen];
 
-        string[] commands = command.Split('\n');
-        commands[0] = splitCommands + commands[0];
-        splitCommands = keepLastCommand ? commands[commands.Length - 1] : "";
-        return commands;
+        Buffer.BlockCopy(lenBytes, 0, processedMsg, 0, 4);
+        Buffer.BlockCopy(message, 0, processedMsg, 4, message.Length);
+
+        outgoing.Add(processedMsg);
+    }
+
+    public void HandleCommand(byte[] command) {
+        Debug.Log(command.Length);
     }
 }

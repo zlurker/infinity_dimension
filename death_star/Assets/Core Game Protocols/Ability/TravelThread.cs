@@ -161,7 +161,7 @@ public class TravelThread {
             else
                 NodeVariableCallback<T>(threadId, variableId, value);
 
-            ClientProgram.clientInst.AddPirorityNetworkMessage(ClientProgram.SYNC_NODE_DATA,msg);
+            //ClientProgram.clientInst.AddPirorityNetworkMessage(ClientProgram.SYNC_NODE_DATA,msg);
             return;
         }
 

@@ -28,10 +28,10 @@ public sealed class AbilitiesManager : MonoBehaviour {
         }
 
         public void SyncInputWithNetwork(object[] p) {
-            if(ClientProgram.clientInst)
+            /*if(ClientProgram.clientInst)
                 ClientProgram.clientInst.AddNetworkMessage(ClientProgram.ASYNC_INPUT, abilityId.ToString());
              else
-                CreateAbility(null);
+                CreateAbility(null);*/
         }
 
         public void CreateAbility(object[] p) {
