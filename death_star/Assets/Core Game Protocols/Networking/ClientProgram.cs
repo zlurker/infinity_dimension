@@ -7,14 +7,15 @@ using System.Text;
 
 public class ClientProgram : MonoBehaviour {
 
-    //public string toSend;
-    //public bool send;
     public static ClientProgram clientInst;
 
     // Network commands
     public const string HOST_CHANNEL = "0";
+    public const string IS_NOT_HOST = "0";
+    public const string IS_HOST = "1";
 
     public const string SYNC_CHANNEL = "1";
+    public const string SYNC_NODE_DATA = "10";
 
     public const string ASYNC_CHANNEL = "2";
     public const string ASYNC_INPUT = "20";
@@ -22,8 +23,13 @@ public class ClientProgram : MonoBehaviour {
     // Network related parsing.
     string splitCommands;
 
+    private bool playerIsHost = false;
+
     private List<string> incoming;
     private List<string> outgoing;
+    //private List<string> host_pirority_outgoing;
+
+
     private Socket clientSock;
     private byte[] _recieveBuffer = new byte[8142];
     private byte[] _sendBuffer = new byte[8142];
@@ -64,30 +70,45 @@ public class ClientProgram : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-
         if(incoming.Count > 0) {
             ParseCommands(incoming[0]);
             incoming.RemoveAt(0);
         }
 
+        /*if(host_pirority_outgoing.Count > 0 && playerIsHost) {
+            host_pirority_outgoing[0].Replace("\n", string.Empty);
+            SendMessage(host_pirority_outgoing[0]);
+            outgoing.RemoveAt(0);
+        }*/
+
         if(outgoing.Count > 0) {
             outgoing[0].Replace("\n", string.Empty);
-            Debug.Log("sending" + outgoing[0] + '\n');
-            _sendBuffer = Encoding.GetEncoding("UTF-8").GetBytes(outgoing[0] + '\n');
-            clientSock.BeginSend(_sendBuffer, 0, _sendBuffer.Length, SocketFlags.None, new AsyncCallback(OnSent), null);
+            SendMessages(outgoing[0]);
             outgoing.RemoveAt(0);
         }
     }
 
-    public void CombineChannelWithMessage(string channelType, string msg) {
-         outgoing.Add(channelType + '/' + msg);
+    void SendMessages(string msg) {
+        Debug.Log("sending" + msg + '\n');
+        _sendBuffer = Encoding.GetEncoding("UTF-8").GetBytes(msg + '\n');
+        clientSock.BeginSend(_sendBuffer, 0, _sendBuffer.Length, SocketFlags.None, new AsyncCallback(OnSent), null);
+    }
+
+    public void AddNetworkMessage(string channelType, string msg) {
+        outgoing.Add(channelType + '/' + msg);
+    }
+
+    public void AddPirorityNetworkMessage(string channelType, string msg) {
+        if(clientSock.Available == 0) {
+            Debug.Log("Checking pirority...");
+            outgoing.Add(HOST_CHANNEL);
+            outgoing.Add(channelType + '/' + msg);
+        }
     }
 
     public void ParseCommands(string command) {
 
         string[] commands = HandleIncomingCommands(command);
-
-        Debug.Log(command);
 
         for(int i = 0; i < commands.Length; i++) {
 
@@ -96,17 +117,31 @@ public class ClientProgram : MonoBehaviour {
 
             switch(commandDir[0]) {
 
-                case HOST_CHANNEL:
-
-                    break;
+                /*case HOST_CHANNEL:
+                    switch(commandDir[1]) {
+                        case IS_HOST:
+                            //playerIsHost = true;
+                            break;
+                        case IS_NOT_HOST:
+                            //playerIsHost = false;
+                            //host_pirority_outgoing.RemoveRange(0, host_pirority_outgoing.Count);
+                            break;
+                    }
+                    break;*/
 
                 case SYNC_CHANNEL:
+                    break;
+
+                case SYNC_NODE_DATA:
+                    Debug.Log("Supposed to recieve node data here.");
+                    break;
+
+                case ASYNC_CHANNEL:
                     break;
 
                 case ASYNC_INPUT:
                     AbilitiesManager.aData[int.Parse(commandDir[1].ToString())].CreateAbility(null);
                     break;
-
             }
         }
     }
@@ -116,7 +151,6 @@ public class ClientProgram : MonoBehaviour {
             splitCommands = command;
             return new string[0];
         }
-
 
         bool keepLastCommand = false;
         keepLastCommand = command[command.Length - 1] != '\n' ? true : false;

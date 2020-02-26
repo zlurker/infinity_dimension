@@ -16,7 +16,7 @@ public class TimerTest : AbilityTreeNode {
     // Update is called once per frame
     void Update() {
 
-        Debug.LogFormat("Current timer {0}/{1}, bool {2}", Time.time, initialTimer,timerReset);
+        //Debug.LogFormat("Current timer {0}/{1}, bool {2}", Time.time, initialTimer,timerReset);
 
         if(initialTimer < Time.time && !timerReset) {
             Debug.Log("Condition fulfilled, threadID:" + GetNodeThreadId());
@@ -24,7 +24,7 @@ public class TimerTest : AbilityTreeNode {
             //Debug.LogFormat("curr node {0}, nodeValue{1}", GetNodeId(), TravelThread.globalCentralList.l[GetCentralId()].ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
             timerReset = true;
           
-            TravelThread.globalCentralList.l[GetCentralId()].NodeVariableCallback<int>(GetNodeThreadId(), 0, 102);
+            TravelThread.globalCentralList.l[GetCentralId()].NodeVariableCallback<string>(GetNodeThreadId(), 0, "0");
             //Debug.Log("Current node thread:" + GetNodeThreadId());            
         }
 
@@ -38,7 +38,7 @@ public class TimerTest : AbilityTreeNode {
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<int>("Testing",102)
+            new RuntimeParameters<string>("Testing","")
         };
     }
 

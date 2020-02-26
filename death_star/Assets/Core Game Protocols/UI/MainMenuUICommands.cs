@@ -189,12 +189,14 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         if(!cam)
             cam = eventData.pressEventCamera;
 
+
         if(windowSpawnMode) {
             windowSpawnMode = false;
             windowSpawner.gameObject.SetActive(false);
 
             int id = abilityData.subclasses.Add(new AbilityDataSubclass(interfaces[dataIndex].GetType()));
 
+            
             Vector3 cursorPos;
             RectTransformUtility.ScreenPointToWorldPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
             CreateWindow(id, cursorPos);

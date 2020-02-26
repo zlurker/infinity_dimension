@@ -112,7 +112,7 @@ public class TravelThread {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId,int nId,Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT,Dictionary<int,int> sND) {
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT, Dictionary<int, int> sND) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
@@ -150,9 +150,18 @@ public class TravelThread {
     }
 
     public void SyncDataWithNetwork<T>(int threadId, int variableId, T value) {
-        if (ClientProgram.clientInst != null) {
+        if(ClientProgram.clientInst != null) {
             // To send node data out via client.
+            int currNode = activeThreads.l[threadId].GetCurrentNodeID();
 
+            string msg = centralId.ToString() + '/' + currNode.ToString() + '/' + variableId.ToString() + '/';
+
+            if(value is string || value is float || value is int)
+                msg += value.ToString();
+            else
+                NodeVariableCallback<T>(threadId, variableId, value);
+
+            ClientProgram.clientInst.AddPirorityNetworkMessage(ClientProgram.SYNC_NODE_DATA,msg);
             return;
         }
 
@@ -162,7 +171,7 @@ public class TravelThread {
     public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
 
         //Debug.Log("ThreadId in loop:" + threadId);
-        int jointThreadId = activeThreads.l[threadId].GetJointThread();       
+        int jointThreadId = activeThreads.l[threadId].GetJointThread();
 
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
 
@@ -221,7 +230,7 @@ public class TravelThread {
             inst.SetNodeThreadId(-1);
             HandleThreadRemoval(threadId);
         }
-        
+
     }
 
     public void HandleThreadRemoval(int threadId) {

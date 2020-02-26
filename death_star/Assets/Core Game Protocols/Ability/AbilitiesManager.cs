@@ -29,7 +29,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
         public void SyncInputWithNetwork(object[] p) {
             if(ClientProgram.clientInst)
-                ClientProgram.clientInst.CombineChannelWithMessage(ClientProgram.ASYNC_INPUT, abilityId.ToString());
+                ClientProgram.clientInst.AddNetworkMessage(ClientProgram.ASYNC_INPUT, abilityId.ToString());
              else
                 CreateAbility(null);
         }
