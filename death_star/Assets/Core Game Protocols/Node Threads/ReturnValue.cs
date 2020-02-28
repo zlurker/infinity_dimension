@@ -27,7 +27,7 @@ public class ReturnValue : AbilityTreeNode {
     public override void NodeCallback(int threadId) {
         threadMap.Add(threadId, 0);
 
-        TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
         trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
@@ -37,7 +37,7 @@ public class ReturnValue : AbilityTreeNode {
     }
 
     public override void ThreadEndStartCallback(int threadId) {
-        TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         NodeThread nT = inst.GetActiveThread(threadId);
 
         if(nT is ChildThread) {

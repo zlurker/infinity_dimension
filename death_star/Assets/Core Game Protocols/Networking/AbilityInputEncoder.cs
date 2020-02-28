@@ -19,7 +19,7 @@ public class AbilityInputEncoder:NetworkMessageEncoder {
         int abilityId = BitConverter.ToInt32(msg, 4);
         Debug.Log("AbilityId" + abilityId);
 
-        TravelThread newAbilityThread = new TravelThread();
+        AbilityCentralThreadPool newAbilityThread = new AbilityCentralThreadPool();
 
         // Adds created ability thread into networkobject list.
         NetworkObjectTracker.inst.AddNetworkObject(newAbilityThread);

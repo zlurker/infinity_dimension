@@ -80,9 +80,9 @@ public class NodeThread {
     }
 }
 
-public class TravelThread : NetworkObject {
+public class AbilityCentralThreadPool : NetworkObject {
 
-    public static EnhancedList<TravelThread> globalCentralList = new EnhancedList<TravelThread>();
+    public static EnhancedList<AbilityCentralThreadPool> globalCentralList = new EnhancedList<AbilityCentralThreadPool>();
 
     private Variable[][] runtimeParameters;
     private Type[] subclassTypes;

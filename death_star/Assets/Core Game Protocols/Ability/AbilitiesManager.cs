@@ -32,15 +32,15 @@ public sealed class AbilitiesManager : MonoBehaviour {
                 AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
                 encoder.SendInputSignal(abilityId);
             } else {
-                TravelThread centralPool = new TravelThread();
+                AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool();
                 CreateAbility(centralPool);
             }
         }
 
-        public void CreateAbility(TravelThread threadInst) {
+        public void CreateAbility(AbilityCentralThreadPool threadInst) {
 
            
-            int tId = TravelThread.globalCentralList.Add(threadInst);
+            int tId = AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
             ScriptableObject[] a = new ScriptableObject[dataVar.Length];
             int nId = AbilityTreeNode.globalList.Add(a);

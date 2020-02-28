@@ -23,8 +23,8 @@ public class TimerTest : AbilityTreeNode {
             //Debug.Log("Current node thread:" + GetNodeThreadId());
             //Debug.LogFormat("curr node {0}, nodeValue{1}", GetNodeId(), TravelThread.globalCentralList.l[GetCentralId()].ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
             timerReset = true;
-          
-            TravelThread.globalCentralList.l[GetCentralId()].NodeVariableCallback<string>(GetNodeThreadId(), 0, "0");
+
+            AbilityCentralThreadPool.globalCentralList.l[GetCentralId()].NodeVariableCallback<string>(GetNodeThreadId(), 0, "0");
             //Debug.Log("Current node thread:" + GetNodeThreadId());            
         }
 

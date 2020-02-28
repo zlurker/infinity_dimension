@@ -92,8 +92,11 @@ public class LoadClasses : MonoBehaviour {
         // Creates a new instance, it will handle everything else in constructor.
         new NetworkObjectTracker();
 
-        NetworkMessageEncoder.encoders = new List<NetworkMessageEncoder>();
-        NetworkMessageEncoder.encoders.Add(new AbilityInputEncoder(0));
+        NetworkMessageEncoder.encoders = new NetworkMessageEncoder[] {
+            new AbilityInputEncoder(0),
+            new UpdateAbilityDataEncoder(1)
+        };
+
     }
 
 }

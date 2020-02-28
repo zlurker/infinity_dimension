@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum NetworkEncoderTypes {
-    ABILITY_INPUT
+    ABILITY_INPUT, UPDATE_ABILITY_DATA
 }
 
 public class NetworkMessageEncoder {
 
-    public static List<NetworkMessageEncoder> encoders;
+    public static NetworkMessageEncoder[] encoders;
 
     private int encoderId;
     protected byte[] bytesToSend;

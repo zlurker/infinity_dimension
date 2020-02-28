@@ -23,6 +23,7 @@ public class ClientProgram : MonoBehaviour {
     private Socket clientSock;
     private byte[] _recieveBuffer = new byte[8142];
     private byte[] _sendBuffer = new byte[8142];
+    int currMsgLength;
 
     void Start() {
         clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -32,27 +33,19 @@ public class ClientProgram : MonoBehaviour {
         DontDestroyOnLoad(this);
         clientInst = this;
 
+        currMsgLength = -1;
+
         clientSock.Connect("178.128.95.63", 5000);
 
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
     }
 
-    void OnSent(IAsyncResult asyncResult) {
-        Debug.Log("Msg Sent");
-    }
-
     void OnRecieve(IAsyncResult asyncResult) {
-        //Debug.Log("Recieved!");
+
         int recieved = clientSock.EndReceive(asyncResult);
 
-        //Copy the recieved data into new buffer , to avoid null bytes
         byte[] recData = new byte[recieved];
         Buffer.BlockCopy(_recieveBuffer, 0, recData, 0, recieved);
-
-        //Process data here the way you want , all your bytes will be stored in recData
-        //Debug.Log(Encoding.Default.GetString(recData, 0, recData.Length));
-
-        //Start receiving again
 
         incoming.AddRange(recData);
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
@@ -64,7 +57,7 @@ public class ClientProgram : MonoBehaviour {
         ParseCommands();
 
         if(outgoing.Count > 0) {
-            clientSock.BeginSend(outgoing[0], 0, outgoing[0].Length, SocketFlags.None, new AsyncCallback(OnSent), null);
+            clientSock.BeginSend(outgoing[0], 0, outgoing[0].Length, SocketFlags.None, null, null);
             outgoing.RemoveAt(0);
         }
     }
@@ -72,11 +65,13 @@ public class ClientProgram : MonoBehaviour {
     public void ParseCommands() {
         if(incoming.Count > 4) {
 
-            int currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
+            if(currMsgLength == -1)
+                currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
 
             if(incoming.Count >= currMsgLength) {
                 HandleCommand(incoming.GetRange(4, currMsgLength - 4).ToArray());
                 incoming.RemoveRange(0, currMsgLength);
+                currMsgLength = -1;
                 ParseCommands();
             }
         }
@@ -95,7 +90,6 @@ public class ClientProgram : MonoBehaviour {
     }
 
     public void HandleCommand(byte[] command) {
-        Debug.LogFormat("Command original len: {0}, new Len {1}", command.Length + 4, command.Length);
         int encoder = BitConverter.ToInt32(command, 0);
         NetworkMessageEncoder.encoders[encoder].RecieveEncodedMessages(command);
     }

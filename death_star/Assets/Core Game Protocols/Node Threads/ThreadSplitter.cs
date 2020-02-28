@@ -19,7 +19,7 @@ public class ThreadSplitter : AbilityTreeNode {
     }
 
     public override void ThreadEndStartCallback(int threadId) {
-        TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         NodeThread nT = inst.GetActiveThread(threadId);
 
         Debug.LogFormat("Thread id {0} has finished looping. Returned to {1}", threadId, (nT as ChildThread).GetOriginalThread());
@@ -44,7 +44,7 @@ public class ThreadSplitter : AbilityTreeNode {
 
     public void ProcessThreads(int threadId) {
 
-        TravelThread inst = TravelThread.globalCentralList.l[GetCentralId()];
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
 
         Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
 
