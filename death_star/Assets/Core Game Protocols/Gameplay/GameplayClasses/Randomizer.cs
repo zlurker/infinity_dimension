@@ -4,22 +4,25 @@ using UnityEngine;
 
 public class Randomizer : AbilityTreeNode {
 
-    public static int LOWEST_RANGE = 0;
-    public static int HIGHEST_RANGE = 1;
-
-    int nodeId;
+    bool test;
     // Use this for initialization
     void Start() {
 
     }
 
     void Update() {
-        
+        if(!test) {
+            int value = Random.Range(100, 400);
+            SyncDataWithNetwork(0, value);
+            Debug.Log(value);
+            test = true;
+        }
+
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<GameObject>("Input Object", null)
+            new RuntimeParameters<int>("Random Int", 0)
         };
     }
 }

@@ -44,15 +44,20 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void NodeCallback(int threadId) {
-        Debug.LogFormat("curr node {0}, nodeValue{1}, nodeThreadId{2}", nodeId, AbilityCentralThreadPool.globalCentralList.l[centralThreadId].ReturnRuntimeParameter<int>(nodeId, 0).v,nodeThreadId);
+        Debug.LogFormat("curr node {0}, nodeValue{1}, nodeThreadId{2}", nodeId, AbilityCentralThreadPool.globalCentralList.l[centralThreadId].ReturnRuntimeParameter<int>(nodeId, 0).v, nodeThreadId);
         AbilityCentralThreadPool.globalCentralList.l[centralThreadId].NodeVariableCallback<int>(nodeThreadId, 0, AbilityCentralThreadPool.globalCentralList.l[centralThreadId].ReturnRuntimeParameter<int>(nodeId, 0).v);
     }
 
-    /*public virtual void OnLoopThreadBegin(int threadId) {
-
-    }*/
-
     public virtual void ThreadEndStartCallback(int threadId) {
 
+    }
+
+    public void SyncDataWithNetwork<T>(int variableId, T value) {
+        AbilityCentralThreadPool central = AbilityCentralThreadPool.globalCentralList.l[variableId];
+        int centralId = central.ReturnNetworkObjectId();
+        int centralInstId = central.ReturnInstId();
+
+        UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
+        inst.SendUpdatedNodeData(centralId,centralInstId, nodeId, variableId, value);
     }
 }

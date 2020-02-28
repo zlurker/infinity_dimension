@@ -104,13 +104,19 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     #region Network-Related Code
     private int networkObjectId;
+    private int instId;
 
-    public void NetworkObjectCreationCallback(int networkObjId) {
+    public void NetworkObjectCreationCallback(int networkObjId,int iId) {
         networkObjectId = networkObjId;
+        instId = iId;
     }
 
     public int ReturnNetworkObjectId() {
         return networkObjectId;
+    }
+
+    public int ReturnInstId() {
+        return instId;
     }
     #endregion
 

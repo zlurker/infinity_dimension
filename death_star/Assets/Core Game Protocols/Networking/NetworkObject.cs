@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public interface NetworkObject {
-    void NetworkObjectCreationCallback(int networkObjId);
+    void NetworkObjectCreationCallback(int networkObjId,int instId);
     int ReturnNetworkObjectId();
+    int ReturnInstId();
 }
 
 public class NetworkObjectTracker {
@@ -21,12 +22,17 @@ public class NetworkObjectTracker {
 
     public void AddNetworkObject(NetworkObject nO) {
         int networkObj = networkObjects.Add(nO);
-        nO.NetworkObjectCreationCallback(networkObj);
+        int currInstCount = instanceId.GetElementAt(networkObj);
+        nO.NetworkObjectCreationCallback(networkObj,currInstCount);
     }
 
     public void DeleteNetworkObject(int objId) {
         networkObjects.Remove(objId);
         int currInstCount = instanceId.GetElementAt(objId);
         instanceId.ModifyElementAt(objId, currInstCount + 1);
+    }
+
+    public bool CheckIfInstIdMatches(int target,int given) {
+        return given == instanceId.GetElementAt(target);
     }
 }

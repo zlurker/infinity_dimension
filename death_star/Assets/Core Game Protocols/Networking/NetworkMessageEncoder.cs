@@ -13,6 +13,7 @@ public class NetworkMessageEncoder {
 
     private int encoderId;
     protected byte[] bytesToSend;
+    protected byte[] bytesRecieved;
 
     public NetworkMessageEncoder(int id) {
         encoderId = id;
@@ -27,7 +28,13 @@ public class NetworkMessageEncoder {
         ClientProgram.clientInst.AddNetworkMessage(nwMsg);        
     }
 
-    public virtual void RecieveEncodedMessages(byte[] msg) {
+    public void RecieveEncodedMessages(byte[] msg) {
+        bytesRecieved = new byte[msg.Length - 4];
+        Buffer.BlockCopy(msg, 4, bytesRecieved, 0, msg.Length - 4);
+        MessageRecievedCallback();
+    }
+
+    public virtual void MessageRecievedCallback() {
         
     }
 }

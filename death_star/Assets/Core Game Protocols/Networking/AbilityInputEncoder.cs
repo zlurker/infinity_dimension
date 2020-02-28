@@ -14,9 +14,8 @@ public class AbilityInputEncoder:NetworkMessageEncoder {
         SendEncodedMessages();
     }
 
-    public override void RecieveEncodedMessages(byte[] msg) {
-        // Always ignore first 4 bytes.
-        int abilityId = BitConverter.ToInt32(msg, 4);
+    public override void MessageRecievedCallback() {
+        int abilityId = BitConverter.ToInt32(bytesRecieved, 0);
         Debug.Log("AbilityId" + abilityId);
 
         AbilityCentralThreadPool newAbilityThread = new AbilityCentralThreadPool();
