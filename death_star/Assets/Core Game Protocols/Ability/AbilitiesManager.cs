@@ -31,21 +31,23 @@ public sealed class AbilitiesManager : MonoBehaviour {
             if(ClientProgram.clientInst) {
                 AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
                 encoder.SendInputSignal(abilityId);
-            } else
-                CreateAbility(null);
+            } else {
+                TravelThread centralPool = new TravelThread();
+                CreateAbility(centralPool);
+            }
         }
 
-        public void CreateAbility(object[] p) {
+        public void CreateAbility(TravelThread threadInst) {
 
-            TravelThread centralPool = new TravelThread();
-            int tId = TravelThread.globalCentralList.Add(centralPool);
+           
+            int tId = TravelThread.globalCentralList.Add(threadInst);
 
             ScriptableObject[] a = new ScriptableObject[dataVar.Length];
             int nId = AbilityTreeNode.globalList.Add(a);
 
             // Rather than create new instance, everything except variables will be taken from here.
-            centralPool.SetCentralData(tId, nId, dataVar, dataType, rootSubclasses, nodeBranchingData, nodeType, specialisedNodeData);
-            centralPool.StartThreads();
+            threadInst.SetCentralData(tId, nId, dataVar, dataType, rootSubclasses, nodeBranchingData, nodeType, specialisedNodeData);
+            threadInst.StartThreads();
         }
     }
 

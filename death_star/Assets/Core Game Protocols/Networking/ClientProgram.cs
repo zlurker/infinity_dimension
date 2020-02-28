@@ -23,7 +23,6 @@ public class ClientProgram : MonoBehaviour {
     private Socket clientSock;
     private byte[] _recieveBuffer = new byte[8142];
     private byte[] _sendBuffer = new byte[8142];
-    int currMsgLength;
 
     void Start() {
         clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -72,13 +71,12 @@ public class ClientProgram : MonoBehaviour {
 
     public void ParseCommands() {
         if(incoming.Count > 4) {
-            if(currMsgLength == -1)
-                currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
+
+            int currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
 
             if(incoming.Count >= currMsgLength) {
                 HandleCommand(incoming.GetRange(4, currMsgLength - 4).ToArray());
                 incoming.RemoveRange(0, currMsgLength);
-                currMsgLength = -1;
                 ParseCommands();
             }
         }
@@ -98,22 +96,7 @@ public class ClientProgram : MonoBehaviour {
 
     public void HandleCommand(byte[] command) {
         Debug.LogFormat("Command original len: {0}, new Len {1}", command.Length + 4, command.Length);
-        NetworkCommandType commandType = (NetworkCommandType)BitConverter.ToInt32(command, 0);
-        NetworkObjectType networkObjectType = (NetworkObjectType) BitConverter.ToInt32(command, 4);
-
-        switch(commandType) {
-            case NetworkCommandType.CREATE_NETOBJECT:
-
-                break;
-
-            case NetworkCommandType.UPDATE_NETOBJECT:
-
-                break;
-
-            case NetworkCommandType.DELETE_NETOBJECT:
-
-                break;
-        }
-
+        int encoder = BitConverter.ToInt32(command, 0);
+        NetworkMessageEncoder.encoders[encoder].RecieveEncodedMessages(command);
     }
 }

@@ -15,7 +15,15 @@ public class AbilityInputEncoder:NetworkMessageEncoder {
     }
 
     public override void RecieveEncodedMessages(byte[] msg) {
-        base.RecieveEncodedMessages(msg);
+        // Always ignore first 4 bytes.
+        int abilityId = BitConverter.ToInt32(msg, 4);
+        Debug.Log("AbilityId" + abilityId);
+
+        TravelThread newAbilityThread = new TravelThread();
+
+        // Adds created ability thread into networkobject list.
+        NetworkObjectTracker.inst.AddNetworkObject(newAbilityThread);
+        AbilitiesManager.aData[abilityId].CreateAbility(newAbilityThread);
     }
 
 }

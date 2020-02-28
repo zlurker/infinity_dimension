@@ -23,11 +23,11 @@ public class NetworkMessageEncoder {
         byte[] nwMsg = new byte[bytesToSend.Length + 4];
 
         Buffer.BlockCopy(eT, 0, nwMsg, 0, 4);
-        Buffer.BlockCopy(bytesToSend, 0, bytesToSend, 4, bytesToSend.Length);
+        Buffer.BlockCopy(bytesToSend, 0, nwMsg, 4, bytesToSend.Length);
         ClientProgram.clientInst.AddNetworkMessage(nwMsg);        
     }
 
     public virtual void RecieveEncodedMessages(byte[] msg) {
-        // null
+        
     }
 }

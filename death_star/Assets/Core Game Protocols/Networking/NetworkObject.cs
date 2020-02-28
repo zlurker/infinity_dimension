@@ -9,17 +9,19 @@ public interface NetworkObject {
 
 public class NetworkObjectTracker {
 
+    public static NetworkObjectTracker inst;
     private EnhancedList<NetworkObject> networkObjects;
     private AutoPopulationList<int> instanceId;
 
     public NetworkObjectTracker() {
         networkObjects = new EnhancedList<NetworkObject>();
         instanceId = new AutoPopulationList<int>();
+        inst = this;
     }
 
-    public int AddNetworkObject(NetworkObject nO) {
-        int networkObj = networkObjects.Add(nO);       
-        return networkObj;
+    public void AddNetworkObject(NetworkObject nO) {
+        int networkObj = networkObjects.Add(nO);
+        nO.NetworkObjectCreationCallback(networkObj);
     }
 
     public void DeleteNetworkObject(int objId) {

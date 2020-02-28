@@ -70,15 +70,7 @@ public class LoadClasses : MonoBehaviour {
         LoadedData.lI = new InterfaceLoader[] { new InterfaceLoader<ISingleton>(ClassType.INTERFACE), new InterfaceLoader<AbilityTreeNode>(ClassType.BASECLASS) };
 
         LoadSingletonClasses();
-        LoadNetworkEncoders();
-
-        //LoadEditableClasses();
-        /*AbilityTreeNode[] interfaces = (Iterator.ReturnObject<AbilityTreeNode>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as AbilityTreeNode[];
-
-        for (int i = 0; i < interfaces.Length; i++)
-        {
-            Debug.Log(interfaces[i].GetType());
-        }*/
+        LoadNetworkDependencies();
 
         SceneTransitionData.Initialise();
     }
@@ -86,9 +78,8 @@ public class LoadClasses : MonoBehaviour {
     void LoadSingletonClasses() {
         ISingleton[] interfaces = (Iterator.ReturnObject<ISingleton>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as ISingleton[];
         LoadedData.sL = new Singleton[interfaces.Length];
-        //Debug.Log(interfaces[0]);
+
         for(int i = 0; i < interfaces.Length; i++) {
-            //Debug.Log(interfaces[i].GetType());
             MonoBehaviour singleton = new GameObject(interfaces[i].GetType().FullName).AddComponent(interfaces[i].GetType()) as MonoBehaviour;
             DontDestroyOnLoad(singleton.gameObject);
             (singleton as ISingleton).RunOnCreated();
@@ -97,9 +88,11 @@ public class LoadClasses : MonoBehaviour {
         }
     }
 
-    void LoadNetworkEncoders() {
-        NetworkMessageEncoder.encoders = new List<NetworkMessageEncoder>();
+    void LoadNetworkDependencies() {
+        // Creates a new instance, it will handle everything else in constructor.
+        new NetworkObjectTracker();
 
+        NetworkMessageEncoder.encoders = new List<NetworkMessageEncoder>();
         NetworkMessageEncoder.encoders.Add(new AbilityInputEncoder(0));
     }
 
