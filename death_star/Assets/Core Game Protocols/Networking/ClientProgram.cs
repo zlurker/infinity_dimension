@@ -5,6 +5,14 @@ using System;
 using System.Net.Sockets;
 using System.Text;
 
+public enum NetworkCommandType {
+    CREATE_NETOBJECT, UPDATE_NETOBJECT, DELETE_NETOBJECT
+}
+
+public enum NetworkObjectType {
+    CENTRAL_THREADS
+}
+
 public class ClientProgram : MonoBehaviour {
 
     public static ClientProgram clientInst;
@@ -15,6 +23,7 @@ public class ClientProgram : MonoBehaviour {
     private Socket clientSock;
     private byte[] _recieveBuffer = new byte[8142];
     private byte[] _sendBuffer = new byte[8142];
+    int currMsgLength;
 
     void Start() {
         clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -25,8 +34,6 @@ public class ClientProgram : MonoBehaviour {
         clientInst = this;
 
         clientSock.Connect("178.128.95.63", 5000);
-
-        AddNetworkMessage(Encoding.UTF8.GetBytes("LOLOLOL hahaah okay gtg you little scums bye."));
 
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
     }
@@ -65,11 +72,13 @@ public class ClientProgram : MonoBehaviour {
 
     public void ParseCommands() {
         if(incoming.Count > 4) {
-            int currMsgLength = BitConverter.ToInt32( incoming.GetRange(0,4).ToArray(),0);
+            if(currMsgLength == -1)
+                currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
 
-            if (incoming.Count >= currMsgLength) {
+            if(incoming.Count >= currMsgLength) {
                 HandleCommand(incoming.GetRange(4, currMsgLength - 4).ToArray());
                 incoming.RemoveRange(0, currMsgLength);
+                currMsgLength = -1;
                 ParseCommands();
             }
         }
@@ -88,6 +97,23 @@ public class ClientProgram : MonoBehaviour {
     }
 
     public void HandleCommand(byte[] command) {
-        Debug.Log(command.Length);
+        Debug.LogFormat("Command original len: {0}, new Len {1}", command.Length + 4, command.Length);
+        NetworkCommandType commandType = (NetworkCommandType)BitConverter.ToInt32(command, 0);
+        NetworkObjectType networkObjectType = (NetworkObjectType) BitConverter.ToInt32(command, 4);
+
+        switch(commandType) {
+            case NetworkCommandType.CREATE_NETOBJECT:
+
+                break;
+
+            case NetworkCommandType.UPDATE_NETOBJECT:
+
+                break;
+
+            case NetworkCommandType.DELETE_NETOBJECT:
+
+                break;
+        }
+
     }
 }

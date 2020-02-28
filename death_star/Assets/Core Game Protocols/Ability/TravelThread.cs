@@ -80,25 +80,39 @@ public class NodeThread {
     }
 }
 
-public class TravelThread {
+public class TravelThread : NetworkObject {
 
     public static EnhancedList<TravelThread> globalCentralList = new EnhancedList<TravelThread>();
 
-    Variable[][] runtimeParameters;
-    Type[] subclassTypes;
+    private Variable[][] runtimeParameters;
+    private Type[] subclassTypes;
 
-    int[] branchStartData;
-    int[] nodeBranchingData;
-    int[] nodeType;
+    private int[] branchStartData;
+    private int[] nodeBranchingData;
+    private int[] nodeType;
 
-    Dictionary<int, int> specialisedNodeData;
+    private Dictionary<int, int> specialisedNodeData;
 
-    // Link to ability nodes.
-    int abilityNodes;
+    // Link to ability nodes
+    private int abilityNodes;
 
-    int centralId;
+    // This thread's ID
+    private int centralId;
 
-    EnhancedList<NodeThread> activeThreads;
+    // Current threads active
+    private EnhancedList<NodeThread> activeThreads;
+
+    #region Network-Related Code
+    private int networkObjectId;
+
+    public void NetworkObjectCreationCallback(int networkObjId) {
+        networkObjectId = networkObjId;
+    }
+
+    public int ReturnNetworkObjectId() {
+        return networkObjectId;
+    }
+    #endregion
 
     public int GetSpecialisedNodeData(int threadId) {
         return specialisedNodeData[threadId];
@@ -263,4 +277,6 @@ public class TravelThread {
 
         return Spawner.GetCType<AbilityTreeNode>(AbilityTreeNode.globalList.l[abilityNodes][nodeId]);
     }
+
+
 }
