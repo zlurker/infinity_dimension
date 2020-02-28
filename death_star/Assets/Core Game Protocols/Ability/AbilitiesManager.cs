@@ -28,10 +28,11 @@ public sealed class AbilitiesManager : MonoBehaviour {
         }
 
         public void SyncInputWithNetwork(object[] p) {
-            /*if(ClientProgram.clientInst)
-                ClientProgram.clientInst.AddNetworkMessage(ClientProgram.ASYNC_INPUT, abilityId.ToString());
-             else
-                CreateAbility(null);*/
+            if(ClientProgram.clientInst) {
+                AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
+                encoder.SendInputSignal(abilityId);
+            } else
+                CreateAbility(null);
         }
 
         public void CreateAbility(object[] p) {
@@ -49,36 +50,36 @@ public sealed class AbilitiesManager : MonoBehaviour {
     }
 
 
-public static AbilityData[] aData;
+    public static AbilityData[] aData;
 
-void Start() {
+    void Start() {
 
-    //defaultTreeTransversers = new EnhancedList<ScriptableObject>();
-    string[] abilityNodeData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(0);
-    string[] abilityRootData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(3);
-    string[] abilityNodeBranchingData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(4);
-    string[] abilitySpecialisedData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(5);
+        //defaultTreeTransversers = new EnhancedList<ScriptableObject>();
+        string[] abilityNodeData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(0);
+        string[] abilityRootData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(3);
+        string[] abilityNodeBranchingData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(4);
+        string[] abilitySpecialisedData = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadAll(5);
 
-    aData = new AbilityData[abilityNodeData.Length];
+        aData = new AbilityData[abilityNodeData.Length];
 
-    for(int i = 0; i < abilityNodeData.Length; i++) {
-        AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData[i]));
-        int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
-        int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData[i]);
-        Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData[i]);
+        for(int i = 0; i < abilityNodeData.Length; i++) {
+            AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData[i]));
+            int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
+            int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData[i]);
+            Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData[i]);
 
-        Variable[][] tempVar = new Variable[ability.Length][];
-        Type[] tempTypes = new Type[ability.Length];
+            Variable[][] tempVar = new Variable[ability.Length][];
+            Type[] tempTypes = new Type[ability.Length];
 
-        for(int j = 0; j < ability.Length; j++) {
-            tempVar[j] = ability[j].var;
-            tempTypes[j] = ability[j].classType;
+            for(int j = 0; j < ability.Length; j++) {
+                tempVar[j] = ability[j].var;
+                tempTypes[j] = ability[j].classType;
+            }
+
+            int[] nodeType = new int[ability.Length];
+
+            aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, i);
+            Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].SyncInputWithNetwork), 0);
         }
-
-        int[] nodeType = new int[ability.Length];
-
-        aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, i);
-        Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].SyncInputWithNetwork), 0);
     }
-}
 }
