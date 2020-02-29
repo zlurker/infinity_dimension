@@ -5,20 +5,10 @@ using UnityEngine.UI;
 using System;
 using System.Reflection;
 
-public class Layer {
-    public List<string> uE; //uiElements
-
-    public Layer() {
-        uE = new List<string>();
-    }
-}
-
 public class UIDrawer : Spawner, ISingleton {
     public static Canvas t; //target
-    public DH uiCreator;
-    public Layer uL; //uiLayer
 
-    public override void CreateDefaultSettings() {
+    /*public override void CreateDefaultSettings() {
         oDS = new ObjectDefaultSettings[] {
             new ObjectDefaultSettings<Text>((t,sOC) =>{
                 t.text = "DEFAULTWORDS";
@@ -90,9 +80,13 @@ public class UIDrawer : Spawner, ISingleton {
                  //sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>());
             })
         };
+    }*/
+
+    public SpawnerOutput CreateUIObject(Type type) {
+
     }
 
-    public override ScriptableObject CreateScriptedObject(Type[] type) {
+    /*public override ScriptableObject CreateScriptedObject(Type[] type) {
         ScriptableObject instance = base.CreateScriptedObject(type);
 
         UpdateMainObject(instance);
@@ -105,7 +99,8 @@ public class UIDrawer : Spawner, ISingleton {
         UpdateMainObject(instance);
 
         return instance;
-    }
+    }*/
+
     public static void ChangeUISize(ScriptableObject target, Type type, Vector2 size) {
         (GetCType(target, type).transform as RectTransform).sizeDelta = size;
         UpdateMainObject(target);
@@ -132,15 +127,6 @@ public class UIDrawer : Spawner, ISingleton {
         (target.transform as RectTransform).sizeDelta = dimensions;
     }
 
-    /*public void ModifyLayer(int layerNumber, string groupName = "", bool removeAllSucessors = true) {
-        while(layerNumber >= uL.uE.Count)
-            uL.uE.Add("");
-
-        int loopCount = removeAllSucessors ? uL.uE.Count : layerNumber + 1;
-
-        uL.uE[layerNumber] = groupName;
-    }*/
-
     public static Vector3 UINormalisedPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.
         return UINormalisedPosition(t.transform as RectTransform, c);
     }
@@ -160,13 +146,6 @@ public class UIDrawer : Spawner, ISingleton {
 
     public new void RunOnCreated() {
         bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
-        uL = new Layer();
-    }
-
-    public override ScriptableObject CustomiseBaseObject() {
-        ScriptableObject baseObject = base.CustomiseBaseObject();
-        baseObject.transform.SetParent(t.transform);
-        return baseObject;
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
