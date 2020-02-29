@@ -59,7 +59,6 @@ public static class JSONFileConvertor {
             }
         }
 
-
         return convertedFormat;
     }
 }

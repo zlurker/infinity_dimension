@@ -24,5 +24,4 @@ public class AbilityInputEncoder:NetworkMessageEncoder {
         NetworkObjectTracker.inst.AddNetworkObject(newAbilityThread);
         AbilitiesManager.aData[abilityId].CreateAbility(newAbilityThread);
     }
-
 }

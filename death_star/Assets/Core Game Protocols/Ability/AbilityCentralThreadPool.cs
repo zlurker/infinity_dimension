@@ -106,7 +106,7 @@ public class AbilityCentralThreadPool : NetworkObject {
     private int networkObjectId;
     private int instId;
 
-    public void NetworkObjectCreationCallback(int networkObjId,int iId) {
+    public void NetworkObjectCreationCallback(int networkObjId, int iId) {
         networkObjectId = networkObjId;
         instId = iId;
     }
@@ -272,9 +272,11 @@ public class AbilityCentralThreadPool : NetworkObject {
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {
 
         if(!AbilityTreeNode.globalList.l[abilityNodes][nodeId]) {
-            if(subclassTypes[nodeId] == typeof(ISingleton))
-                AbilityTreeNode.globalList.l[abilityNodes][nodeId] = Singleton.GetSingleton(subclassTypes[nodeId]) as AbilityTreeNode;
-            else {
+
+            // Tries to convert type into a singleton to see if it exist.
+            AbilityTreeNode.globalList.l[abilityNodes][nodeId] = Singleton.GetSingleton(subclassTypes[nodeId]) as AbilityTreeNode;
+
+            if(AbilityTreeNode.globalList.l[abilityNodes][nodeId] == null) {
                 ScriptableObject sOInst = Singleton.GetSingleton<Spawner>().CreateScriptedObject(new Type[] { subclassTypes[nodeId] });
                 AbilityTreeNode.globalList.l[abilityNodes][nodeId] = Spawner.GetCType<AbilityTreeNode>(sOInst);
                 AbilityTreeNode.globalList.l[abilityNodes][nodeId].SetSourceObject(sOInst);
