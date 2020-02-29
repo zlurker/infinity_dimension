@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -35,4 +35,4 @@ public class PlayerControlledUnit : UnitBase {
     void Left(object[] p) {
         UpdateLocation(new Vector3(-Iterator.ReturnObject<Stat>(stat, "Movespeed").v, 0));
     }
-}
+}*/

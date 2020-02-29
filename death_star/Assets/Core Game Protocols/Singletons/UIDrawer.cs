@@ -8,82 +8,123 @@ using System.Reflection;
 public class UIDrawer : Spawner, ISingleton {
     public static Canvas t; //target
 
-    /*public override void CreateDefaultSettings() {
-        oDS = new ObjectDefaultSettings[] {
-            new ObjectDefaultSettings<Text>((t,sOC) =>{
-                t.text = "DEFAULTWORDS";
-                t.font = Resources.Load("jd-bold") as Font;
-                t.verticalOverflow = VerticalWrapMode.Overflow;
-                t.horizontalOverflow = HorizontalWrapMode.Wrap;
-                t.alignment = TextAnchor.MiddleCenter;
-                t.color = Color.black;
-                (t.transform as RectTransform).sizeDelta = new Vector2(100,20);
-                //Debug.Log(t.text);
-            }),
-
-            new ObjectDefaultSettings<InputField>((t,sOC) =>{
-                t.textComponent = null;
-                t.text = "";
-                t.onEndEdit.RemoveAllListeners();
-
-                sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Image>());
-                sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>());
-
-                t.gameObject.SetActive(true);
-
-                t.textComponent = GetCType<Text>(sOC);
-                t.targetGraphic = GetCType<Image>(sOC);
-                (t.transform as RectTransform).sizeDelta = new Vector2(100,30);
-
-                GetCType<Text>(sOC).color = Color.black;
-                GetCType<Text>(sOC).supportRichText = false;
-                GetCType<Text>(sOC).transform.SetParent(t.transform);
-                GetCType<Text>(sOC).rectTransform.sizeDelta = new Vector2(100, 30);
-
-                GetCType<Image>(sOC).rectTransform.sizeDelta = new Vector2(100, 30);
-            }),
-
-            new ObjectDefaultSettings<Button>((t, sOC)=>{
-                t.onClick.RemoveAllListeners();
-                sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Image>());
-                sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Text>());
-                t.targetGraphic = GetCType<Image>(sOC);
-
-                GetCType<Image>(sOC).rectTransform.sizeDelta = new Vector3(100, 30);
-                (t.transform as RectTransform).sizeDelta = new Vector3(100, 30);
-
-                GetCType<Text>(sOC).transform.SetParent(t.transform);
-                GetCType<Text>(sOC).rectTransform.sizeDelta = new Vector2(100, 30);
-                GetCType<Text>(sOC).color = Color.black;
-            }),
-
-            new ObjectDefaultSettings<WindowsScript>((t, sOC)=>{
-                 //t.transform.name = "Panel";
-                 sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Image>());
-                 t.transform.SetAsLastSibling();
-
-                GetCType<Image>(sOC).rectTransform.sizeDelta = new Vector2(100,40);
-                (t.transform as RectTransform).sizeDelta = new Vector2(100,40);
-                 //sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>());
-            }),
-
-            new ObjectDefaultSettings<LinearLayout>((t, sOC)=>{
-                 //t.transform.name = "Panel";
-                 (t.transform as RectTransform).sizeDelta = new Vector2(0,0);
-                 //sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>());
-            }),
-
-            new ObjectDefaultSettings<Line>((t, sOC)=>{
-                 //t.transform.name = "Panel";
-                 (t.transform as RectTransform).sizeDelta = new Vector2(0,0);
-                 sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<Image>());
-                 //sOC.AddMultiple(Singleton.GetSingleton<UIDrawer>().CreateComponent<WindowsScript>());
-            })
-        };
-    }*/
-
     public SpawnerOutput CreateUIObject(Type type) {
 
+        SpawnerOutput inst = CreateScriptedObject(type);
+
+        // Additional actions required by the individual UI elements.
+        if (type == typeof(Text)) 
+            TextBoxHandler(inst.script as Text);
+
+        if (type == typeof(InputField)) 
+            inst.additionalScripts = InputFieldHandler(inst.script as InputField);
+
+         if (type == typeof(Button))  
+            inst.additionalScripts = ButtonHandler(inst.script as Button);
+
+         if (type == typeof(WindowsScript))
+            inst.additionalScripts = WindowScriptHandler(inst.script as WindowsScript);
+
+        if(type == typeof(LinearLayout))
+            LinearLayoutHandler(inst.script as LinearLayout);
+
+        if(type == typeof(Line))
+            inst.additionalScripts = LineHandler(inst.script as Line);
+
+        return inst;
+    }
+
+    public void TextBoxHandler(Text t) {
+        t.text = "DEFAULTWORDS";
+        t.font = Resources.Load("jd-bold") as Font;
+        t.verticalOverflow = VerticalWrapMode.Overflow;
+        t.horizontalOverflow = HorizontalWrapMode.Wrap;
+        t.alignment = TextAnchor.MiddleCenter;
+        t.color = Color.black;
+        (t.transform as RectTransform).sizeDelta = new Vector2(100, 20);
+    }
+
+    public SpawnerOutput[] InputFieldHandler(InputField iF) {
+        iF.textComponent = null;
+        iF.text = "";
+        iF.onEndEdit.RemoveAllListeners();
+
+        SpawnerOutput[] output = new SpawnerOutput[] {
+             CreateUIObject(typeof(Image)),
+             CreateUIObject(typeof(Text))
+        };
+
+        Image i = output[0].script as Image;
+        Text t = output[1].script as Text;
+
+        iF.gameObject.SetActive(true);
+
+        iF.textComponent = t;
+        iF.targetGraphic = i;
+        (iF.transform as RectTransform).sizeDelta = new Vector2(100, 30);
+
+        t.color = Color.black;
+        t.supportRichText = false;
+        t.transform.SetParent(t.transform);
+        t.rectTransform.sizeDelta = new Vector2(100, 30);
+
+        i.rectTransform.sizeDelta = new Vector2(100, 30);
+
+        return output;
+    }
+
+    public SpawnerOutput[] ButtonHandler(Button b) {
+        b.onClick.RemoveAllListeners();
+
+        SpawnerOutput[] output = new SpawnerOutput[] {
+             CreateUIObject(typeof(Image)),
+             CreateUIObject(typeof(Text))
+        };
+
+        Image i = output[0].script as Image;
+        Text t = output[1].script as Text;
+
+        b.targetGraphic = i;
+
+        i.rectTransform.sizeDelta = new Vector3(100, 30);
+        (b.transform as RectTransform).sizeDelta = new Vector3(100, 30);
+
+        t.transform.SetParent(t.transform);
+        t.rectTransform.sizeDelta = new Vector2(100, 30);
+        t.color = Color.black;
+
+        return output;
+    }
+
+    public SpawnerOutput[] WindowScriptHandler(WindowsScript wS) {
+
+        SpawnerOutput[] output = new SpawnerOutput[] {
+             CreateUIObject(typeof(Image))
+        };
+
+        Image i = output[0].script as Image;
+        wS.transform.SetAsLastSibling();
+
+        i.rectTransform.sizeDelta = new Vector2(100, 40);
+        (wS.transform as RectTransform).sizeDelta = new Vector2(100, 40);
+
+        return output;
+    }
+
+    public void LinearLayoutHandler(LinearLayout lL) {
+        (lL.transform as RectTransform).sizeDelta = new Vector2(0, 0);
+    }
+
+    public SpawnerOutput[] LineHandler(Line l) {
+
+        SpawnerOutput[] output = new SpawnerOutput[] {
+             CreateUIObject(typeof(Image))
+        };
+
+        Image i = output[0].script as Image;
+        (l.transform as RectTransform).sizeDelta = new Vector2(0, 0);
+
+        return output;
     }
 
     /*public override ScriptableObject CreateScriptedObject(Type[] type) {
@@ -101,7 +142,7 @@ public class UIDrawer : Spawner, ISingleton {
         return instance;
     }*/
 
-    public static void ChangeUISize(ScriptableObject target, Type type, Vector2 size) {
+    /*public static void ChangeUISize(ScriptableObject target, Type type, Vector2 size) {
         (GetCType(target, type).transform as RectTransform).sizeDelta = size;
         UpdateMainObject(target);
     }
@@ -125,7 +166,7 @@ public class UIDrawer : Spawner, ISingleton {
         }
 
         (target.transform as RectTransform).sizeDelta = dimensions;
-    }
+    }*/
 
     public static Vector3 UINormalisedPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.
         return UINormalisedPosition(t.transform as RectTransform, c);
