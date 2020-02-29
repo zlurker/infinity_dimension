@@ -7,29 +7,27 @@ using System.Reflection;
 
 public class UIDrawer : Spawner, ISingleton {
     public static Canvas t; //target
+    public static Dictionary<Type, int> butInpIds;
 
     public SpawnerOutput CreateUIObject(Type type) {
 
         SpawnerOutput inst = CreateScriptedObject(type);
 
         // Additional actions required by the individual UI elements.
-        if (type == typeof(Text)) 
+        if(type == typeof(Text))
             TextBoxHandler(inst.script as Text);
 
-        if (type == typeof(InputField)) 
+        if(type == typeof(InputField))
             inst.additionalScripts = InputFieldHandler(inst.script as InputField);
 
-         if (type == typeof(Button))  
+        if(type == typeof(Button))
             inst.additionalScripts = ButtonHandler(inst.script as Button);
 
-         if (type == typeof(WindowsScript))
+        if(type == typeof(WindowsScript))
             inst.additionalScripts = WindowScriptHandler(inst.script as WindowsScript);
 
         if(type == typeof(LinearLayout))
             LinearLayoutHandler(inst.script as LinearLayout);
-
-        if(type == typeof(Line))
-            inst.additionalScripts = LineHandler(inst.script as Line);
 
         return inst;
     }
@@ -115,16 +113,12 @@ public class UIDrawer : Spawner, ISingleton {
         (lL.transform as RectTransform).sizeDelta = new Vector2(0, 0);
     }
 
-    public SpawnerOutput[] LineHandler(Line l) {
+    public static T GetSupportType<T>(SpawnerOutput target) {
 
-        SpawnerOutput[] output = new SpawnerOutput[] {
-             CreateUIObject(typeof(Image))
-        };
+        if(target.script is Button || target.script is InputField)
+            return (T)(object)target.additionalScripts[butInpIds[typeof(T)]];
 
-        Image i = output[0].script as Image;
-        (l.transform as RectTransform).sizeDelta = new Vector2(0, 0);
-
-        return output;
+        return (T)(object)null;
     }
 
     /*public override ScriptableObject CreateScriptedObject(Type[] type) {
@@ -187,6 +181,11 @@ public class UIDrawer : Spawner, ISingleton {
 
     public new void RunOnCreated() {
         bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
+
+        butInpIds = new Dictionary<Type, int>();
+
+        butInpIds.Add(typeof(Image), 0);
+        butInpIds.Add(typeof(Text), 0);
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {

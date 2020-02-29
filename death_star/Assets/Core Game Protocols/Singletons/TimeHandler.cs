@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
+/*[System.Serializable]
 public class TimeData : Iterator {
     public List<DH> tD; //timeDelegates
     public float eT; //endTime
@@ -73,3 +73,4 @@ public class TimeHandler : MonoBehaviour, ISingleton {
         tE = new List<TimeData>();
     }
 }
+*/

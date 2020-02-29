@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 public class AbilityPageScript : MonoBehaviour {
 
-    ScriptableObject lL;
+    SpawnerOutput lL;
     public static int selectedAbility;
     AutoPopulationList<AbilityDescription> descriptions;
 
@@ -17,19 +17,18 @@ public class AbilityPageScript : MonoBehaviour {
         GenerateMenuElements();
         LoadCurrentFiles();
 
-        Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new System.Type[] { typeof(ScrollRect) });
+        LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(ScrollRect));
     }
 
     void LoadCurrentFiles() {
-        FileSaveTemplate fST = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; });
-        DirectoryInfo dir = Directory.CreateDirectory(fST.fP);
+        DirectoryInfo dir = Directory.CreateDirectory(FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].fP);
 
         DirectoryInfo[] files = dir.GetDirectories();
 
         for(int i = 0; i < files.Length; i++) {
             int fileInt = int.Parse(files[i].Name);
 
-            string data = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericLoadTrigger(new string[] { fileInt.ToString() }, 1);
+            string data = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadTrigger(new string[] { fileInt.ToString() }, 1);
             AbilityDescription inst = JsonConvert.DeserializeObject<AbilityDescription>(data);
 
             descriptions.ModifyElementAt(fileInt, inst);
@@ -39,24 +38,24 @@ public class AbilityPageScript : MonoBehaviour {
     }
 
     void GenerateMenuElements() {
-        ScriptableObject topText = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new System.Type[] { typeof(Text) });
-        Spawner.GetCType<Text>(topText).text = "Abilities";
-        Spawner.GetCType<Text>(topText).color = Color.white;
+        SpawnerOutput topText = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Text));
+        topText.ReturnMainScript<Text>().text = "Abilities";
+        topText.ReturnMainScript<Text>().color = Color.white;
 
-        topText.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.5f, 0.9f));
+        topText.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.5f, 0.9f));
 
-        ScriptableObject addAbility = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new System.Type[] { typeof(Button) });
-        Spawner.GetCType<Button>(addAbility).onClick.AddListener(() => { CreateAbility(); });
-        Spawner.GetCType<Text>(addAbility).text = "Create Ability";
+        SpawnerOutput addAbility = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
+        addAbility.ReturnMainScript<Button>().onClick.AddListener(() => { CreateAbility(); });
+        UIDrawer.GetSupportType<Text>(addAbility).text = "Create Ability";
 
-        addAbility.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.15f, 0.1f));
+        addAbility.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.15f, 0.1f));
 
-        lL = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new System.Type[] { typeof(LinearLayout) });
-        lL.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.15f, 0.75f));
+        lL = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(LinearLayout));
+        lL.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.15f, 0.75f));
     }
 
     void CreateAbility() {
-        FileSaveTemplate fST = Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; });
+        FileSaveTemplate fST = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA];
         string path = "";
         int i = -1;
 
@@ -69,22 +68,23 @@ public class AbilityPageScript : MonoBehaviour {
         fST.GenerateNewSubDirectory(new string[] { i.ToString() });
 
         AbilityDescription inst = new AbilityDescription();
-        Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger<string>(new string[] { i.ToString() }, 1, JsonConvert.SerializeObject(inst));
+        fST.GenericSaveTrigger<string>(new string[] { i.ToString() }, 1, JsonConvert.SerializeObject(inst));
         
         descriptions.ModifyElementAt(i, inst);
         GenerateAbilityElement(i);
     }
 
     void GenerateAbilityElement(int index) {
-        ScriptableObject abilityButton = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new System.Type[] { typeof(Button) });
+        SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
 
-        Spawner.GetCType<Text>(abilityButton).text = descriptions.GetElementAt(index).n;
-        Spawner.GetCType<Button>(abilityButton).onClick.AddListener(() => {
+        UIDrawer.GetSupportType<Text>(abilityButton).text = descriptions.GetElementAt(index).n;
+
+        abilityButton.ReturnMainScript<Button>().onClick.AddListener(() => {
             selectedAbility = index;
             SceneTransitionData.LoadScene("Lobby");
         });
 
         UIDrawer.ChangeUISize(abilityButton, new Vector2(200, 30));
-        Spawner.GetCType<LinearLayout>(lL).Add(abilityButton.transform as RectTransform);
+       lL.ReturnMainScript<LinearLayout>().Add(abilityButton.script.transform as RectTransform);
     }
 }

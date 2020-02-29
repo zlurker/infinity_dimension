@@ -63,12 +63,15 @@ public class FileSaveTemplate {
     }
 }
 
+public struct FileSaverTypes {
+    public const int PLAYER_GENERATED_DATA =0;
+}
 
-public class FileSaver:IGameplayStatic {
+public class FileSaver {
 
-    public static Dictionary<string, FileSaveTemplate> sFT;
+    //public static Dictionary<string, FileSaveTemplate> sFT;
 
-    /* public static FileSaveTemplate[] sFT = new FileSaveTemplate[] {
+    public static FileSaveTemplate[] sFT = new FileSaveTemplate[] {
          new FileSaveTemplate<string>("Datafile", new string[]{ "Datafiles" },new string[]{"Ability.json","Info.json","WindowLocation.json","AbilityLauncher.json","NodeBranchData.json","SpecialisedNodeData.json"},(fP, t)=>{
 
          if (!File.Exists(fP))
@@ -76,10 +79,7 @@ public class FileSaver:IGameplayStatic {
 
          File.WriteAllText(fP, t);
          })
-     };*/
-    public void RunOnCreated() {
-
-    }
+     };
 
 
     public static string PathGenerator(string[] pathParam) {

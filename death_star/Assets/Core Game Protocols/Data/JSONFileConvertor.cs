@@ -38,8 +38,6 @@ public static class JSONFileConvertor {
 
     public static AbilityDataSubclass[] ConvertToData(StandardJSONFileFormat[] sFs) {
 
-        AbilityTreeNode[] interfaces = (Iterator.ReturnObject<AbilityTreeNode>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as AbilityTreeNode[];
-
         AbilityDataSubclass[] convertedFormat = new AbilityDataSubclass[sFs.Length];
 
         for(int i = 0; i < convertedFormat.Length; i++) {
@@ -52,8 +50,7 @@ public static class JSONFileConvertor {
                 if(sFs[i].vT[j] > -1) {
                     convertedFormat[i].var[j] = new Variable(VariableTypeIndex.convertors[sFs[i].vT[j]].ReturnRuntimeType(sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
                 } else {
-                    int selectedC = Iterator.ReturnKey<AbilityTreeNode, Type>(interfaces, convertedFormat[i].classType, (p) => { return p.GetType(); });
-                    RuntimeParameters inst = interfaces[selectedC].GetRuntimeParameters()[j];
+                    RuntimeParameters inst = LoadedData.loadedNodeInstance[convertedFormat[i].classType].GetRuntimeParameters()[j];
                     convertedFormat[i].var[j] = new Variable(inst, JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
                 }
             }

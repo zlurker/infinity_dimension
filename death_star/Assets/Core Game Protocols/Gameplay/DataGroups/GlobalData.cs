@@ -86,7 +86,7 @@ public class RuntimeParameters{
 #endregion
 
 #region General Data Structures
-public delegate void r(object[] p);
+/*public delegate void r(object[] p);
 
 /*[System.Serializable]
 public class Iterator {
@@ -170,7 +170,7 @@ public class Iterator {
                 return (Iterator)(tA[i] as object);
         return (Iterator)(null as object);
     }
-}*/
+}
 
 public class DH { //delegateHelper
     public r d; //delegate
@@ -193,7 +193,7 @@ public class DH { //delegateHelper
     public void Invoke(object[] parameters) { //For custom parameters
         d(parameters);
     }
-}
+}*/
 
 #endregion
 
@@ -258,13 +258,13 @@ public static class SceneTransitionData {
     }
 }
 
-public static class DelegatePools {
+/*public static class DelegatePools {
     public static List<DH> jD; //judgementDelegate
 
     public static void ClearDelegatePools() {
         jD = new List<DH>();
     }
-}
+}*/
 
 /*public static class PresetGameplayData {
     public static Stat[] sT = new Stat[] {

@@ -277,8 +277,8 @@ public class AbilityCentralThreadPool : NetworkObject {
             AbilityTreeNode.globalList.l[abilityNodes][nodeId] = LoadedData.singletonList[subclassTypes[nodeId]] as AbilityTreeNode;
 
             if(AbilityTreeNode.globalList.l[abilityNodes][nodeId] == null) {
-                ScriptableObject sOInst = LoadedData.GetSingleton<Spawner>().CreateScriptedObject(new Type[] { subclassTypes[nodeId] });
-                AbilityTreeNode.globalList.l[abilityNodes][nodeId] = Spawner.GetCType<AbilityTreeNode>(sOInst);
+                SpawnerOutput sOInst = LoadedData.GetSingleton<Spawner>().CreateScriptedObject(subclassTypes[nodeId]);
+                AbilityTreeNode.globalList.l[abilityNodes][nodeId] = sOInst.ReturnMainScript<AbilityTreeNode>();
                 AbilityTreeNode.globalList.l[abilityNodes][nodeId].SetSourceObject(sOInst);
             }
 

@@ -18,8 +18,8 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
     public float dimensions;
 
     float scaleFactor;
-    ScriptableObject pointer;
-    public ScriptableObject[,] imageData;
+    SpawnerOutput pointer;
+    public SpawnerOutput[,] imageData;
 
     Vector2 pixelOffset;
     Vector2 lw;
@@ -37,8 +37,9 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
 
         CalibrateEditor();
 
-        ScriptableObject sO = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Button) });
-        UIDrawer.GetCType<Button>(sO).onClick.AddListener(SavePNG);
+        SpawnerOutput sO = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
+
+        sO.ReturnMainScript<Button>().onClick.AddListener(SavePNG);
 
         currPath = FileSaver.PathGenerator(Application.dataPath, new string[] { "Pixel Art", "Test" });
         GeneratePixels();
@@ -79,9 +80,9 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         for (int i=0; i < colorData.GetLength(0); i++) 
             for (int j =0; j < colorData.GetLength(1); j++) 
                 if (colorData[i,j].a > 0) {
-                    ScriptableObject inst = CreatePixel();
-                    Spawner.GetCType<Image>(inst).color = colorData[i, j];
-                    inst.transform.localPosition = new Vector2(scaleFactor *i,scaleFactor*j) + pixelOffset;
+                    SpawnerOutput inst = CreatePixel();
+                    inst.ReturnMainScript<Image>().color = colorData[i, j];
+                    inst.script.transform.localPosition = new Vector2(scaleFactor *i,scaleFactor*j) + pixelOffset;
                     imageData[i, j] = inst;
                 }          
             
@@ -90,7 +91,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     void CalibrateEditor() {
         scaleFactor = dimensions / rcs;
-        imageData = new ScriptableObject[rcs, rcs];
+        imageData = new SpawnerOutput[rcs, rcs];
         Vector2 imageDimensions = new Vector2(dimensions, dimensions);
         (transform as RectTransform).sizeDelta = imageDimensions;
         transform.localPosition = -(imageDimensions / 2);
@@ -108,7 +109,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
             for(int i = 0; i < 2; i++)
                 mPos[i] = mPos[i] - (mPos[i] % scaleFactor);
 
-            pointer.transform.localPosition = mPos + pixelOffset;
+            pointer.script.transform.localPosition = mPos + pixelOffset;
         }
     }
 
@@ -143,10 +144,10 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         CreateNewPixel();
     }
 
-    ScriptableObject CreatePixel() {
-        ScriptableObject inst = Singleton.GetSingleton<UIDrawer>().CreateScriptedObject(new Type[] { typeof(Image) });
-        (Spawner.GetCType<Image>(inst).transform as RectTransform).sizeDelta = lw;
-        inst.transform.parent = transform;
+    SpawnerOutput CreatePixel() {
+        SpawnerOutput inst = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Image));
+        inst.ReturnMainScript<Image>().rectTransform.sizeDelta = lw;
+        inst.script.transform.parent = transform;
 
         return inst;
     }

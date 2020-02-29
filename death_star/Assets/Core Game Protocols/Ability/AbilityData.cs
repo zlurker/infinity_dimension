@@ -32,11 +32,8 @@ public class AbilityDataSubclass {
     }
 
     public AbilityDataSubclass(Type t) {
-        AbilityTreeNode[] interfaces = (Iterator.ReturnObject<AbilityTreeNode>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as AbilityTreeNode[];
-        AbilityTreeNode selectedInterface = Iterator.ReturnObject(interfaces, t, (p) => {
-            return p.GetType();
-        });
 
+        AbilityTreeNode selectedInterface = LoadedData.loadedNodeInstance[t];
         classType = t;
 
         RuntimeParameters[] fields = selectedInterface.GetRuntimeParameters();

@@ -15,7 +15,7 @@ public class AbilityTreeNode : MonoBehaviour {
     private int centralThreadId;
     private int nodeThreadId;
 
-    private ScriptableObject sourceObject;
+    private SpawnerOutput sourceObject;
 
     public int GetNodeThreadId() {
         return nodeThreadId;
@@ -41,11 +41,11 @@ public class AbilityTreeNode : MonoBehaviour {
         centralThreadId = id;
     }
 
-    public ScriptableObject GetSourceObject() {
+    public SpawnerOutput GetSourceObject() {
         return sourceObject;
     }
 
-    public void SetSourceObject(ScriptableObject srcObject) {
+    public void SetSourceObject(SpawnerOutput srcObject) {
         sourceObject = srcObject;
     }
 

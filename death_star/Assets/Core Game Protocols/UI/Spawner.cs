@@ -4,11 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-public struct SpawnerOutput {
+public class SpawnerOutput {
     public MonoBehaviour script;
     public Type scriptType;
 
-    // More for reference on deleting.
+    // For internal use, mostly UI.
     public SpawnerOutput[] additionalScripts;
 
     public SpawnerOutput(MonoBehaviour s, Type t) {
@@ -21,6 +21,10 @@ public struct SpawnerOutput {
         script = s;
         scriptType = t;
         additionalScripts = aS;
+    }
+
+    public T ReturnMainScript<T>(){
+        return (T)(object) script;
     }
 }
 
