@@ -8,16 +8,32 @@ public interface NetworkObject {
     int ReturnInstId();
 }
 
-public class NetworkObjectTracker {
+public enum NetworkEncoderTypes {
+    ABILITY_INPUT, UPDATE_ABILITY_DATA
+}
+
+public class NetworkObjectTracker:IGameplayStatic {
 
     public static NetworkObjectTracker inst;
     private EnhancedList<NetworkObject> networkObjects;
     private AutoPopulationList<int> instanceId;
 
-    public NetworkObjectTracker() {
+    public void RunOnCreated() {
         networkObjects = new EnhancedList<NetworkObject>();
         instanceId = new AutoPopulationList<int>();
         inst = this;
+
+        NetworkMessageEncoder.encoders = new NetworkMessageEncoder[] {
+            new AbilityInputEncoder(),
+            new UpdateAbilityDataEncoder()
+        };
+
+        for (int i=0; i < NetworkMessageEncoder.encoders.Length; i++) 
+            NetworkMessageEncoder.encoders[i].SetEncoderId(i);        
+    }
+
+    public NetworkObjectTracker() {
+        
     }
 
     public void AddNetworkObject(NetworkObject nO) {

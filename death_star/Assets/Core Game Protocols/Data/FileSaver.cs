@@ -64,16 +64,23 @@ public class FileSaveTemplate {
 }
 
 
-public class FileSaver {
-    public static FileSaveTemplate[] sFT = new FileSaveTemplate[] {
-        new FileSaveTemplate<string>("Datafile", new string[]{ "Datafiles" },new string[]{"Ability.json","Info.json","WindowLocation.json","AbilityLauncher.json","NodeBranchData.json","SpecialisedNodeData.json"},(fP, t)=>{
+public class FileSaver:IGameplayStatic {
 
-        if (!File.Exists(fP))
-            File.Create(fP).Dispose();
+    public static Dictionary<string, FileSaveTemplate> sFT;
 
-        File.WriteAllText(fP, t);
-        })
-    };
+    /* public static FileSaveTemplate[] sFT = new FileSaveTemplate[] {
+         new FileSaveTemplate<string>("Datafile", new string[]{ "Datafiles" },new string[]{"Ability.json","Info.json","WindowLocation.json","AbilityLauncher.json","NodeBranchData.json","SpecialisedNodeData.json"},(fP, t)=>{
+
+         if (!File.Exists(fP))
+             File.Create(fP).Dispose();
+
+         File.WriteAllText(fP, t);
+         })
+     };*/
+    public void RunOnCreated() {
+
+    }
+
 
     public static string PathGenerator(string[] pathParam) {
         string path = "";

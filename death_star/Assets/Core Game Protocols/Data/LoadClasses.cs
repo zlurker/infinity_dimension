@@ -12,7 +12,7 @@ using UnityEngine.UI;
 /// </summary>
 /// 
 
-public enum ClassType {
+/*public enum ClassType {
     INTERFACE, BASECLASS
 
 }
@@ -63,40 +63,78 @@ public class InterfaceLoader : Iterator {
     public virtual object ReturnLoadedInterfaces() {
         return null;
     }
-}
+}*/
 
 public class LoadClasses : MonoBehaviour {
     void Start() {
-        LoadedData.lI = new InterfaceLoader[] { new InterfaceLoader<ISingleton>(ClassType.INTERFACE), new InterfaceLoader<AbilityTreeNode>(ClassType.BASECLASS) };
+        //LoadedData.lI = new InterfaceLoader[] { new InterfaceLoader<ISingleton>(ClassType.INTERFACE), new InterfaceLoader<AbilityTreeNode>(ClassType.BASECLASS) };
 
         LoadSingletonClasses();
+        LoadAbilityNodes();
         LoadNetworkDependencies();
 
         SceneTransitionData.Initialise();
     }
 
-    void LoadSingletonClasses() {
-        ISingleton[] interfaces = (Iterator.ReturnObject<ISingleton>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as ISingleton[];
-        LoadedData.sL = new Singleton[interfaces.Length];
+    void LoadAbilityNodes() {
 
-        for(int i = 0; i < interfaces.Length; i++) {
+        LoadedData.loadedNodeInstance = new Dictionary<Type, AbilityTreeNode>();
+
+        Type[] types = new Type[0];
+        Type t = typeof(AbilityTreeNode);
+
+        types = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(s => s.GetTypes())
+                        .Where(p => p.IsSubclassOf(t)).ToArray();
+
+        for(int i = 0; i < types.Length; i++) {
+            ConstructorInfo info = types[i].GetConstructor(new Type[0]);
+            AbilityTreeNode inst = null;
+
+            if(info != null)
+                inst = info.Invoke(new object[0]) as AbilityTreeNode;
+
+            LoadedData.loadedNodeInstance.Add(types[i], inst);
+        }
+    }
+
+    void LoadSingletonClasses() {
+
+        LoadedData.singletonList = new Dictionary<Type, ISingleton>();
+
+        Type[] types = new Type[0];
+        Type t = typeof(ISingleton);
+
+        types = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(s => s.GetTypes())
+                        .Where(p => t.IsAssignableFrom(p)).ToArray();
+
+        for(int i = 0; i < types.Length; i++) {
+            MonoBehaviour singleton = new GameObject(types[i].FullName).AddComponent(types[i]) as MonoBehaviour;
+            DontDestroyOnLoad(singleton.gameObject);
+
+            ISingleton castedSingleton = singleton as ISingleton;
+            castedSingleton.RunOnCreated();
+
+            LoadedData.singletonList.Add(types[i], castedSingleton);
+        }
+
+        //ISingleton[] interfaces = (Iterator.ReturnObject<ISingleton>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as ISingleton[];
+        //LoadedData.sL = new Singleton[interfaces.Length];
+
+        /*for(int i = 0; i < interfaces.Length; i++) {
             MonoBehaviour singleton = new GameObject(interfaces[i].GetType().FullName).AddComponent(interfaces[i].GetType()) as MonoBehaviour;
             DontDestroyOnLoad(singleton.gameObject);
             (singleton as ISingleton).RunOnCreated();
 
             LoadedData.sL[i] = new Singleton(singleton as ISingleton);
-        }
+        }*/
     }
 
     void LoadNetworkDependencies() {
         // Creates a new instance, it will handle everything else in constructor.
-        new NetworkObjectTracker();
+        // to be replaced with igameplaystatic
 
-        NetworkMessageEncoder.encoders = new NetworkMessageEncoder[] {
-            new AbilityInputEncoder(0),
-            new UpdateAbilityDataEncoder(1)
-        };
 
     }
-
 }

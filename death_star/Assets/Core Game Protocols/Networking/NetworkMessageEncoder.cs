@@ -3,10 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum NetworkEncoderTypes {
-    ABILITY_INPUT, UPDATE_ABILITY_DATA
-}
-
 public class NetworkMessageEncoder {
 
     public static NetworkMessageEncoder[] encoders;
@@ -15,7 +11,7 @@ public class NetworkMessageEncoder {
     protected byte[] bytesToSend;
     protected byte[] bytesRecieved;
 
-    public NetworkMessageEncoder(int id) {
+    public void SetEncoderId(int id) {
         encoderId = id;
     }
 	

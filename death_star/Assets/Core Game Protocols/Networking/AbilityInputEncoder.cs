@@ -5,10 +5,6 @@ using System;
 
 public class AbilityInputEncoder:NetworkMessageEncoder {
 
-    public AbilityInputEncoder(int id):base(id) {
-
-    }
-
    public void SendInputSignal(int abilityId) {
         bytesToSend = BitConverter.GetBytes(abilityId);
         SendEncodedMessages();

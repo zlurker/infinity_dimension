@@ -19,6 +19,10 @@ public interface ISingleton {
     void RunOnCreated();
 }
 
+public interface IGameplayStatic {
+    void RunOnCreated();
+}
+
 public interface ISpawnable {
 }
 
@@ -41,7 +45,10 @@ public class RuntimeParameters<T> : RuntimeParameters {
     }
 }
 
-public class RuntimeParameters : Iterator {
+public class RuntimeParameters{
+
+    public string n;
+    public Type t;
 
     public virtual string GetSerializedObject() {
         return "";
@@ -49,7 +56,7 @@ public class RuntimeParameters : Iterator {
     public int vI;
 }
 
-public struct EffectTemplate {
+/*public struct EffectTemplate {
     public string statAffected;
     public float duration;
     public float tickCount;
@@ -65,9 +72,9 @@ public struct EffectTemplate {
         value = v;
         permanent = p;
     }
-}
+}*/
 
-public class Stat : Iterator {
+/*public class Stat : Iterator {
     public float v;
     public float pTC;
 
@@ -75,13 +82,13 @@ public class Stat : Iterator {
         n = name;
         v = val;
     }
-}
+}*/
 #endregion
 
 #region General Data Structures
 public delegate void r(object[] p);
 
-[System.Serializable]
+/*[System.Serializable]
 public class Iterator {
     public string n;
     public Type t;
@@ -163,7 +170,7 @@ public class Iterator {
                 return (Iterator)(tA[i] as object);
         return (Iterator)(null as object);
     }
-}
+}*/
 
 public class DH { //delegateHelper
     public r d; //delegate
@@ -190,20 +197,8 @@ public class DH { //delegateHelper
 
 #endregion
 
-public static class GlobalData {
-    #region Gameplay Global Data
 
-    #endregion
-
-    //Loads a new level and refreshes data structures if needed.
-    /*    public static void LoadNewLevel(int level)
-        {
-            DelegatePools.ClearDelegatePools();
-            SceneManager.LoadScene(level);
-        }*/
-}
-
-public class Singleton : Iterator {
+/*public class Singleton {
     public ISingleton linkedInstance;
 
     public Singleton(ISingleton singleton) {
@@ -224,14 +219,19 @@ public class Singleton : Iterator {
 
         return null;
     }
-}
+}*/
 
 public static class LoadedData {
 
     //public static IPlayerEditable[] uL; //uiLoaders
-    public static Singleton[] sL; //singletonList
-    public static InterfaceLoader[] lI; //loadedInterfaces
+    //public static Singleton[] sL; //singletonList
+    public static Dictionary<Type, ISingleton> singletonList;
+    public static Dictionary<Type, AbilityTreeNode> loadedNodeInstance;
 
+    public static T GetSingleton<T>() {
+        return (T)singletonList[typeof(T)];
+    }
+    //public static InterfaceLoader[] lI; //loadedInterfaces
 }
 
 public static class SceneTransitionData {
@@ -253,10 +253,8 @@ public static class SceneTransitionData {
     }
 
     public static void OnSceneLoad(Scene arg0, LoadSceneMode arg1) {
-        ISingleton[] interfaces = (Iterator.ReturnObject<ISingleton>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as ISingleton[];
-
-        for(int i = 0; i < interfaces.Length; i++)
-            interfaces[i].RunOnStart(); //Runs all the singleton start  
+        foreach (KeyValuePair<Type, ISingleton> singletons in LoadedData.singletonList) 
+            singletons.Value.RunOnStart();       
     }
 }
 
@@ -268,7 +266,7 @@ public static class DelegatePools {
     }
 }
 
-public static class PresetGameplayData {
+/*public static class PresetGameplayData {
     public static Stat[] sT = new Stat[] {
         new Stat("Current Health", 50),
         new Stat("Max Health", 50),
@@ -283,7 +281,7 @@ public static class PresetGameplayData {
         new ClassFilter<Type>(typeof(ISingleton), (t) => {
             return Singleton.GetSingleton(t) as IPlayerEditable;
         })
-    };*/
+    };
 
 
-}
+}*/

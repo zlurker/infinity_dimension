@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -63,7 +63,7 @@ public class AddOnData : Iterator
         for (int i = 0; i < items.Length; i++)
             gE.Add(items[i]);
     }
-}*/
+}
 [Obsolete("Not used any more", true)]
 public class Group : Iterator
 {
@@ -143,7 +143,7 @@ public class Group : Iterator
 
         for (int i = 0; i < gE.Count; i++)
             gE[i].transform.parent = gP.transform;
-    }*/
+    }
 }
 
 public enum Patterns
@@ -337,5 +337,6 @@ public class PatternControl : MonoBehaviour, ISingleton
             }
 
         return returnItems.ToArray();
-    }*/
+    }
 }
+*/

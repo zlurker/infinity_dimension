@@ -6,10 +6,6 @@ using System.Text;
 
 public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
-    public UpdateAbilityDataEncoder(int id) : base(id) {
-
-    }
-
     public void SendUpdatedNodeData<T>(int central, int instId, int ability, int var, T value) {
 
         byte[] vBytes = new byte[0];

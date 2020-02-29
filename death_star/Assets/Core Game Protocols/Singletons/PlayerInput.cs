@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class InputData : Iterator {
+public class InputData {
     public List<DH> rs;
     public KeyCode k; //keycode
     public int b; //button
