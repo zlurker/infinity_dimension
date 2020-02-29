@@ -22,10 +22,6 @@ public class SpawnerOutput {
         scriptType = t;
         additionalScripts = aS;
     }
-
-    public T ReturnMainScript<T>(){
-        return (T)(object) script;
-    }
 }
 
 public class Spawner : AbilityTreeNode, ISingleton {

@@ -31,8 +31,8 @@ public class EditableWindow : WindowsScript {
         windowsDeleter = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
         linesRelated = new List<int>();
 
-        UIDrawer.GetSupportType<Image>(windowsDeleter).color = Color.red;
-        UIDrawer.GetSupportType<Text>(windowsDeleter).text = "";
+        UIDrawer.GetTypeInElement<Image>(windowsDeleter).color = Color.red;
+        UIDrawer.GetTypeInElement<Text>(windowsDeleter).text = "";
 
         windowsDeleter.script.transform.SetParent(transform);
         lL.transform.SetParent(transform);
@@ -98,11 +98,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         SpawnerOutput name = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(InputField));
         name.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.9f));
 
-        InputField castedName = name.ReturnMainScript<InputField>();
+        InputField castedName = UIDrawer.GetTypeInElement<InputField>(name);
 
         string data = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1);
         abilityDescription = JsonConvert.DeserializeObject<AbilityDescription>(data);
-        name.ReturnMainScript<InputField>().text = abilityDescription.n;
+        UIDrawer.GetTypeInElement<InputField>(name).text = abilityDescription.n;
 
         castedName.onValueChanged.AddListener((s) => {
             abilityDescription.n = s;
@@ -116,12 +116,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         foreach(KeyValuePair<Type, AbilityTreeNode> entry in LoadedData.loadedNodeInstance) {
             SpawnerOutput button = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
 
-            Button butInst = button.ReturnMainScript<Button>();
+            Button butInst = UIDrawer.GetTypeInElement<Button>(button);
 
             typeMap[typeInt] = entry.Key;
 
             // Need another way to get elements within spawner output...
-           UIDrawer.GetSupportType<Text>(button).text = entry.Key.Name;
+            UIDrawer.GetTypeInElement<Text>(button).text = entry.Key.Name;
 
             butInst.onClick.AddListener(() => { WindowSpawnState(typeInt); });
             (mainClassSelection.script as LinearLayout).Add(butInst.transform as RectTransform);
@@ -134,7 +134,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         SpawnerOutput saveButton = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
 
-        saveButton.ReturnMainScript<Button>().onClick.AddListener(() => {
+        UIDrawer.GetTypeInElement<Button>(saveButton).onClick.AddListener(() => {
 
             int[] aEle = abilityData.subclasses.ReturnActiveElementIndex();
 
@@ -168,7 +168,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             //Iterator.ReturnObject<FileSaveTemplate>(FileSaver.sFT, "Datafile", (s) => { return s.c; }).GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(AbilityDataSubclass.ReturnGetterAndSetters(cAD)));
         });
 
-        UIDrawer.GetSupportType<Text>(saveButton).text = "Save JSON";
+        UIDrawer.GetTypeInElement<Text>(saveButton).text = "Save JSON";
         saveButton.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.1f));
     }
 
@@ -257,19 +257,19 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             SpawnerOutput get = CreateVariableButtons(ActionType.RECIEVE, new int[] { id, i });
             SpawnerOutput set = CreateVariableButtons(ActionType.SEND, new int[] { id, i });
             
-            UIDrawer.GetSupportType<Image>(get).color = Color.red;
-            UIDrawer.GetSupportType<Image>(set).color = Color.green;
+            UIDrawer.GetTypeInElement<Image>(get).color = Color.red;
+            UIDrawer.GetTypeInElement<Image>(set).color = Color.green;
 
             SpawnerOutput align = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(LinearLayout));
 
-            align.ReturnMainScript<LinearLayout>().o = LinearLayout.Orientation.X;
+            UIDrawer.GetTypeInElement<LinearLayout>(align).o = LinearLayout.Orientation.X;
 
-            align.ReturnMainScript<LinearLayout>().Add(get.script.transform as RectTransform);
+            UIDrawer.GetTypeInElement<LinearLayout>(align).Add(get.script.transform as RectTransform);
 
             for(int j = 0; j < var.Length; j++)
-                align.ReturnMainScript<LinearLayout>().Add(var[j].script.transform as RectTransform);
+                UIDrawer.GetTypeInElement<LinearLayout>(align).Add(var[j].script.transform as RectTransform);
 
-            align.ReturnMainScript<LinearLayout>().Add(set.script.transform as RectTransform);
+            UIDrawer.GetTypeInElement<LinearLayout>(align).Add(set.script.transform as RectTransform);
 
             (align.script.transform as RectTransform).sizeDelta = (align.script.transform as RectTransform).sizeDelta;
             editWindow.lL.Add(align.script.transform as RectTransform);
@@ -281,12 +281,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         SpawnerOutput linkageButton = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
 
-        UIDrawer.GetSupportType<Text>(linkageButton).text = "";
+        UIDrawer.GetTypeInElement<Text>(linkageButton).text = "";
         UIDrawer.ChangeUISize(linkageButton, new Vector2(20, 20));
 
         switch(aT) {
             case ActionType.RECIEVE:
-                linkageButton.ReturnMainScript<Button>().onClick.AddListener(() => {
+                UIDrawer.GetTypeInElement<Button>(linkageButton).onClick.AddListener(() => {
                     // Checks if there's a prev path.
                     if(prevPath.Length > 0) {
 
@@ -312,7 +312,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 break;
 
             case ActionType.SEND:
-                linkageButton.ReturnMainScript<Button>().onClick.AddListener(() => {
+                UIDrawer.GetTypeInElement<Button>(linkageButton).onClick.AddListener(() => {
                     prevPath = id;
                 });
                 break;
@@ -419,7 +419,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             if(lineData.l[id[i]].line != null) {
                 lineData.l[id[i]].line.script.transform.position = lineData.l[id[i]].s.position;
                 Vector2 d = lineData.l[id[i]].e.position - lineData.l[id[i]].s.position;
-                lineData.l[id[i]].line.ReturnMainScript<Image>().rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
+                UIDrawer.GetTypeInElement<Image>(lineData.l[id[i]].line).rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
                 lineData.l[id[i]].line.script.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(d)));
 
                 //Debug.Log("Line ID Rendered: " + id[i]);

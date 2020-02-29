@@ -113,7 +113,11 @@ public class UIDrawer : Spawner, ISingleton {
         (lL.transform as RectTransform).sizeDelta = new Vector2(0, 0);
     }
 
-    public static T GetSupportType<T>(SpawnerOutput target) {
+    // A wrapped to assist us in getting elements nested within.
+    public static T GetTypeInElement<T>(SpawnerOutput target) {
+
+        if(target.script is T)
+            return (T)(object)target.script;
 
         if(target.script is Button || target.script is InputField)
             return (T)(object)target.additionalScripts[butInpIds[typeof(T)]];

@@ -30,6 +30,16 @@ public class VariableTypeIndex {
     };
 
     public static int ReturnVariableIndex(Type type) {
-        return Iterator.ReturnKey<RuntimeParameterConversion, Type>(convertors, type, (p) => { return p.rPT; });
+
+        if(type == typeof(string))
+            return 0;
+
+        if(type == typeof(float))
+            return 1;
+
+        if(type == typeof(int))
+            return 2;
+
+        return -1;
     }
 }

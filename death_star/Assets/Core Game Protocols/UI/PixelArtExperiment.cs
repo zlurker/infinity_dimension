@@ -39,7 +39,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
 
         SpawnerOutput sO = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
 
-        sO.ReturnMainScript<Button>().onClick.AddListener(SavePNG);
+        UIDrawer.GetTypeInElement<Button>(sO).onClick.AddListener(SavePNG);
 
         currPath = FileSaver.PathGenerator(Application.dataPath, new string[] { "Pixel Art", "Test" });
         GeneratePixels();
@@ -81,7 +81,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
             for (int j =0; j < colorData.GetLength(1); j++) 
                 if (colorData[i,j].a > 0) {
                     SpawnerOutput inst = CreatePixel();
-                    inst.ReturnMainScript<Image>().color = colorData[i, j];
+                    UIDrawer.GetTypeInElement<Image>(inst).color = colorData[i, j];
                     inst.script.transform.localPosition = new Vector2(scaleFactor *i,scaleFactor*j) + pixelOffset;
                     imageData[i, j] = inst;
                 }          
@@ -146,7 +146,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     SpawnerOutput CreatePixel() {
         SpawnerOutput inst = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Image));
-        inst.ReturnMainScript<Image>().rectTransform.sizeDelta = lw;
+        UIDrawer.GetTypeInElement<Image>(inst).rectTransform.sizeDelta = lw;
         inst.script.transform.parent = transform;
 
         return inst;

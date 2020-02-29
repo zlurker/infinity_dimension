@@ -11,6 +11,6 @@ public struct LineData {
         s = start;
         e = end;
         line = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Image));
-        line.ReturnMainScript<Image>().rectTransform.pivot = new Vector2(0.5f,0);
+        UIDrawer.GetTypeInElement<Image>(line).rectTransform.pivot = new Vector2(0.5f,0);
     }
 }
