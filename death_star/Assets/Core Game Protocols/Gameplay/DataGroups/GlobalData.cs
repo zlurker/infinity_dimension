@@ -82,18 +82,6 @@ public class Stat : Iterator
         v = val;
     }
 }
-
-public struct PointData
-{
-    public float aC; //angleChanges
-    public float u; //unit
-
-    public PointData(float angleChanges, float unit)
-    {
-        aC = angleChanges;
-        u = unit;
-    }
-}
 #endregion
 
 #region General Data Structures
@@ -261,10 +249,11 @@ public class Singleton : Iterator
 
 public static class LoadedData
 {
-    //public static IPlayerEditable[] gIPEI; //globalIPlayerEditableInstances
+    
     //public static IPlayerEditable[] uL; //uiLoaders
     public static Singleton[] sL; //singletonList
     public static InterfaceLoader[] lI; //loadedInterfaces
+
 }
 
 public static class SceneTransitionData

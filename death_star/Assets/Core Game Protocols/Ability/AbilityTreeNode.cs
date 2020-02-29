@@ -8,12 +8,14 @@ public enum NodeType {
 
 public class AbilityTreeNode : MonoBehaviour {
 
-    public static EnhancedList<ScriptableObject[]> globalList = new EnhancedList<ScriptableObject[]>();
+    public static EnhancedList<AbilityTreeNode[]> globalList = new EnhancedList<AbilityTreeNode[]>();
 
     // Given node ID.
-    int nodeId;
-    int centralThreadId;
-    int nodeThreadId;
+    private int nodeId;
+    private int centralThreadId;
+    private int nodeThreadId;
+
+    private ScriptableObject sourceObject;
 
     public int GetNodeThreadId() {
         return nodeThreadId;
@@ -37,6 +39,14 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public void SetCentralId(int id) {
         centralThreadId = id;
+    }
+
+    public ScriptableObject GetSourceObject() {
+        return sourceObject;
+    }
+
+    public void SetSourceObject(ScriptableObject srcObject) {
+        sourceObject = srcObject;
     }
 
     public virtual RuntimeParameters[] GetRuntimeParameters() {

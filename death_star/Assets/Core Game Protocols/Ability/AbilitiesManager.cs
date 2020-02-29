@@ -42,7 +42,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
            
             int tId = AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
-            ScriptableObject[] a = new ScriptableObject[dataVar.Length];
+            AbilityTreeNode[] a = new AbilityTreeNode[dataVar.Length];
             int nId = AbilityTreeNode.globalList.Add(a);
 
             // Rather than create new instance, everything except variables will be taken from here.
