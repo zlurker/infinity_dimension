@@ -109,14 +109,24 @@ public class LoadClasses : MonoBehaviour {
                         .SelectMany(s => s.GetTypes())
                         .Where(p => t.IsAssignableFrom(p)).ToArray();
 
+
         for(int i = 0; i < types.Length; i++) {
-            MonoBehaviour singleton = new GameObject(types[i].FullName).AddComponent(types[i]) as MonoBehaviour;
-            DontDestroyOnLoad(singleton.gameObject);
 
-            ISingleton castedSingleton = singleton as ISingleton;
-            castedSingleton.RunOnCreated();
+            ConstructorInfo info = types[i].GetConstructor(new Type[0]);
+            ISingleton inst = null;
 
-            LoadedData.singletonList.Add(types[i], castedSingleton);
+            if(info != null) {
+                inst = info.Invoke(new object[0]) as ISingleton;
+
+                MonoBehaviour singleton = new GameObject(inst.GetType().FullName).AddComponent(inst.GetType()) as MonoBehaviour;
+                Debug.Log(singleton);
+                DontDestroyOnLoad(singleton.gameObject);
+
+                ISingleton castedSingleton = singleton as ISingleton;
+                castedSingleton.RunOnCreated();
+
+                LoadedData.singletonList.Add(types[i], castedSingleton);
+            }
         }
 
         //ISingleton[] interfaces = (Iterator.ReturnObject<ISingleton>(LoadedData.lI) as InterfaceLoader).ReturnLoadedInterfaces() as ISingleton[];

@@ -29,6 +29,14 @@ public class UIDrawer : Spawner, ISingleton {
         if(type == typeof(LinearLayout))
             LinearLayoutHandler(inst.script as LinearLayout);
 
+        inst.script.transform.SetParent(t.transform);
+
+        if(inst.additionalScripts != null)
+            for(int i = 0; i < inst.additionalScripts.Length; i++) {
+                inst.additionalScripts[i].script.transform.SetParent(inst.script.transform);
+                inst.additionalScripts[i].script.transform.localPosition = Vector3.zero;
+            }
+
         return inst;
     }
 
@@ -119,8 +127,10 @@ public class UIDrawer : Spawner, ISingleton {
         if(target.script is T)
             return (T)(object)target.script;
 
-        if(target.script is Button || target.script is InputField)
-            return (T)(object)target.additionalScripts[butInpIds[typeof(T)]];
+        if(target.script is Button || target.script is InputField) {
+            Debug.Log(target.additionalScripts[butInpIds[typeof(T)]].script);
+            return (T)(object)target.additionalScripts[butInpIds[typeof(T)]].script;
+        }
 
         return (T)(object)null;
     }
@@ -166,6 +176,10 @@ public class UIDrawer : Spawner, ISingleton {
         (target.transform as RectTransform).sizeDelta = dimensions;
     }*/
 
+    public static void UpdateMainObject() {
+
+    }
+
     public static Vector3 UINormalisedPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.
         return UINormalisedPosition(t.transform as RectTransform, c);
     }
@@ -189,7 +203,7 @@ public class UIDrawer : Spawner, ISingleton {
         butInpIds = new Dictionary<Type, int>();
 
         butInpIds.Add(typeof(Image), 0);
-        butInpIds.Add(typeof(Text), 0);
+        butInpIds.Add(typeof(Text), 1);
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {

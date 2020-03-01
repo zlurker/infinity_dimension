@@ -40,7 +40,7 @@ public class EditableWindow : WindowsScript {
         windowsDeleter.script.transform.position = UIDrawer.UINormalisedPosition(transform as RectTransform, new Vector2(0.85f, 0.5f));
         lL.transform.position = UIDrawer.UINormalisedPosition(transform as RectTransform, new Vector2(0f, 0.1f));
 
-        UIDrawer.ChangeUISize(windowsDeleter, new Vector2(20, 20));
+        //UIDrawer.ChangeUISize(windowsDeleter, new Vector2(20, 20));
     }
 
     public override void OnDrag(PointerEventData eventData) {
@@ -282,7 +282,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         SpawnerOutput linkageButton = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
 
         UIDrawer.GetTypeInElement<Text>(linkageButton).text = "";
-        UIDrawer.ChangeUISize(linkageButton, new Vector2(20, 20));
+        //UIDrawer.ChangeUISize(linkageButton, new Vector2(20, 20));
 
         switch(aT) {
             case ActionType.RECIEVE:
@@ -299,10 +299,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
                         Transform[] points = new Transform[2];
 
-                        int lastObj = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects.Count - 1;
-                        points[0] = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects[lastObj];
+                        int lastObj = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects.Count - 1;
+                        points[0] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects[lastObj];
 
-                        points[1] = abilityWindows.l[id[0]].variables[id[1]].objects[0];
+                       points[1] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[id[0]].variables[id[1]]).objects[0];
 
                         CreateLines(points, connectionId);
                         // Removes the prev path. 
@@ -334,10 +334,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             Transform[] points = new Transform[2];
 
-            int lastObj = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects.Count - 1;
-            points[0] = abilityWindows.l[prevPath[0]].variables[prevPath[1]].objects[lastObj];
+            int lastObj = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects.Count - 1;
+            points[0] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects[lastObj];
 
-            points[1] = abilityWindows.l[id[0]].variables[id[1]].objects[0];
+            points[1] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[id[0]].variables[id[1]]).objects[0];
 
             CreateLines(points, connectionId);
             // Removes the prev path. 

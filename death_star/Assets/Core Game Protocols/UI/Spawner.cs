@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
+public interface IOnSpawn {
+    void OnSpawn();
+}
+
 public class SpawnerOutput {
     public MonoBehaviour script;
     public Type scriptType;
@@ -53,6 +57,11 @@ public class Spawner : AbilityTreeNode, ISingleton {
             typePool[type].RemoveAt(0);
         } else 
             inst = new GameObject(type.Name,bB).AddComponent(type) as MonoBehaviour;
+
+        IOnSpawn onSpawn = inst as IOnSpawn;
+
+        if(onSpawn != null)
+            onSpawn.OnSpawn();
 
         return new SpawnerOutput(inst,type);
     }
