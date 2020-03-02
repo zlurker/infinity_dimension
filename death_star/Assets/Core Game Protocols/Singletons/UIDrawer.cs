@@ -127,10 +127,9 @@ public class UIDrawer : Spawner, ISingleton {
         if(target.script is T)
             return (T)(object)target.script;
 
-        if(target.script is Button || target.script is InputField) {
-            Debug.Log(target.additionalScripts[butInpIds[typeof(T)]].script);
+        if(target.script is Button || target.script is InputField) 
             return (T)(object)target.additionalScripts[butInpIds[typeof(T)]].script;
-        }
+        
 
         return (T)(object)null;
     }
@@ -176,8 +175,11 @@ public class UIDrawer : Spawner, ISingleton {
         (target.transform as RectTransform).sizeDelta = dimensions;
     }*/
 
-    public static void UpdateMainObject() {
+    public static void ChangeUISize(SpawnerOutput target, Vector2 size) {
+        (target.script.transform as RectTransform).sizeDelta = size;
 
+        for(int i = 0; i < target.additionalScripts.Length; i++)
+            (target.additionalScripts[i].script.transform as RectTransform).sizeDelta = size;
     }
 
     public static Vector3 UINormalisedPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.

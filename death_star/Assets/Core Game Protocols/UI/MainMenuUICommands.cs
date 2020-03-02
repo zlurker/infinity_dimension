@@ -40,7 +40,7 @@ public class EditableWindow : WindowsScript {
         windowsDeleter.script.transform.position = UIDrawer.UINormalisedPosition(transform as RectTransform, new Vector2(0.85f, 0.5f));
         lL.transform.position = UIDrawer.UINormalisedPosition(transform as RectTransform, new Vector2(0f, 0.1f));
 
-        //UIDrawer.ChangeUISize(windowsDeleter, new Vector2(20, 20));
+        UIDrawer.ChangeUISize(windowsDeleter, new Vector2(20, 20));
     }
 
     public override void OnDrag(PointerEventData eventData) {
@@ -60,11 +60,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     public Font font;
     Text instance;
 
-    Type[] typeMap;
-
     SpawnerOutput windowSpawner;
     bool windowSpawnMode;
     int dataIndex;
+
+    Type selectedType;
 
     //Line Drawing System
     Camera cam;
@@ -109,23 +109,19 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         });
 
         SpawnerOutput[] buttons = new SpawnerOutput[LoadedData.loadedNodeInstance.Count];
-        typeMap = new Type[LoadedData.loadedNodeInstance.Count];
 
-        int typeInt = 0;
 
         foreach(KeyValuePair<Type, AbilityTreeNode> entry in LoadedData.loadedNodeInstance) {
             SpawnerOutput button = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
 
             Button butInst = UIDrawer.GetTypeInElement<Button>(button);
 
-            typeMap[typeInt] = entry.Key;
-
             // Need another way to get elements within spawner output...
             UIDrawer.GetTypeInElement<Text>(button).text = entry.Key.Name;
 
-            butInst.onClick.AddListener(() => { WindowSpawnState(typeInt); });
+            butInst.onClick.AddListener(() => { WindowSpawnState(entry.Key); });
             (mainClassSelection.script as LinearLayout).Add(butInst.transform as RectTransform);
-            typeInt++;
+
         }
 
         mainClassSelection.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
@@ -186,9 +182,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         }
     }
 
-    public void WindowSpawnState(int index) {
+    public void WindowSpawnState(Type type) {
         //windowSpawner.GetSupportScript<Text>(SupportObjectID).text = index.ToString();
-        dataIndex = index;
+        selectedType = type;
 
         windowSpawner.script.gameObject.SetActive(true);
         windowSpawnMode = true;
@@ -203,7 +199,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             windowSpawnMode = false;
             windowSpawner.script.gameObject.SetActive(false);
 
-            int id = abilityData.subclasses.Add(new AbilityDataSubclass(typeMap[dataIndex]));
+            //Debug.Log(typeMap.Length);
+            Debug.Log(dataIndex);
+            int id = abilityData.subclasses.Add(new AbilityDataSubclass(selectedType));
 
 
             Vector3 cursorPos;
@@ -245,7 +243,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             //abilityData.ResetTunnelEnd(id);
         });
 
-        editWindow.transform.parent.position = location;
+        editWindow.transform.position = location;
         abilityWindows.ModifyElementAt(id, editWindow);
 
         //Initialises variable linear layouts.
@@ -282,7 +280,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         SpawnerOutput linkageButton = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
 
         UIDrawer.GetTypeInElement<Text>(linkageButton).text = "";
-        //UIDrawer.ChangeUISize(linkageButton, new Vector2(20, 20));
+        UIDrawer.ChangeUISize(linkageButton, new Vector2(20, 20));
 
         switch(aT) {
             case ActionType.RECIEVE:
@@ -371,8 +369,24 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     SpawnerOutput ReturnElementField(RuntimeParameters variable) {
         SpawnerOutput element = null;
 
-        if(variable.t == typeof(string) || variable.t == typeof(int) || variable.t == typeof(float))
+        int variableType = VariableTypeIndex.ReturnVariableIndex(variable.t);
+
+        if (variableType >-1)
             element = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(InputField));
+
+        switch(variableType) {
+            case 0:
+                UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<string>).v;
+                break;
+
+            case 1:
+                UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<float>).v.ToString();
+                break;
+
+            case 2:
+                UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<int>).v.ToString();
+                break;
+        }
 
         return element;
     }

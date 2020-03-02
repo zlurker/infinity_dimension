@@ -16,8 +16,8 @@ public class WindowsScript : MonoBehaviour, IPointerDownHandler, IDragHandler, I
     Vector3 trackedPos;
 
     public virtual void OnPointerDown(PointerEventData eventData) {
-        transform.parent.SetAsLastSibling();
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.parent as RectTransform, eventData.position, eventData.pressEventCamera, out pointInObject);
+        transform.SetAsLastSibling();
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(transform as RectTransform, eventData.position, eventData.pressEventCamera, out pointInObject);
     }
 
     public virtual void OnPointerUp(PointerEventData eventData) {
@@ -27,6 +27,6 @@ public class WindowsScript : MonoBehaviour, IPointerDownHandler, IDragHandler, I
     public virtual void OnDrag(PointerEventData eventData) {
         Vector2 currMousePos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out currMousePos);
-        transform.parent.localPosition = currMousePos - pointInObject;
+        transform.localPosition = currMousePos - pointInObject;
     }
 }
