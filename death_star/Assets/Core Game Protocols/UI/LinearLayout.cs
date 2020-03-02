@@ -18,6 +18,7 @@ public class LinearLayout : MonoBehaviour, IOnSpawn
         o = Orientation.Y;
         multiplier = new Vector2(1, -1);
         objects = new List<RectTransform>();
+        (transform as RectTransform).sizeDelta = new Vector2(0, 0);
     } 
 
     public void Add(RectTransform target) {

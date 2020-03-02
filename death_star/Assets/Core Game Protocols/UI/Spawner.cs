@@ -12,19 +12,10 @@ public class SpawnerOutput {
     public MonoBehaviour script;
     public Type scriptType;
 
-    // For internal use, mostly UI.
-    public SpawnerOutput[] additionalScripts;
 
     public SpawnerOutput(MonoBehaviour s, Type t) {
         script = s;
         scriptType = t;
-        additionalScripts = null;
-    }
-
-    public SpawnerOutput(MonoBehaviour s, Type t, SpawnerOutput[] aS) {
-        script = s;
-        scriptType = t;
-        additionalScripts = aS;
     }
 }
 
@@ -39,24 +30,21 @@ public class Spawner : AbilityTreeNode, ISingleton {
             typePool.Add(inst.scriptType, new List<MonoBehaviour>());
 
         typePool[inst.scriptType].Add(inst.script);
-
-        if(inst.additionalScripts != null)
-            for(int i = 0; i < inst.additionalScripts.Length; i++)
-                Remove(inst.additionalScripts[i]);
     }
 
-    public SpawnerOutput CreateScriptedObject(Type type) {
+    public virtual SpawnerOutput CreateScriptedObject(Type type) {
 
         if(!typePool.ContainsKey(type)) 
             typePool.Add(type, new List<MonoBehaviour>());
 
         MonoBehaviour inst = null;
 
-        if (typePool[type].Count > 0) {
+        if(typePool[type].Count > 0) {
             inst = typePool[type][0];
             typePool[type].RemoveAt(0);
         } else 
-            inst = new GameObject(type.Name,bB).AddComponent(type) as MonoBehaviour;
+            inst = new GameObject(type.Name, bB).AddComponent(type) as MonoBehaviour;            
+        
 
         IOnSpawn onSpawn = inst as IOnSpawn;
 

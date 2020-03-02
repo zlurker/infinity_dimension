@@ -27,8 +27,8 @@ public class EditableWindow : WindowsScript {
     public ILineHandler link;
 
     public void InitialiseWindow() {
-        lL = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(LinearLayout)).script as LinearLayout;
-        windowsDeleter = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
+        lL = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout)).script as LinearLayout;
+        windowsDeleter = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
         linesRelated = new List<int>();
 
         UIDrawer.GetTypeInElement<Image>(windowsDeleter).color = Color.red;
@@ -89,9 +89,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         SpawnUIFromData();
 
-        mainClassSelection = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(LinearLayout));
+        mainClassSelection = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));
 
-        SpawnerOutput name = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(InputField));
+        SpawnerOutput name = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(InputFieldWrapper));
         name.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.9f));
 
         InputField castedName = UIDrawer.GetTypeInElement<InputField>(name);
@@ -108,7 +108,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
 
         foreach(KeyValuePair<Type, AbilityTreeNode> entry in LoadedData.loadedNodeInstance) {
-            SpawnerOutput button = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
+            SpawnerOutput button = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
             Button butInst = UIDrawer.GetTypeInElement<Button>(button);
 
@@ -121,10 +121,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         }
 
         mainClassSelection.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
-        windowSpawner = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Image));
+        windowSpawner = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image));
         windowSpawner.script.gameObject.SetActive(false);
 
-        SpawnerOutput saveButton = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
+        SpawnerOutput saveButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
         UIDrawer.GetTypeInElement<Button>(saveButton).onClick.AddListener(() => {
 
@@ -177,7 +177,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     }
 
     public void WindowSpawnState(Type type) {
-        //windowSpawner.GetSupportScript<Text>(SupportObjectID).text = index.ToString();
         selectedType = type;
 
         windowSpawner.script.gameObject.SetActive(true);
@@ -206,7 +205,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
     public void CreateWindow(int id, Vector3 location) {
 
-        EditableWindow editWindow = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(EditableWindow)).script as EditableWindow;
+        EditableWindow editWindow = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(EditableWindow)).script as EditableWindow;
         editWindow.InitialiseWindow();
         editWindow.link = this;
 
@@ -252,7 +251,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             UIDrawer.GetTypeInElement<Image>(get).color = Color.red;
             UIDrawer.GetTypeInElement<Image>(set).color = Color.green;
 
-            SpawnerOutput align = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(LinearLayout));
+            SpawnerOutput align = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));
 
             UIDrawer.GetTypeInElement<LinearLayout>(align).o = LinearLayout.Orientation.X;
 
@@ -271,7 +270,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
     SpawnerOutput CreateVariableButtons(ActionType aT, int[] id) {
 
-        SpawnerOutput linkageButton = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
+        SpawnerOutput linkageButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
         UIDrawer.GetTypeInElement<Text>(linkageButton).text = "";
         UIDrawer.ChangeUISize(linkageButton, new Vector2(20, 20));
@@ -345,7 +344,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     }
 
     SpawnerOutput[] CreateVariableField(int id, int varId) {
-        SpawnerOutput elementName = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Text));
+        SpawnerOutput elementName = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper));
         SpawnerOutput element = ReturnElementField(abilityData.subclasses.l[id].var[varId].field);
 
         Text eName = elementName.script as Text;
@@ -366,7 +365,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         int variableType = VariableTypeIndex.ReturnVariableIndex(variable.t);
 
         if (variableType >-1)
-            element = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(InputField));
+            element = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(InputFieldWrapper));
 
         switch(variableType) {
             case 0:

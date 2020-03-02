@@ -9,9 +9,9 @@ using UnityEngine.UI;
 }*/
 
 [RequireComponent(typeof(Image))]
-public class WindowsScript : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler {
+public class WindowsScript : MonoBehaviour,IPointerDownHandler, IDragHandler, IPointerUpHandler, IOnSpawn {
 
-    public Image hotspot;
+    Image hotspot;
     Vector2 pointInObject;
     Vector3 trackedPos;
 
@@ -28,5 +28,10 @@ public class WindowsScript : MonoBehaviour, IPointerDownHandler, IDragHandler, I
         Vector2 currMousePos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out currMousePos);
         transform.localPosition = currMousePos - pointInObject;
+    }
+
+    public void OnSpawn() {
+        transform.SetAsLastSibling();
+        (transform as RectTransform).sizeDelta = new Vector2(100, 40);
     }
 }
