@@ -1,115 +1,106 @@
-﻿/*using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-public class InputData {
-    public List<DH> rs;
-    public KeyCode k; //keycode
-    public int b; //button
-    public int iT; //inputType
+public interface IInputCallback<T> {
+    void InputCallback(T callbackData);
+}
 
-    public InputData(KeyCode key, string id, int inputType) {
-        n = id;
-        k = key;
-        rs = new List<DH>();
-        iT = inputType;
+public class InputData<T> : InputDataBase {
+    public IInputCallback<T> inputCallback;
+    public T callbackParameter;
+
+    public InputData(T cbParam, IInputCallback<T> iCB, KeyCode kC, int b, int iT) {
+        callbackParameter = cbParam;
+        inputCallback = iCB;
+
+        keyCode = kC;
+        button = b;
+        inputType = iT;
     }
 
-    public InputData(int button, string id, int inputType) {
-        n = id;
-        b = button;
-        rs = new List<DH>();
-        iT = inputType;
+    public override void InputCallback() {
+        inputCallback.InputCallback(callbackParameter);
+    }
+
+}
+
+public class InputDataBase {
+
+    public KeyCode keyCode;
+    public int button;
+    public int inputType;
+
+    public virtual void InputCallback() {
+
     }
 }
 
-public class PlayerInput : MonoBehaviour,ISingleton {
+public class PlayerInput : MonoBehaviour, ISingleton {
 
-    public List<InputData> iS;
+    public List<InputDataBase> iS;
 
     void Update() {
-        for (int i = 0; i < iS.Count; i++) {
-            bool inputCheck = false;
+        if(iS.Count > 0)
+            for(int i = iS.Count - 1; i >= 0; i--) {
 
-            switch (iS[i].n[0]) {
-                case 'K':
-                    switch (iS[i].iT) {
+                bool inputHappened = false;
+
+                // Test for Keyboard.
+                if(iS[i].keyCode != KeyCode.None) {
+                    switch(iS[i].inputType) {
                         case 0:
-                            if (Input.GetKeyDown(iS[i].k))
-                                inputCheck = true;
+                            if(Input.GetKeyDown(iS[i].keyCode))
+                                inputHappened = true;
                             break;
 
                         case 1:
-                            if (Input.GetKey(iS[i].k))
-                                inputCheck = true;
+                            if(Input.GetKey(iS[i].keyCode))
+                                inputHappened = true;
                             break;
 
                         case 2:
-                            if (Input.GetKeyUp(iS[i].k))
-                                inputCheck = true;
+                            if(Input.GetKeyUp(iS[i].keyCode))
+                                inputHappened = true;
                             break;
                     }
 
-                    break;
-
-                case 'M':
-                    switch (iS[i].iT) {
+                    // Test for mouse.
+                } else {
+                    switch(iS[i].inputType) {
                         case 0:
-                            if (Input.GetMouseButtonDown(iS[i].b))
-                                inputCheck = true;
+                            if(Input.GetMouseButtonDown(iS[i].button))
+                                inputHappened = true;
                             break;
 
                         case 1:
-                            if (Input.GetMouseButton(iS[i].b))
-                                inputCheck = true;
+                            if(Input.GetMouseButton(iS[i].button))
+                                inputHappened = true;
                             break;
 
                         case 2:
-                            if (Input.GetMouseButtonUp(iS[i].b))
-                                inputCheck = true;
+                            if(Input.GetMouseButtonUp(iS[i].button))
+                                inputHappened = true;
                             break;
                     }
+                }
 
-                    break;
+                if(inputHappened) {
+                    iS[i].InputCallback();
+                    iS.RemoveAt(i);
+                }
             }
-
-            if (inputCheck)
-                for (int j = 0; j < iS[i].rs.Count; j++)
-                    iS[i].rs[j].Invoke();
-        }
     }
 
-    public void AddNewInput(KeyCode key, DH reference, int inputType) {
-        string k = "K" + ((int)key).ToString();
-
-        iS[ProcessNewInput(k, new InputData(key, k, inputType))].rs.Add(reference);
-    }
-
-    public void AddNewInput(int button, DH reference, int inputType) {
-        string k = "M" + button;
-
-        iS[ProcessNewInput(k, new InputData(button, k, inputType))].rs.Add(reference);
-    }
-
-    int ProcessNewInput(string key, InputData inputData) {
-        int i = Iterator.ReturnKey(iS.ToArray(), key);
-
-        if (i == -1) {
-            iS.Add(inputData);
-            i = iS.Count - 1;
-        }
-
-        return i;
+    public void AddNewInput<T>(IInputCallback<T> iCB, T cbParam, KeyCode key, int b, int iT) {
+        iS.Add(new InputData<T>(cbParam, iCB, key, b, iT));
     }
 
     public void RunOnStart() {
-        iS = new List<InputData>();
+        iS = new List<InputDataBase>();
     }
 
     public void RunOnCreated() {
-        iS = new List<InputData>();
+        iS = new List<InputDataBase>();
     }
 
 }
-*/
