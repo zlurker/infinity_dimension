@@ -12,28 +12,15 @@ public enum NetworkEncoderTypes {
     ABILITY_INPUT, UPDATE_ABILITY_DATA
 }
 
-public class NetworkObjectTracker:IGameplayStatic {
+public class NetworkObjectTracker {
 
     public static NetworkObjectTracker inst;
     private EnhancedList<NetworkObject> networkObjects;
     private AutoPopulationList<int> instanceId;
 
-    public void RunOnCreated() {
+    public NetworkObjectTracker() {
         networkObjects = new EnhancedList<NetworkObject>();
         instanceId = new AutoPopulationList<int>();
-        inst = this;
-
-        NetworkMessageEncoder.encoders = new NetworkMessageEncoder[] {
-            new AbilityInputEncoder(),
-            new UpdateAbilityDataEncoder()
-        };
-
-        for (int i=0; i < NetworkMessageEncoder.encoders.Length; i++) 
-            NetworkMessageEncoder.encoders[i].SetEncoderId(i);        
-    }
-
-    public NetworkObjectTracker() {
-        
     }
 
     public void AddNetworkObject(NetworkObject nO) {

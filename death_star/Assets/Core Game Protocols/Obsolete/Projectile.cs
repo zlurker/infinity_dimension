@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
 
-public class Projectile : AbilityTreeNode,ISpawnable
+public class Projectile : AbilityTreeNode
 {
     public RuntimeParameters[] parameters;
   

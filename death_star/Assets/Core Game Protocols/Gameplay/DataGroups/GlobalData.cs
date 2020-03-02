@@ -19,14 +19,6 @@ public interface ISingleton {
     void RunOnCreated();
 }
 
-public interface IGameplayStatic {
-    void RunOnCreated();
-}
-
-public interface ISpawnable {
-}
-
-
 public class RuntimeParameters<T> : RuntimeParameters {
     public T v;
 

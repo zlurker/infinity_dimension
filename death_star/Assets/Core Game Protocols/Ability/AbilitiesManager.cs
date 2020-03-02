@@ -8,7 +8,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
     //public static EnhancedList<ScriptableObject> defaultTreeTransversers;
 
-    public class AbilityData {
+    public class AbilityData: IInputCallback<int> {
         Variable[][] dataVar;
         Type[] dataType;
         int[] rootSubclasses;
@@ -27,7 +27,11 @@ public sealed class AbilitiesManager : MonoBehaviour {
             abilityId = aId;
         }
 
-        public void SyncInputWithNetwork(object[] p) {
+        public void InputCallback(int i) {
+            SyncInputWithNetwork();
+        }
+
+        public void SyncInputWithNetwork() {
             if(ClientProgram.clientInst) {
                 AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
                 encoder.SendInputSignal(abilityId);
@@ -38,7 +42,6 @@ public sealed class AbilitiesManager : MonoBehaviour {
         }
 
         public void CreateAbility(AbilityCentralThreadPool threadInst) {
-
            
             int tId = AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
@@ -65,6 +68,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         aData = new AbilityData[abilityNodeData.Length];
 
         for(int i = 0; i < abilityNodeData.Length; i++) {
+            //Debug.Log(abilityNodeData[i]);
             AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData[i]));
             int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
             int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData[i]);
@@ -81,7 +85,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             int[] nodeType = new int[ability.Length];
 
             aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, i);
-            //Singleton.GetSingleton<PlayerInput>().AddNewInput((KeyCode)97 + i, new DH(aData[i].SyncInputWithNetwork), 0);
+            LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[i],0, (KeyCode)97 + i,0);//, new DH(aData[i].SyncInputWithNetwork), 0);
         }
     }
 }
