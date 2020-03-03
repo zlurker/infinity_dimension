@@ -37,7 +37,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
 
         CalibrateEditor();
 
-        SpawnerOutput sO = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
+        SpawnerOutput sO = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
         UIDrawer.GetTypeInElement<Button>(sO).onClick.AddListener(SavePNG);
 
@@ -145,7 +145,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
     }
 
     SpawnerOutput CreatePixel() {
-        SpawnerOutput inst = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Image));
+        SpawnerOutput inst = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image));
         UIDrawer.GetTypeInElement<Image>(inst).rectTransform.sizeDelta = lw;
         inst.script.transform.parent = transform;
 

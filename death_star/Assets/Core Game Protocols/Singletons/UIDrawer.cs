@@ -16,9 +16,6 @@ public class UIDrawer : Spawner, ISingleton {
         return inst;
     }
 
-    // A wrapped to assist us in getting elements nested within.
-
-
     public static Vector3 UINormalisedPosition(Vector3 c) {//coordinates: Returns back position to the decimal of 1.
         return UINormalisedPosition(t.transform as RectTransform, c);
     }
@@ -39,11 +36,21 @@ public class UIDrawer : Spawner, ISingleton {
 
         UIWrapperBase target = t.script as UIWrapperBase;
 
-        if(target != null) 
-            if(target.mainScript is Button || target.mainScript is InputField)
-                return (T)(object)target.additionalScripts[butInpIds[typeof(T)]].script;
-        
+        // Deals with UIWrapperBase objects.
+        if(target != null) {
+            if(target.mainScript is T)
+                return (T)(object)target.mainScript;
 
+            if(target.mainScript is Button || target.mainScript is InputField) {
+                MonoBehaviour inst = target.additionalScripts[butInpIds[typeof(T)]].script; 
+
+                if (inst is UIWrapperBase) 
+                    return (T)(object)(inst as UIWrapperBase).mainScript;             
+
+                return (T)(object)target.additionalScripts[butInpIds[typeof(T)]].script;
+            }
+        }
+        
         return (T)(object)null;
     }
 

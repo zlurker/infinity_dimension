@@ -17,7 +17,7 @@ public class AbilityPageScript : MonoBehaviour {
         GenerateMenuElements();
         LoadCurrentFiles();
 
-        LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(ScrollRect));
+        LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollRect));
     }
 
     void LoadCurrentFiles() {
@@ -38,19 +38,19 @@ public class AbilityPageScript : MonoBehaviour {
     }
 
     void GenerateMenuElements() {
-        SpawnerOutput topText = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Text));
+        SpawnerOutput topText = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper));
         UIDrawer.GetTypeInElement<Text>(topText).text = "Abilities";
         UIDrawer.GetTypeInElement<Text>(topText).color = Color.white;
 
         topText.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.5f, 0.9f));
 
-        SpawnerOutput addAbility = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
+        SpawnerOutput addAbility = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
         UIDrawer.GetTypeInElement<Button>(addAbility).onClick.AddListener(() => { CreateAbility(); });
         UIDrawer.GetTypeInElement<Text>(addAbility).text = "Create Ability";
 
         addAbility.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.15f, 0.1f));
 
-        lL = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(LinearLayout));
+        lL = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));
         lL.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.15f, 0.75f));
     }
 
@@ -75,7 +75,7 @@ public class AbilityPageScript : MonoBehaviour {
     }
 
     void GenerateAbilityElement(int index) {
-        SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Button));
+        SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
         UIDrawer.GetTypeInElement<Text>(abilityButton).text = descriptions.GetElementAt(index).n;
 

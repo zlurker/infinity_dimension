@@ -10,7 +10,7 @@ public struct LineData {
     public LineData(Transform start, Transform end) {
         s = start;
         e = end;
-        line = LoadedData.GetSingleton<UIDrawer>().CreateUIObject(typeof(Image));
+        line = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image));
         UIDrawer.GetTypeInElement<Image>(line).rectTransform.pivot = new Vector2(0.5f,0);
     }
 }

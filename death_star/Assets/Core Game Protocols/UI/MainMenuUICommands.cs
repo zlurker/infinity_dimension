@@ -210,7 +210,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         editWindow.link = this;
 
         //Runs deletion delegate.
-        Button del = editWindow.windowsDeleter.script as Button;
+        Button del = UIDrawer.GetTypeInElement<Button>(editWindow.windowsDeleter);
 
         del.onClick.AddListener(() => {
             //Handles UI deletion.
@@ -347,14 +347,13 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         SpawnerOutput elementName = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper));
         SpawnerOutput element = ReturnElementField(abilityData.subclasses.l[id].var[varId].field);
 
-        Text eName = elementName.script as Text;
+        Text eName = UIDrawer.GetTypeInElement<Text>(elementName);
 
         eName.text = abilityData.subclasses.l[id].var[varId].field.n;
         eName.color = Color.white;
 
         if(element != null)
             return new SpawnerOutput[] { elementName, element };
-
 
         return new SpawnerOutput[] { elementName };
     }

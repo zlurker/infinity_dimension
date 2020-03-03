@@ -28,11 +28,10 @@ public class UIWrapperBase : MonoBehaviour, IOnSpawn {
 [RequireComponent(typeof(Text))]
 public class TextWrapper : UIWrapperBase {
 
-    private void Start() {
-        mainScript = GetComponent<Text>();
-    }
-
     public override void OnSpawn() {
+        if (mainScript == null)
+            mainScript = GetComponent<Text>();
+
         Text t = mainScript as Text;
 
         t.text = "DEFAULTWORDS";
@@ -48,11 +47,11 @@ public class TextWrapper : UIWrapperBase {
 [RequireComponent(typeof(Button))]
 public class ButtonWrapper : UIWrapperBase {
 
-    private void Start() {
-        mainScript = GetComponent<Button>();
-    }
-
     public override void OnSpawn() {
+
+        if (mainScript == null)
+            mainScript = GetComponent<Button>();
+
         Button b = mainScript as Button;
 
         b.onClick.RemoveAllListeners();
@@ -63,14 +62,13 @@ public class ButtonWrapper : UIWrapperBase {
             };
 
         Image i = additionalScripts[0].script as Image;
-        Text t = additionalScripts[1].script as Text;
+        Text t = (additionalScripts[1].script as TextWrapper).mainScript as Text;
 
         b.targetGraphic = i;
 
         i.rectTransform.sizeDelta = new Vector3(100, 30);
         (b.transform as RectTransform).sizeDelta = new Vector3(100, 30);
-
-        t.transform.SetParent(t.transform);
+   
         t.rectTransform.sizeDelta = new Vector2(100, 30);
         t.color = Color.black;
         AllignWrapperElements();
@@ -80,11 +78,11 @@ public class ButtonWrapper : UIWrapperBase {
 [RequireComponent(typeof(InputField))]
 public class InputFieldWrapper : UIWrapperBase {
 
-    private void Start() {
-        mainScript = GetComponent<InputField>();
-    }
-
     public override void OnSpawn() {
+
+        if (mainScript == null)
+            mainScript = GetComponent<InputField>();
+
         InputField iF = mainScript as InputField;
 
         iF.textComponent = null;
@@ -97,7 +95,7 @@ public class InputFieldWrapper : UIWrapperBase {
             };
 
         Image i = additionalScripts[0].script as Image;
-        Text t = additionalScripts[1].script as Text;
+        Text t = (additionalScripts[1].script as TextWrapper).mainScript as Text;
 
         iF.gameObject.SetActive(true);
 
@@ -107,7 +105,7 @@ public class InputFieldWrapper : UIWrapperBase {
 
         t.color = Color.black;
         t.supportRichText = false;
-        t.transform.SetParent(t.transform);
+
         t.rectTransform.sizeDelta = new Vector2(100, 30);
         i.rectTransform.sizeDelta = new Vector2(100, 30);
         AllignWrapperElements();
