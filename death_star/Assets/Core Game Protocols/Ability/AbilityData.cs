@@ -68,10 +68,17 @@ public class AbilityDataSubclass {
     public static int[] ReturnNodeBranchData(AbilityDataSubclass[] target) {
         int[] bData = new int[target.Length];
 
-        for(int i = 0; i < target.Length; i++)
-            for(int j = 0; j < target[i].var.Length; j++)
-                bData[i] += target[i].var[j].links.Length;
+        for(int i = 0; i < target.Length; i++) {
 
+            VariableTypes[] vTypes = LoadedData.loadedNodeInstance[target[i].classType].ReturnVariableTypes();
+
+            for(int j = 0; j < target[i].var.Length; j++)
+                if(vTypes != null) {
+                    if(vTypes[j] != VariableTypes.LINKS_NOT_CALCULATED)
+                        bData[i] += target[i].var[j].links.Length;
+                } else
+                    bData[i] += target[i].var[j].links.Length;
+        }
 
         return bData;
     }
@@ -84,7 +91,15 @@ public class AbilityDataSubclass {
 
             int totalLinks = 0;
 
+            VariableTypes[] vTypes = LoadedData.loadedNodeInstance[target[nextId[i]].classType].ReturnVariableTypes();
+
             for(int j = 0; j < target[nextId[i]].var.Length; j++) {
+
+                // Continues if there isn't a need to calculate.
+                if(vTypes != null)
+                    if(vTypes[j] == VariableTypes.LINKS_NOT_CALCULATED)
+                        continue;
+
                 int[] followingIds = new int[target[nextId[i]].var[j].links.Length];
                 totalLinks += followingIds.Length;
 
@@ -93,27 +108,25 @@ public class AbilityDataSubclass {
 
                 int nextNodeValues = 0;
 
-                if(followingIds.Length > 0) 
+                if(followingIds.Length > 0)
                     nextNodeValues = CalculateSpecialisedNodeThreads(target, followingIds, mappedValues);
-                                    
-                if(target[nextId[i]].classType == typeof(ThreadSplitter)) {
-                    if(!mappedValues.ContainsKey(nextId[i])) 
-                        mappedValues.Add(nextId[i], nextNodeValues);
-
-                    // Because these threads will be combined in Threadsplitter,
-                    // We must combine them as 1 so if it is nested it would be counted correctly.
-                    Debug.Log("Previous Value: " + nextNodeValues);
-                    nextNodeValues = 1;
-                    Debug.Log("Current Value: " + nextNodeValues);
-                }
 
                 total += nextNodeValues;
-
             }
 
-            if(totalLinks == 0) {
+            if(target[nextId[i]].classType == typeof(ThreadSplitter) || target[nextId[i]].classType == typeof(ReturnValue)) {
+                if(!mappedValues.ContainsKey(nextId[i]))
+                    mappedValues.Add(nextId[i], total);
+
+                // Because these threads will be combined in Threadsplitter,
+                // We must combine them as 1 so if it is nested it would be counted correctly.
+                Debug.Log("Previous Value: " + total);
+                total = 1;
+                Debug.Log("Current Value: " + total);
+            }
+
+            if(totalLinks == 0)
                 total += 1;
-            }
         }
 
         return total;

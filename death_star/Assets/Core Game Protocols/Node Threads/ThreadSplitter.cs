@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ThreadSplitter : AbilityTreeNode {
 
-    Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
+    protected Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
@@ -12,7 +12,7 @@ public class ThreadSplitter : AbilityTreeNode {
         };
     }
 
-    public override void NodeCallback(int threadId) {
+    public override void NodeCallback(int threadId, int nodeId) {
         Debug.LogFormat("Thread ID {0} has called threadsplitter.", threadId);
         threadMap.Add(threadId, new int[2]);
         ProcessThreads(threadId);

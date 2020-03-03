@@ -144,15 +144,15 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 3, JsonConvert.SerializeObject(rootClasses));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(nBranchData));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 5, JsonConvert.SerializeObject(specialisedNodeThreadCount));
-            
+
             // Gets all window locations.
             float[][] windowLocations = new float[cAD.Length][];
 
             for(int i = 0; i < windowLocations.Length; i++) {
                 windowLocations[i] = new float[2];
 
-                windowLocations[i][0] = abilityWindows.l[aEle[i]].transform.parent.position.x;
-                windowLocations[i][1] = abilityWindows.l[aEle[i]].transform.parent.position.y;
+                windowLocations[i][0] = abilityWindows.l[aEle[i]].transform.position.x;
+                windowLocations[i][1] = abilityWindows.l[aEle[i]].transform.position.y;
             }
 
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 2, JsonConvert.SerializeObject(windowLocations));
@@ -247,7 +247,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             SpawnerOutput get = CreateVariableButtons(ActionType.RECIEVE, new int[] { id, i });
             SpawnerOutput set = CreateVariableButtons(ActionType.SEND, new int[] { id, i });
-            
+
             UIDrawer.GetTypeInElement<Image>(get).color = Color.red;
             UIDrawer.GetTypeInElement<Image>(set).color = Color.green;
 
@@ -293,7 +293,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                         int lastObj = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects.Count - 1;
                         points[0] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects[lastObj];
 
-                       points[1] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[id[0]].variables[id[1]]).objects[0];
+                        points[1] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[id[0]].variables[id[1]]).objects[0];
 
                         CreateLines(points, connectionId);
                         // Removes the prev path. 
@@ -345,7 +345,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
     SpawnerOutput[] CreateVariableField(int id, int varId) {
         SpawnerOutput elementName = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper));
-        SpawnerOutput element = ReturnElementField(abilityData.subclasses.l[id].var[varId].field);
+        SpawnerOutput element = ReturnElementField(id, varId);
 
         Text eName = UIDrawer.GetTypeInElement<Text>(elementName);
 
@@ -355,31 +355,51 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         if(element != null)
             return new SpawnerOutput[] { elementName, element };
 
+
         return new SpawnerOutput[] { elementName };
     }
 
-    SpawnerOutput ReturnElementField(RuntimeParameters variable) {
+    SpawnerOutput ReturnElementField(int id, int varId) {
         SpawnerOutput element = null;
+
+        RuntimeParameters variable = abilityData.subclasses.l[id].var[varId].field;
 
         int variableType = VariableTypeIndex.ReturnVariableIndex(variable.t);
 
-        if (variableType >-1)
+        if(variableType > -1)
             element = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(InputFieldWrapper));
 
         switch(variableType) {
             case 0:
                 UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<string>).v;
+
+                UIDrawer.GetTypeInElement<InputField>(element).onValueChanged.AddListener((s) => {
+                    (abilityData.subclasses.l[id].var[varId].field as RuntimeParameters<string>).v = s;
+                });
                 break;
 
             case 1:
                 UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<float>).v.ToString();
+
+                UIDrawer.GetTypeInElement<InputField>(element).onValueChanged.AddListener((s) => {
+                    float f = 0;
+
+                    if(float.TryParse(s, out f))
+                        (abilityData.subclasses.l[id].var[varId].field as RuntimeParameters<float>).v = f;
+                });
                 break;
 
             case 2:
                 UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<int>).v.ToString();
+
+                UIDrawer.GetTypeInElement<InputField>(element).onValueChanged.AddListener((s) => {
+                    int i = 0;
+
+                    if(int.TryParse(s, out i))
+                        (abilityData.subclasses.l[id].var[varId].field as RuntimeParameters<int>).v = i;
+                });
                 break;
         }
-
         return element;
     }
 
@@ -401,7 +421,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         t.onValueChanged.AddListener((s) => {
             switch(t.contentType) {
                 case InputField.ContentType.Standard:
-                    (abilityData.subclasses.l[p[0]].var[p[1]].field as RuntimeParameters<string>).v = s;
+
                     break;
 
                 case InputField.ContentType.IntegerNumber:

@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class ReturnValue : AbilityTreeNode {
 
-    
+
     Dictionary<int, int> threadMap = new Dictionary<int, int>();
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    // Use this for initialization
+    void Start() {
+
+    }
+
+    // Update is called once per frame
+    void Update() {
+
+    }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         // I need to think of a way to make it such that it can accept any type of variable.
@@ -24,8 +24,17 @@ public class ReturnValue : AbilityTreeNode {
         };
     }
 
-    public override void NodeCallback(int threadId) {
+    public override VariableTypes[] ReturnVariableTypes() {
+        return new VariableTypes[]{
+            VariableTypes.DEFAULT,
+            VariableTypes.LINKS_NOT_CALCULATED
+        };
+    }
+
+    public override void NodeCallback(int threadId, int nodeId) {
         threadMap.Add(threadId, 0);
+        Debug.Log("tid" + threadId);
+        Debug.Log(threadMap[0]);
 
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
@@ -51,8 +60,13 @@ public class ReturnValue : AbilityTreeNode {
             if(threadMap[parentThread] >= inst.GetSpecialisedNodeData(GetNodeId())) {
                 // Return value of target.
                 Variable storedAddress = inst.ReturnVariable(GetNodeId(), 1);
+
+                if(storedAddress.links.Length > 0) {
+                    int[] latestAddress = storedAddress.links[storedAddress.links.Length - 1];
+                    Debug.Log("Variable returned: " + (inst.ReturnRuntimeParameter<int>(latestAddress[0], latestAddress[1]) as RuntimeParameters<int>).v);
+                }
                 //storedAddress.links[1][storedAddress.links[1].Length-1][0]
-               // Debug.Log("Variable returned: " + inst.ReturnRuntimeParameter<int>(storedAddress.links[storedAddress.links[1].Length - 1][0], storedAddress.links[1][storedAddress.links[1].Length - 1][1]));
+                //
             }
         }
     }

@@ -10,9 +10,9 @@ public class ValueGiver : AbilityTreeNode {
         };
     }
 
-    public override void NodeCallback(int threadId) {
+    public override void NodeCallback(int threadId, int nodeId) {
         AbilityCentralThreadPool central = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
 
-        central.SyncDataWithNetwork<string>(threadId, 0, central.ReturnRuntimeParameter<string>(GetNodeId(), 0).v);
+        //central.SyncDataWithNetwork<string>(threadId, 0, central.ReturnRuntimeParameter<string>(GetNodeId(), 0).v);
     }
 }

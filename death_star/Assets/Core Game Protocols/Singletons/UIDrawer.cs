@@ -9,7 +9,6 @@ public class UIDrawer : Spawner, ISingleton {
     public static Canvas t; //target
     public static Dictionary<Type, int> butInpIds;
 
-
     public override SpawnerOutput CreateScriptedObject(Type type) {
         SpawnerOutput inst = base.CreateScriptedObject(type);
         inst.script.transform.SetParent(t.transform);
@@ -78,9 +77,9 @@ public class UIDrawer : Spawner, ISingleton {
         butInpIds.Add(typeof(Text), 1);
     }
 
-    public override RuntimeParameters[] GetRuntimeParameters() {
+    /*public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
             new RuntimeParameters<string>("UI","What the fuck nigga")
         };
-    }
+    }*/
 }

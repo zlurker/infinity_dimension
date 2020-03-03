@@ -15,36 +15,13 @@ public class NodeThread {
 
     // To be used if thread overlaps with thread on the same node.
     int jointThread;
-    bool allowJoin;
-
-    // To be used to decide if thread is able to override node data.
-    bool allowOverride;
 
     public NodeThread(int sPt) {
 
         startingPt = sPt;
-        currNode = sPt;
-
+        currNode = -1;
         jointThread = -1;
-        allowJoin = true;
-        allowOverride = true;
-    }
-
-    public void SetJoin(bool value) {
-        allowJoin = value;
-    }
-
-    public bool ReturnJoin() {
-        return allowJoin;
-    }
-
-    public void SetOverride(bool value) {
-        allowOverride = value;
-    }
-
-    public bool ReturnOverride() {
-        return allowOverride;
-    }
+    } 
 
     public int GetStartingPoint() {
         return startingPt;
@@ -169,31 +146,16 @@ public class AbilityCentralThreadPool : NetworkObject {
         }
     }
 
-    public void SyncDataWithNetwork<T>(int threadId, int variableId, T value) {
-        if(ClientProgram.clientInst != null) {
-            // To send node data out via client.
-            int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-
-            string msg = centralId.ToString() + '/' + currNode.ToString() + '/' + variableId.ToString() + '/';
-
-            if(value is string || value is float || value is int)
-                msg += value.ToString();
-            else
-                NodeVariableCallback<T>(threadId, variableId, value);
-
-            //ClientProgram.clientInst.AddPirorityNetworkMessage(ClientProgram.SYNC_NODE_DATA,msg);
-            return;
-        }
-
-        NodeVariableCallback<T>(threadId, variableId, value);
-    }
-
     public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
 
         //Debug.Log("ThreadId in loop:" + threadId);
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
 
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
+
+        // Handles removing of thread if a thread calls it at a node without any links.
+        if(runtimeParameters[currNode][variableId].links.Length == 0)
+            HandleThreadRemoval(threadId);
 
         for(int i = 0; i < runtimeParameters[currNode][variableId].links.Length; i++) {
 
@@ -234,16 +196,16 @@ public class AbilityCentralThreadPool : NetworkObject {
 
         activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
 
-        if(existingThread > -1)
-            if(activeThreads.l[threadId].ReturnJoin() && activeThreads.l[existingThread].ReturnJoin()) {
-                Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadId, existingThread);
-                activeThreads.l[threadId].JoinThread(existingThread);
-            }
+        if(existingThread > -1) {
+            //if(activeThreads.l[threadId].ReturnJoin() && activeThreads.l[existingThread].ReturnJoin()) {
+            Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadId, existingThread);
+            activeThreads.l[threadId].JoinThread(existingThread);
+        }
 
-        if(activeThreads.l[threadId].ReturnOverride())
-            inst.SetNodeThreadId(threadId);
+        //if(activeThreads.l[threadId].ReturnOverride())
+        inst.SetNodeThreadId(threadId);
 
-        inst.NodeCallback(threadId);
+        inst.NodeCallback(threadId,prevNodeId);
 
         // Checks if node has no more output
         if(nodeBranchingData[node] == 0) {

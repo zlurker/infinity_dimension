@@ -53,7 +53,12 @@ public class AbilityTreeNode : MonoBehaviour {
         return new RuntimeParameters[0];
     }
 
-    public virtual void NodeCallback(int threadId) {
+    // Used to specify if this class variables. If nothing, ALL is assumed to be default.
+    public virtual VariableTypes[] ReturnVariableTypes() {
+        return null;
+    }
+
+    public virtual void NodeCallback(int threadId,int nodeId) {
         //Debug.LogFormat("curr node {0}, nodeValue{1}, nodeThreadId{2}", nodeId, AbilityCentralThreadPool.globalCentralList.l[centralThreadId].ReturnRuntimeParameter<int>(nodeId, 0).v, nodeThreadId);
         //AbilityCentralThreadPool.globalCentralList.l[centralThreadId].NodeVariableCallback<int>(nodeThreadId, 0, AbilityCentralThreadPool.globalCentralList.l[centralThreadId].ReturnRuntimeParameter<int>(nodeId, 0).v);
     }

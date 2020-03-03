@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using System;
 
 public interface IOnSpawn {
@@ -19,7 +17,7 @@ public class SpawnerOutput {
     }
 }
 
-public class Spawner : AbilityTreeNode, ISingleton {
+public class Spawner : MonoBehaviour, ISingleton {
 
     public static Dictionary<Type, List<MonoBehaviour>> typePool = new Dictionary<Type, List<MonoBehaviour>>();
     protected Type[] bB; 
@@ -61,9 +59,9 @@ public class Spawner : AbilityTreeNode, ISingleton {
         bB = new Type[0];
     }
 
-    public override RuntimeParameters[] GetRuntimeParameters() {
+    /*public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
             new RuntimeParameters<GameObject>("Output Object",null)
         };
-    }
+    }*/
 }
