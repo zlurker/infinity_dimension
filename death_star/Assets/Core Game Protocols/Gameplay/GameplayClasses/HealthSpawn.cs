@@ -12,9 +12,8 @@ public class HealthSpawn : AbilityTreeNode {
 		
 	}
 
-    public override void NodeCallback(int threadId) {
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-        inst.NodeVariableCallback<object>(threadId, TASKS, null);
+    public override void NodeCallback(int threadId) {       
+        GetCentralInst().NodeVariableCallback<object>(threadId, TASKS, null,VariableTypes.SIGNAL_VAR);
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {

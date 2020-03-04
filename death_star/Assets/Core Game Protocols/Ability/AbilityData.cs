@@ -73,18 +73,10 @@ public class AbilityDataSubclass {
     public static int[] ReturnNodeBranchData(AbilityDataSubclass[] target) {
         int[] bData = new int[target.Length];
 
-        for(int i = 0; i < target.Length; i++) {
-
-            VariableTypes[] vTypes = LoadedData.loadedNodeInstance[target[i].classType].ReturnVariableTypes();
-
+        for(int i = 0; i < target.Length; i++) 
             for(int j = 0; j < target[i].var.Length; j++)
-                if(vTypes != null) {
-                    if(vTypes[j] != VariableTypes.LINKS_NOT_CALCULATED)
-                        bData[i] += target[i].var[j].links.Length;
-                } else
                     bData[i] += target[i].var[j].links.Length;
-        }
-
+        
         return bData;
     }
 
@@ -96,14 +88,7 @@ public class AbilityDataSubclass {
 
             int totalLinks = 0;
 
-            VariableTypes[] vTypes = LoadedData.loadedNodeInstance[target[nextId[i]].classType].ReturnVariableTypes();
-
             for(int j = 0; j < target[nextId[i]].var.Length; j++) {
-
-                // Continues if there isn't a need to calculate.
-                if(vTypes != null)
-                    if(vTypes[j] == VariableTypes.LINKS_NOT_CALCULATED)
-                        continue;
 
                 int[] followingIds = new int[target[nextId[i]].var[j].links.Length];
                 totalLinks += followingIds.Length;

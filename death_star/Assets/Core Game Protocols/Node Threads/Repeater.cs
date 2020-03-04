@@ -11,7 +11,7 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
 	void Update () {
 		if (startTime > -1) {
             float diff = Time.realtimeSinceStartup - startTime;
-            int diffMultiplier = Mathf.FloorToInt(diff / AbilityCentralThreadPool.globalCentralList.l[GetCentralId()].ReturnRuntimeParameter<float>(GetNodeId(),TIME_INTERVAL).v);
+            int diffMultiplier = Mathf.FloorToInt(diff / GetNodeVariable<float>(TIME_INTERVAL));
 
             for(int i = 0; i < diffMultiplier; i++)
                 BeginRepeater();
@@ -22,26 +22,21 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
 	}
 
     public override void NodeCallback(int threadId) {
-        Debug.Log(threadId);
 
         if(startTime == -1) {
             startTime = Time.realtimeSinceStartup;
             BeginRepeater();
-        }
-
-        
+        }        
     }
 
     public void BeginRepeater() {
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-
         NodeThread trdInst = new NodeThread(GetNodeId());
-        trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
+        trdInst.SetNodeData(GetNodeId(), GetCentralInst().GetNodeBranchData(GetNodeId()));
 
-        int threadToUse = inst.AddNewThread(trdInst);
+        int threadToUse = GetCentralInst().AddNewThread(trdInst);
         Debug.Log("Launching repeater...");
         Debug.Log(threadToUse);
-        inst.NodeVariableCallback<float>(threadToUse, 0, 0);       
+        GetCentralInst().NodeVariableCallback<float>(threadToUse, 0, 0,VariableTypes.SIGNAL_VAR);       
     }
 
 

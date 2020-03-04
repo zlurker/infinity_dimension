@@ -12,7 +12,7 @@ public interface ISingleton {
 }
 
 public enum VariableTypes {
-    DEFAULT, LINKS_NOT_CALCULATED
+    DEFAULT, SIGNAL_VAR, POLYMORPHIC_VAR
 }
 
 public class RuntimeParameters<T> : RuntimeParameters {

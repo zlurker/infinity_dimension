@@ -24,13 +24,6 @@ public class ReturnValue : AbilityTreeNode {
         };
     }
 
-    public override VariableTypes[] ReturnVariableTypes() {
-        return new VariableTypes[]{
-            VariableTypes.DEFAULT,
-            VariableTypes.LINKS_NOT_CALCULATED
-        };
-    }
-
     public override void NodeCallback(int threadId) {
         /*threadMap.Add(threadId, 0);
         Debug.Log("tid" + threadId);

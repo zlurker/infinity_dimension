@@ -21,7 +21,7 @@ public class NodeThread {
         startingPt = sPt;
         currNode = -1;
         jointThread = -1;
-    } 
+    }
 
     public int GetStartingPoint() {
         return startingPt;
@@ -153,18 +153,11 @@ public class AbilityCentralThreadPool : NetworkObject {
         }
     }
 
-    public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
+    public void NodeVariableCallback<T>(int threadId, int variableId, T value, VariableTypes vType = VariableTypes.DEFAULT) {
 
         //Debug.Log("ThreadId in loop:" + threadId);
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
-
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-
-        // Handles removing of thread if a thread calls it at a node without any links.
-        //if(runtimeParameters[currNode][variableId].links.Length == 0) {
-            //Debug.Log("Call once");
-            //HandleThreadRemoval(threadId);
-        //}
 
         for(int i = 0; i < runtimeParameters[currNode][variableId].links.Length; i++) {
 
@@ -173,7 +166,7 @@ public class AbilityCentralThreadPool : NetworkObject {
             int nodeId = runtimeParameters[currNode][variableId].links[i][0];
             int nodeVariableId = runtimeParameters[currNode][variableId].links[i][1];
 
-            booleanData.varsBlocked[nodeId][nodeVariableId] = false;
+            
 
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
@@ -188,12 +181,16 @@ public class AbilityCentralThreadPool : NetworkObject {
                     inst.SetNodeThreadId(-1);
             }
 
-            ((RuntimeParameters<T>)runtimeParameters[nodeId][nodeVariableId].field).v = value;
+            if(vType == VariableTypes.DEFAULT)
+                ((RuntimeParameters<T>)runtimeParameters[nodeId][nodeVariableId].field).v = value;
+
+            booleanData.varsBlocked[nodeId][nodeVariableId] = false;
+            Debug.Log("Set false");
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
 
         if(jointThreadId > -1)
-            NodeVariableCallback<T>(jointThreadId, variableId, value);
+            NodeVariableCallback<T>(jointThreadId, variableId, value, vType);
 
         //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
     }
@@ -266,6 +263,4 @@ public class AbilityCentralThreadPool : NetworkObject {
 
         return AbilityTreeNode.globalList.l[abilityNodes][nodeId];
     }
-
-
 }

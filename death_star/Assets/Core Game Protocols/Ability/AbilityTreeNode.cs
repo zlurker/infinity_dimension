@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum NodeType {
-    DEFAULT, GETEND, GET
-}
-
 public class AbilityTreeNode : MonoBehaviour {
 
     public static EnhancedList<AbilityTreeNode[]> globalList = new EnhancedList<AbilityTreeNode[]>();
@@ -68,7 +64,7 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public bool CheckIfVarRegionBlocked(int[] target) {
-        bool[] nodeBoolValues = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()].GetNodeBoolValues(GetNodeId());
+        bool[] nodeBoolValues = AbilityCentralThreadPool.globalCentralList.l[centralThreadId].GetNodeBoolValues(nodeId);
 
         for(int i = 0; i < target.Length; i++)
             if(nodeBoolValues[target[i]])
@@ -86,13 +82,12 @@ public class AbilityTreeNode : MonoBehaviour {
         inst.SendUpdatedNodeData(centralId,centralInstId, nodeId, variableId, value);
     }
 
-    public T GetNodeVariable<T>(int varId) {
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-        return inst.ReturnRuntimeParameter<T>(GetNodeId(), varId).v;
+    public AbilityCentralThreadPool GetCentralInst() {
+        return AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
     }
 
-    public void CentralCallback<T>(int varId,T value) {
+    public T GetNodeVariable<T>(int varId) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-        inst.NodeVariableCallback(nodeThreadId, varId, value);
+        return GetCentralInst().ReturnRuntimeParameter<T>(GetNodeId(), varId).v;
     }
 }
