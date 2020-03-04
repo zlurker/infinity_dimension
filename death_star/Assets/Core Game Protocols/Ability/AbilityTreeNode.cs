@@ -67,6 +67,16 @@ public class AbilityTreeNode : MonoBehaviour {
 
     }
 
+    public bool CheckIfVarRegionBlocked(int[] target) {
+        bool[] nodeBoolValues = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()].GetNodeBoolValues(GetNodeId());
+
+        for(int i = 0; i < target.Length; i++)
+            if(nodeBoolValues[target[i]])
+                return false;
+
+        return true;
+    }
+
     public void SyncDataWithNetwork<T>(int variableId, T value) {
         AbilityCentralThreadPool central = AbilityCentralThreadPool.globalCentralList.l[variableId];
         int centralId = central.ReturnNetworkObjectId();
@@ -74,5 +84,15 @@ public class AbilityTreeNode : MonoBehaviour {
 
         UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
         inst.SendUpdatedNodeData(centralId,centralInstId, nodeId, variableId, value);
+    }
+
+    public T GetNodeVariable<T>(int varId) {
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+        return inst.ReturnRuntimeParameter<T>(GetNodeId(), varId).v;
+    }
+
+    public void CentralCallback<T>(int varId,T value) {
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+        inst.NodeVariableCallback(nodeThreadId, varId, value);
     }
 }

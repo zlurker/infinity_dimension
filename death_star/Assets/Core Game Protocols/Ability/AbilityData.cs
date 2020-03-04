@@ -26,8 +26,6 @@ public class Variable {
 }
 
 public class AbilityBooleanData {
-
-    public int blockedVars;
     public bool[][] varsBlocked;
 }
 
@@ -115,7 +113,7 @@ public class AbilityDataSubclass {
                     followingIds[k] = currLink[0];
 
                     bData.varsBlocked[currLink[0]][currLink[1]] = true;
-                    bData.blockedVars++;
+                    //bData.blockedVars++;
                 }
 
                 int nextNodeValues = 0;

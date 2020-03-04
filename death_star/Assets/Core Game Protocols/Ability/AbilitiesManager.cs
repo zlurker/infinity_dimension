@@ -16,8 +16,9 @@ public sealed class AbilitiesManager : MonoBehaviour {
         int[] nodeBranchingData;
         Dictionary<int, int> specialisedNodeData;
         int abilityId;
+        AbilityBooleanData boolData;
 
-        public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] nT, int[] nBD, Dictionary<int, int> sND, int aId) {
+        public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] nT, int[] nBD, Dictionary<int, int> sND, int aId, AbilityBooleanData aBD) {
             dataVar = dV;
             dataType = dT;
             rootSubclasses = rS;
@@ -25,6 +26,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             nodeBranchingData = nBD;
             specialisedNodeData = sND;
             abilityId = aId;
+            boolData = aBD;
         }
 
         public void InputCallback(int i) {
@@ -50,7 +52,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
 
             // Rather than create new instance, everything except variables will be taken from here.
-            threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, nodeType, specialisedNodeData);
+            threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, nodeType, specialisedNodeData,boolData);
             threadInst.StartThreads();
         }
 
@@ -79,6 +81,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         string[] abilityRootData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(3);
         string[] abilityNodeBranchingData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(4);
         string[] abilitySpecialisedData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(5);
+        string[] variableBlockData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(6);
 
         aData = new AbilityData[abilityNodeData.Length];
 
@@ -88,6 +91,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
             int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData[i]);
             Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData[i]);
+            AbilityBooleanData boolData = JsonConvert.DeserializeObject<AbilityBooleanData>(variableBlockData[i]);
 
             Variable[][] tempVar = new Variable[ability.Length][];
             Type[] tempTypes = new Type[ability.Length];
@@ -99,7 +103,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
             int[] nodeType = new int[ability.Length];
 
-            aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, i);
+            aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, i,boolData);
             LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[i], 0, (KeyCode)97 + i, 0);//, new DH(aData[i].SyncInputWithNetwork), 0);
         }
     }

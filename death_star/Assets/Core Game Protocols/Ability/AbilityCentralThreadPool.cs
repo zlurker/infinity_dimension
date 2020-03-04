@@ -70,6 +70,8 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     private Dictionary<int, int> specialisedNodeData;
 
+    private AbilityBooleanData booleanData;
+
     // Link to ability nodes
     private int abilityNodes;
 
@@ -109,7 +111,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT, Dictionary<int, int> sND) {
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT, Dictionary<int, int> sND, AbilityBooleanData aBD) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
@@ -120,6 +122,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         nodeBranchingData = nBD;
         nodeType = nT;
         specialisedNodeData = sND;
+        booleanData = aBD;
     }
 
     public int GetNodeBranchData(int id) {
@@ -128,6 +131,10 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     public int GetNewThread(int startNode) {
         return activeThreads.Add(new NodeThread(startNode));
+    }
+
+    public bool[] GetNodeBoolValues(int id) {
+        return booleanData.varsBlocked[id];
     }
 
     public int AddNewThread(NodeThread inst) {
@@ -166,6 +173,8 @@ public class AbilityCentralThreadPool : NetworkObject {
             int nodeId = runtimeParameters[currNode][variableId].links[i][0];
             int nodeVariableId = runtimeParameters[currNode][variableId].links[i][1];
 
+            booleanData.varsBlocked[nodeId][nodeVariableId] = false;
+
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
                 Debug.LogFormat("{0} has been spawned by {1}, ischild: {2}", threadIdToUse, threadId, activeThreads.l[threadId] is ChildThread);
@@ -179,7 +188,6 @@ public class AbilityCentralThreadPool : NetworkObject {
                     inst.SetNodeThreadId(-1);
             }
 
-
             ((RuntimeParameters<T>)runtimeParameters[nodeId][nodeVariableId].field).v = value;
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
@@ -190,6 +198,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
     }
 
+    // Handles the aftermath of callback. Passes thread to another node.
     public void UpdateThreadNodeData(int threadId, int node) {
 
         AbilityTreeNode inst = CreateNewNodeIfNull(node);
@@ -214,7 +223,6 @@ public class AbilityCentralThreadPool : NetworkObject {
             inst.SetNodeThreadId(-1);
             HandleThreadRemoval(threadId);
         }
-
     }
 
     public void HandleThreadRemoval(int threadId) {
