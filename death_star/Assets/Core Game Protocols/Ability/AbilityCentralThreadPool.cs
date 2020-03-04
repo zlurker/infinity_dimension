@@ -154,8 +154,10 @@ public class AbilityCentralThreadPool : NetworkObject {
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
 
         // Handles removing of thread if a thread calls it at a node without any links.
-        if(runtimeParameters[currNode][variableId].links.Length == 0)
-            HandleThreadRemoval(threadId);
+        //if(runtimeParameters[currNode][variableId].links.Length == 0) {
+            //Debug.Log("Call once");
+            //HandleThreadRemoval(threadId);
+        //}
 
         for(int i = 0; i < runtimeParameters[currNode][variableId].links.Length; i++) {
 
@@ -177,7 +179,7 @@ public class AbilityCentralThreadPool : NetworkObject {
                     inst.SetNodeThreadId(-1);
             }
 
-            Debug.Log(nodeVariableId);
+
             ((RuntimeParameters<T>)runtimeParameters[nodeId][nodeVariableId].field).v = value;
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
@@ -219,6 +221,7 @@ public class AbilityCentralThreadPool : NetworkObject {
 
         Debug.LogFormat("Thread {0} has ended operations.", threadId);
         // Callback to start node.
+        Debug.Log(activeThreads.l[threadId].GetStartingPoint());
         CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
 
         // Removes that thread.

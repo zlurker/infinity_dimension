@@ -2,15 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimeSpawn : ThreadSplitter {
+[RequireComponent(typeof(BoxCollider2D))]
+public class TimeSpawn : AbilityTreeNode {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
+    public const int SPAWN_LIFETIME =0;
+    public const int TASKS = 1;
+
 	void Update () {
 		
 	}
+
+    public override void NodeCallback(int threadId, int nodeId) {
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+        inst.NodeVariableCallback<object>(threadId, TASKS, null);        
+    }
+
+    public override RuntimeParameters[] GetRuntimeParameters() {
+        return new RuntimeParameters[] {
+            new RuntimeParameters<float>("Spawn Lifetime",3),
+            new RuntimeParameters<object>("Tasks",null)
+        };
+    }
 }
