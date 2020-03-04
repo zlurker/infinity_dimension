@@ -137,13 +137,22 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             int[] nBranchData = AbilityDataSubclass.ReturnNodeBranchData(cAD);
 
             Dictionary<int, int> specialisedNodeThreadCount = new Dictionary<int, int>();
-            AbilityDataSubclass.CalculateSpecialisedNodeThreads(cAD, rootClasses, specialisedNodeThreadCount);
+
+            AbilityBooleanData bData = new AbilityBooleanData();
+
+            bData.varsBlocked = new bool[cAD.Length][];
+
+            for(int i = 0; i < cAD.Length; i++)
+                bData.varsBlocked[i] = new bool[cAD[i].var.Length];
+
+            AbilityDataSubclass.IterateLinks(cAD, rootClasses, specialisedNodeThreadCount,bData);
 
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(cAD)));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 1, JsonConvert.SerializeObject(abilityDescription));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 3, JsonConvert.SerializeObject(rootClasses));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(nBranchData));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 5, JsonConvert.SerializeObject(specialisedNodeThreadCount));
+            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 6, JsonConvert.SerializeObject(bData));
 
             // Gets all window locations.
             float[][] windowLocations = new float[cAD.Length][];

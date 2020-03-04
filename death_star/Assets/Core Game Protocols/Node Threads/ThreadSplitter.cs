@@ -12,7 +12,7 @@ public class ThreadSplitter : AbilityTreeNode {
         };
     }
 
-    public override void NodeCallback(int threadId, int nodeId) {
+    public override void NodeCallback(int threadId) {
         Debug.LogFormat("Thread ID {0} has called threadsplitter.", threadId);
         threadMap.Add(threadId, new int[2]);
         ProcessThreads(threadId);

@@ -6,8 +6,9 @@ using UnityEngine;
 public class Variable {
     //Variable details
     public RuntimeParameters field;
-
-    //Addressed to [ get(0)/set(1) enum, subclass, variable]
+    //
+    public bool varUpdated;
+    //Addressed to [subclass, variable]
     public int[][] links;
 
     public Variable() {
@@ -15,13 +16,19 @@ public class Variable {
 
     public Variable(RuntimeParameters f, int[][] ls) {
         field = f;
-        links = ls;
+        links = ls;     
     }
 
     public Variable(RuntimeParameters f) {
         field = f;
         links = new int[0][];
     }
+}
+
+public class AbilityBooleanData {
+
+    public int blockedVars;
+    public bool[][] varsBlocked;
 }
 
 public class AbilityDataSubclass {
@@ -83,7 +90,7 @@ public class AbilityDataSubclass {
         return bData;
     }
 
-    public static int CalculateSpecialisedNodeThreads(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues) {
+    public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues,AbilityBooleanData bData) {
 
         int total = 0;
 
@@ -103,13 +110,18 @@ public class AbilityDataSubclass {
                 int[] followingIds = new int[target[nextId[i]].var[j].links.Length];
                 totalLinks += followingIds.Length;
 
-                for(int k = 0; k < target[nextId[i]].var[j].links.Length; k++)
-                    followingIds[k] = target[nextId[i]].var[j].links[k][0];
+                for(int k = 0; k < target[nextId[i]].var[j].links.Length; k++) {
+                    int[] currLink = target[nextId[i]].var[j].links[k];
+                    followingIds[k] = currLink[0];
+
+                    bData.varsBlocked[currLink[0]][currLink[1]] = true;
+                    bData.blockedVars++;
+                }
 
                 int nextNodeValues = 0;
 
                 if(followingIds.Length > 0)
-                    nextNodeValues = CalculateSpecialisedNodeThreads(target, followingIds, mappedValues);
+                    nextNodeValues = IterateLinks(target, followingIds, mappedValues,bData);
 
                 total += nextNodeValues;
             }

@@ -193,7 +193,7 @@ public class AbilityCentralThreadPool : NetworkObject {
     public void UpdateThreadNodeData(int threadId, int node) {
 
         AbilityTreeNode inst = CreateNewNodeIfNull(node);
-        int prevNodeId = activeThreads.l[threadId].GetCurrentNodeID();
+        //int prevNodeId = activeThreads.l[threadId].GetCurrentNodeID();
         int existingThread = inst.GetNodeThreadId();
 
         activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
@@ -207,7 +207,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         //if(activeThreads.l[threadId].ReturnOverride())
         inst.SetNodeThreadId(threadId);
 
-        inst.NodeCallback(threadId,prevNodeId);
+        inst.NodeCallback(threadId);
 
         // Checks if node has no more output
         if(nodeBranchingData[node] == 0) {

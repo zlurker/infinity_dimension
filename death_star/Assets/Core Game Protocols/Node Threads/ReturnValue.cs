@@ -31,8 +31,8 @@ public class ReturnValue : AbilityTreeNode {
         };
     }
 
-    public override void NodeCallback(int threadId, int nodeId) {
-        threadMap.Add(threadId, 0);
+    public override void NodeCallback(int threadId) {
+        /*threadMap.Add(threadId, 0);
         Debug.Log("tid" + threadId);
         Debug.Log(threadMap[0]);
 
@@ -42,7 +42,7 @@ public class ReturnValue : AbilityTreeNode {
 
         int threadToUse = inst.AddNewThread(trdInst);
         Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-        inst.NodeVariableCallback<int>(threadToUse, 0, 20);
+        inst.NodeVariableCallback<int>(threadToUse, 0, 20);*/
     }
 
     public override void ThreadEndStartCallback(int threadId) {

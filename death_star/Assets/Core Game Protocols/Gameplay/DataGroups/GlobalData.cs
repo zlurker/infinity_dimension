@@ -31,17 +31,25 @@ public class RuntimeParameters<T> : RuntimeParameters {
     public override string GetSerializedObject() {
         return JsonConvert.SerializeObject(this);
     }
+
+    public override RuntimeParameters ReturnNewRuntimeParamCopy() {
+        return new RuntimeParameters<T>(n, v);
+    }
 }
 
 public class RuntimeParameters{
 
     public string n;
-    public Type t;
+    public Type t;    
+    public int vI;
 
     public virtual string GetSerializedObject() {
         return "";
     }
-    public int vI;
+
+    public virtual RuntimeParameters ReturnNewRuntimeParamCopy() {
+        return null;
+    }
 }
 
 public static class LoadedData {

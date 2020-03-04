@@ -12,7 +12,7 @@ public class TimeSpawn : AbilityTreeNode {
 		
 	}
 
-    public override void NodeCallback(int threadId, int nodeId) {
+    public override void NodeCallback(int threadId) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         inst.NodeVariableCallback<object>(threadId, TASKS, null);        
     }

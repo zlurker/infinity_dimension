@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ObjectSelector : AbilityTreeNode {
 
-    public override void NodeCallback(int threadId, int nodeId) {
+    public override void NodeCallback(int threadId) {
         AbilityCentralThreadPool central = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
 
         //central.SyncDataWithNetwork<GameObject>(GetNodeThreadId(), 1, GameObject.Find(central.ReturnRuntimeParameter<string>(GetNodeId(), 0).v));

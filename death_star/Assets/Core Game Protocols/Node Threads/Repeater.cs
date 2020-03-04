@@ -21,7 +21,7 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
         }
 	}
 
-    public override void NodeCallback(int threadId, int nodeId) {
+    public override void NodeCallback(int threadId) {
         Debug.Log(threadId);
 
         if(startTime == -1) {

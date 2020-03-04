@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ObjectMover : AbilityTreeNode {
 
-    public override void NodeCallback(int threadId, int nodeId) {
+    public override void NodeCallback(int threadId) {
         AbilityCentralThreadPool central = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
 
         Vector3 movement = new Vector3(central.ReturnRuntimeParameter<float>(GetNodeId(), 1).v, central.ReturnRuntimeParameter<float>(GetNodeId(), 2).v);

@@ -42,7 +42,7 @@ public class TimerTest : AbilityTreeNode {
         };
     }
 
-    public override void NodeCallback(int threadId, int nodeId) {
+    public override void NodeCallback(int threadId) {
         Debug.Log("Timer reset.");
         reset = true;       
     }
