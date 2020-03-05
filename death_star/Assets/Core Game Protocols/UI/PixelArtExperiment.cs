@@ -25,9 +25,9 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
     Vector2 lw;
     Vector2 mPos;
 
-    string currPath;
-
     Color[,] colorData;
+
+    string name;
 
     void Start() {
         mPos = new Vector2();
@@ -38,12 +38,19 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         CalibrateEditor();
 
         SpawnerOutput sO = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-
         UIDrawer.GetTypeInElement<Button>(sO).onClick.AddListener(SavePNG);
+        UIDrawer.GetTypeInElement<Text>(sO).text = "Save Art";
 
-        currPath = FileSaver.PathGenerator(Application.dataPath, new string[] { "Pixel Art", "Test" });
-        GeneratePixels();
-        CreateNewPixel();
+        SpawnerOutput nO = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(InputFieldWrapper));
+        UIDrawer.GetTypeInElement<InputField>(nO).onValueChanged.AddListener((s) => {
+            name = s;
+        });
+
+        sO.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
+        nO.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.8f));
+
+        //GeneratePixels();
+        pointer = CreatePixel();
 
         
         /*colors = new Color[1000];
@@ -175,7 +182,9 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         colorTest = new Texture2D(PNGDimensions, PNGDimensions);
         colorTest.SetPixels(colors);
 
+        string fP = FileSaver.PathGenerator(Application.dataPath, new string[] { "UsrCreatedArt" });
+
         Debug.LogFormat("Pixels modified. Total modified: {0}", pngScaleFactor);
-        File.WriteAllBytes(Path.Combine(currPath, "PixelCharacer.PNG"), colorTest.EncodeToPNG());
+        File.WriteAllBytes(Path.Combine(fP, name + ".PNG"), colorTest.EncodeToPNG());
     }
 }

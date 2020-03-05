@@ -62,7 +62,6 @@ public class AbilityPageScript : MonoBehaviour {
         do {
             i++;
             path = Path.Combine(fST.fP, i.ToString());
-
         } while(Directory.Exists(path));
 
         fST.GenerateNewSubDirectory(new string[] { i.ToString() });
