@@ -50,20 +50,20 @@ public class FileSaveTemplate {
         return files;
     }
 
-    public byte[][][] LoadAllDir(int d) {
-        DirectoryInfo[] currDirs = new DirectoryInfo(fP).GetDirectories();
-        byte[][][] files = new byte[currDirs.Length][][];
+    public string[] LoadAllDir(int d) {
+        List<string> imagePaths = new List<string>();
 
-        for(int i = 0; i < currDirs.Length; i++) {
-            DirectoryInfo currDir = new DirectoryInfo(Path.Combine(currDirs[i].FullName,dir[d]));
-            FileInfo[] currDirFiles = currDir.GetFiles();
-            files[i] = new byte[currDirFiles.Length][];
+        var currDirs = new DirectoryInfo(fP).EnumerateDirectories();
 
-            for (int j=0; j < currDirFiles.Length; j++) 
-                files[i][j] = File.ReadAllBytes(currDirFiles[j].FullName);            
+        foreach(DirectoryInfo info in currDirs) {
+            DirectoryInfo currDir = new DirectoryInfo(Path.Combine(info.FullName, dir[d]));
+            var currFiles = currDir.EnumerateFiles("*.PNG");
+
+            foreach(FileInfo fInfo in currFiles)
+                imagePaths.Add(fInfo.FullName);
         }
 
-        return files;
+        return imagePaths.ToArray();
     }
 
     public string[][] GetDirectoryNames(int d) {
@@ -72,11 +72,13 @@ public class FileSaveTemplate {
 
         for(int i = 0; i < currDirs.Length; i++) {
             DirectoryInfo currDir = new DirectoryInfo(Path.Combine(currDirs[i].FullName, dir[d]));
-            FileInfo[] currDirFiles = currDir.GetFiles();
+            FileInfo[] currDirFiles = currDir.GetFiles("*.PNG");
             fileNames[i] = new string[currDirFiles.Length];
 
-            for(int j = 0; j < currDirFiles.Length; j++)
+            for(int j = 0; j < currDirFiles.Length; j++) {
                 fileNames[i][j] = currDirFiles[j].Name;
+                Debug.Log(fileNames[i][j]);
+            }
         }
 
         return fileNames;

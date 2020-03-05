@@ -21,7 +21,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         int[] nodeBranchingData;
         Dictionary<int, int> specialisedNodeData;
         int abilityId;
-        
+
 
         public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] nT, int[] nBD, Dictionary<int, int> sND, int aId, AbilityBooleanData aBD) {
             dataVar = dV;
@@ -70,10 +70,9 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
                 clonedCopy[i] = new Variable[target[i].Length];
 
-                for(int j = 0; j < target[i].Length; j++) 
+                for(int j = 0; j < target[i].Length; j++)
                     clonedCopy[i][j] = new Variable(target[i][j].field.ReturnNewRuntimeParamCopy(), target[i][j].links);
             }
-
             return clonedCopy;
         }
     }
@@ -82,43 +81,34 @@ public sealed class AbilitiesManager : MonoBehaviour {
     public static Dictionary<string, Sprite> assetData;
 
     void Start() {
+        LoadArtAssets();
+        LoadAbilityData();      
+    }
 
+    void LoadArtAssets() {
+        assetData = new Dictionary<string, Sprite>();
+
+        string[] imagePaths = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].LoadAllDir(0);
+
+        for(int i = 0; i < imagePaths.Length; i++) {
+
+            Texture2D generatedTex = new Texture2D(1, 1);
+            generatedTex.LoadImage(File.ReadAllBytes(imagePaths[i]));
+
+            Sprite sprInst = Sprite.Create(generatedTex, new Rect(0, 0, generatedTex.width, generatedTex.height), new Vector2(0.5f, 0.5f));
+
+            assetData.Add(Path.GetFileName(imagePaths[i]), sprInst);
+        }
+    }
+
+    void LoadAbilityData() {
         string[] abilityNodeData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(0);
         string[] abilityRootData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(3);
         string[] abilityNodeBranchingData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(4);
         string[] abilitySpecialisedData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(5);
         string[] variableBlockData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(6);
 
-        byte[][][] assetBytes = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].LoadAllDir(0);
-        string[][] fileNames = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GetDirectoryNames(0);
-
-        /*for(int i = 0; i < assetBytes.Length; i++)
-            for(int j = 0; j < assetBytes[i].Length; j++) 
-                if(assetBytes[i][j] != null) {
-                    Texture2D artAsset = null;
-                    Debug.Log(artAsset.LoadImage(assetBytes[i][j]));
-
-                    //Sprite createdInstance = Sprite.Create(artAsset, new Rect(0, 0, artAsset.width, artAsset.height), new Vector2(0, 0));
-                    //assetData.Add(fileNames[i][j], createdInstance);
-                    //Debug.Log(fileNames[i][j]);
-                }*/
-        
         aData = new AbilityData[abilityNodeData.Length];
-        assetData = new Dictionary<string, Sprite>();
-
-        byte[] fileData;
-        string path;
-        Texture2D tex;
-
-        path = Path.Combine(new string[] { Application.dataPath, "Datafiles", "2", "ImageAssets", "Bullet" });
-        path += ".png";
-
-        fileData = File.ReadAllBytes(path);
-        tex = new Texture2D(1, 1);
-        tex.LoadImage(fileData);
-
-        Sprite sprInst = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-        assetData.Add("Bullet.PNG", sprInst);
 
         for(int i = 0; i < abilityNodeData.Length; i++) {
 
