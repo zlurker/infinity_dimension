@@ -56,6 +56,7 @@ public static class LoadedData {
 
     //public static IPlayerEditable[] uL; //uiLoaders
     //public static Singleton[] sL; //singletonList
+    public static Camera currSceneCamera;
     public static Dictionary<Type, ISingleton> singletonList;
     public static Dictionary<Type, AbilityTreeNode> loadedNodeInstance;
 
@@ -84,6 +85,8 @@ public static class SceneTransitionData {
     }
 
     public static void OnSceneLoad(Scene arg0, LoadSceneMode arg1) {
+        LoadedData.currSceneCamera = Camera.main;
+
         foreach (KeyValuePair<Type, ISingleton> singletons in LoadedData.singletonList) 
             singletons.Value.RunOnStart();       
     }

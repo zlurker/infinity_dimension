@@ -38,20 +38,24 @@ public static class JSONFileConvertor {
 
     public static AbilityDataSubclass[] ConvertToData(StandardJSONFileFormat[] sFs) {
 
-        AbilityDataSubclass[] convertedFormat = new AbilityDataSubclass[sFs.Length];
+        AbilityDataSubclass[] convertedFormat = null;
 
-        for(int i = 0; i < convertedFormat.Length; i++) {
-            convertedFormat[i] = new AbilityDataSubclass();
+        if(sFs != null) {
+            convertedFormat = new AbilityDataSubclass[sFs.Length];
 
-            convertedFormat[i].classType = sFs[i].cT;
-            convertedFormat[i].var = new Variable[sFs[i].l.Length];
+            for(int i = 0; i < convertedFormat.Length; i++) {
+                convertedFormat[i] = new AbilityDataSubclass();
 
-            for(int j = 0; j < convertedFormat[i].var.Length; j++) {
-                if(sFs[i].vT[j] > -1) {
-                    convertedFormat[i].var[j] = new Variable(VariableTypeIndex.convertors[sFs[i].vT[j]].ReturnRuntimeType(sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
-                } else {
-                    RuntimeParameters inst = LoadedData.loadedNodeInstance[convertedFormat[i].classType].GetRuntimeParameters()[j];
-                    convertedFormat[i].var[j] = new Variable(inst, JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
+                convertedFormat[i].classType = sFs[i].cT;
+                convertedFormat[i].var = new Variable[sFs[i].l.Length];
+
+                for(int j = 0; j < convertedFormat[i].var.Length; j++) {
+                    if(sFs[i].vT[j] > -1) {
+                        convertedFormat[i].var[j] = new Variable(VariableTypeIndex.convertors[sFs[i].vT[j]].ReturnRuntimeType(sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
+                    } else {
+                        RuntimeParameters inst = LoadedData.loadedNodeInstance[convertedFormat[i].classType].GetRuntimeParameters()[j];
+                        convertedFormat[i].var[j] = new Variable(inst, JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
+                    }
                 }
             }
         }

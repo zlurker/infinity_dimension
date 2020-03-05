@@ -166,8 +166,6 @@ public class AbilityCentralThreadPool : NetworkObject {
             int nodeId = runtimeParameters[currNode][variableId].links[i][0];
             int nodeVariableId = runtimeParameters[currNode][variableId].links[i][1];
 
-            
-
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
                 Debug.LogFormat("{0} has been spawned by {1}, ischild: {2}", threadIdToUse, threadId, activeThreads.l[threadId] is ChildThread);
@@ -181,11 +179,32 @@ public class AbilityCentralThreadPool : NetworkObject {
                     inst.SetNodeThreadId(-1);
             }
 
-            if(vType == VariableTypes.DEFAULT)
-                ((RuntimeParameters<T>)runtimeParameters[nodeId][nodeVariableId].field).v = value;
+            switch(vType) {
+                case VariableTypes.DEFAULT:
+                    RuntimeParameters<T> paramInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
 
-            booleanData.varsBlocked[nodeId][nodeVariableId] = false;
-            Debug.Log("Set false");
+                    if(paramInst != null) {
+                        paramInst.v = value;
+                        booleanData.varsBlocked[nodeId][nodeVariableId] = false;
+                    }
+                    break;
+
+                case VariableTypes.SIGNAL_VAR:
+                    booleanData.varsBlocked[nodeId][nodeVariableId] = false;
+                    break;
+
+                case VariableTypes.POLYMORPHIC_VAR:
+                    RuntimeParameters<T> polyInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
+
+                    if(polyInst != null)
+                        polyInst.v = value;
+                    else
+                        runtimeParameters[nodeId][nodeVariableId].field = new RuntimeParameters<T>("", value);
+
+                    booleanData.varsBlocked[nodeId][nodeVariableId] = false;
+                    break;
+            }
+
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
 
@@ -241,19 +260,25 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {
 
-        if(!AbilityTreeNode.globalList.l[abilityNodes][nodeId]) {
+        if(!AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId]) {
 
             // Tries to convert type into a singleton to see if it exist.
             if(LoadedData.singletonList.ContainsKey(subclassTypes[nodeId]))
-                AbilityTreeNode.globalList.l[abilityNodes][nodeId] = LoadedData.singletonList[subclassTypes[nodeId]] as AbilityTreeNode;
+                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId] = LoadedData.singletonList[subclassTypes[nodeId]] as AbilityTreeNode;
 
-            if(AbilityTreeNode.globalList.l[abilityNodes][nodeId] == null) {
+            if(AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId] == null) {
                 SpawnerOutput sOInst = LoadedData.GetSingleton<Spawner>().CreateScriptedObject(subclassTypes[nodeId]);
-                AbilityTreeNode.globalList.l[abilityNodes][nodeId] = sOInst.script as AbilityTreeNode;
-                AbilityTreeNode.globalList.l[abilityNodes][nodeId].SetSourceObject(sOInst);
+                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId] = sOInst.script as AbilityTreeNode;
+                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].SetSourceObject(sOInst);
+
+                // Changes its name
+                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].name = centralId.ToString() + '/' + nodeId.ToString();
+
+                // Adds it to root
+                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].transform.SetParent(AbilityTreeNode.globalList.l[abilityNodes].abilityNodeRoot);
             }
 
-            AbilityTreeNode inst = AbilityTreeNode.globalList.l[abilityNodes][nodeId];
+            AbilityTreeNode inst = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId];
 
             inst.SetNodeThreadId(-1);
             inst.SetNodeId(nodeId);
@@ -261,6 +286,6 @@ public class AbilityCentralThreadPool : NetworkObject {
             return inst;
         }
 
-        return AbilityTreeNode.globalList.l[abilityNodes][nodeId];
+        return AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId];
     }
 }

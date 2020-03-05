@@ -48,7 +48,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             int tId = AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
             AbilityTreeNode[] a = new AbilityTreeNode[dataVar.Length];
-            int nId = AbilityTreeNode.globalList.Add(a);
+            int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(),a));
             Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
 
             // Rather than create new instance, everything except variables will be taken from here.
@@ -88,6 +88,10 @@ public sealed class AbilitiesManager : MonoBehaviour {
         for(int i = 0; i < abilityNodeData.Length; i++) {
             //Debug.Log(abilityNodeData[i]);
             AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData[i]));
+
+            if(ability == null)
+                continue;
+
             int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
             int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData[i]);
             Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData[i]);

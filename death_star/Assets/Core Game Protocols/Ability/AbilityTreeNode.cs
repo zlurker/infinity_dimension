@@ -2,9 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class AbilityNodeHolder {
+    public Transform abilityNodeRoot;
+    public AbilityTreeNode[] abiNodes;
+    
+    public AbilityNodeHolder(string id, AbilityTreeNode[] nodes) {
+        abilityNodeRoot = new GameObject(id).transform;
+        abiNodes = nodes;
+    }
+}
+
 public class AbilityTreeNode : MonoBehaviour {
 
-    public static EnhancedList<AbilityTreeNode[]> globalList = new EnhancedList<AbilityTreeNode[]>();
+    public static EnhancedList<AbilityNodeHolder> globalList = new EnhancedList<AbilityNodeHolder>();
 
     // Given node ID.
     private int nodeId;

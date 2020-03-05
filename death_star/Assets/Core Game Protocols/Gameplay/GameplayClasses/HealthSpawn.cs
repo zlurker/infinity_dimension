@@ -7,19 +7,25 @@ public class HealthSpawn : AbilityTreeNode {
 
     public const int HEALTH = 0;
     public const int TASKS = 1;
+    public const int ON_COLLIDE = 2;
 
 	void Update () {
 		
 	}
 
     public override void NodeCallback(int threadId) {       
-        GetCentralInst().NodeVariableCallback<object>(threadId, TASKS, null,VariableTypes.SIGNAL_VAR);
+        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, TASKS, this,VariableTypes.SIGNAL_VAR);
+    }
+
+    public void OnCollisionStay2D(Collision2D collision) {
+        //collision.gameObject.name
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
             new RuntimeParameters<float>("Health",100),
-            new RuntimeParameters<object>("Tasks",null)
+            new RuntimeParameters<AbilityTreeNode>("Spawn",null),
+            new RuntimeParameters<object>("On Collide", null)
         };
     }
 }

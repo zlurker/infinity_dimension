@@ -132,8 +132,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             AbilityDataSubclass[] cAD = abilityData.RelinkSubclass();
             int[] rootClasses = AbilityDataSubclass.ReturnFirstClasses(cAD);
-            //int[] endNodeData = AbilityDataSubclass.ReturnNodeEndData(cAD);
-            //int[][] getEndData = AbilityDataSubclass.ReturnGetEndNode(cAD, rootClasses);
             int[] nBranchData = AbilityDataSubclass.ReturnNodeBranchData(cAD);
 
             Dictionary<int, int> specialisedNodeThreadCount = new Dictionary<int, int>();

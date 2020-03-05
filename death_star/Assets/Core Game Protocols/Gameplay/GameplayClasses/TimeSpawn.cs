@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(BoxCollider2D))]
+[RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D))]
 public class TimeSpawn : AbilityTreeNode {
 
     public const int SPAWN_LIFETIME =0;
@@ -13,13 +13,18 @@ public class TimeSpawn : AbilityTreeNode {
 	}
 
     public override void NodeCallback(int threadId) {
-        GetCentralInst().NodeVariableCallback<object>(threadId, TASKS, null,VariableTypes.SIGNAL_VAR);        
+        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, TASKS, this,VariableTypes.DEFAULT);        
+    }
+
+    public void OnCollisionStay2D(Collision2D collision) {
+        
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
             new RuntimeParameters<float>("Spawn Lifetime",3),
-            new RuntimeParameters<object>("Tasks",null)
+            new RuntimeParameters<AbilityTreeNode>("Spawn",null),
+            new RuntimeParameters<object>("On Collide", null)
         };
     }
 }
