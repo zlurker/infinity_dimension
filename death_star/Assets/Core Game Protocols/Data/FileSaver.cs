@@ -7,7 +7,7 @@ using UnityEngine;
 public class FileSaveTemplate<T> : FileSaveTemplate {
     public Action<string, T> s;
 
-    public FileSaveTemplate(string[] filePath, string[] extension,string[] directories, Action<string, T> save) { //filePath followed by DataPath
+    public FileSaveTemplate(string[] filePath, string[] extension, string[] directories, Action<string, T> save) { //filePath followed by DataPath
         s = save;
         ext = extension;
         dir = directories;
@@ -50,9 +50,36 @@ public class FileSaveTemplate {
         return files;
     }
 
-    public string ApendPath(string[] inBetween, int extIndex) {
-        string bP = FileSaver.PathGenerator(fP, inBetween);
-        return Path.Combine(bP, ext[extIndex]);
+    public byte[][][] LoadAllDir(int d) {
+        DirectoryInfo[] currDirs = new DirectoryInfo(fP).GetDirectories();
+        byte[][][] files = new byte[currDirs.Length][][];
+
+        for(int i = 0; i < currDirs.Length; i++) {
+            DirectoryInfo currDir = new DirectoryInfo(Path.Combine(currDirs[i].FullName,dir[d]));
+            FileInfo[] currDirFiles = currDir.GetFiles();
+            files[i] = new byte[currDirFiles.Length][];
+
+            for (int j=0; j < currDirFiles.Length; j++) 
+                files[i][j] = File.ReadAllBytes(currDirFiles[j].FullName);            
+        }
+
+        return files;
+    }
+
+    public string[][] GetDirectoryNames(int d) {
+        DirectoryInfo[] currDirs = new DirectoryInfo(fP).GetDirectories();
+        string[][] fileNames = new string[currDirs.Length][];
+
+        for(int i = 0; i < currDirs.Length; i++) {
+            DirectoryInfo currDir = new DirectoryInfo(Path.Combine(currDirs[i].FullName, dir[d]));
+            FileInfo[] currDirFiles = currDir.GetFiles();
+            fileNames[i] = new string[currDirFiles.Length];
+
+            for(int j = 0; j < currDirFiles.Length; j++)
+                fileNames[i][j] = currDirFiles[j].Name;
+        }
+
+        return fileNames;
     }
 
     public void GenerateNewSubDirectory(string[] addtionalPath) {

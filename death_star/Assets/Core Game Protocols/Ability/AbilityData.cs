@@ -27,6 +27,20 @@ public class Variable {
 
 public class AbilityBooleanData {
     public bool[][] varsBlocked;
+
+    public bool[][] ReturnNewCopy() {
+        bool[][] clone = new bool[varsBlocked.Length][];
+
+        for (int i=0; i < clone.Length; i++) {
+            clone[i] = new bool[varsBlocked[i].Length];
+
+            for(int j = 0; j < clone[i].Length; j++)
+                clone[i][j] = varsBlocked[i][j];
+        }
+
+        return clone;
+            
+    }
 }
 
 public class AbilityDataSubclass {

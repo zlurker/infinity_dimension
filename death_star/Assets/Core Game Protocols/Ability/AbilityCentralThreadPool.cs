@@ -70,7 +70,8 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     private Dictionary<int, int> specialisedNodeData;
 
-    private AbilityBooleanData booleanData;
+    //private AbilityBooleanData booleanData;
+    private bool[][] booleanData;
 
     // Link to ability nodes
     private int abilityNodes;
@@ -111,7 +112,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT, Dictionary<int, int> sND, AbilityBooleanData aBD) {
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT, Dictionary<int, int> sND, bool[][] aBD) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
@@ -134,7 +135,7 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
 
     public bool[] GetNodeBoolValues(int id) {
-        return booleanData.varsBlocked[id];
+        return booleanData[id];
     }
 
     public int AddNewThread(NodeThread inst) {
@@ -185,12 +186,12 @@ public class AbilityCentralThreadPool : NetworkObject {
 
                     if(paramInst != null) {
                         paramInst.v = value;
-                        booleanData.varsBlocked[nodeId][nodeVariableId] = false;
+                        booleanData[nodeId][nodeVariableId] = false;
                     }
                     break;
 
                 case VariableTypes.SIGNAL_VAR:
-                    booleanData.varsBlocked[nodeId][nodeVariableId] = false;
+                    booleanData[nodeId][nodeVariableId] = false;
                     break;
 
                 case VariableTypes.POLYMORPHIC_VAR:
@@ -201,7 +202,7 @@ public class AbilityCentralThreadPool : NetworkObject {
                     else
                         runtimeParameters[nodeId][nodeVariableId].field = new RuntimeParameters<T>("", value);
 
-                    booleanData.varsBlocked[nodeId][nodeVariableId] = false;
+                    booleanData[nodeId][nodeVariableId] = false;
                     break;
             }
 

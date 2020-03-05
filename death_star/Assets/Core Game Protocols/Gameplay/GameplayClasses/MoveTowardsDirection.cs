@@ -12,13 +12,13 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
     Vector3 direction;
 
 	void Update () {
-        if(allDataRecv) {
-            Debug.Log("Working");
-            GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position += direction;
-        }
+        if(allDataRecv) 
+            GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position += direction;        
 	}
 
     public override void NodeCallback(int threadId) {
+        Debug.Log("NCB, cID" + GetCentralId());
+
         allDataRecv = CheckIfVarRegionBlocked(new int[] { 0,1,2 });
 
         if(allDataRecv) {

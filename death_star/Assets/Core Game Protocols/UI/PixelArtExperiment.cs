@@ -49,7 +49,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         sO.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
         nO.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.8f));
 
-        //GeneratePixels();
+        GeneratePixels();
         pointer = CreatePixel();
 
         
@@ -72,13 +72,14 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         Texture2D tex;
         colorData = new Color[100,10];
 
-        path = Path.Combine(new string[] { Application.dataPath, "Pixel Art", "Test", "PixelCharacer" });
+        path = Path.Combine(new string[] { Application.dataPath, "Datafiles", "2", "ImageAssets", "Bullet" });
         path += ".png";
 
         if(File.Exists(path)) {
             fileData = File.ReadAllBytes(path);
             tex = new Texture2D(1, 1);
-            ImageConversion.LoadImage(tex, fileData);
+            tex.LoadImage(fileData);
+            //ImageConversion.LoadImage(tex, fileData);
 
             //display.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2());
             colorData = ImageFileReader.ReadImageFile(tex.GetPixels());
