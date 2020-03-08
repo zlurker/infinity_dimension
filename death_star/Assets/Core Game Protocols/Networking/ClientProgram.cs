@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using System.Net.Sockets;
 using System.Text;
+using System.IO.Compression;
 
 public enum NetworkCommandType {
     CREATE_NETOBJECT, UPDATE_NETOBJECT, DELETE_NETOBJECT
@@ -36,8 +37,9 @@ public class ClientProgram : MonoBehaviour {
         currMsgLength = -1;
 
         clientSock.Connect("178.128.95.63", 5000);
-
+        
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
+        
     }
 
     void OnRecieve(IAsyncResult asyncResult) {

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 public class FileSaveTemplate<T> : FileSaveTemplate {
@@ -48,6 +49,23 @@ public class FileSaveTemplate {
             files[i] = GenericLoadTrigger(new string[] { currDirs[i].Name }, file);
 
         return files;
+    }
+
+    public byte[][][] ReturnAllMainFiles(int[] selectedFiles) {
+        List<byte[][]> compiledList = new List<byte[][]>();
+        var currDirs = new DirectoryInfo(fP).EnumerateDirectories();
+
+        foreach(DirectoryInfo info in currDirs) {
+
+            compiledList.Add(new byte[selectedFiles.Length][]);
+
+            for (int i=0; i < selectedFiles.Length; i++) {
+                string combinedPath = Path.Combine(info.FullName, ext[selectedFiles[i]]);
+                compiledList[compiledList.Count - 1][i] = File.ReadAllBytes(combinedPath);
+            }
+        }
+
+        return compiledList.ToArray(); 
     }
 
     public string[] LoadAllDir(int d) {
@@ -113,7 +131,7 @@ public class FileSaver {
          if (!File.Exists(fP))
              File.Create(fP).Dispose();
 
-         File.WriteAllText(fP, t);
+         File.WriteAllText(fP, t,Encoding.UTF8);
          })
      };
 

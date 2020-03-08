@@ -9,11 +9,24 @@ using UnityEngine.UI;
 public class LoadClasses : MonoBehaviour {
 
     void Start() {
+        SyncClientStartTime();
         LoadSingletonClasses();
         LoadAbilityNodes();
         LoadNetworkDependencies();
 
         SceneTransitionData.Initialise();
+    }
+
+    void SyncClientStartTime() {
+        LoadedData.syncedStartupTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds() - Mathf.RoundToInt(Time.realtimeSinceStartup *1000);
+        Debug.LogFormat("CurrentActualTime {0}, RTSS {1}",Mathf.RoundToInt(Time.realtimeSinceStartup * 1000), new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds());
+        Debug.Log("Time" + LoadedData.syncedStartupTime);
+
+        //Debug.LogFormat("TimeTest {0}", Convert.ToSingle(LoadedData.syncedStartupTime) - Time.realtimeSinceStartup);
+
+        //long test = 12043;
+
+        //float test0 = 20000.34935281 - test;
     }
 
     void LoadAbilityNodes() {
@@ -77,7 +90,8 @@ public class LoadClasses : MonoBehaviour {
         
         NetworkMessageEncoder.encoders = new NetworkMessageEncoder[] {
             new AbilityInputEncoder(),
-            new UpdateAbilityDataEncoder()
+            new UpdateAbilityDataEncoder(),
+            new PlayerCustomDataTrasmitter()
         };
 
         for(int i = 0; i < NetworkMessageEncoder.encoders.Length; i++)

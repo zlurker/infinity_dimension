@@ -59,6 +59,7 @@ public static class LoadedData {
     public static Camera currSceneCamera;
     public static Dictionary<Type, ISingleton> singletonList;
     public static Dictionary<Type, AbilityTreeNode> loadedNodeInstance;
+    public static long syncedStartupTime;
 
     public static T GetSingleton<T>() {
         return (T)singletonList[typeof(T)];

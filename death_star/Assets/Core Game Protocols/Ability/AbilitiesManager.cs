@@ -7,8 +7,6 @@ using System.IO;
 
 public sealed class AbilitiesManager : MonoBehaviour {
 
-    //public static EnhancedList<ScriptableObject> defaultTreeTransversers;
-
     public class AbilityData : IInputCallback<int> {
         // Data that needs to be read/written
         Variable[][] dataVar;
@@ -21,7 +19,6 @@ public sealed class AbilitiesManager : MonoBehaviour {
         int[] nodeBranchingData;
         Dictionary<int, int> specialisedNodeData;
         int abilityId;
-
 
         public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] nT, int[] nBD, Dictionary<int, int> sND, int aId, AbilityBooleanData aBD) {
             dataVar = dV;
@@ -45,7 +42,6 @@ public sealed class AbilitiesManager : MonoBehaviour {
             } else {
                 AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool();
                 CreateAbility(centralPool);
-
             }
         }
 
@@ -56,10 +52,10 @@ public sealed class AbilitiesManager : MonoBehaviour {
             AbilityTreeNode[] a = new AbilityTreeNode[dataVar.Length];
             int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
             Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
+            bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
             // Rather than create new instance, everything except variables will be taken from here.
-            threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, nodeType, specialisedNodeData, boolData.ReturnNewCopy());
-
+            threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, nodeType, specialisedNodeData, clonedBoolValues);
             threadInst.StartThreads();
         }
 
@@ -82,14 +78,18 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
     void Start() {
         LoadArtAssets();
-        LoadAbilityData();      
+        LoadAbilityData();
+
+        // Test to send our ability data.
+        PlayerCustomDataTrasmitter inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.CUSTOM_DATA_TRASMIT] as PlayerCustomDataTrasmitter;
+        inst.SendFiles();
     }
 
     void LoadArtAssets() {
         assetData = new Dictionary<string, Sprite>();
 
         string[] imagePaths = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].LoadAllDir(0);
-
+        
         for(int i = 0; i < imagePaths.Length; i++) {
 
             Texture2D generatedTex = new Texture2D(1, 1);
@@ -133,7 +133,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             int[] nodeType = new int[ability.Length];
 
             aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, i, boolData);
-            LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[i], 0, (KeyCode)97 + i, 0);//, new DH(aData[i].SyncInputWithNetwork), 0);
+            LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[i], 0, (KeyCode)97 + i, 0);
         }
     }
 }

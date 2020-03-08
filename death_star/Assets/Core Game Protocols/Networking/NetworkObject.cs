@@ -9,7 +9,7 @@ public interface NetworkObject {
 }
 
 public enum NetworkEncoderTypes {
-    ABILITY_INPUT, UPDATE_ABILITY_DATA
+    ABILITY_INPUT, UPDATE_ABILITY_DATA, CUSTOM_DATA_TRASMIT
 }
 
 public class NetworkObjectTracker {
