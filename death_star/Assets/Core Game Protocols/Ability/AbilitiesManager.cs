@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
+using System.Text;
 
 public sealed class AbilitiesManager : MonoBehaviour {
 
@@ -13,6 +14,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         AbilityBooleanData boolData;
 
         // Data that will purely only be read.
+        string[] description;
         Type[] dataType;
         int[] rootSubclasses;
         int[] nodeType;
@@ -73,13 +75,15 @@ public sealed class AbilitiesManager : MonoBehaviour {
         }
     }
 
-    public static AbilityData[] aData;
+    //public static AbilityData[] aData;
+    public static Dictionary<int, AbilityData[]> aData;
     public static Dictionary<string, Sprite> assetData;
+    
 
     void Start() {
+        aData = new Dictionary<int, AbilityData[]>();
         LoadArtAssets();
-        LoadAbilityData();
-
+        
         // Test to send our ability data.
         PlayerCustomDataTrasmitter inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.CUSTOM_DATA_TRASMIT] as PlayerCustomDataTrasmitter;
         inst.SendFiles();
@@ -102,7 +106,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
     }
 
     void LoadAbilityData() {
-        string[] abilityNodeData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(0);
+        /*string[] abilityNodeData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(0);
         string[] abilityRootData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(3);
         string[] abilityNodeBranchingData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(4);
         string[] abilitySpecialisedData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(5);
@@ -134,6 +138,6 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
             aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, i, boolData);
             LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[i], 0, (KeyCode)97 + i, 0);
-        }
+        }*/
     }
 }

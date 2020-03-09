@@ -17,27 +17,29 @@ public enum NetworkObjectType {
 public class ClientProgram : MonoBehaviour {
 
     public static ClientProgram clientInst;
-
+    public static int clientId =-1;
+    
     private List<byte> incoming;
     private List<byte[]> outgoing;
 
     private Socket clientSock;
     private byte[] _recieveBuffer = new byte[8142];
     private byte[] _sendBuffer = new byte[8142];
-    int currMsgLength;
+    private int currMsgLength;
 
     void Start() {
         clientSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         outgoing = new List<byte[]>();
         incoming = new List<byte>();
-        DontDestroyOnLoad(this);
-        clientInst = this;
-
+        
         currMsgLength = -1;
 
         clientSock.Connect("178.128.95.63", 5000);
-        
+
+        DontDestroyOnLoad(this);
+        clientInst = this;
+
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
         
     }
@@ -71,7 +73,7 @@ public class ClientProgram : MonoBehaviour {
                 currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
 
             if(incoming.Count >= currMsgLength) {
-                HandleCommand(incoming.GetRange(4, currMsgLength - 4).ToArray());
+                NetworkMessageEncoder.SortEncodedMessages(incoming.GetRange(4, currMsgLength - 4).ToArray());
                 incoming.RemoveRange(0, currMsgLength);
                 currMsgLength = -1;
                 ParseCommands();
@@ -89,10 +91,5 @@ public class ClientProgram : MonoBehaviour {
         Buffer.BlockCopy(message, 0, processedMsg, 4, message.Length);
 
         outgoing.Add(processedMsg);
-    }
-
-    public void HandleCommand(byte[] command) {
-        int encoder = BitConverter.ToInt32(command, 0);
-        NetworkMessageEncoder.encoders[encoder].RecieveEncodedMessages(command);
     }
 }

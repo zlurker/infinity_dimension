@@ -5,19 +5,19 @@ using System;
 
 public class AbilityInputEncoder:NetworkMessageEncoder {
 
-   public void SendInputSignal(int abilityId) {
-        bytesToSend = BitConverter.GetBytes(abilityId);
-        SendEncodedMessages();
+   public void SendInputSignal(int id) {
+        SetBytesToSend(BitConverter.GetBytes(id));
     }
 
     public override void MessageRecievedCallback() {
-        int abilityId = BitConverter.ToInt32(bytesRecieved, 0);
-        Debug.Log("AbilityId" + abilityId);
+        int aId = BitConverter.ToInt32(bytesRecieved, 0);
+        Debug.Log("PlayerId" + targetId);
+        Debug.Log("AbilityId" + aId);
 
         AbilityCentralThreadPool newAbilityThread = new AbilityCentralThreadPool();
 
         // Adds created ability thread into networkobject list.
         NetworkObjectTracker.inst.AddNetworkObject(newAbilityThread);
-        AbilitiesManager.aData[abilityId].CreateAbility(newAbilityThread);
+        AbilitiesManager.aData[targetId][aId].CreateAbility(newAbilityThread);
     }
 }

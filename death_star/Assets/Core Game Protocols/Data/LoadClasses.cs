@@ -13,13 +13,16 @@ public class LoadClasses : MonoBehaviour {
         LoadSingletonClasses();
         LoadAbilityNodes();
         LoadNetworkDependencies();
+    }
 
-        SceneTransitionData.Initialise();
+    void Update() {
+        if(ClientProgram.clientId > -1 || ClientProgram.clientInst == null)
+            SceneTransitionData.Initialise();
     }
 
     void SyncClientStartTime() {
-        LoadedData.syncedStartupTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds() - Mathf.RoundToInt(Time.realtimeSinceStartup *1000);
-        Debug.LogFormat("CurrentActualTime {0}, RTSS {1}",Mathf.RoundToInt(Time.realtimeSinceStartup * 1000), new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds());
+        LoadedData.syncedStartupTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds() - Mathf.RoundToInt(Time.realtimeSinceStartup * 1000);
+        Debug.LogFormat("CurrentActualTime {0}, RTSS {1}", Mathf.RoundToInt(Time.realtimeSinceStartup * 1000), new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds());
         Debug.Log("Time" + LoadedData.syncedStartupTime);
 
         //Debug.LogFormat("TimeTest {0}", Convert.ToSingle(LoadedData.syncedStartupTime) - Time.realtimeSinceStartup);
@@ -87,8 +90,9 @@ public class LoadClasses : MonoBehaviour {
         // Creates a new instance, it will handle everything else in constructor.
         // to be replaced with igameplaystatic
         NetworkObjectTracker.inst = new NetworkObjectTracker();
-        
+
         NetworkMessageEncoder.encoders = new NetworkMessageEncoder[] {
+            new ServerChannel(),
             new AbilityInputEncoder(),
             new UpdateAbilityDataEncoder(),
             new PlayerCustomDataTrasmitter()

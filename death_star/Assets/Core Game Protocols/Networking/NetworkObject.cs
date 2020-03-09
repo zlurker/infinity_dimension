@@ -8,10 +8,6 @@ public interface NetworkObject {
     int ReturnInstId();
 }
 
-public enum NetworkEncoderTypes {
-    ABILITY_INPUT, UPDATE_ABILITY_DATA, CUSTOM_DATA_TRASMIT
-}
-
 public class NetworkObjectTracker {
 
     public static NetworkObjectTracker inst;
