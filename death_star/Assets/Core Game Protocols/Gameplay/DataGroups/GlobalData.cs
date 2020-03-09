@@ -54,8 +54,9 @@ public class RuntimeParameters{
 
 public static class LoadedData {
 
-    //public static IPlayerEditable[] uL; //uiLoaders
-    //public static Singleton[] sL; //singletonList
+    public static float connectionTimeOffset;
+
+
     public static Camera currSceneCamera;
     public static Dictionary<Type, ISingleton> singletonList;
     public static Dictionary<Type, AbilityTreeNode> loadedNodeInstance;

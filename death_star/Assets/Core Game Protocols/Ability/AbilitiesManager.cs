@@ -87,6 +87,8 @@ public sealed class AbilitiesManager : MonoBehaviour {
         // Test to send our ability data.
         PlayerCustomDataTrasmitter inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.CUSTOM_DATA_TRASMIT] as PlayerCustomDataTrasmitter;
         inst.SendFiles();
+
+        
     }
 
     void LoadArtAssets() {

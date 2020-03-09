@@ -80,7 +80,7 @@ public class AbilityPageScript : MonoBehaviour {
 
         UIDrawer.GetTypeInElement<Button>(abilityButton).onClick.AddListener(() => {
             selectedAbility = index;
-            SceneTransitionData.LoadScene("Lobby");
+            SceneTransitionData.LoadScene("AbilityMaker");
         });
 
         //UIDrawer.ChangeUISize(abilityButton, new Vector2(200, 30));

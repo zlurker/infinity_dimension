@@ -36,6 +36,7 @@ public class ClientProgram : MonoBehaviour {
         currMsgLength = -1;
 
         clientSock.Connect("178.128.95.63", 5000);
+        LoadedData.connectionTimeOffset = Time.realtimeSinceStartup;
 
         DontDestroyOnLoad(this);
         clientInst = this;
@@ -89,7 +90,6 @@ public class ClientProgram : MonoBehaviour {
 
         Buffer.BlockCopy(lenBytes, 0, processedMsg, 0, 4);
         Buffer.BlockCopy(message, 0, processedMsg, 4, message.Length);
-
         outgoing.Add(processedMsg);
     }
 }

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
     static int[] datafilesToSend = new int[] { 0, 1, 3, 4, 5, 6 };
-    public Dictionary<int, List<string>> builders;
+    public Dictionary<int, List<string>> builders = new Dictionary<int, List<string>>();
 
     public void SendFiles() {
 
@@ -71,6 +71,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         int[] nodeType = new int[ability.Length];
 
         int currAbility = builders[targetId].Count / datafilesToSend.Length;
+        currAbility--;
 
         AbilitiesManager.aData[targetId][currAbility] = new AbilitiesManager.AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, currAbility, boolData);
         //aData[i] = 
