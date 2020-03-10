@@ -90,7 +90,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         cDT.SendFiles();
 
         ImageDependenciesTransfer iDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.IMAGE_DATA_TRANSMIT] as ImageDependenciesTransfer;
-        //iDT.SendArtAssets();
+        iDT.SendArtAssets();
     }
 
     void LoadArtAssets() {

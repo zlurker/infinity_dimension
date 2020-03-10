@@ -131,7 +131,7 @@ public class FileSaver {
          if (!File.Exists(fP))
              File.Create(fP).Dispose();
 
-         File.WriteAllText(fP, t,Encoding.UTF8);
+         File.WriteAllText(fP, t);
          })
      };
 
