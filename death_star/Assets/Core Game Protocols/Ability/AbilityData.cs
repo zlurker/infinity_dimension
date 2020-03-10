@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Variable {
     //Variable details
@@ -139,6 +140,29 @@ public class AbilityDataSubclass {
         }
 
         return total;
+    }
+
+    public static string[] GetImageDependencies(AbilityDataSubclass[] target) {
+        HashSet<string> imageDependencies = new HashSet<string>();
+       
+        for(int i = 0; i < target.Length; i++) {
+            int spriteDataVar = -1;
+
+            if(target[i].classType == typeof(HealthSpawn)) 
+                spriteDataVar = HealthSpawn.SPRITE_FILE_PATH;
+                    
+            if (target[i].classType == typeof(TimeSpawn)) 
+                spriteDataVar = TimeSpawn.SPRITE_FILE_PATH;
+            
+            if (spriteDataVar > -1) {
+                RuntimeParameters<string> imagePath = target[i].var[spriteDataVar].field as RuntimeParameters<string>;
+
+                if(!imageDependencies.Contains(imagePath.v)) 
+                    imageDependencies.Add(imagePath.v);               
+            }            
+        }
+
+        return imageDependencies.ToArray();
     }
 }
 

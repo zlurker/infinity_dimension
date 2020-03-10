@@ -124,8 +124,8 @@ public class FileSaver {
     public static FileSaveTemplate[] sFT = new FileSaveTemplate[] {
          new FileSaveTemplate<string>(
              new string[]{ "Datafiles" },
-             new string[]{"Ability.json","Info.json","WindowLocation.json","AbilityLauncher.json","NodeBranchData.json","SpecialisedNodeData.json","VariableBlockData.json"},
-             new string[]{"ImageAssets"},
+             new string[]{"Ability.json","Info.json","WindowLocation.json","AbilityLauncher.json","NodeBranchData.json","SpecialisedNodeData.json","VariableBlockData.json","ImageDependencies.json"},
+             new string[0],
              (fP, t)=>{
 
          if (!File.Exists(fP))

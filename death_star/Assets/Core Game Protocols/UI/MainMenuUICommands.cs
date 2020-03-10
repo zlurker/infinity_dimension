@@ -138,6 +138,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             AbilityBooleanData bData = new AbilityBooleanData();
 
+            string[] imgDependencies = AbilityDataSubclass.GetImageDependencies(cAD);
+
             bData.varsBlocked = new bool[cAD.Length][];
 
             for(int i = 0; i < cAD.Length; i++)
@@ -151,6 +153,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 4, JsonConvert.SerializeObject(nBranchData));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 5, JsonConvert.SerializeObject(specialisedNodeThreadCount));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 6, JsonConvert.SerializeObject(bData));
+            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility.ToString() }, 7, JsonConvert.SerializeObject(imgDependencies));
 
             // Gets all window locations.
             float[][] windowLocations = new float[cAD.Length][];
