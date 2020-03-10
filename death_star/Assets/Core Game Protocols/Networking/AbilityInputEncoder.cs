@@ -18,6 +18,6 @@ public class AbilityInputEncoder:NetworkMessageEncoder {
 
         // Adds created ability thread into networkobject list.
         NetworkObjectTracker.inst.AddNetworkObject(newAbilityThread);
-        AbilitiesManager.aData[targetId][aId].CreateAbility(newAbilityThread);
+        AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(newAbilityThread);
     }
 }

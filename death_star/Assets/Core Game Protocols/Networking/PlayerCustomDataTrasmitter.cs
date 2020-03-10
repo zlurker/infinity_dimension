@@ -28,7 +28,9 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         if(!builders.ContainsKey(targetId)) {
             int recvSize = BitConverter.ToInt32(bytesRecieved, 0);
             builders.Add(targetId, new List<string>());
-            AbilitiesManager.aData.Add(targetId, new AbilitiesManager.AbilityData[recvSize]);
+
+            AbilitiesManager.GetAssetData(targetId).abilties = new AbilitiesManager.AbilityData[recvSize];
+            //AbilitiesManager.aData.Add(targetId, new AbilitiesManager.AbilityData[recvSize]);
             return;
         }
 
@@ -73,7 +75,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         int currAbility = builders[targetId].Count / datafilesToSend.Length;
         currAbility--;
 
-        AbilitiesManager.aData[targetId][currAbility] = new AbilitiesManager.AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, currAbility, boolData);
+        AbilitiesManager.aData[targetId].abilties[currAbility] = new AbilitiesManager.AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, currAbility, boolData);
         //aData[i] = 
         //LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[i], 0, (KeyCode)97 + i, 0);
     }

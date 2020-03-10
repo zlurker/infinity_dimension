@@ -18,7 +18,7 @@ public class HealthSpawn : AbilityTreeNode, IOnSpawn {
 	}
 
     public override void NodeCallback(int threadId) {
-        sR.sprite = AbilitiesManager.assetData[GetCentralInst().ReturnRuntimeParameter<string>(GetNodeId(),SPRITE_FILE_PATH).v];
+        //sR.sprite = AbilitiesManager.aData[GetCentralInst().ReturnRuntimeParameter<string>(GetNodeId(),SPRITE_FILE_PATH).v];
         GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, TASKS, this,VariableTypes.SIGNAL_VAR);
     }
 

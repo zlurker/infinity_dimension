@@ -8,6 +8,15 @@ using System.Text;
 
 public sealed class AbilitiesManager : MonoBehaviour {
 
+    public class PlayerAssetData {
+        public AbilityData[] abilties;
+        public Dictionary<string, Sprite> assetData;
+
+        public PlayerAssetData() {
+            assetData = new Dictionary<string, Sprite>();
+        }
+    }
+
     public class AbilityData : IInputCallback<int> {
         // Data that needs to be read/written
         Variable[][] dataVar;
@@ -75,14 +84,11 @@ public sealed class AbilitiesManager : MonoBehaviour {
         }
     }
 
-    //public static AbilityData[] aData;
-    public static Dictionary<int, AbilityData[]> aData;
-    public static Dictionary<string, Sprite> assetData;
+    public static Dictionary<int, PlayerAssetData> aData;
     
-
     void Start() {
-        aData = new Dictionary<int, AbilityData[]>();
-        assetData = new Dictionary<string, Sprite>();
+        aData = new Dictionary<int, PlayerAssetData>();
+        //assetData = new Dictionary<string, Sprite>();
         //LoadArtAssets();
         
         // Test to send our ability data.
@@ -93,8 +99,17 @@ public sealed class AbilitiesManager : MonoBehaviour {
         iDT.SendArtAssets();
     }
 
+    public static PlayerAssetData GetAssetData(int playerid) {
+        if(aData.ContainsKey(playerid))
+            return aData[playerid];
+
+        PlayerAssetData inst = new PlayerAssetData();
+        aData.Add(playerid, inst);
+        return inst;
+    }
+
     void LoadArtAssets() {
-        assetData = new Dictionary<string, Sprite>();
+        /*assetData = new Dictionary<string, Sprite>();
 
         string[] imagePaths = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].LoadAllDir(0);
         
@@ -106,7 +121,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             Sprite sprInst = Sprite.Create(generatedTex, new Rect(0, 0, generatedTex.width, generatedTex.height), new Vector2(0.5f, 0.5f));
 
             assetData.Add(Path.GetFileName(imagePaths[i]), sprInst);
-        }
+        }*/
     }
 
     void LoadAbilityData() {
