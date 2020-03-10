@@ -19,6 +19,7 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
     }
 
     public override void MessageRecievedCallback() {
+        Debug.Log("Incoming art.");
         if(currPath == "")
             currPath = Encoding.Default.GetString(bytesRecieved);
         else {

@@ -84,12 +84,21 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public void SyncDataWithNetwork<T>(int variableId, T value) {
-        AbilityCentralThreadPool central = AbilityCentralThreadPool.globalCentralList.l[variableId];
+        AbilityCentralThreadPool central = GetCentralInst();
         int centralId = central.ReturnNetworkObjectId();
         int centralInstId = central.ReturnInstId();
 
         UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
         inst.SendUpdatedNodeData(centralId,centralInstId, nodeId, variableId, value);
+    }
+
+    public void SyncDataWithNetwork<T>(int variableId, T[] value) {
+        AbilityCentralThreadPool central = GetCentralInst();
+        int centralId = central.ReturnNetworkObjectId();
+        int centralInstId = central.ReturnInstId();
+
+        UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
+        inst.SendUpdatedNodeData(centralId, centralInstId, nodeId, variableId, value);
     }
 
     public AbilityCentralThreadPool GetCentralInst() {
@@ -99,5 +108,9 @@ public class AbilityTreeNode : MonoBehaviour {
     public T GetNodeVariable<T>(int varId) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         return GetCentralInst().ReturnRuntimeParameter<T>(GetNodeId(), varId).v;
+    }
+
+    public bool IsClientPlayerUpdate() {
+        return GetCentralInst().GetPlayerId() == ClientProgram.clientId;
     }
 }

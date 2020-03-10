@@ -26,24 +26,61 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             argType = 2;
         }
 
-        if(argType > -1) {
-            bytesToSend = new byte[20 + vBytes.Length];
+        if(argType > -1)
+            CompileMessage(central, instId, ability, var, vBytes, argType);
+    }
 
-            byte[] cBytes = BitConverter.GetBytes(central);
-            byte[] iBytes = BitConverter.GetBytes(instId);
-            byte[] aBytes = BitConverter.GetBytes(ability);
-            byte[] vaBytes = BitConverter.GetBytes(var);
-            byte[] argBytes = BitConverter.GetBytes(argType);
+    public void SendUpdatedNodeData<T>(int central, int instId, int ability, int var, T[] value) {
+        byte[] vBytes = new byte[0];
+        int argType = -1;
 
-            Buffer.BlockCopy(cBytes, 0, bytesToSend, 0, 4);
-            Buffer.BlockCopy(iBytes, 0, bytesToSend, 4, 4);
-            Buffer.BlockCopy(aBytes, 0, bytesToSend, 8, 4);
-            Buffer.BlockCopy(vaBytes, 0, bytesToSend, 12, 4);
-            Buffer.BlockCopy(argBytes, 0, bytesToSend, 16, 4);
-            Buffer.BlockCopy(vBytes, 0, bytesToSend, 20, vBytes.Length);
-
-            SendEncodedMessages();
+        if(typeof(T) == typeof(int)) {
+            vBytes = new byte[4 * value.Length];
+            argType = 3;
         }
+
+        if(typeof(T) == typeof(float)) {
+            vBytes = new byte[4 * value.Length];
+            argType = 4;
+        }
+
+        if(argType > -1) {
+            for(int i = 0; i < value.Length; i++) {
+
+                byte[] data = new byte[0];
+
+                switch(argType) {
+                    case 3:
+                        data = BitConverter.GetBytes((int)(object)value[i]);
+                        break;
+                    case 4:
+                        data = BitConverter.GetBytes((float)(object)value[i]);
+                        break;
+                }
+                Buffer.BlockCopy(data, 0, vBytes, i * data.Length, data.Length);
+            }
+
+            CompileMessage(central, instId, ability, var, vBytes, argType);
+        }
+    }
+
+    public void CompileMessage(int central, int instId, int ability, int var, byte[] vBytes, int argType) {
+        bytesToSend = new byte[20 + vBytes.Length];
+
+        byte[] cBytes = BitConverter.GetBytes(central);
+        byte[] iBytes = BitConverter.GetBytes(instId);
+        byte[] aBytes = BitConverter.GetBytes(ability);
+        byte[] vaBytes = BitConverter.GetBytes(var);
+        byte[] argBytes = BitConverter.GetBytes(argType);
+
+        Buffer.BlockCopy(cBytes, 0, bytesToSend, 0, 4);
+        Buffer.BlockCopy(iBytes, 0, bytesToSend, 4, 4);
+        Buffer.BlockCopy(aBytes, 0, bytesToSend, 8, 4);
+        Buffer.BlockCopy(vaBytes, 0, bytesToSend, 12, 4);
+        Buffer.BlockCopy(argBytes, 0, bytesToSend, 16, 4);
+        Buffer.BlockCopy(vBytes, 0, bytesToSend, 20, vBytes.Length);
+
+        SendEncodedMessages();
     }
 
     public override void MessageRecievedCallback() {
@@ -59,19 +96,61 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
             // Do checks for inst id.
             switch(argType) {
-                case 0: //int
+
+                case 0: //int                    
                     int iData = BitConverter.ToInt32(bytesRecieved, 20);
-                    Debug.Log(iData);
                     break;
 
-                case 1: //float
-                    float fData = BitConverter.ToInt32(bytesRecieved, 20);
+                case 1: //float                    
+                    float fData = BitConverter.ToSingle(bytesRecieved, 20);
                     break;
 
                 case 2: //string
-                    string sData = Encoding.Default.GetString(bytesRecieved, 16, bytesRecieved.Length - 20);
+                    string sData = Encoding.Default.GetString(bytesRecieved, 20, bytesRecieved.Length - 20);
+                    break;
+
+                case 3: //int[]
+                    int[] iArray = ProcessArrayable<int>();
+                    break;
+
+                case 4: //float[]
+                    float[] fArray = ProcessArrayable<float>();
                     break;
             }
         }
+    }
+
+    public T[] ProcessArrayable<T>() {
+
+        int bytesPerElement = 0;
+        int argType = -1;
+
+        if(typeof(T) == typeof(int) || typeof(T) == typeof(int[])) {
+            bytesPerElement = 4;
+            argType = 0;
+        }
+
+        if(typeof(T) == typeof(float) || typeof(T) == typeof(float[])) {
+            bytesPerElement = 4;
+            argType = 1;
+        }
+
+        if(argType > -1) {
+            T[] cArray = new T[(bytesRecieved.Length - 20) / bytesPerElement];
+
+            for(int i = 0; i < cArray.Length; i++) {
+                switch(argType) {
+                    case 0:
+                        cArray[i] = (T)(object)BitConverter.ToInt32(bytesRecieved, 20+ (i*bytesPerElement));
+                        break;
+                    case 1:
+                        cArray[i] = (T)(object)BitConverter.ToSingle(bytesRecieved, 20 + (i * bytesPerElement));
+                        break;
+                }
+            }
+
+            return cArray;
+        }
+        return null;
     }
 }

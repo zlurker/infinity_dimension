@@ -85,14 +85,16 @@ public sealed class AbilitiesManager : MonoBehaviour {
     }
 
     public static Dictionary<int, PlayerAssetData> aData;
-    
+
     void Start() {
-        AssignInputKeys();        
+
+        AssignInputKeys();
     }
 
     public void AssignInputKeys() {
-        for (int i=0; i< aData[ClientProgram.clientId].abilties.Length; i++) 
-            LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode)97 + i, 0);       
+        if(aData.ContainsKey(ClientProgram.clientId))
+            for(int i = 0; i < aData[ClientProgram.clientId].abilties.Length; i++)
+                LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode)97 + i, 0);
     }
 
     public static PlayerAssetData GetAssetData(int playerid) {
