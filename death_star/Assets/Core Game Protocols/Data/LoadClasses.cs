@@ -75,7 +75,6 @@ public class LoadClasses : MonoBehaviour {
                 inst = info.Invoke(new object[0]) as ISingleton;
 
                 MonoBehaviour singleton = new GameObject(inst.GetType().FullName).AddComponent(inst.GetType()) as MonoBehaviour;
-                Debug.Log(singleton);
                 DontDestroyOnLoad(singleton.gameObject);
 
                 ISingleton castedSingleton = singleton as ISingleton;
@@ -95,7 +94,8 @@ public class LoadClasses : MonoBehaviour {
             new ServerChannel(),
             new AbilityInputEncoder(),
             new UpdateAbilityDataEncoder(),
-            new PlayerCustomDataTrasmitter()
+            new PlayerCustomDataTrasmitter(),
+            new ImageDependenciesTransfer()
         };
 
         for(int i = 0; i < NetworkMessageEncoder.encoders.Length; i++)

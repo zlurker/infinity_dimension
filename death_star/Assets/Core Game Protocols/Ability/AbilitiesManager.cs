@@ -82,13 +82,15 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
     void Start() {
         aData = new Dictionary<int, AbilityData[]>();
-        LoadArtAssets();
+        assetData = new Dictionary<string, Sprite>();
+        //LoadArtAssets();
         
         // Test to send our ability data.
-        PlayerCustomDataTrasmitter inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.CUSTOM_DATA_TRASMIT] as PlayerCustomDataTrasmitter;
-        inst.SendFiles();
+        PlayerCustomDataTrasmitter cDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.CUSTOM_DATA_TRASMIT] as PlayerCustomDataTrasmitter;
+        cDT.SendFiles();
 
-        
+        ImageDependenciesTransfer iDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.IMAGE_DATA_TRANSMIT] as ImageDependenciesTransfer;
+        //iDT.SendArtAssets();
     }
 
     void LoadArtAssets() {

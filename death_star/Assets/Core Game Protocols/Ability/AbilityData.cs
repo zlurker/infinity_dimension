@@ -162,7 +162,16 @@ public class AbilityDataSubclass {
             }            
         }
 
-        return imageDependencies.ToArray();
+        string[] sArray = new string[imageDependencies.Count];
+        int j = 0;
+
+        foreach (string path in imageDependencies) {
+            sArray[j] = path;
+            j++;
+        }
+
+        return sArray;
+        //return imageDependencies.ToArray();
     }
 }
 

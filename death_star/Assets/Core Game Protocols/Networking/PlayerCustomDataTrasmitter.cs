@@ -32,7 +32,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
             return;
         }
 
-        string fileContent = Encoding.Default.GetString(bytesRecieved);
+        string fileContent = Encoding.UTF8.GetString(bytesRecieved);
         builders[targetId].Add(fileContent);
 
         if(builders[targetId].Count % datafilesToSend.Length == 0)
