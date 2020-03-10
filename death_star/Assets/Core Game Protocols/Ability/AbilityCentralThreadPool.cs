@@ -61,6 +61,14 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     public static EnhancedList<AbilityCentralThreadPool> globalCentralList = new EnhancedList<AbilityCentralThreadPool>();
 
+    public AbilityCentralThreadPool() {
+        playerCasted = 0;
+    }
+
+    public AbilityCentralThreadPool(int pId) {
+        playerCasted = pId;
+    }
+
     private Variable[][] runtimeParameters;
     private Type[] subclassTypes;
 
@@ -75,6 +83,8 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     // Link to ability nodes
     private int abilityNodes;
+
+    private int playerCasted;
 
     // This thread's ID
     private int centralId;
@@ -136,6 +146,10 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     public bool[] GetNodeBoolValues(int id) {
         return booleanData[id];
+    }
+
+    public int GetPlayerId() {
+        return playerCasted;
     }
 
     public int AddNewThread(NodeThread inst) {

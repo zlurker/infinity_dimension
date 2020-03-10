@@ -8,7 +8,15 @@ using System;
 
 public class ImageDependenciesTransfer : NetworkMessageEncoder {
 
-    string currPath = "";
+    string currPath;
+    public int expectedFiles;
+    public int sentFiles;
+
+    public void ResetTransfer() {
+        currPath = "";
+        expectedFiles = 0;
+        sentFiles = 0;
+    }
 
     public override void MessageRecievedCallback() {
         if(currPath == "")
@@ -19,6 +27,10 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
             Sprite sprInst = Sprite.Create(generatedTex, new Rect(0, 0, generatedTex.width, generatedTex.height), new Vector2(0.5f, 0.5f));
 
             AbilitiesManager.GetAssetData(targetId).assetData.Add(currPath, sprInst);
+
+            if(targetId == ClientProgram.clientId)
+                sentFiles++;
+
             currPath = "";
         }
     }
@@ -27,11 +39,8 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
         HashSet<string> assetPaths = new HashSet<string>();
         byte[][][] cData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(new int[] { 7 });
 
-        Debug.Log(cData.Length);
-
         for(int i = 0; i < cData.Length; i++) {
             string jsonFile = Encoding.Default.GetString(cData[i][0]);
-            Debug.Log("json file: " + jsonFile);
             string[] imagePaths = JsonConvert.DeserializeObject<string[]>(jsonFile);
 
             for(int j = 0; j < imagePaths.Length; j++)
@@ -41,7 +50,7 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
 
         string folderPath = FileSaver.PathGenerator(new string[] { Application.dataPath, "UsrCreatedArt" });
 
-        //SetBytesToSend(BitConverter.GetBytes(assetPaths.Count));
+        expectedFiles = assetPaths.Count;
 
         foreach(string path in assetPaths) {
             byte[] image = File.ReadAllBytes(Path.Combine(folderPath, path));

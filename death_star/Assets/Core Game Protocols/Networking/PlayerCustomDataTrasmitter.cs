@@ -9,12 +9,22 @@ using Newtonsoft.Json;
 public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
     static int[] datafilesToSend = new int[] { 0, 1, 3, 4, 5, 6 };
-    public Dictionary<int, List<string>> builders = new Dictionary<int, List<string>>();
+    public Dictionary<int, List<string>> builders;
+
+    public int expectedFiles;
+    public int sentFiles;
+
+    public void ResetTransmitter() {
+        builders = new Dictionary<int, List<string>>();
+        expectedFiles = 0;
+        sentFiles = 0;
+    }
 
     public void SendFiles() {
 
         byte[][][] cData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(datafilesToSend);
 
+        expectedFiles = cData.Length * datafilesToSend.Length;
         SetBytesToSend(BitConverter.GetBytes(cData.Length));
 
         for(int i = 0; i < cData.Length; i++)
@@ -36,6 +46,9 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
         string fileContent = Encoding.Default.GetString(bytesRecieved);
         builders[targetId].Add(fileContent);
+
+        if(targetId == ClientProgram.clientId)
+            sentFiles++;
 
         if(builders[targetId].Count % datafilesToSend.Length == 0)
             BuildAbility(targetId);

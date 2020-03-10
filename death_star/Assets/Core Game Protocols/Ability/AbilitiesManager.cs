@@ -87,16 +87,12 @@ public sealed class AbilitiesManager : MonoBehaviour {
     public static Dictionary<int, PlayerAssetData> aData;
     
     void Start() {
-        aData = new Dictionary<int, PlayerAssetData>();
-        //assetData = new Dictionary<string, Sprite>();
-        //LoadArtAssets();
-        
-        // Test to send our ability data.
-        PlayerCustomDataTrasmitter cDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.CUSTOM_DATA_TRASMIT] as PlayerCustomDataTrasmitter;
-        cDT.SendFiles();
+        AssignInputKeys();        
+    }
 
-        ImageDependenciesTransfer iDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.IMAGE_DATA_TRANSMIT] as ImageDependenciesTransfer;
-        iDT.SendArtAssets();
+    public void AssignInputKeys() {
+        for (int i=0; i< aData[ClientProgram.clientId].abilties.Length; i++) 
+            LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode)97 + i, 0);       
     }
 
     public static PlayerAssetData GetAssetData(int playerid) {

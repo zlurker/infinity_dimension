@@ -14,7 +14,7 @@ public class AbilityInputEncoder:NetworkMessageEncoder {
         Debug.Log("PlayerId" + targetId);
         Debug.Log("AbilityId" + aId);
 
-        AbilityCentralThreadPool newAbilityThread = new AbilityCentralThreadPool();
+        AbilityCentralThreadPool newAbilityThread = new AbilityCentralThreadPool(targetId);
 
         // Adds created ability thread into networkobject list.
         NetworkObjectTracker.inst.AddNetworkObject(newAbilityThread);
