@@ -19,6 +19,10 @@ public class NetworkObjectTracker {
         instanceId = new AutoPopulationList<int>();
     }
 
+    public NetworkObject ReturnNetworkObject(int id) {
+        return networkObjects.l[id];
+    }
+
     public void AddNetworkObject(NetworkObject nO) {
         int networkObj = networkObjects.Add(nO);
         int currInstCount = instanceId.GetElementAt(networkObj);

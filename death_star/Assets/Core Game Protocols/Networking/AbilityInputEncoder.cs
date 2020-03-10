@@ -6,6 +6,7 @@ using System;
 public class AbilityInputEncoder:NetworkMessageEncoder {
 
    public void SendInputSignal(int id) {
+        Debug.Log("(Input)Time start" + Time.realtimeSinceStartup);
         SetBytesToSend(BitConverter.GetBytes(id));
     }
 
@@ -19,5 +20,6 @@ public class AbilityInputEncoder:NetworkMessageEncoder {
         // Adds created ability thread into networkobject list.
         NetworkObjectTracker.inst.AddNetworkObject(newAbilityThread);
         AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(newAbilityThread);
+        Debug.Log("(Input)Time end" + Time.realtimeSinceStartup);
     }
 }

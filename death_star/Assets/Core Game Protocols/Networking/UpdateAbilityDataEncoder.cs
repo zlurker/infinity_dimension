@@ -6,7 +6,7 @@ using System.Text;
 
 public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
-    public void SendUpdatedNodeData<T>(int central, int instId, int ability, int var, T value) {
+    public void SendUpdatedNodeData<T>(int central, int instId, int ability, int var,int vType, T value) {
 
         byte[] vBytes = new byte[0];
         int argType = -1;
@@ -27,10 +27,11 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         }
 
         if(argType > -1)
-            CompileMessage(central, instId, ability, var, vBytes, argType);
+            CompileMessage(central, instId, ability, var, vBytes, vType,argType);
     }
 
-    public void SendUpdatedNodeData<T>(int central, int instId, int ability, int var, T[] value) {
+    public void SendUpdatedNodeData<T>(int central, int instId, int ability, int var,int vType, T[] value) {
+        Debug.Log("(Update)Time start" + Time.realtimeSinceStartup);
         byte[] vBytes = new byte[0];
         int argType = -1;
 
@@ -60,25 +61,27 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 Buffer.BlockCopy(data, 0, vBytes, i * data.Length, data.Length);
             }
 
-            CompileMessage(central, instId, ability, var, vBytes, argType);
+            CompileMessage(central, instId, ability, var, vBytes, vType,argType);
         }
     }
 
-    public void CompileMessage(int central, int instId, int ability, int var, byte[] vBytes, int argType) {
-        bytesToSend = new byte[20 + vBytes.Length];
+    public void CompileMessage(int central, int instId, int ability, int var, byte[] vBytes,int vType, int argType) {
+        bytesToSend = new byte[24 + vBytes.Length];
 
         byte[] cBytes = BitConverter.GetBytes(central);
         byte[] iBytes = BitConverter.GetBytes(instId);
         byte[] aBytes = BitConverter.GetBytes(ability);
         byte[] vaBytes = BitConverter.GetBytes(var);
         byte[] argBytes = BitConverter.GetBytes(argType);
+        byte[] vTypeBytes = BitConverter.GetBytes(vType);
 
         Buffer.BlockCopy(cBytes, 0, bytesToSend, 0, 4);
         Buffer.BlockCopy(iBytes, 0, bytesToSend, 4, 4);
         Buffer.BlockCopy(aBytes, 0, bytesToSend, 8, 4);
         Buffer.BlockCopy(vaBytes, 0, bytesToSend, 12, 4);
         Buffer.BlockCopy(argBytes, 0, bytesToSend, 16, 4);
-        Buffer.BlockCopy(vBytes, 0, bytesToSend, 20, vBytes.Length);
+        Buffer.BlockCopy(vTypeBytes, 0, bytesToSend, 20, 4);
+        Buffer.BlockCopy(vBytes, 0, bytesToSend, 24, vBytes.Length);
 
         SendEncodedMessages();
     }
@@ -93,31 +96,44 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             int ability = BitConverter.ToInt32(bytesRecieved, 8);
             int var = BitConverter.ToInt32(bytesRecieved, 12);
             int argType = BitConverter.ToInt32(bytesRecieved, 16);
+            VariableTypes vtype = (VariableTypes) BitConverter.ToInt32(bytesRecieved, 20);
 
-            // Do checks for inst id.
-            switch(argType) {
+            AbilityCentralThreadPool centralInst = NetworkObjectTracker.inst.ReturnNetworkObject(central) as AbilityCentralThreadPool;
+            int abilityNodes = centralInst.GetAbilityNodeId();
+            int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
 
-                case 0: //int                    
-                    int iData = BitConverter.ToInt32(bytesRecieved, 20);
-                    break;
+            if(nTID > -1)
+                switch(argType) {
 
-                case 1: //float                    
-                    float fData = BitConverter.ToSingle(bytesRecieved, 20);
-                    break;
+                    case 0: //int                    
+                        int iData = BitConverter.ToInt32(bytesRecieved, 24);
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<int>(nTID,var,iData);
+                        break;
 
-                case 2: //string
-                    string sData = Encoding.Default.GetString(bytesRecieved, 20, bytesRecieved.Length - 20);
-                    break;
+                    case 1: //float                    
+                        float fData = BitConverter.ToSingle(bytesRecieved, 24);
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<float>(nTID, var, fData);
+                        break;
 
-                case 3: //int[]
-                    int[] iArray = ProcessArrayable<int>();
-                    break;
+                    case 2: //string
+                        string sData = Encoding.Default.GetString(bytesRecieved, 24, bytesRecieved.Length - 24);
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<string>(nTID, var, sData);
+                        break;
 
-                case 4: //float[]
-                    float[] fArray = ProcessArrayable<float>();
-                    break;
-            }
+                    case 3: //int[]
+                        int[] iArray = ProcessArrayable<int>();
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<int[]>(nTID, var, iArray);
+                        break;
+
+                    case 4: //float[]
+                        float[] fArray = ProcessArrayable<float>();
+                        Debug.Log("Working");
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<float[]>(nTID, var, fArray);
+                        break;
+                }
         }
+
+        Debug.Log("(Update)Time end" + Time.realtimeSinceStartup);
     }
 
     public T[] ProcessArrayable<T>() {
@@ -136,15 +152,15 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         }
 
         if(argType > -1) {
-            T[] cArray = new T[(bytesRecieved.Length - 20) / bytesPerElement];
+            T[] cArray = new T[(bytesRecieved.Length - 24) / bytesPerElement];
 
             for(int i = 0; i < cArray.Length; i++) {
                 switch(argType) {
                     case 0:
-                        cArray[i] = (T)(object)BitConverter.ToInt32(bytesRecieved, 20+ (i*bytesPerElement));
+                        cArray[i] = (T)(object)BitConverter.ToInt32(bytesRecieved, 24 + (i * bytesPerElement));
                         break;
                     case 1:
-                        cArray[i] = (T)(object)BitConverter.ToSingle(bytesRecieved, 20 + (i * bytesPerElement));
+                        cArray[i] = (T)(object)BitConverter.ToSingle(bytesRecieved, 24 + (i * bytesPerElement));
                         break;
                 }
             }

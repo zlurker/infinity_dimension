@@ -110,6 +110,10 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
     #endregion
 
+    public int GetAbilityNodeId() {
+        return abilityNodes;
+    }
+
     public int GetSpecialisedNodeData(int threadId) {
         return specialisedNodeData[threadId];
     }

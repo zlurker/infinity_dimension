@@ -13,7 +13,7 @@ public class Randomizer : AbilityTreeNode {
     void Update() {
         if(!test) {
             int value = Random.Range(100, 400);
-            SyncDataWithNetwork(0, value);
+            //SyncDataWithNetwork(0, value);
             Debug.Log(value);
             test = true;
         }
