@@ -10,7 +10,6 @@ public class SpawnerOutput {
     public MonoBehaviour script;
     public Type scriptType;
 
-
     public SpawnerOutput(MonoBehaviour s, Type t) {
         script = s;
         scriptType = t;
