@@ -54,8 +54,8 @@ public class RuntimeParameters{
 
 public static class LoadedData {
 
-    public static float connectionTimeOffset;
-
+    public static double connectionTimeOffset;
+    public static double startTimeSinceConnection;
 
     public static Camera currSceneCamera;
     public static Dictionary<Type, ISingleton> singletonList;
@@ -64,6 +64,10 @@ public static class LoadedData {
 
     public static T GetSingleton<T>() {
         return (T)singletonList[typeof(T)];
+    }
+
+    public static double GetCurrentTimestamp() {
+        return Time.realtimeSinceStartup - (connectionTimeOffset + startTimeSinceConnection); 
     }
     //public static InterfaceLoader[] lI; //loadedInterfaces
 }

@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class LobbyScript : MonoBehaviour {
 
+    public static LobbyScript lobbyInst;
+
     PlayerCustomDataTrasmitter cDT;
     ImageDependenciesTransfer iDT;
     bool startInitiated;
@@ -12,10 +14,11 @@ public class LobbyScript : MonoBehaviour {
     SpawnerOutput lobbyText;
     SpawnerOutput startGame;
     SpawnerOutput progressOfFiles;
-   
+
 
     // Use this for initialization
     void Start() {
+        lobbyInst = this;
         cDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.CUSTOM_DATA_TRASMIT] as PlayerCustomDataTrasmitter;
         iDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.IMAGE_DATA_TRANSMIT] as ImageDependenciesTransfer;
 
@@ -37,11 +40,14 @@ public class LobbyScript : MonoBehaviour {
 
         UIDrawer.GetTypeInElement<Button>(startGame).onClick.AddListener(() => {
             ServerChannel sC = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.SERVER_CHANNEL] as ServerChannel;
-            sC.CommunicateServerSide(ServerSideMethods.START_GAME);           
-            cDT.SendFiles();
-            iDT.SendArtAssets();
-            startInitiated = true;
+            sC.CommunicateServerSide(ServerSideMethods.START_GAME);
         });
+    }
+
+    public void OnStartSignal() {
+        cDT.SendFiles();
+        iDT.SendArtAssets();
+        startInitiated = true;
     }
 
     public void ResetGameplayNetworkHelpers() {
@@ -53,10 +59,13 @@ public class LobbyScript : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         string text = "Datafiles: " + cDT.sentFiles.ToString() + "/" + cDT.expectedFiles.ToString() + "\n";
-        text += "Art Assets: " + iDT.sentFiles.ToString() + "/" + iDT.expectedFiles.ToString();
+        text += "Art Assets: " + iDT.sentFiles.ToString() + "/" + iDT.expectedFiles.ToString() + "\n";
+
+        
+        text += LoadedData.GetCurrentTimestamp();
         UIDrawer.GetTypeInElement<Text>(progressOfFiles).text = text;
 
-        if (cDT.sentFiles == cDT.expectedFiles && iDT.sentFiles == iDT.expectedFiles && startInitiated) 
-            SceneTransitionData.LoadScene("Gameplay");       
+        //if (cDT.sentFiles == cDT.expectedFiles && iDT.sentFiles == iDT.expectedFiles && startInitiated)        
+        //SceneTransitionData.LoadScene("Gameplay");       
     }
 }

@@ -14,6 +14,7 @@ public class NetworkMessageEncoder {
     private int encoderId;
 
     protected int targetId;
+    protected double timestamp;
     protected byte[] bytesToSend;
     protected byte[] bytesRecieved;
     
@@ -29,11 +30,14 @@ public class NetworkMessageEncoder {
     public void SendEncodedMessages() {
         byte[] eT = BitConverter.GetBytes(encoderId);
         byte[] cId = BitConverter.GetBytes(ClientProgram.clientId);
-        byte[] nwMsg = new byte[bytesToSend.Length + 8];
+        byte[] tS = BitConverter.GetBytes(LoadedData.GetCurrentTimestamp());
+        Debug.Log(tS.Length);
+        byte[] nwMsg = new byte[bytesToSend.Length + 16];
 
         Buffer.BlockCopy(eT, 0, nwMsg, 0, 4);
         Buffer.BlockCopy(cId, 0, nwMsg, 4, 4);
-        Buffer.BlockCopy(bytesToSend, 0, nwMsg, 8, bytesToSend.Length);
+        Buffer.BlockCopy(tS, 0, nwMsg, 8, 8);
+        Buffer.BlockCopy(bytesToSend, 0, nwMsg, 16, bytesToSend.Length);
 
         if(ClientProgram.clientInst != null)
             ClientProgram.clientInst.AddNetworkMessage(nwMsg);
@@ -45,10 +49,13 @@ public class NetworkMessageEncoder {
     }
 
     public void RecieveEncodedMessages(byte[] msg) {
-        bytesRecieved = new byte[msg.Length - 8];
-        Buffer.BlockCopy(msg, 8, bytesRecieved, 0, msg.Length - 8);
+        bytesRecieved = new byte[msg.Length - 16];
+        Buffer.BlockCopy(msg, 16, bytesRecieved, 0, msg.Length - 16);
 
         targetId = BitConverter.ToInt32(msg, 4);
+        timestamp = BitConverter.ToDouble(msg, 8);
+
+        Debug.Log("Timestamp:" + timestamp);
         MessageRecievedCallback();
     }
 
