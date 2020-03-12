@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ThreadSplitter : AbilityTreeNode {
 
+    public const int NUMBER_OF_LOOPS = 0;
+
     protected Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
     public override RuntimeParameters[] GetRuntimeParameters() {
@@ -48,13 +50,14 @@ public class ThreadSplitter : AbilityTreeNode {
 
         Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
 
-        if(threadMap[threadId][0] < inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v) {
+        
+        if(threadMap[threadId][0] < GetNodeVariable<int>(NUMBER_OF_LOOPS) || GetNodeVariable<int>(NUMBER_OF_LOOPS) ==-1) {
             ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
             int threadToUse = inst.AddNewThread(trdInst);
             Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-            inst.NodeVariableCallback<int>(threadToUse, 0, inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
+            inst.NodeVariableCallback<int>(threadToUse, NUMBER_OF_LOOPS, 0,VariableTypes.SIGNAL_VAR);
         } else {
             Debug.LogFormat("Thread id {0} will end.", threadId);
             inst.HandleThreadRemoval(threadId);

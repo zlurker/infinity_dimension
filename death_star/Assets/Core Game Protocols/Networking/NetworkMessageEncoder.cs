@@ -37,7 +37,6 @@ public class NetworkMessageEncoder {
         byte[] eT = BitConverter.GetBytes(encoderId);
         byte[] cId = BitConverter.GetBytes(ClientProgram.clientId);
         byte[] tS = BitConverter.GetBytes(LoadedData.GetCurrentTimestamp());
-        Debug.Log(tS.Length);
         byte[] nwMsg = new byte[bytesToSend.Length + 16];
 
         Buffer.BlockCopy(eT, 0, nwMsg, 0, 4);
@@ -61,7 +60,7 @@ public class NetworkMessageEncoder {
         targetId = BitConverter.ToInt32(msg, 4);
         timestamp = BitConverter.ToDouble(msg, 8);
 
-        Debug.Log("Timestamp:" + timestamp);
+        //Debug.Log("Timestamp:" + timestamp);
         MessageRecievedCallback();
     }
 

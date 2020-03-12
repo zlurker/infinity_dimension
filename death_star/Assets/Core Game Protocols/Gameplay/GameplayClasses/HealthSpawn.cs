@@ -20,7 +20,7 @@ public class HealthSpawn : AbilityTreeNode, IOnSpawn {
 
     public override void NodeCallback(int threadId) {
         sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetCentralInst().ReturnRuntimeParameter<string>(GetNodeId(), SPRITE_FILE_PATH).v];
-        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, SPAWN, this,VariableTypes.SIGNAL_VAR);
+        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, SPAWN, this,VariableTypes.DEFAULT);
     }
 
     public void OnCollisionStay2D(Collision2D collision) {

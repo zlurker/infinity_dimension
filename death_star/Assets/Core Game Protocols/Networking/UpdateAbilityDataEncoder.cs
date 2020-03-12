@@ -107,17 +107,17 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
                     case 0: //int                    
                         int iData = BitConverter.ToInt32(bytesRecieved, 24);
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<int>(nTID,var,iData);
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<int>(nTID,var,iData,vtype);
                         break;
 
                     case 1: //float                    
                         float fData = BitConverter.ToSingle(bytesRecieved, 24);
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<float>(nTID, var, fData);
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<float>(nTID, var, fData,vtype);
                         break;
 
                     case 2: //string
                         string sData = Encoding.Default.GetString(bytesRecieved, 24, bytesRecieved.Length - 24);
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<string>(nTID, var, sData);
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<string>(nTID, var, sData,vtype);
                         break;
 
                     case 3: //int[]

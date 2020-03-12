@@ -89,14 +89,22 @@ public sealed class AbilitiesManager : MonoBehaviour {
     public static Dictionary<int, PlayerAssetData> aData;
 
     void Start() {
+        int priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
 
+        AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
+        encoder.SendInputSignal(priCharacterId);
         AssignInputKeys();
     }
 
     public void AssignInputKeys() {
-        if(aData.ContainsKey(ClientProgram.clientId))
+        if(aData.ContainsKey(ClientProgram.clientId)) {
+            int actualKeyLoaded = 0;
             for(int i = 0; i < aData[ClientProgram.clientId].abilties.Length; i++)
-                LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode)97 + i, 0);
+                if(!aData[ClientProgram.clientId].abilityManifest.ContainsValue(i)) {
+                    LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode)(97 + actualKeyLoaded), 0,true);
+                    actualKeyLoaded++;
+                }
+        }
     }
 
     public static PlayerAssetData GetAssetData(int playerid) {
@@ -106,57 +114,5 @@ public sealed class AbilitiesManager : MonoBehaviour {
         PlayerAssetData inst = new PlayerAssetData();
         aData.Add(playerid, inst);
         return inst;
-    }
-
-    void LoadArtAssets() {
-        /*assetData = new Dictionary<string, Sprite>();
-
-        string[] imagePaths = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].LoadAllDir(0);
-        
-        for(int i = 0; i < imagePaths.Length; i++) {
-
-            Texture2D generatedTex = new Texture2D(1, 1);
-            generatedTex.LoadImage(File.ReadAllBytes(imagePaths[i]));
-
-            Sprite sprInst = Sprite.Create(generatedTex, new Rect(0, 0, generatedTex.width, generatedTex.height), new Vector2(0.5f, 0.5f));
-
-            assetData.Add(Path.GetFileName(imagePaths[i]), sprInst);
-        }*/
-    }
-
-    void LoadAbilityData() {
-        /*string[] abilityNodeData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(0);
-        string[] abilityRootData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(3);
-        string[] abilityNodeBranchingData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(4);
-        string[] abilitySpecialisedData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(5);
-        string[] variableBlockData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadAll(6);
-
-        aData = new AbilityData[abilityNodeData.Length];
-
-        for(int i = 0; i < abilityNodeData.Length; i++) {
-
-            AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData[i]));
-
-            if(ability == null)
-                continue;
-
-            int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData[i]);
-            int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData[i]);
-            Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData[i]);
-            AbilityBooleanData boolData = JsonConvert.DeserializeObject<AbilityBooleanData>(variableBlockData[i]);
-
-            Variable[][] tempVar = new Variable[ability.Length][];
-            Type[] tempTypes = new Type[ability.Length];
-
-            for(int j = 0; j < ability.Length; j++) {
-                tempVar[j] = ability[j].var;
-                tempTypes[j] = ability[j].classType;
-            }
-
-            int[] nodeType = new int[ability.Length];
-
-            aData[i] = new AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, i, boolData);
-            LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[i], 0, (KeyCode)97 + i, 0);
-        }*/
     }
 }

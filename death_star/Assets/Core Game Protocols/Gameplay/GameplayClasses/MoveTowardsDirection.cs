@@ -12,8 +12,11 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
     Vector3 direction;
 
 	void Update () {
-        if(allDataRecv) 
-            GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position += direction;        
+        
+        if(allDataRecv) {
+            Debug.Log(GetNodeVariable<AbilityTreeNode>(TARGET));
+            GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position += direction;
+        }
 	}
 
     public override void NodeCallback(int threadId) {
@@ -23,13 +26,14 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 
         if(allDataRecv) {
             float[] vectorHolder = GetNodeVariable<float[]>(DIRECTION_FROM_TARGET);
-            direction = new Vector3(vectorHolder[0],vectorHolder[1]).normalized * GetNodeVariable<float>(SPEED);
+            //direction = new Vector3(vectorHolder[0],vectorHolder[1]).normalized * GetNodeVariable<float>(SPEED);
+            direction = new Vector3(-1,0).normalized * GetNodeVariable<float>(SPEED);
         }      
     }
 
     public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
-            new RuntimeParameters<float[]>("Direction From Target",null),
+            new RuntimeParameters<float[]>("Direction From Target",new float[]{ }),
             new RuntimeParameters<float>("Speed",1),
             new RuntimeParameters<AbilityTreeNode>("Target",null)
         };

@@ -48,7 +48,7 @@ public class LobbyScript : MonoBehaviour {
 
     public void OnStartSignal() {
         cDT.SendFiles();
-        //iDT.SendArtAssets();
+        iDT.SendArtAssets();
         startInitiated = true;
     }
 
@@ -56,6 +56,7 @@ public class LobbyScript : MonoBehaviour {
         AbilitiesManager.aData = new Dictionary<int, AbilitiesManager.PlayerAssetData>();
         cDT.ResetTransmitter();
         iDT.ResetTransfer();
+        mE.ResetManifestEncoder();
     }
 
     // Update is called once per frame

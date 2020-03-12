@@ -14,14 +14,18 @@ public class ManifestEncoder : NetworkMessageEncoder {
     public void ResetManifestEncoder() {
         expectedDataCount = 0;
         sentData = 0;
+        manifestBuilder = new Dictionary<int, List<int>>();
     }
 
     public override void MessageRecievedCallback() {
         if(targetId == ClientProgram.clientId) 
             sentData++;
 
-        Debug.Log(bytesRecieved.Length);
         int manifestData = BitConverter.ToInt32(bytesRecieved,0);
+
+        if(!manifestBuilder.ContainsKey(targetId))
+            manifestBuilder.Add(targetId, new List<int>());
+
         manifestBuilder[targetId].Add(manifestData);
         
         if(manifestBuilder[targetId].Count % 2 == 0) {
@@ -34,8 +38,6 @@ public class ManifestEncoder : NetworkMessageEncoder {
     }
 
     public void SendManifest(Dictionary<string,int> remappedId) {
-
-        Debug.Log("Called once");
 
         Dictionary<int, string> abilityManifest = null;
         string abilityManifestPath = Path.Combine(FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].fP, "AbilityManifest.json");

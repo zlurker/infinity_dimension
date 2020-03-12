@@ -9,12 +9,13 @@ public class InputData<T> : InputDataBase {
     public IInputCallback<T> inputCallback;
     public T callbackParameter;
 
-    public InputData(T cbParam, IInputCallback<T> iCB, KeyCode kC, int iT) {
+    public InputData(T cbParam, IInputCallback<T> iCB, KeyCode kC, int iT, bool perm) {
         callbackParameter = cbParam;
         inputCallback = iCB;
 
         keyCode = kC;
         inputType = iT;
+        permanent = perm;
     }
 
     public override void InputCallback() {
@@ -27,6 +28,7 @@ public class InputDataBase {
 
     public KeyCode keyCode;
     public int inputType;
+    public bool permanent;
 
     public virtual void InputCallback() {
 
@@ -40,27 +42,40 @@ public class PlayerInput : MonoBehaviour, ISingleton {
     void Update() {
 
         if(iS.Count > 0)
-            for(int i = iS.Count - 1; i >= 0; i--)
+            for(int i = iS.Count - 1; i >= 0; i--) {
+
+                bool inputTriggered = false;
+
                 switch(iS[i].inputType) {
                     case 0:
                         if(Input.GetKeyDown(iS[i].keyCode))
-                            iS[i].InputCallback();
+                            inputTriggered = true;
                         break;
 
                     case 1:
                         if(Input.GetKey(iS[i].keyCode))
-                            iS[i].InputCallback();
+                            inputTriggered = true;
                         break;
 
                     case 2:
                         if(Input.GetKeyUp(iS[i].keyCode))
-                            iS[i].InputCallback();
+                            inputTriggered = true;
                         break;
                 }
+
+                if(inputTriggered) {
+                    iS[i].InputCallback();
+
+                    if(!iS[i].permanent) {
+                        iS.RemoveAt(i);
+                        Debug.Log("Not perm");
+                    }
+                }
+            }
     }
 
-    public void AddNewInput<T>(IInputCallback<T> iCB, T cbParam, KeyCode key, int iT) {
-        iS.Add(new InputData<T>(cbParam, iCB, key, iT));
+    public void AddNewInput<T>(IInputCallback<T> iCB, T cbParam, KeyCode key, int iT, bool perm = false) {
+        iS.Add(new InputData<T>(cbParam, iCB, key, iT, perm));
     }
 
     public void RunOnStart() {

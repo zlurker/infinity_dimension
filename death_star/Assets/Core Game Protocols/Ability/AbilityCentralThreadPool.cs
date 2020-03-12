@@ -209,6 +209,7 @@ public class AbilityCentralThreadPool : NetworkObject {
                     break;
 
                 case VariableTypes.SIGNAL_VAR:
+                    Debug.Log("Signal var activated.");
                     booleanData[nodeId][nodeVariableId] = false;
                     break;
 
