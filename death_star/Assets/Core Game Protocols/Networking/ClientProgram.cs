@@ -74,6 +74,9 @@ public class ClientProgram : MonoBehaviour {
                 currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
 
             if(incoming.Count >= currMsgLength) {
+                Debug.Log(incoming.Count);
+                Debug.Log(currMsgLength);
+                Debug.Log("CALLED");
                 NetworkMessageEncoder.SortEncodedMessages(incoming.GetRange(4, currMsgLength - 4).ToArray());
                 incoming.RemoveRange(0, currMsgLength);
                 currMsgLength = -1;

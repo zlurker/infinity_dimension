@@ -96,7 +96,8 @@ public class LoadClasses : MonoBehaviour {
             new UpdateAbilityDataEncoder(),
             new PlayerCustomDataTrasmitter(),
             new ImageDependenciesTransfer(),
-            new PlayerCharacterCreationEncoder()
+            new PlayerCharacterCreationEncoder(),
+            new ManifestEncoder()
         };
 
         for(int i = 0; i < NetworkMessageEncoder.encoders.Length; i++)

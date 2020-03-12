@@ -61,28 +61,23 @@ public class FileSaveTemplate {
         return files;
     }
 
-    public Dictionary<string,byte[][]> ReturnAllMainFiles(int[] selectedFiles) {
-        Dictionary<string, byte[][]> dirData = new Dictionary<string, byte[][]>();
-        //List<byte[][]> compiledList = new List<byte[][]>();
-        //List<string> dirNames = new List<string>();
+    public DirectoryBytesData ReturnAllMainFiles(int[] selectedFiles) {
+        //Dictionary<string, byte[][]> dirData = new Dictionary<string, byte[][]>();
+        List<byte[][]> compiledList = new List<byte[][]>();
+        List<string> dirNames = new List<string>();
         var currDirs = new DirectoryInfo(fP).EnumerateDirectories();
 
         foreach(DirectoryInfo info in currDirs) {
-            List<byte[]> compiledList = new List<byte[]>();
-            //compiledList.Add(new byte[selectedFiles.Length][]);
-            //dirNames.Add(info.Name);
+            compiledList.Add(new byte[selectedFiles.Length][]);
+            dirNames.Add(info.Name);
 
             for (int i=0; i < selectedFiles.Length; i++) {
                 string combinedPath = Path.Combine(info.FullName, ext[selectedFiles[i]]);
-                compiledList.Add(File.ReadAllBytes(combinedPath));
+                compiledList[compiledList.Count-1][i] = File.ReadAllBytes(combinedPath);
             }
-
-            dirData.Add(info.Name, compiledList.ToArray());
         }
 
-
-
-        return dirData;
+        return new DirectoryBytesData(dirNames.ToArray(),compiledList.ToArray());
     }
 
     public string[] LoadAllDir(int d) {

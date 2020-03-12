@@ -22,41 +22,27 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
     public void SendFiles() {
 
-        Dictionary<string, byte[][]> directoryBytesData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(datafilesToSend);
-        Dictionary<int, string> abilityManifest = null;
+        DirectoryBytesData dData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(datafilesToSend);
+
         HashSet<string> manifestFiles = new HashSet<string>();
+        Dictionary<string, int> remappedFiles = new Dictionary<string, int>();
 
-        string abilityManifestPath = Path.Combine(FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].fP, "AbilityManifest.json");
 
-        expectedFiles = (directoryBytesData.Count * datafilesToSend.Length) + directoryBytesData.Count;
-        SetBytesToSend(BitConverter.GetBytes(directoryBytesData.Count));
-        int givenCategory = -1;
 
-        if(File.Exists(abilityManifestPath)) {
-            string fileContents = File.ReadAllText(abilityManifestPath);
-            abilityManifest = JsonConvert.DeserializeObject<Dictionary<int, string>>(fileContents);
+        expectedFiles += dData.filesData.Length * datafilesToSend.Length;
+        SetBytesToSend(BitConverter.GetBytes(dData.filesData.Length));
 
-            foreach(var element in abilityManifest) {
-                if(!manifestFiles.Contains(element.Value))
-                    manifestFiles.Add(element.Value);
+        for(int i = 0; i < dData.filesData.Length; i++) {
 
-                int manifestCate = element.Key;
-                SetBytesToSend(BitConverter.GetBytes(manifestCate));
+            remappedFiles.Add(dData.dirName[i], i);
 
-                for(int i = 0; i < directoryBytesData[element.Value].Length; i++)
-                    SetBytesToSend(directoryBytesData[element.Value][i]);
-            }
+            for(int j = 0; j < dData.filesData[i].Length; j++)
+                SetBytesToSend(dData.filesData[i][j]);
         }
 
-        foreach(var element in directoryBytesData) {
+        ManifestEncoder mEncoder = encoders[(int)NetworkEncoderTypes.MANIFEST] as ManifestEncoder;
+        mEncoder.SendManifest(remappedFiles);
 
-            if(!manifestFiles.Contains(element.Key)) {
-                SetBytesToSend(BitConverter.GetBytes(givenCategory));
-
-                for(int i = 0; i < element.Value.Length; i++)
-                    SetBytesToSend(element.Value[i]);
-            }
-        }
     }
 
     public override void MessageRecievedCallback() {
@@ -75,17 +61,13 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         if(targetId == ClientProgram.clientId)
             sentFiles++;
 
-        if(builders[targetId].Count % (datafilesToSend.Length + 1) == 0)
+        if(builders[targetId].Count % datafilesToSend.Length == 0)
             BuildAbility(targetId);
     }
 
     public void BuildAbility(int targetId) {
 
         int latestEntry = builders[targetId].Count - 1;
-
-        int catergory = BitConverter.ToInt32(builders[targetId][latestEntry - 6], 0);
-
-        Debug.Log("Catergory: " + catergory);
 
         string abilityNodeData = Encoding.Default.GetString(builders[targetId][latestEntry - 5]);
         string abilityDescription = Encoding.Default.GetString(builders[targetId][latestEntry - 4]);

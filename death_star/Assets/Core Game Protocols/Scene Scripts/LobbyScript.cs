@@ -9,6 +9,7 @@ public class LobbyScript : MonoBehaviour {
 
     PlayerCustomDataTrasmitter cDT;
     ImageDependenciesTransfer iDT;
+    ManifestEncoder mE;
     bool startInitiated;
 
     SpawnerOutput lobbyText;
@@ -21,6 +22,7 @@ public class LobbyScript : MonoBehaviour {
         lobbyInst = this;
         cDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.CUSTOM_DATA_TRASMIT] as PlayerCustomDataTrasmitter;
         iDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.IMAGE_DATA_TRANSMIT] as ImageDependenciesTransfer;
+        mE = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.MANIFEST] as ManifestEncoder;
 
         ResetGameplayNetworkHelpers();
 
@@ -46,7 +48,7 @@ public class LobbyScript : MonoBehaviour {
 
     public void OnStartSignal() {
         cDT.SendFiles();
-        iDT.SendArtAssets();
+        //iDT.SendArtAssets();
         startInitiated = true;
     }
 
@@ -60,12 +62,12 @@ public class LobbyScript : MonoBehaviour {
     void Update() {
         string text = "Datafiles: " + cDT.sentFiles.ToString() + "/" + cDT.expectedFiles.ToString() + "\n";
         text += "Art Assets: " + iDT.sentFiles.ToString() + "/" + iDT.expectedFiles.ToString() + "\n";
-
+        text += "Manifest: " + mE.sentData.ToString() + "/" + mE.expectedDataCount.ToString() + "\n";
 
         text += LoadedData.GetCurrentTimestamp();
         UIDrawer.GetTypeInElement<Text>(progressOfFiles).text = text;
 
-        if(cDT.sentFiles == cDT.expectedFiles && iDT.sentFiles == iDT.expectedFiles && startInitiated)
+        if(cDT.sentFiles == cDT.expectedFiles && iDT.sentFiles == iDT.expectedFiles && startInitiated && mE.expectedDataCount == mE.sentData)
             SceneTransitionData.LoadScene("Gameplay");
     }
 }

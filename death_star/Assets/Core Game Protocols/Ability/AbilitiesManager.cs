@@ -11,9 +11,11 @@ public sealed class AbilitiesManager : MonoBehaviour {
     public class PlayerAssetData {
         public AbilityData[] abilties;
         public Dictionary<string, Sprite> assetData;
+        public Dictionary<int, int> abilityManifest;
 
         public PlayerAssetData() {
             assetData = new Dictionary<string, Sprite>();
+            abilityManifest = new Dictionary<int, int>();
         }
     }
 

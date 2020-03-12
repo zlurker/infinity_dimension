@@ -40,15 +40,15 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
     public void SendArtAssets() {
         HashSet<string> assetPaths = new HashSet<string>();
 
-        Dictionary<string,byte[][]> dirData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(new int[] { 7 });
+        DirectoryBytesData dirData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(new int[] { 7 });
 
-        foreach(var element in dirData) {
-            string jsonFile = Encoding.Default.GetString(element.Value[0]);
+        for (int i=0; i < dirData.filesData.Length; i++) {
+            string jsonFile = Encoding.Default.GetString(dirData.filesData[i][0]);
             string[] imagePaths = JsonConvert.DeserializeObject<string[]>(jsonFile);
 
-            for(int i = 0; i < imagePaths.Length; i++)
-                if(!assetPaths.Contains(imagePaths[i]))
-                    assetPaths.Add(imagePaths[i]);
+            for(int j = 0; j < imagePaths.Length; j++)
+                if(!assetPaths.Contains(imagePaths[j]))
+                    assetPaths.Add(imagePaths[j]);
         }
 
         string folderPath = FileSaver.PathGenerator(new string[] { Application.dataPath, "UsrCreatedArt" });

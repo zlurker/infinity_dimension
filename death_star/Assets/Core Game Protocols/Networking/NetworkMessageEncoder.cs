@@ -4,7 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum NetworkEncoderTypes {
-    SERVER_CHANNEL, ABILITY_INPUT, UPDATE_ABILITY_DATA, CUSTOM_DATA_TRASMIT, IMAGE_DATA_TRANSMIT, CHRACTER_CREATION
+    SERVER_CHANNEL,
+    ABILITY_INPUT,
+    UPDATE_ABILITY_DATA,
+    CUSTOM_DATA_TRASMIT,
+    IMAGE_DATA_TRANSMIT,
+    CHRACTER_CREATION,
+    MANIFEST
 }
 
 public class NetworkMessageEncoder {
