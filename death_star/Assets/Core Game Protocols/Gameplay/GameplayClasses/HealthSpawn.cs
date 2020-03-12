@@ -7,7 +7,7 @@ using UnityEngine;
 public class HealthSpawn : AbilityTreeNode, IOnSpawn {
 
     public const int HEALTH = 0;
-    public const int TASKS = 1;
+    public const int SPAWN = 1;
     public const int ON_COLLIDE = 2;
     public const int SPRITE_FILE_PATH = 3;
 
@@ -20,7 +20,7 @@ public class HealthSpawn : AbilityTreeNode, IOnSpawn {
 
     public override void NodeCallback(int threadId) {
         sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetCentralInst().ReturnRuntimeParameter<string>(GetNodeId(), SPRITE_FILE_PATH).v];
-        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, TASKS, this,VariableTypes.SIGNAL_VAR);
+        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, SPAWN, this,VariableTypes.SIGNAL_VAR);
     }
 
     public void OnCollisionStay2D(Collision2D collision) {

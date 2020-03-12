@@ -61,11 +61,11 @@ public class LobbyScript : MonoBehaviour {
         string text = "Datafiles: " + cDT.sentFiles.ToString() + "/" + cDT.expectedFiles.ToString() + "\n";
         text += "Art Assets: " + iDT.sentFiles.ToString() + "/" + iDT.expectedFiles.ToString() + "\n";
 
-        
+
         text += LoadedData.GetCurrentTimestamp();
         UIDrawer.GetTypeInElement<Text>(progressOfFiles).text = text;
 
-        //if (cDT.sentFiles == cDT.expectedFiles && iDT.sentFiles == iDT.expectedFiles && startInitiated)        
-        //SceneTransitionData.LoadScene("Gameplay");       
+        if(cDT.sentFiles == cDT.expectedFiles && iDT.sentFiles == iDT.expectedFiles && startInitiated)
+            SceneTransitionData.LoadScene("Gameplay");
     }
 }

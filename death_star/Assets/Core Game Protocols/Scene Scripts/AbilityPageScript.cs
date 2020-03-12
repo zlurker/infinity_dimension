@@ -127,10 +127,10 @@ public class AbilityPageScript : MonoBehaviour {
 
             switch(currMode) {
                 case AbilityButtonMode.CHANGE_PRIMARY_CHARACTER:
-                    if(!abilityManifest.ContainsKey((int)currMode))
-                        abilityManifest.Add((int)currMode, index);
+                    if(!abilityManifest.ContainsKey((int)AbilityManifest.PRIMARY_CHARACTER))
+                        abilityManifest.Add((int)AbilityManifest.PRIMARY_CHARACTER, index);
                     else
-                        abilityManifest[(int)currMode] = index;
+                        abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER] = index;
 
                     SaveAbilityManifest();
                     break;

@@ -17,6 +17,16 @@ public class FileSaveTemplate<T> : FileSaveTemplate {
     }
 }
 
+public struct DirectoryBytesData {
+    public string[] dirName;
+    public byte[][][] filesData;
+
+    public DirectoryBytesData(string[] dName, byte[][][] bytes) {
+        dirName = dName;
+        filesData = bytes;
+    }
+}
+
 public class FileSaveTemplate {
     public string fP;
     public string[] ext;
@@ -51,21 +61,28 @@ public class FileSaveTemplate {
         return files;
     }
 
-    public byte[][][] ReturnAllMainFiles(int[] selectedFiles) {
-        List<byte[][]> compiledList = new List<byte[][]>();
+    public Dictionary<string,byte[][]> ReturnAllMainFiles(int[] selectedFiles) {
+        Dictionary<string, byte[][]> dirData = new Dictionary<string, byte[][]>();
+        //List<byte[][]> compiledList = new List<byte[][]>();
+        //List<string> dirNames = new List<string>();
         var currDirs = new DirectoryInfo(fP).EnumerateDirectories();
 
         foreach(DirectoryInfo info in currDirs) {
-
-            compiledList.Add(new byte[selectedFiles.Length][]);
+            List<byte[]> compiledList = new List<byte[]>();
+            //compiledList.Add(new byte[selectedFiles.Length][]);
+            //dirNames.Add(info.Name);
 
             for (int i=0; i < selectedFiles.Length; i++) {
                 string combinedPath = Path.Combine(info.FullName, ext[selectedFiles[i]]);
-                compiledList[compiledList.Count - 1][i] = File.ReadAllBytes(combinedPath);
+                compiledList.Add(File.ReadAllBytes(combinedPath));
             }
+
+            dirData.Add(info.Name, compiledList.ToArray());
         }
 
-        return compiledList.ToArray(); 
+
+
+        return dirData;
     }
 
     public string[] LoadAllDir(int d) {
