@@ -89,6 +89,8 @@ public class AbilityCentralThreadPool : NetworkObject {
     // This thread's ID
     private int centralId;
 
+    private int[][][] variableReference;
+
     // Current threads active
     private EnhancedList<NodeThread> activeThreads;
 
@@ -119,10 +121,20 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
 
     public Variable ReturnVariable(int node, int variable) {
+        int[] varAddress = variableReference[node][variable];
+
+        if(varAddress != null)
+            return runtimeParameters[varAddress[0]][varAddress[1]];
+
         return runtimeParameters[node][variable];
     }
 
     public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, int variable) {
+        int[] varAddress = variableReference[node][variable];
+
+        if(varAddress != null)
+            return runtimeParameters[varAddress[0]][varAddress[1]].field as RuntimeParameters<T>;
+
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
@@ -138,6 +150,11 @@ public class AbilityCentralThreadPool : NetworkObject {
         nodeType = nT;
         specialisedNodeData = sND;
         booleanData = aBD;
+
+        variableReference = new int[rP.Length][][];
+
+        for(int i = 0; i < variableReference.Length; i++)
+            variableReference[i] = new int[rP[i].Length][];
     }
 
     public int GetNodeBranchData(int id) {
@@ -178,6 +195,14 @@ public class AbilityCentralThreadPool : NetworkObject {
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
 
+        if(vType == VariableTypes.DEFAULT) {
+            RuntimeParameters<T> paramInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
+
+            if(paramInst != null)
+                paramInst.v = value;
+        }
+
+
         for(int i = 0; i < runtimeParameters[currNode][variableId].links.Length; i++) {
 
             NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
@@ -203,7 +228,12 @@ public class AbilityCentralThreadPool : NetworkObject {
                     RuntimeParameters<T> paramInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
 
                     if(paramInst != null) {
-                        paramInst.v = value;
+                        //paramInst.v = value;
+                        if(variableReference[currNode][variableId] == null)
+                            variableReference[nodeId][nodeVariableId] = new int[] { currNode, variableId };
+                        else
+                            variableReference[nodeId][nodeVariableId] = variableReference[currNode][variableId];
+
                         booleanData[nodeId][nodeVariableId] = false;
                     }
                     break;
@@ -213,16 +243,16 @@ public class AbilityCentralThreadPool : NetworkObject {
                     booleanData[nodeId][nodeVariableId] = false;
                     break;
 
-                case VariableTypes.POLYMORPHIC_VAR:
-                    RuntimeParameters<T> polyInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
+                    /*case VariableTypes.POLYMORPHIC_VAR:
+                        RuntimeParameters<T> polyInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
 
-                    if(polyInst != null)
-                        polyInst.v = value;
-                    else
-                        runtimeParameters[nodeId][nodeVariableId].field = new RuntimeParameters<T>("", value);
+                        if(polyInst != null)
+                            polyInst.v = value;
+                        else
+                            runtimeParameters[nodeId][nodeVariableId].field = new RuntimeParameters<T>("", value);
 
-                    booleanData[nodeId][nodeVariableId] = false;
-                    break;
+                        booleanData[nodeId][nodeVariableId] = false;
+                        break;*/
             }
 
             UpdateThreadNodeData(threadIdToUse, nodeId);
