@@ -124,7 +124,7 @@ public class AbilityDataSubclass {
                 total += nextNodeValues;
             }
 
-            if(target[nextId[i]].classType == typeof(ThreadSplitter) || target[nextId[i]].classType == typeof(ReturnValue)) {
+            if(target[nextId[i]].classType == typeof(ThreadSplitter)) {
                 if(!mappedValues.ContainsKey(nextId[i]))
                     mappedValues.Add(nextId[i], total);
 

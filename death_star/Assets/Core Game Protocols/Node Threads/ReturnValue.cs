@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -35,7 +35,7 @@ public class ReturnValue : AbilityTreeNode {
 
         int threadToUse = inst.AddNewThread(trdInst);
         Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-        inst.NodeVariableCallback<int>(threadToUse, 0, 20);*/
+        inst.NodeVariableCallback<int>(threadToUse, 0, 20);
     }
 
     public override void ThreadEndStartCallback(int threadId) {
@@ -64,3 +64,4 @@ public class ReturnValue : AbilityTreeNode {
         }
     }
 }
+*/

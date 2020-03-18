@@ -49,8 +49,7 @@ public class ThreadSplitter : AbilityTreeNode {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
 
         Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
-
-        
+      
         if(threadMap[threadId][0] < GetNodeVariable<int>(NUMBER_OF_LOOPS) || GetNodeVariable<int>(NUMBER_OF_LOOPS) ==-1) {
             ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));

@@ -3,6 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
+
+    public T value;
+
+    public AbilityNodeNetworkData(int nId, int vId, VariableTypes vT, T v) {
+        nodeId = nId;
+        varId = vId;
+        vType = (int)vT;
+        value = v;
+
+        dataType = typeof(T);
+    }
+}
+
+public class AbilityNodeNetworkData {
+    public int nodeId;
+    public int varId;
+    public int vType;
+    public Type dataType;
+}
+
 public class NodeThread {
 
     int currNode;
@@ -91,8 +112,12 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     private int[][][] variableReference;
 
+    private List<AbilityNodeNetworkData> networkNodeData;
+
     // Current threads active
     private EnhancedList<NodeThread> activeThreads;
+
+    
 
     #region Network-Related Code
     private int networkObjectId;
@@ -120,20 +145,21 @@ public class AbilityCentralThreadPool : NetworkObject {
         return specialisedNodeData[threadId];
     }
 
-    public Variable ReturnVariable(int node, int variable) {
+    /*public Variable ReturnVariable(int node, int variable) {
         int[] varAddress = variableReference[node][variable];
 
         if(varAddress != null)
             return runtimeParameters[varAddress[0]][varAddress[1]];
 
         return runtimeParameters[node][variable];
-    }
+    }*/
 
     public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, int variable) {
         int[] varAddress = variableReference[node][variable];
 
         if(varAddress != null)
             return runtimeParameters[varAddress[0]][varAddress[1]].field as RuntimeParameters<T>;
+
 
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
@@ -155,6 +181,8 @@ public class AbilityCentralThreadPool : NetworkObject {
 
         for(int i = 0; i < variableReference.Length; i++)
             variableReference[i] = new int[rP[i].Length][];
+
+        networkNodeData = new List<AbilityNodeNetworkData>();
     }
 
     public int GetNodeBranchData(int id) {
@@ -179,6 +207,13 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     public NodeThread GetActiveThread(int threadId) {
         return activeThreads.l[threadId];
+    }
+
+    public void AddVariableNetworkData(AbilityNodeNetworkData aNND) {
+        networkNodeData.Add(aNND);
+    }
+
+    public void SendVariableNetworkData() {
     }
 
     public void StartThreads() {

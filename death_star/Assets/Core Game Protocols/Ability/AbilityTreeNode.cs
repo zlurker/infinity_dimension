@@ -78,7 +78,12 @@ public class AbilityTreeNode : MonoBehaviour {
         return true;
     }
 
-    public void SyncDataWithNetwork<T>(int variableId, T value,VariableTypes vType = VariableTypes.DEFAULT) {
+    public void SyncDataWithNetwork<T>(int variableId, T value, VariableTypes vType = VariableTypes.DEFAULT) {
+        AbilityNodeNetworkData inst = new AbilityNodeNetworkData<T>(nodeId, variableId, vType, value);
+        GetCentralInst().AddVariableNetworkData(inst);
+    }
+
+    /*public void SyncDataWithNetwork<T>(int variableId, T value,VariableTypes vType = VariableTypes.DEFAULT) {
         AbilityCentralThreadPool central = GetCentralInst();
         int centralId = central.ReturnNetworkObjectId();
         int centralInstId = central.ReturnInstId();
@@ -94,7 +99,7 @@ public class AbilityTreeNode : MonoBehaviour {
 
         UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
         inst.SendUpdatedNodeData(centralId, centralInstId, nodeId, variableId, (int)vType, value);
-    }
+    }*/
 
     public AbilityCentralThreadPool GetCentralInst() {
         return AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];

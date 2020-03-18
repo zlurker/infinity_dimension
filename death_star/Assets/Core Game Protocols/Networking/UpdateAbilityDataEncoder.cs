@@ -6,7 +6,7 @@ using System.Text;
 
 public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
-    public void SendUpdatedNodeData<T>(int central, int instId, int ability, int var,int vType, T value) {
+    /*public void SendUpdatedNodeData<T>(int central, int instId, int ability, int var,int vType, T value) {
 
         byte[] vBytes = new byte[0];
         int argType = -1;
@@ -84,6 +84,69 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         Buffer.BlockCopy(vBytes, 0, bytesToSend, 24, vBytes.Length);
 
         SendEncodedMessages();
+    }*/
+
+    public void SendVariableManifest(int central, int instId, AbilityNodeNetworkData[] manifest) {
+
+        List<byte> byteData = new List<byte>();
+        int argType = -1;
+        byte[] vBytes = new byte[0];
+
+        byteData.AddRange(BitConverter.GetBytes(central));
+        byteData.AddRange(BitConverter.GetBytes(instId));
+
+        for (int i=0; i < manifest.Length; i++) {
+
+            if(manifest[i].dataType == typeof(int)) {
+                argType = 0;
+                vBytes = BitConverter.GetBytes((manifest[i] as AbilityNodeNetworkData<int>).value);
+            }
+
+            if(manifest[i].dataType == typeof(float)) {
+                argType = 1;
+                vBytes = BitConverter.GetBytes((manifest[i] as AbilityNodeNetworkData<float>).value);
+            }
+
+            if(manifest[i].dataType == typeof(string)) {
+                argType = 2;
+                vBytes = Encoding.Default.GetBytes((manifest[i] as AbilityNodeNetworkData<string>).value);
+            }
+
+            if(manifest[i].dataType == typeof(int[])) {
+                argType = 3;
+
+                List<byte> iBData = new List<byte>();
+                int[] iData = (manifest[i] as AbilityNodeNetworkData<int[]>).value;
+
+                for(int j = 0; j < iData.Length; j++)
+                    iBData.AddRange(BitConverter.GetBytes(iData[j]));
+
+                vBytes = iBData.ToArray();
+            }
+
+            if(manifest[i].dataType == typeof(float[])) {
+                argType = 4;
+
+                List<byte> fBData = new List<byte>();
+                float[] fData = (manifest[i] as AbilityNodeNetworkData<float[]>).value;
+
+                for(int j = 0; j < fData.Length; j++)
+                    fBData.AddRange(BitConverter.GetBytes(fData[j]));
+
+                vBytes = fBData.ToArray();
+            }
+
+            if (argType > -1) {
+                byteData.AddRange(BitConverter.GetBytes(manifest[i].nodeId));
+                byteData.AddRange(BitConverter.GetBytes(manifest[i].varId));
+                byteData.AddRange(BitConverter.GetBytes(argType));
+                byteData.AddRange(BitConverter.GetBytes(manifest[i].vType));
+                byteData.AddRange(BitConverter.GetBytes(vBytes.Length));
+                byteData.AddRange(vBytes);
+            }
+        }
+
+        SetBytesToSend(byteData.ToArray());
     }
 
     public override void MessageRecievedCallback() {
