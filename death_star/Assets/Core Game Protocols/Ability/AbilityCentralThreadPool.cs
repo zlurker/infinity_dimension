@@ -213,10 +213,16 @@ public class AbilityCentralThreadPool : NetworkObject {
         networkNodeData.Add(aNND);
     }
 
-    public void SendVariableNetworkData() {
+    /*public void SendVariableNetworkData() {
         UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
         inst.SendVariableManifest(networkObjectId, instId, networkNodeData.ToArray());
         networkNodeData.Clear();
+    }*/
+
+    public AbilityNodeNetworkData[] GetVariableNetworkData() {
+        AbilityNodeNetworkData[] data = networkNodeData.ToArray();
+        networkNodeData.Clear();
+        return data;
     }
 
     public void StartThreads() {

@@ -5,8 +5,11 @@ using System;
 
 public class AbilityInputEncoder:NetworkMessageEncoder {
 
-   public void SendInputSignal(int id) {
+   public void SendInputSignal(int id,AbilityNodeNetworkData[] dataManifest) {
         Debug.Log("(Input)Time start" + Time.realtimeSinceStartup);
+
+
+        UpdateAbilityDataEncoder.PrepareVariableManifest(dataManifest);
         SetBytesToSend(BitConverter.GetBytes(id));
     }
 
