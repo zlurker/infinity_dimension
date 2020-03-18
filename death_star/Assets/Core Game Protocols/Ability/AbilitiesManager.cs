@@ -45,7 +45,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         }
 
         public void InputCallback(int i) {
-            AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool();
+            AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(ClientProgram.clientId);
             CreateAbility(centralPool);
 
             if(ClientProgram.clientInst) {
@@ -94,7 +94,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         int priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
 
         AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
-        encoder.SendInputSignal(priCharacterId);
+        encoder.SendInputSignal(priCharacterId,null);
         AssignInputKeys();
     }
 

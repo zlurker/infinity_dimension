@@ -81,6 +81,7 @@ public class AbilityTreeNode : MonoBehaviour {
     public void SyncDataWithNetwork<T>(int variableId, T value, VariableTypes vType = VariableTypes.DEFAULT) {
         AbilityNodeNetworkData inst = new AbilityNodeNetworkData<T>(nodeId, variableId, vType, value);
         GetCentralInst().AddVariableNetworkData(inst);
+        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, variableId, value, vType);
     }
 
     /*public void SyncDataWithNetwork<T>(int variableId, T value,VariableTypes vType = VariableTypes.DEFAULT) {

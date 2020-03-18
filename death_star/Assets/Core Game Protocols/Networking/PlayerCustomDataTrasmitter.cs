@@ -46,7 +46,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
     }
 
     public override void MessageRecievedCallback() {
-        //Debug.Log("Incoming data.");
+        Debug.Log("Incoming data.");
 
         if(!builders.ContainsKey(targetId)) {
             int recvSize = BitConverter.ToInt32(bytesRecieved, 0);
