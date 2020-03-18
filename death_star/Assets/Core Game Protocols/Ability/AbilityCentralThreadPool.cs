@@ -214,6 +214,9 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
 
     public void SendVariableNetworkData() {
+        UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
+        inst.SendVariableManifest(networkObjectId, instId, networkNodeData.ToArray());
+        networkNodeData.Clear();
     }
 
     public void StartThreads() {

@@ -52,6 +52,9 @@ public sealed class AbilitiesManager : MonoBehaviour {
             if(ClientProgram.clientInst) {
                 AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
                 encoder.SendInputSignal(abilityId);
+
+                //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
+                //encoder.SendInputSignal(abilityId);
             } else {
                 AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool();
                 CreateAbility(centralPool);
@@ -70,6 +73,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             // Rather than create new instance, everything except variables will be taken from here.
             threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, nodeType, specialisedNodeData, clonedBoolValues);
             threadInst.StartThreads();
+            threadInst.SendVariableNetworkData();
         }
 
         Variable[][] CloneRuntimeParams(Variable[][] target) {

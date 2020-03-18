@@ -27,7 +27,7 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 
         if(allDataRecv) {
             float[] vectorHolder = GetNodeVariable<float[]>(DIRECTION_FROM_TARGET);
-            //direction = new Vector3(vectorHolder[0],vectorHolder[1]).normalized * GetNodeVariable<float>(SPEED);
+            direction = new Vector3(vectorHolder[0],vectorHolder[1]).normalized;
             //direction = new Vector3(-1,0).normalized * GetNodeVariable<float>(SPEED);
         }      
     }

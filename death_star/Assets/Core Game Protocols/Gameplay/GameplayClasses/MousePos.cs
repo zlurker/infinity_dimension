@@ -10,7 +10,7 @@ public class MousePos : AbilityTreeNode {
 
         if(IsClientPlayerUpdate()) {
             Vector2 currPosInWorld = LoadedData.currSceneCamera.ScreenToWorldPoint(Input.mousePosition);
-            SyncDataWithNetwork<float>(MOUSE_POS, new float[] { currPosInWorld.x, currPosInWorld.y });
+            SyncDataWithNetwork<float[]>(MOUSE_POS, new float[] { currPosInWorld.x, currPosInWorld.y });
         }
     }
 
