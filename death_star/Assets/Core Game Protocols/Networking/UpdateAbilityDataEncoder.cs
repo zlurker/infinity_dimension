@@ -95,7 +95,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         byteData.AddRange(BitConverter.GetBytes(central));
         byteData.AddRange(BitConverter.GetBytes(instId));
 
-        for (int i=0; i < manifest.Length; i++) {
+        for(int i = 0; i < manifest.Length; i++) {
 
             if(manifest[i].dataType == typeof(int)) {
                 argType = 0;
@@ -136,7 +136,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 vBytes = fBData.ToArray();
             }
 
-            if (argType > -1) {
+            if(argType > -1) {
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].nodeId));
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].varId));
                 byteData.AddRange(BitConverter.GetBytes(argType));
@@ -155,11 +155,65 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
         // Checks if inst id given was updated.
         if(NetworkObjectTracker.inst.CheckIfInstIdMatches(central, instId)) {
+            int i = 8;
+
+            while(i < bytesRecieved.Length - 8) {
+
+                int ability = BitConverter.ToInt32(bytesRecieved, 8);
+                int var = BitConverter.ToInt32(bytesRecieved, 12);
+                int argType = BitConverter.ToInt32(bytesRecieved, 16);
+                VariableTypes vtype = (VariableTypes)BitConverter.ToInt32(bytesRecieved, 20);
+                int valueLen = BitConverter.ToInt32(bytesRecieved, 24);
+
+                AbilityCentralThreadPool centralInst = NetworkObjectTracker.inst.ReturnNetworkObject(central) as AbilityCentralThreadPool;
+                int abilityNodes = centralInst.GetAbilityNodeId();
+                int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
+
+                if(nTID > -1)
+                    switch(argType) {
+
+                        case 0: //int                    
+                            int iData = BitConverter.ToInt32(bytesRecieved, 28);
+                            centralInst.NodeVariableCallback<int>(nTID, var, iData, vtype);
+                            break;
+
+                        case 1: //float                    
+                            float fData = BitConverter.ToSingle(bytesRecieved, 28);
+                            centralInst.NodeVariableCallback<float>(nTID, var, fData, vtype);
+                            break;
+
+                        case 2: //string
+                            string sData = Encoding.Default.GetString(bytesRecieved, 28, valueLen);
+                            centralInst.NodeVariableCallback<string>(nTID, var, sData, vtype);
+                            break;
+
+                        case 3: //int[]
+                            int[] iArray = ProcessArrayable<int>();
+                            centralInst.NodeVariableCallback<int[]>(nTID, var, iArray);
+                            break;
+
+                        case 4: //float[]
+                            float[] fArray = ProcessArrayable<float>();
+                            centralInst.NodeVariableCallback<float[]>(nTID, var, fArray);
+                            break;
+                    }
+
+                i += 28 + valueLen;
+            }
+        }
+    }
+
+    /*public override void MessageRecievedCallback() {
+        int central = BitConverter.ToInt32(bytesRecieved, 0);
+        int instId = BitConverter.ToInt32(bytesRecieved, 4);
+
+        // Checks if inst id given was updated.
+        if(NetworkObjectTracker.inst.CheckIfInstIdMatches(central, instId)) {
 
             int ability = BitConverter.ToInt32(bytesRecieved, 8);
             int var = BitConverter.ToInt32(bytesRecieved, 12);
             int argType = BitConverter.ToInt32(bytesRecieved, 16);
-            VariableTypes vtype = (VariableTypes) BitConverter.ToInt32(bytesRecieved, 20);
+            VariableTypes vtype = (VariableTypes)BitConverter.ToInt32(bytesRecieved, 20);
 
             AbilityCentralThreadPool centralInst = NetworkObjectTracker.inst.ReturnNetworkObject(central) as AbilityCentralThreadPool;
             int abilityNodes = centralInst.GetAbilityNodeId();
@@ -170,17 +224,17 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
                     case 0: //int                    
                         int iData = BitConverter.ToInt32(bytesRecieved, 24);
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<int>(nTID,var,iData,vtype);
+                        centralInst.NodeVariableCallback<int>(nTID, var, iData, vtype);
                         break;
 
                     case 1: //float                    
                         float fData = BitConverter.ToSingle(bytesRecieved, 24);
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<float>(nTID, var, fData,vtype);
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<float>(nTID, var, fData, vtype);
                         break;
 
                     case 2: //string
                         string sData = Encoding.Default.GetString(bytesRecieved, 24, bytesRecieved.Length - 24);
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<string>(nTID, var, sData,vtype);
+                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<string>(nTID, var, sData, vtype);
                         break;
 
                     case 3: //int[]
@@ -197,33 +251,33 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         }
 
         Debug.Log("(Update)Time end" + Time.realtimeSinceStartup);
-    }
+    }*/
 
     public T[] ProcessArrayable<T>() {
 
         int bytesPerElement = 0;
         int argType = -1;
 
-        if(typeof(T) == typeof(int) || typeof(T) == typeof(int[])) {
+        if(typeof(T) == typeof(int)) {
             bytesPerElement = 4;
             argType = 0;
         }
 
-        if(typeof(T) == typeof(float) || typeof(T) == typeof(float[])) {
+        if(typeof(T) == typeof(float)) {
             bytesPerElement = 4;
             argType = 1;
         }
 
         if(argType > -1) {
-            T[] cArray = new T[(bytesRecieved.Length - 24) / bytesPerElement];
+            T[] cArray = new T[(bytesRecieved.Length - 28) / bytesPerElement];
 
             for(int i = 0; i < cArray.Length; i++) {
                 switch(argType) {
                     case 0:
-                        cArray[i] = (T)(object)BitConverter.ToInt32(bytesRecieved, 24 + (i * bytesPerElement));
+                        cArray[i] = (T)(object)BitConverter.ToInt32(bytesRecieved, 28 + (i * bytesPerElement));
                         break;
                     case 1:
-                        cArray[i] = (T)(object)BitConverter.ToSingle(bytesRecieved, 24 + (i * bytesPerElement));
+                        cArray[i] = (T)(object)BitConverter.ToSingle(bytesRecieved, 28 + (i * bytesPerElement));
                         break;
                 }
             }
