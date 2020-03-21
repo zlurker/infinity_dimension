@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Text;
 
 public enum ServerSideMethods {
-    CLIENT_IDENTITY, START_GAME
+    CLIENT_IDENTITY, START_GAME, HOST, HOST_SELECT
 }
 
 public class ServerChannel : NetworkMessageEncoder {
@@ -19,14 +19,30 @@ public class ServerChannel : NetworkMessageEncoder {
             case ServerSideMethods.CLIENT_IDENTITY:
                 ClientProgram.clientId = targetId;
                 break;
+
             case ServerSideMethods.START_GAME:
                 if(LobbyScript.lobbyInst != null) {
+                    bytesToSend = BitConverter.GetBytes((int)ServerSideMethods.HOST);
+                    SendEncodedMessages();
+
                     LoadedData.startTimeSinceConnection = BitConverter.ToDouble(bytesRecieved, 4);
-                    Debug.Log("realtime: " +Time.realtimeSinceStartup);
-                    Debug.Log("connection time: "+ LoadedData.connectionTimeOffset);
+                    Debug.Log("realtime: " + Time.realtimeSinceStartup);
+                    Debug.Log("connection time: " + LoadedData.connectionTimeOffset);
                     Debug.Log("starttime since conn: " + LoadedData.startTimeSinceConnection);
                     LobbyScript.lobbyInst.OnStartSignal();
                 }
+                break;
+
+            case ServerSideMethods.HOST:
+                ClientProgram.hostId = ClientProgram.clientId;
+
+                bytesToSend = BitConverter.GetBytes(actionType);
+                SendEncodedMessages();
+                break;
+
+            case ServerSideMethods.HOST_SELECT:
+                ClientProgram.hostId = BitConverter.ToInt32(bytesRecieved, 4);
+                Debug.LogFormat("Host selected: {0}", BitConverter.ToInt32(bytesRecieved, 4));
                 break;
         }
     }

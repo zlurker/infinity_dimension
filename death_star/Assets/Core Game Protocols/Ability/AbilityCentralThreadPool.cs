@@ -87,7 +87,7 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
 
     public AbilityCentralThreadPool(int pId) {
-        playerCasted = pId;
+         playerCasted = pId;
     }
 
     private Variable[][] runtimeParameters;
@@ -116,8 +116,6 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     // Current threads active
     private EnhancedList<NodeThread> activeThreads;
-
-    
 
     #region Network-Related Code
     private int networkObjectId;

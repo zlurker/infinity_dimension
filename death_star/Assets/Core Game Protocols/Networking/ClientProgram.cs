@@ -17,10 +17,13 @@ public enum NetworkObjectType {
 public class ClientProgram : MonoBehaviour {
 
     public static ClientProgram clientInst;
-    public static int clientId =-1;
-    
+    public static int clientId = -1;
+    public static int hostId = -1;
+
     private List<byte> incoming;
     private List<byte[]> outgoing;
+
+    private float prevMsgTimer;
 
     private Socket clientSock;
     private byte[] _recieveBuffer = new byte[8142];
@@ -32,7 +35,7 @@ public class ClientProgram : MonoBehaviour {
 
         outgoing = new List<byte[]>();
         incoming = new List<byte>();
-        
+
         currMsgLength = -1;
 
         clientSock.Connect("178.128.95.63", 5000);
@@ -42,7 +45,7 @@ public class ClientProgram : MonoBehaviour {
         clientInst = this;
 
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
-        
+
     }
 
     void OnRecieve(IAsyncResult asyncResult) {
@@ -58,12 +61,18 @@ public class ClientProgram : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-
         ParseCommands();
+
+        // Keep alive if client is host.
+        if(clientId == hostId)
+            if(outgoing.Count == 0)
+                if(Time.realtimeSinceStartup - prevMsgTimer > 0.1f)
+                    AddNetworkMessage(new byte[0]);
 
         if(outgoing.Count > 0) {
             clientSock.BeginSend(outgoing[0], 0, outgoing[0].Length, SocketFlags.None, null, null);
             outgoing.RemoveAt(0);
+            prevMsgTimer = Time.realtimeSinceStartup;
         }
     }
 
@@ -74,7 +83,10 @@ public class ClientProgram : MonoBehaviour {
                 currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
 
             if(incoming.Count >= currMsgLength) {
-                NetworkMessageEncoder.SortEncodedMessages(incoming.GetRange(4, currMsgLength - 4).ToArray());
+
+                if(currMsgLength > 4)
+                    NetworkMessageEncoder.SortEncodedMessages(incoming.GetRange(4, currMsgLength - 4).ToArray());
+
                 incoming.RemoveRange(0, currMsgLength);
                 currMsgLength = -1;
                 ParseCommands();

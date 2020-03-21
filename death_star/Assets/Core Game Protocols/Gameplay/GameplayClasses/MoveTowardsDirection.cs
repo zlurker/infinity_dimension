@@ -15,7 +15,7 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 	void Update () {
         
         if(allDataRecv) {
-            Debug.Log(GetNodeVariable<AbilityTreeNode>(TARGET));
+            //Debug.Log(GetNodeVariable<AbilityTreeNode>(TARGET));
             GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position += direction;
         }
 	}
