@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,3 +16,4 @@ public class ValueGiver : AbilityTreeNode {
         //central.SyncDataWithNetwork<string>(threadId, 0, central.ReturnRuntimeParameter<string>(GetNodeId(), 0).v);
     }
 }
+*/

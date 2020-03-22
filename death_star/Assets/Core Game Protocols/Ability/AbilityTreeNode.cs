@@ -55,8 +55,8 @@ public class AbilityTreeNode : MonoBehaviour {
         sourceObject = srcObject;
     }
 
-    public virtual RuntimeParameters[] GetRuntimeParameters() {
-        return new RuntimeParameters[0];
+    public virtual LoadedRuntimeParameters[] GetRuntimeParameters() {
+        return new LoadedRuntimeParameters[0];
     }
 
     public virtual void NodeCallback(int threadId) {

@@ -5,9 +5,8 @@ using UnityEngine;
 public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 
     public const int DIRECTION_FROM_TARGET = 0;
-    public const int TIME_TAKEN = 1;
-    public const int TOTAL_DISTANCE = 2;
-    public const int TARGET = 3;
+    public const int SPEED_PER_SECOND = 1;
+    public const int TARGET = 2;
 
     bool allDataRecv;
     Vector3 direction;
@@ -32,12 +31,11 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
         }      
     }
 
-    public override RuntimeParameters[] GetRuntimeParameters() {
-        return new RuntimeParameters[] {
-            new RuntimeParameters<float[]>("Direction From Target",new float[]{ }),
-            new RuntimeParameters<float>("Time Taken",0),
-            new RuntimeParameters<float>("Total Distance",1),
-            new RuntimeParameters<AbilityTreeNode>("Target",null)
+    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
+        return new LoadedRuntimeParameters[] {
+            new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Direction From Target",new float[]{ })),
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Speed Per Second",0)),
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Target",null))
         };
     }
 

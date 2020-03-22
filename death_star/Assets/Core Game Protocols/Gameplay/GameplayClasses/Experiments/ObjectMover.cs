@@ -11,11 +11,11 @@ public class ObjectMover : AbilityTreeNode {
         central.ReturnRuntimeParameter<GameObject>(GetNodeId(), 0).v.transform.position += movement;
     }
 
-    public override RuntimeParameters[] GetRuntimeParameters() {
-        return new RuntimeParameters[] {
-            new RuntimeParameters<GameObject>("Move Target", null),
-            new RuntimeParameters<float>("X", 0),
-            new RuntimeParameters<float>("Y", 0)       
+    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
+        return new LoadedRuntimeParameters[] {
+            new LoadedRuntimeParameters(new RuntimeParameters<GameObject>("Move Target", null)),
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("X", 0)),
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Y", 0))       
         };
     }
 

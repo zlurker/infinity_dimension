@@ -27,12 +27,12 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
         
     }
 
-    public override RuntimeParameters[] GetRuntimeParameters() {
-        return new RuntimeParameters[] {
-            new RuntimeParameters<float>("Spawn Lifetime",3),
-            new RuntimeParameters<AbilityTreeNode>("Spawn",null),
-            new RuntimeParameters<object>("On Collide", null),
-            new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG")
+    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
+        return new LoadedRuntimeParameters[] {
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Spawn Lifetime",3)),
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
+            new LoadedRuntimeParameters(new RuntimeParameters<object>("On Collide", null)),
+            new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"))
         };
     }
 

@@ -12,7 +12,7 @@ public interface ISingleton {
 }
 
 public enum VariableTypes {
-    DEFAULT, SIGNAL_VAR, POLYMORPHIC_VAR
+    DEFAULT, SIGNAL_VAR, POLYMORPHIC_VAR, CLIENT_ACTIVATED, HOST_ACTIVATED
 }
 
 public class RuntimeParameters<T> : RuntimeParameters {
@@ -34,6 +34,20 @@ public class RuntimeParameters<T> : RuntimeParameters {
 
     public override RuntimeParameters ReturnNewRuntimeParamCopy() {
         return new RuntimeParameters<T>(n, v);
+    }
+}
+
+public class LoadedRuntimeParameters {
+    public RuntimeParameters rP;
+    public HashSet<VariableTypes> vT;
+    
+    public LoadedRuntimeParameters(RuntimeParameters runtimeParams) {
+        rP = runtimeParams;
+    }
+
+    public LoadedRuntimeParameters(RuntimeParameters runtimeParams, params VariableTypes[] variableTypes) {
+        rP = runtimeParams;
+        vT = new HashSet<VariableTypes>(variableTypes);
     }
 }
 

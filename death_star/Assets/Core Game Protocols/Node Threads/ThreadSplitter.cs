@@ -8,9 +8,9 @@ public class ThreadSplitter : AbilityTreeNode {
 
     protected Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
-    public override RuntimeParameters[] GetRuntimeParameters() {
-        return new RuntimeParameters[] {
-            new RuntimeParameters<int>("Number of Loops", 1)
+    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
+        return new LoadedRuntimeParameters[] {
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Number of Loops", 1))
         };
     }
 
