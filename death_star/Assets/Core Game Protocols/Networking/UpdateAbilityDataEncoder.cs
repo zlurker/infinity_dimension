@@ -154,7 +154,6 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].nodeId));
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].varId));
                 byteData.AddRange(BitConverter.GetBytes(argType));
-                byteData.AddRange(BitConverter.GetBytes(manifest[i].vType));
                 byteData.AddRange(BitConverter.GetBytes(vBytes.Length));
                 byteData.AddRange(vBytes);
             }
@@ -183,8 +182,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             int ability = BitConverter.ToInt32(bytesRecieved, i + 0);
             int var = BitConverter.ToInt32(bytesRecieved, i + 4);
             int argType = BitConverter.ToInt32(bytesRecieved, i + 8);
-            VariableTypes vtype = (VariableTypes)BitConverter.ToInt32(bytesRecieved, i + 12);
-            int valueLen = BitConverter.ToInt32(bytesRecieved, i + 16);
+            int valueLen = BitConverter.ToInt32(bytesRecieved, i + 12);
 
             
             int abilityNodes = centralInst.GetAbilityNodeId();
@@ -194,40 +192,40 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 switch(argType) {
 
                     case 0: //int                    
-                        int iData = BitConverter.ToInt32(bytesRecieved, i + 20);
-                        centralInst.NodeVariableCallback<int>(nTID, var, iData, vtype);
+                        int iData = BitConverter.ToInt32(bytesRecieved, i + 16);
+                        centralInst.UpdateVariableData<int>(nTID, var, iData);
                         break;
 
                     case 1: //float                    
-                        float fData = BitConverter.ToSingle(bytesRecieved, i + 20);
-                        centralInst.NodeVariableCallback<float>(nTID, var, fData, vtype);
+                        float fData = BitConverter.ToSingle(bytesRecieved, i + 16);
+                        centralInst.UpdateVariableData<float>(nTID, var, fData);
                         break;
 
                     case 2: //string
-                        string sData = Encoding.Default.GetString(bytesRecieved, i + 20, valueLen);
-                        centralInst.NodeVariableCallback<string>(nTID, var, sData, vtype);
+                        string sData = Encoding.Default.GetString(bytesRecieved, i + 16, valueLen);
+                        centralInst.UpdateVariableData<string>(nTID, var, sData);
                         break;
 
                     case 3: //int[]
                         int[] iArray = new int[valueLen / 4];
 
                         for(int j = 0; j < iArray.Length; j++)
-                            iArray[j] = BitConverter.ToInt32(bytesRecieved, i + 20 + (j * 4));
+                            iArray[j] = BitConverter.ToInt32(bytesRecieved, i + 16 + (j * 4));
 
-                        centralInst.NodeVariableCallback<int[]>(nTID, var, iArray);
+                        centralInst.UpdateVariableData<int[]>(nTID, var, iArray);
                         break;
 
                     case 4: //float[]
                         float[] fArray = new float[valueLen / 4];
 
                         for(int j = 0; j < fArray.Length; j++)
-                            fArray[j] = BitConverter.ToSingle(bytesRecieved, i + 20 + (j * 4));
+                            fArray[j] = BitConverter.ToSingle(bytesRecieved, i + 16 + (j * 4));
 
-                        centralInst.NodeVariableCallback<float[]>(nTID, var, fArray);
+                        centralInst.UpdateVariableData<float[]>(nTID, var, fArray);
                         break;
                 }
 
-            i += 20 + valueLen;
+            i += 16 + valueLen;
         }
     }
 

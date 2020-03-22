@@ -12,7 +12,7 @@ public interface ISingleton {
 }
 
 public enum VariableTypes {
-    DEFAULT, SIGNAL_VAR, POLYMORPHIC_VAR, CLIENT_ACTIVATED, HOST_ACTIVATED
+    SIGNAL_VAR, POLYMORPHIC_VAR, CLIENT_ACTIVATED, HOST_ACTIVATED
 }
 
 public class RuntimeParameters<T> : RuntimeParameters {

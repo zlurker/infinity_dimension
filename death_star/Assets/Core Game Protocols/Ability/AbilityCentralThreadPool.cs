@@ -7,10 +7,9 @@ public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
 
     public T value;
 
-    public AbilityNodeNetworkData(int nId, int vId, VariableTypes vT, T v) {
+    public AbilityNodeNetworkData(int nId, int vId, T v) {
         nodeId = nId;
         varId = vId;
-        vType = (int)vT;
         value = v;
 
         dataType = typeof(T);
@@ -20,7 +19,6 @@ public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
 public class AbilityNodeNetworkData {
     public int nodeId;
     public int varId;
-    public int vType;
     public Type dataType;
 }
 
@@ -87,7 +85,7 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
 
     public AbilityCentralThreadPool(int pId) {
-         playerCasted = pId;
+        playerCasted = pId;
     }
 
     private Variable[][] runtimeParameters;
@@ -109,8 +107,6 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     // This thread's ID
     private int centralId;
-
-    private int[][][] variableReference;
 
     private List<AbilityNodeNetworkData> networkNodeData;
 
@@ -153,12 +149,6 @@ public class AbilityCentralThreadPool : NetworkObject {
     }*/
 
     public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, int variable) {
-        int[] varAddress = variableReference[node][variable];
-
-        if(varAddress != null)
-            return runtimeParameters[varAddress[0]][varAddress[1]].field as RuntimeParameters<T>;
-
-
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
@@ -174,11 +164,6 @@ public class AbilityCentralThreadPool : NetworkObject {
         nodeType = nT;
         specialisedNodeData = sND;
         booleanData = aBD;
-
-        variableReference = new int[rP.Length][][];
-
-        for(int i = 0; i < variableReference.Length; i++)
-            variableReference[i] = new int[rP[i].Length][];
 
         networkNodeData = new List<AbilityNodeNetworkData>();
     }
@@ -231,18 +216,26 @@ public class AbilityCentralThreadPool : NetworkObject {
         }
     }
 
-    public void NodeVariableCallback<T>(int threadId, int variableId, T value, VariableTypes vType = VariableTypes.DEFAULT) {
+    public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
+        int currNode = activeThreads.l[threadId].GetCurrentNodeID();
+        LoadedRuntimeParameters lRP = LoadedData.loadedParamInstances[subclassTypes[currNode]][variableId];
+
+        if(lRP.vT.Contains(VariableTypes.CLIENT_ACTIVATED)) 
+            if(playerCasted != ClientProgram.clientId)
+                return;
+        
+        if(lRP.vT.Contains(VariableTypes.HOST_ACTIVATED)) 
+            if(ClientProgram.clientId != ClientProgram.hostId)
+                return;
+
+        UpdateVariableData<T>(threadId, variableId, value);
+    }
+
+    public void UpdateVariableData<T>(int threadId, int variableId, T value) {
 
         //Debug.Log("ThreadId in loop:" + threadId);
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-
-        if(vType == VariableTypes.DEFAULT) {
-            RuntimeParameters<T> paramInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
-
-            if(paramInst != null)
-                paramInst.v = value;
-        }
 
 
         for(int i = 0; i < runtimeParameters[currNode][variableId].links.Length; i++) {
@@ -265,45 +258,43 @@ public class AbilityCentralThreadPool : NetworkObject {
                     inst.SetNodeThreadId(-1);
             }
 
-            switch(vType) {
-                case VariableTypes.DEFAULT:
-                    RuntimeParameters<T> paramInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
-
-                    if(paramInst != null) {
-                        //paramInst.v = value;
-                        if(variableReference[currNode][variableId] == null)
-                            variableReference[nodeId][nodeVariableId] = new int[] { currNode, variableId };
-                        else
-                            variableReference[nodeId][nodeVariableId] = variableReference[currNode][variableId];
-
-                        booleanData[nodeId][nodeVariableId] = false;
-                    }
-                    break;
-
-                case VariableTypes.SIGNAL_VAR:
-                    Debug.Log("Signal var activated.");
-                    booleanData[nodeId][nodeVariableId] = false;
-                    break;
-
-                    /*case VariableTypes.POLYMORPHIC_VAR:
-                        RuntimeParameters<T> polyInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
-
-                        if(polyInst != null)
-                            polyInst.v = value;
-                        else
-                            runtimeParameters[nodeId][nodeVariableId].field = new RuntimeParameters<T>("", value);
-
-                        booleanData[nodeId][nodeVariableId] = false;
-                        break;*/
-            }
-
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
 
         if(jointThreadId > -1)
-            NodeVariableCallback<T>(jointThreadId, variableId, value, vType);
+            UpdateVariableData<T>(jointThreadId, variableId, value);
 
         //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
+    }
+
+    void VariableValueHandling<T>(int nodeId, int nodeVariableId, T value) {
+
+        LoadedRuntimeParameters lRP = LoadedData.loadedParamInstances[subclassTypes[nodeId]][nodeVariableId];
+
+        if(lRP.vT.Contains(VariableTypes.SIGNAL_VAR)) {
+            Debug.Log("Signal var activated.");
+            booleanData[nodeId][nodeVariableId] = false;
+            return;
+        }
+
+        /*case VariableTypes.POLYMORPHIC_VAR:
+        RuntimeParameters<T> polyInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
+
+        if(polyInst != null)
+        polyInst.v = value;
+        else
+        runtimeParameters[nodeId][nodeVariableId].field = new RuntimeParameters<T>("", value);
+
+        booleanData[nodeId][nodeVariableId] = false;
+        break;*/
+
+        // If does not fit any of the options above, it will be treated as default.
+        RuntimeParameters<T> paramInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
+
+        if(paramInst != null) {
+            paramInst.v = value;
+            booleanData[nodeId][nodeVariableId] = false;
+        }
     }
 
     // Handles the aftermath of callback. Passes thread to another node.

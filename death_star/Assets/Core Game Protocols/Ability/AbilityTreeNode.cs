@@ -78,11 +78,11 @@ public class AbilityTreeNode : MonoBehaviour {
         return true;
     }
 
-    public void SyncDataWithNetwork<T>(int variableId, T value, VariableTypes vType = VariableTypes.DEFAULT) {
-        AbilityNodeNetworkData inst = new AbilityNodeNetworkData<T>(nodeId, variableId, vType, value);
+    /*public void SyncDataWithNetwork<T>(int variableId, T value) {
+        AbilityNodeNetworkData inst = new AbilityNodeNetworkData<T>(nodeId, variableId, value);
         GetCentralInst().AddVariableNetworkData(inst);
-        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, variableId, value, vType);
-    }
+        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, variableId, value);
+    }*/
 
     /*public void SyncDataWithNetwork<T>(int variableId, T value,VariableTypes vType = VariableTypes.DEFAULT) {
         AbilityCentralThreadPool central = GetCentralInst();

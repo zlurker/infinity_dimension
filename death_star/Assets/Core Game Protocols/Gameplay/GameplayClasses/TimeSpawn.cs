@@ -20,7 +20,7 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
     public override void NodeCallback(int threadId) {
         Debug.Log(GetNodeVariable<string>(SPRITE_FILE_PATH));
         sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>(SPRITE_FILE_PATH)];
-        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, TASKS, this,VariableTypes.DEFAULT);        
+        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, TASKS, this);        
     }
 
     public void OnCollisionStay2D(Collision2D collision) {

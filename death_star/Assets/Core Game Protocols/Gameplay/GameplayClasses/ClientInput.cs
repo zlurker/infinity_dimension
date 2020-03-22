@@ -10,7 +10,7 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn {
 
     public void InputCallback(int callbackData) {
         Debug.Log("Input callback, Client has been inputted.");
-        SyncDataWithNetwork<int>(INPUT_KEY, 0,VariableTypes.SIGNAL_VAR);
+        GetCentralInst().NodeVariableCallback<int>(GetNodeThreadId(),INPUT_KEY, 0);
         inputSet = false;
     }
 

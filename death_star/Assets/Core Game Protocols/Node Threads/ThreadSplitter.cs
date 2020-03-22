@@ -10,7 +10,7 @@ public class ThreadSplitter : AbilityTreeNode {
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Number of Loops", 1))
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Number of Loops", 1),VariableTypes.SIGNAL_VAR)
         };
     }
 
@@ -56,7 +56,7 @@ public class ThreadSplitter : AbilityTreeNode {
 
             int threadToUse = inst.AddNewThread(trdInst);
             Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-            inst.NodeVariableCallback<int>(threadToUse, NUMBER_OF_LOOPS, 0,VariableTypes.SIGNAL_VAR);
+            inst.NodeVariableCallback<int>(threadToUse, NUMBER_OF_LOOPS, 0);
         } else {
             Debug.LogFormat("Thread id {0} will end.", threadId);
             inst.HandleThreadRemoval(threadId);
