@@ -35,6 +35,7 @@ public class LoadClasses : MonoBehaviour {
     void LoadAbilityNodes() {
 
         LoadedData.loadedNodeInstance = new Dictionary<Type, AbilityTreeNode>();
+        LoadedData.loadedParamInstances = new Dictionary<Type, LoadedRuntimeParameters[]>();
 
         Type[] types = new Type[0];
         Type t = typeof(AbilityTreeNode);
@@ -47,10 +48,12 @@ public class LoadClasses : MonoBehaviour {
             ConstructorInfo info = types[i].GetConstructor(new Type[0]);
             AbilityTreeNode inst = null;
 
-            if(info != null)
+            if(info != null) {
                 inst = info.Invoke(new object[0]) as AbilityTreeNode;
 
-            LoadedData.loadedNodeInstance.Add(types[i], inst);
+                LoadedData.loadedNodeInstance.Add(types[i], inst);
+                LoadedData.loadedParamInstances.Add(types[i], inst.GetRuntimeParameters());
+            }
         }
     }
 

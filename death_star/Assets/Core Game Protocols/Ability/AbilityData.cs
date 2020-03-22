@@ -53,10 +53,9 @@ public class AbilityDataSubclass {
 
     public AbilityDataSubclass(Type t) {
 
-        AbilityTreeNode selectedInterface = LoadedData.loadedNodeInstance[t];
         classType = t;
 
-        RuntimeParameters[] fields = selectedInterface.GetRuntimeParameters();
+        RuntimeParameters[] fields = LoadedData.ReturnNodeVariables(t);
         var = new Variable[fields.Length];
 
         for(int i = 0; i < var.Length; i++)

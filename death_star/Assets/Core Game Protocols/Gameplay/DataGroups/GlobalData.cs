@@ -72,8 +72,11 @@ public static class LoadedData {
     public static double startTimeSinceConnection;
 
     public static Camera currSceneCamera;
+
     public static Dictionary<Type, ISingleton> singletonList;
     public static Dictionary<Type, AbilityTreeNode> loadedNodeInstance;
+    public static Dictionary<Type, LoadedRuntimeParameters[]> loadedParamInstances;
+
     public static long syncedStartupTime;
 
     public static T GetSingleton<T>() {
@@ -82,6 +85,20 @@ public static class LoadedData {
 
     public static double GetCurrentTimestamp() {
         return Time.realtimeSinceStartup - (connectionTimeOffset + startTimeSinceConnection); 
+    }
+
+    public static RuntimeParameters[] ReturnNodeVariables(Type nodeT) {
+        if(loadedParamInstances.ContainsKey(nodeT)) {
+
+            RuntimeParameters[] rP = new RuntimeParameters[loadedParamInstances[nodeT].Length];
+
+            for(int i = 0; i < rP.Length; i++)
+                rP[i] = loadedParamInstances[nodeT][i].rP;
+
+            return rP;
+        }
+
+        return null;
     }
     //public static InterfaceLoader[] lI; //loadedInterfaces
 }
