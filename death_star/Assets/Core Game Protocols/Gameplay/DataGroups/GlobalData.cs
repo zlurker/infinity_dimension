@@ -40,7 +40,7 @@ public class RuntimeParameters<T> : RuntimeParameters {
 public class LoadedRuntimeParameters {
     public RuntimeParameters rP;
     public HashSet<VariableTypes> vT;
-    
+
     public LoadedRuntimeParameters(RuntimeParameters runtimeParams) {
         rP = runtimeParams;
     }
@@ -51,10 +51,10 @@ public class LoadedRuntimeParameters {
     }
 }
 
-public class RuntimeParameters{
+public class RuntimeParameters {
 
     public string n;
-    public Type t;    
+    public Type t;
     public int vI;
 
     public virtual string GetSerializedObject() {
@@ -84,7 +84,7 @@ public static class LoadedData {
     }
 
     public static double GetCurrentTimestamp() {
-        return Time.realtimeSinceStartup - (connectionTimeOffset + startTimeSinceConnection); 
+        return Time.realtimeSinceStartup - (connectionTimeOffset + startTimeSinceConnection);
     }
 
     public static RuntimeParameters[] ReturnNodeVariables(Type nodeT) {
@@ -100,7 +100,15 @@ public static class LoadedData {
 
         return null;
     }
-    //public static InterfaceLoader[] lI; //loadedInterfaces
+
+    public static bool GetVariableType(Type t, int var, VariableTypes vTypes) {
+        LoadedRuntimeParameters lRP = loadedParamInstances[t][var];
+
+        if(lRP.vT != null)
+            return lRP.vT.Contains(vTypes);
+
+        return false;
+    }
 }
 
 public static class SceneTransitionData {
@@ -124,7 +132,7 @@ public static class SceneTransitionData {
     public static void OnSceneLoad(Scene arg0, LoadSceneMode arg1) {
         LoadedData.currSceneCamera = Camera.main;
 
-        foreach (KeyValuePair<Type, ISingleton> singletons in LoadedData.singletonList) 
-            singletons.Value.RunOnStart();       
+        foreach(KeyValuePair<Type, ISingleton> singletons in LoadedData.singletonList)
+            singletons.Value.RunOnStart();
     }
 }

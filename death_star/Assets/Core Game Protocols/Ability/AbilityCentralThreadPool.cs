@@ -218,15 +218,22 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-        LoadedRuntimeParameters lRP = LoadedData.loadedParamInstances[subclassTypes[currNode]][variableId];
+        bool sharedNetworkData = false;
 
-        if(lRP.vT.Contains(VariableTypes.CLIENT_ACTIVATED)) 
+        if(LoadedData.GetVariableType(subclassTypes[currNode], variableId, VariableTypes.CLIENT_ACTIVATED))
             if(playerCasted != ClientProgram.clientId)
                 return;
-        
-        if(lRP.vT.Contains(VariableTypes.HOST_ACTIVATED)) 
-            if(ClientProgram.clientId != ClientProgram.hostId)
+            else
+                sharedNetworkData = true;
+
+        if(LoadedData.GetVariableType(subclassTypes[currNode], variableId, VariableTypes.HOST_ACTIVATED))
+            if(playerCasted != ClientProgram.hostId)
                 return;
+            else
+                sharedNetworkData = true;
+
+        if(sharedNetworkData)
+            AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, value));
 
         UpdateVariableData<T>(threadId, variableId, value);
     }
@@ -258,6 +265,7 @@ public class AbilityCentralThreadPool : NetworkObject {
                     inst.SetNodeThreadId(-1);
             }
 
+            VariableValueHandling<T>(nodeId, nodeVariableId, value);
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
 
@@ -269,9 +277,7 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     void VariableValueHandling<T>(int nodeId, int nodeVariableId, T value) {
 
-        LoadedRuntimeParameters lRP = LoadedData.loadedParamInstances[subclassTypes[nodeId]][nodeVariableId];
-
-        if(lRP.vT.Contains(VariableTypes.SIGNAL_VAR)) {
+        if(LoadedData.GetVariableType(subclassTypes[nodeId], nodeVariableId, VariableTypes.SIGNAL_VAR)) {
             Debug.Log("Signal var activated.");
             booleanData[nodeId][nodeVariableId] = false;
             return;
@@ -328,7 +334,7 @@ public class AbilityCentralThreadPool : NetworkObject {
 
         Debug.LogFormat("Thread {0} has ended operations.", threadId);
         // Callback to start node.
-        Debug.Log(activeThreads.l[threadId].GetStartingPoint());
+
         CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
 
         // Removes that thread.

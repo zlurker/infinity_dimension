@@ -14,15 +14,14 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 	void Update () {
         
         if(allDataRecv) {
-            //Debug.Log(GetNodeVariable<AbilityTreeNode>(TARGET));
+            Debug.Log(GetNodeVariable<AbilityTreeNode>(TARGET));
             GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position += direction;
         }
 	}
 
     public override void NodeCallback(int threadId) {
-        Debug.Log("NCB, cID" + GetCentralId());
 
-        allDataRecv = CheckIfVarRegionBlocked(new int[] { 0,1,2 });
+        allDataRecv = CheckIfVarRegionBlocked(new int[] { 0,2 });
 
         if(allDataRecv) {
             float[] vectorHolder = GetNodeVariable<float[]>(DIRECTION_FROM_TARGET);
