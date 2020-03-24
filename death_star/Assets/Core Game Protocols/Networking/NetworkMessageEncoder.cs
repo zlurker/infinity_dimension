@@ -24,7 +24,7 @@ public class NetworkMessageEncoder {
     protected byte[] bytesToSend;
     protected byte[] bytesRecieved;
     
-    public void SetEncoderId(int id) {
+    public virtual void CalibrateEncoder(int id) {
         encoderId = id;
     }
 

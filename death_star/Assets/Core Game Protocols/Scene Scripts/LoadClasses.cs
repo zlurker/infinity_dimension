@@ -91,6 +91,6 @@ public class LoadClasses : MonoBehaviour {
         };
 
         for(int i = 0; i < NetworkMessageEncoder.encoders.Length; i++)
-            NetworkMessageEncoder.encoders[i].SetEncoderId(i);
+            NetworkMessageEncoder.encoders[i].CalibrateEncoder(i);
     }
 }

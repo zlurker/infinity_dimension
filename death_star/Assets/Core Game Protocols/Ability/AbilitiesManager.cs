@@ -52,10 +52,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
                 AbilityNodeNetworkData[] data = centralPool.GetVariableNetworkData();
 
                 AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
-                encoder.SendInputSignal(abilityId,data);
-
-                //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
-                //encoder.SendInputSignal(abilityId);
+                encoder.SendInputSignal(centralPool,abilityId, data);
             }
         }
 
@@ -94,7 +91,8 @@ public sealed class AbilitiesManager : MonoBehaviour {
         int priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
 
         AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
-        encoder.SendInputSignal(priCharacterId,null);
+        aData[ClientProgram.clientId].abilties[priCharacterId].InputCallback(0);
+        //encoder.SendInputSignal(priCharacterId,null);
         AssignInputKeys();
     }
 

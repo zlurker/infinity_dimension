@@ -5,8 +5,16 @@ using System;
 
 public class AbilityInputEncoder : NetworkMessageEncoder {
 
-    public void SendInputSignal(int id, AbilityNodeNetworkData[] dataManifest) {
-        Debug.Log("(Input)Time start" + Time.realtimeSinceStartup);
+    List<AbilityCentralThreadPool> playerGeneratedAbilities;
+
+    public override void CalibrateEncoder(int id) {
+        playerGeneratedAbilities = new List<AbilityCentralThreadPool>();
+        base.CalibrateEncoder(id);
+    }
+
+    public void SendInputSignal(AbilityCentralThreadPool pool,int id, AbilityNodeNetworkData[] dataManifest) {
+
+        playerGeneratedAbilities.Add(pool);
 
         byte[] idData = BitConverter.GetBytes(id);
         byte[] manifest = UpdateAbilityDataEncoder.PrepareVariableManifest(dataManifest);
@@ -22,8 +30,6 @@ public class AbilityInputEncoder : NetworkMessageEncoder {
     public override void MessageRecievedCallback() {
         if(targetId != ClientProgram.clientId) {
             int aId = BitConverter.ToInt32(bytesRecieved, 0);
-            //Debug.Log("PlayerId" + targetId);
-            //Debug.Log("AbilityId" + aId);
 
             AbilityCentralThreadPool newAbilityThread = new AbilityCentralThreadPool(targetId);
 
@@ -32,7 +38,10 @@ public class AbilityInputEncoder : NetworkMessageEncoder {
             AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(newAbilityThread);
 
             UpdateAbilityDataEncoder.ParseManifest(newAbilityThread,bytesRecieved,4);
-            Debug.Log("(Input)Time end" + Time.realtimeSinceStartup);
+            //Debug.Log("(Input)Time end" + Time.realtimeSinceStartup);
+        } else {
+            NetworkObjectTracker.inst.AddNetworkObject(playerGeneratedAbilities[0]);
+            playerGeneratedAbilities.RemoveAt(0);
         }
     }
 }

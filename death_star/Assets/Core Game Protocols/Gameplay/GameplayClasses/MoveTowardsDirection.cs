@@ -9,30 +9,35 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
     public const int TARGET = 2;
 
     bool allDataRecv;
-    Vector3 direction;
+    Vector3 normDir;
+
+    float timeDirChanged;
+    Vector3 dirChangeStart;
 
 	void Update () {
         
         if(allDataRecv) {
             //Debug.Log(GetNodeVariable<AbilityTreeNode>(TARGET));
-            GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position += direction;
+            GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position = dirChangeStart + ((Time.realtimeSinceStartup - timeDirChanged) * normDir);
         }
 	}
 
     public override void NodeCallback(int threadId) {
 
-        allDataRecv = CheckIfVarRegionBlocked(new int[] { 0,2 });
+        allDataRecv = CheckIfVarRegionBlocked(new int[] { 0,1,2 });
 
         if(allDataRecv) {
             float[] vectorHolder = GetNodeVariable<float[]>(DIRECTION_FROM_TARGET);
-            direction = new Vector3(vectorHolder[0],vectorHolder[1]).normalized;
-            //direction = new Vector3(-1,0).normalized * GetNodeVariable<float>(SPEED);
+            normDir = new Vector3(vectorHolder[0],vectorHolder[1]).normalized;
+
+            dirChangeStart = transform.position;
+            timeDirChanged = Time.realtimeSinceStartup;
         }      
     }
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Direction From Target",new float[]{ })),
+            new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Direction From Target",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Speed Per Second",0)),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Target",null))
         };
