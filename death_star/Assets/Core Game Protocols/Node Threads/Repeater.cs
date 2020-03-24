@@ -41,7 +41,7 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Time Interval",1),VariableTypes.SIGNAL_VAR)
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Time Interval",1))
         };
     }
 

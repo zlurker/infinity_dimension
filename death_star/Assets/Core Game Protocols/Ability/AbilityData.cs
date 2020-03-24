@@ -17,7 +17,7 @@ public class Variable {
 
     public Variable(RuntimeParameters f, int[][] ls) {
         field = f;
-        links = ls;     
+        links = ls;
     }
 
     public Variable(RuntimeParameters f) {
@@ -32,7 +32,7 @@ public class AbilityBooleanData {
     public bool[][] ReturnNewCopy() {
         bool[][] clone = new bool[varsBlocked.Length][];
 
-        for (int i=0; i < clone.Length; i++) {
+        for(int i = 0; i < clone.Length; i++) {
             clone[i] = new bool[varsBlocked[i].Length];
 
             for(int j = 0; j < clone[i].Length; j++)
@@ -40,7 +40,7 @@ public class AbilityBooleanData {
         }
 
         return clone;
-            
+
     }
 }
 
@@ -87,14 +87,14 @@ public class AbilityDataSubclass {
     public static int[] ReturnNodeBranchData(AbilityDataSubclass[] target) {
         int[] bData = new int[target.Length];
 
-        for(int i = 0; i < target.Length; i++) 
+        for(int i = 0; i < target.Length; i++)
             for(int j = 0; j < target[i].var.Length; j++)
-                    bData[i] += target[i].var[j].links.Length;
-        
+                bData[i] += target[i].var[j].links.Length;
+
         return bData;
     }
 
-    public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues,AbilityBooleanData bData) {
+    public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues, AbilityBooleanData bData) {
 
         int total = 0;
 
@@ -111,14 +111,15 @@ public class AbilityDataSubclass {
                     int[] currLink = target[nextId[i]].var[j].links[k];
                     followingIds[k] = currLink[0];
 
-                    bData.varsBlocked[currLink[0]][currLink[1]] = true;
+                    if(target[nextId[i]].var[j].field.t == target[currLink[0]].var[currLink[1]].field.t)
+                        bData.varsBlocked[currLink[0]][currLink[1]] = true;
                     //bData.blockedVars++;
                 }
 
                 int nextNodeValues = 0;
 
                 if(followingIds.Length > 0)
-                    nextNodeValues = IterateLinks(target, followingIds, mappedValues,bData);
+                    nextNodeValues = IterateLinks(target, followingIds, mappedValues, bData);
 
                 total += nextNodeValues;
             }
@@ -143,30 +144,23 @@ public class AbilityDataSubclass {
 
     public static string[] GetImageDependencies(AbilityDataSubclass[] target) {
         HashSet<string> imageDependencies = new HashSet<string>();
-       
-        for(int i = 0; i < target.Length; i++) {
-            int spriteDataVar = -1;
 
-            if(target[i].classType == typeof(HealthSpawn)) 
-                spriteDataVar = HealthSpawn.SPRITE_FILE_PATH;
-                    
-            if (target[i].classType == typeof(TimeSpawn)) 
-                spriteDataVar = TimeSpawn.SPRITE_FILE_PATH;
-            
-            if (spriteDataVar > -1) {
-                RuntimeParameters<string> imagePath = target[i].var[spriteDataVar].field as RuntimeParameters<string>;
+        for(int i = 0; i < target.Length; i++)
+            for(int j = 0; j < target[i].var.Length; j++)
+                if(LoadedData.GetVariableType(target[i].classType, j, VariableTypes.IMAGE_DEPENDENCY)) {
 
-                if(!imageDependencies.Contains(imagePath.v)) 
-                    imageDependencies.Add(imagePath.v);               
-            }            
-        }
+                    RuntimeParameters<string> imagePath = target[i].var[j].field as RuntimeParameters<string>;
+
+                    if(!imageDependencies.Contains(imagePath.v))
+                        imageDependencies.Add(imagePath.v);
+                }
 
         string[] sArray = new string[imageDependencies.Count];
-        int j = 0;
+        int index = 0;
 
-        foreach (string path in imageDependencies) {
-            sArray[j] = path;
-            j++;
+        foreach(string path in imageDependencies) {
+            sArray[index] = path;
+            index++;
         }
 
         return sArray;
@@ -232,8 +226,8 @@ public class UIAbilityData {
 
         // Replaces the values correctly.
         for(int i = 0; i < activeConnections.Length; i++) {
-            Debug.LogFormat("Start node id changed from {0} to {1}", linkAddresses.l[activeConnections[i]][0], globalAddress[linkAddresses.l[activeConnections[i]][0]]);
-            Debug.LogFormat("End node id changed from {0} to {1}", linkAddresses.l[activeConnections[i]][2], globalAddress[linkAddresses.l[activeConnections[i]][2]]);
+            //Debug.LogFormat("Start node id changed from {0} to {1}", linkAddresses.l[activeConnections[i]][0], globalAddress[linkAddresses.l[activeConnections[i]][0]]);
+            //Debug.LogFormat("End node id changed from {0} to {1}", linkAddresses.l[activeConnections[i]][2], globalAddress[linkAddresses.l[activeConnections[i]][2]]);
             int modS = globalAddress[linkAddresses.l[activeConnections[i]][0]];
             int modR = globalAddress[linkAddresses.l[activeConnections[i]][2]];
 

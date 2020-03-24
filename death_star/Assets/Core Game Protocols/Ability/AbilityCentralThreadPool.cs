@@ -265,42 +265,19 @@ public class AbilityCentralThreadPool : NetworkObject {
                     inst.SetNodeThreadId(-1);
             }
 
-            VariableValueHandling<T>(nodeId, nodeVariableId, value);
+            RuntimeParameters<T> paramInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
+
+            if(paramInst != null) {
+                paramInst.v = value;
+                booleanData[nodeId][nodeVariableId] = false;
+            }
+
             UpdateThreadNodeData(threadIdToUse, nodeId);
         }
 
         if(jointThreadId > -1)
             UpdateVariableData<T>(jointThreadId, variableId, value);
-
         //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
-    }
-
-    void VariableValueHandling<T>(int nodeId, int nodeVariableId, T value) {
-
-        if(LoadedData.GetVariableType(subclassTypes[nodeId], nodeVariableId, VariableTypes.SIGNAL_VAR)) {
-            Debug.Log("Signal var activated.");
-            booleanData[nodeId][nodeVariableId] = false;
-            return;
-        }
-
-        /*case VariableTypes.POLYMORPHIC_VAR:
-        RuntimeParameters<T> polyInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
-
-        if(polyInst != null)
-        polyInst.v = value;
-        else
-        runtimeParameters[nodeId][nodeVariableId].field = new RuntimeParameters<T>("", value);
-
-        booleanData[nodeId][nodeVariableId] = false;
-        break;*/
-
-        // If does not fit any of the options above, it will be treated as default.
-        RuntimeParameters<T> paramInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
-
-        if(paramInst != null) {
-            paramInst.v = value;
-            booleanData[nodeId][nodeVariableId] = false;
-        }
     }
 
     // Handles the aftermath of callback. Passes thread to another node.

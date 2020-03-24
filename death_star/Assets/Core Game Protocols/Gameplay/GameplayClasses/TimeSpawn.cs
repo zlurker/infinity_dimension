@@ -31,7 +31,7 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Spawn Lifetime",3)),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<object>("On Collide", null)),
-            new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"))
+            new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY)
         };
     }
 

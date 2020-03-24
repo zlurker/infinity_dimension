@@ -10,7 +10,7 @@ public class ThreadSplitter : AbilityTreeNode {
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Number of Loops", 1),VariableTypes.SIGNAL_VAR)
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Number of Loops", 1))
         };
     }
 

@@ -27,7 +27,7 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn {
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Input Key",0),VariableTypes.SIGNAL_VAR,VariableTypes.CLIENT_ACTIVATED)
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Input Key",0),VariableTypes.CLIENT_ACTIVATED)
         };
     }
 

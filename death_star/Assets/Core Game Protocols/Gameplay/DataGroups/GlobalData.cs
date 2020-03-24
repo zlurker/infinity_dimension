@@ -12,7 +12,7 @@ public interface ISingleton {
 }
 
 public enum VariableTypes {
-    SIGNAL_VAR, POLYMORPHIC_VAR, CLIENT_ACTIVATED, HOST_ACTIVATED
+    CLIENT_ACTIVATED, HOST_ACTIVATED, IMAGE_DEPENDENCY
 }
 
 public class RuntimeParameters<T> : RuntimeParameters {
@@ -76,8 +76,6 @@ public static class LoadedData {
     public static Dictionary<Type, ISingleton> singletonList;
     public static Dictionary<Type, AbilityTreeNode> loadedNodeInstance;
     public static Dictionary<Type, LoadedRuntimeParameters[]> loadedParamInstances;
-
-    public static long syncedStartupTime;
 
     public static T GetSingleton<T>() {
         return (T)singletonList[typeof(T)];
