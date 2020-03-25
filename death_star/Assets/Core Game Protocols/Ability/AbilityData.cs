@@ -101,6 +101,7 @@ public class AbilityDataSubclass {
         for(int i = 0; i < nextId.Length; i++) {
 
             int totalLinks = 0;
+            int currNodeTotal = 0;
 
             for(int j = 0; j < target[nextId[i]].var.Length; j++) {
 
@@ -121,23 +122,28 @@ public class AbilityDataSubclass {
                 if(followingIds.Length > 0)
                     nextNodeValues = IterateLinks(target, followingIds, mappedValues, bData);
 
-                total += nextNodeValues;
+                //total += nextNodeValues;
+                currNodeTotal += nextNodeValues;
             }
 
             if(target[nextId[i]].classType == typeof(ThreadSplitter)) {
                 if(!mappedValues.ContainsKey(nextId[i]))
-                    mappedValues.Add(nextId[i], total);
+                    mappedValues.Add(nextId[i], currNodeTotal);
+
 
                 // Because these threads will be combined in Threadsplitter,
                 // We must combine them as 1 so if it is nested it would be counted correctly.
                 Debug.Log("Previous Value: " + total);
-                total = 1;
+                currNodeTotal = 1;
                 Debug.Log("Current Value: " + total);
             }
 
             if(totalLinks == 0)
-                total = 1;
+                currNodeTotal = 1;
+
+            total += currNodeTotal;
         }
+
 
         return total;
     }
