@@ -56,7 +56,7 @@ public class ThreadSplitter : AbilityTreeNode {
 
             int threadToUse = inst.AddNewThread(trdInst);
             Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-            inst.NodeVariableCallback<int>(threadToUse, NUMBER_OF_LOOPS, 0);
+            inst.NodeVariableCallback<int>(threadToUse, NUMBER_OF_LOOPS, GetNodeVariable<int>(NUMBER_OF_LOOPS));
         } else {
             Debug.LogFormat("Thread id {0} will end.", threadId);
             inst.HandleThreadRemoval(threadId);

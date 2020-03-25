@@ -136,7 +136,7 @@ public class AbilityDataSubclass {
             }
 
             if(totalLinks == 0)
-                total += 1;
+                total = 1;
         }
 
         return total;

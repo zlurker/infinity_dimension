@@ -68,7 +68,6 @@ public class PlayerInput : MonoBehaviour, ISingleton {
 
                     if(!iS[i].permanent) {
                         iS.RemoveAt(i);
-                        Debug.Log("Not perm");
                     }
                 }
             }

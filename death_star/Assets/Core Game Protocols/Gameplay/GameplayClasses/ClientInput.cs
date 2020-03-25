@@ -10,16 +10,19 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn {
 
     public void InputCallback(int callbackData) {
         Debug.Log("Input callback, Client has been inputted.");
-        GetCentralInst().NodeVariableCallback<int>(GetNodeThreadId(),INPUT_KEY, 0);
         inputSet = false;
+        GetCentralInst().NodeVariableCallback<int>(GetNodeThreadId(),INPUT_KEY, 0);       
     }
 
     public override void NodeCallback(int threadId) {
         Debug.Log("Input working");
 
         if(IsClientPlayerUpdate()) {
-            if(!inputSet)
+            if(!inputSet) {
+                Debug.Log(GetNodeVariable<int>(INPUT_KEY));
+                Debug.Log((KeyCode)GetNodeVariable<int>(INPUT_KEY));
                 LoadedData.GetSingleton<PlayerInput>().AddNewInput<int>(this, 0, (KeyCode)GetNodeVariable<int>(INPUT_KEY), 1);
+            }
 
             inputSet = true;
         }
