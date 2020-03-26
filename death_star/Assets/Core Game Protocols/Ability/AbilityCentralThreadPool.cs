@@ -217,6 +217,10 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
 
     public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
+
+        if(threadId == -1)
+            return;
+
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         bool sharedNetworkData = false;
 
@@ -338,7 +342,7 @@ public class AbilityCentralThreadPool : NetworkObject {
                 AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].SetSourceObject(sOInst);
 
                 // Changes its name
-                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].name = centralId.ToString() + '/' + nodeId.ToString();
+                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].name = networkObjectId.ToString() + '/' + nodeId.ToString();
 
                 // Adds it to root
                 AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].transform.SetParent(AbilityTreeNode.globalList.l[abilityNodes].abilityNodeRoot);
@@ -353,5 +357,11 @@ public class AbilityCentralThreadPool : NetworkObject {
         }
 
         return AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId];
+    }
+
+    public void RenameAllNodes() {
+        for (int i =0; i < AbilityTreeNode.globalList.l[abilityNodes].abiNodes.Length; i++) 
+            if (AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i] != null)
+            AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i].name = networkObjectId.ToString() + '/' + i.ToString();        
     }
 }

@@ -12,7 +12,7 @@ public interface ISingleton {
 }
 
 public enum VariableTypes {
-    CLIENT_ACTIVATED, HOST_ACTIVATED, IMAGE_DEPENDENCY
+    CLIENT_ACTIVATED, HOST_ACTIVATED, IMAGE_DEPENDENCY, AUTO_MANAGED
 }
 
 public class RuntimeParameters<T> : RuntimeParameters {

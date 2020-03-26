@@ -19,18 +19,21 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
 
     public override void NodeCallback(int threadId) {
         sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>(SPRITE_FILE_PATH)];
-        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(threadId, TASKS, this);        
+        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(GetNodeThreadId(), TASKS, this);        
     }
 
-    public void OnCollisionStay2D(Collision2D collision) {
-        
+
+    private void OnCollisionStay2D(Collision2D collision) {
+        string[] objDetails = collision.gameObject.name.Split('/');
+        int[] objLoc = new int[] { int.Parse(objDetails[0]), int.Parse(objDetails[1]) };
+        GetCentralInst().NodeVariableCallback<int[]>(GetNodeThreadId(), ON_COLLIDE, objLoc);
     }
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Spawn Lifetime",3)),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
-            new LoadedRuntimeParameters(new RuntimeParameters<object>("On Collide", null)),
+            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("On Collide", null),VariableTypes.HOST_ACTIVATED),
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY)
         };
     }
@@ -41,7 +44,11 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
 
         if(rB == null) {
             rB = GetComponent<Rigidbody2D>();
-            rB.simulated = false;
+            rB.gravityScale = 0;
+            rB.mass = 0;
+            rB.drag = 0;
+            rB.angularDrag = 0;
+            rB.constraints = RigidbodyConstraints2D.FreezeAll;
         }
     }
 }

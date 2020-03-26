@@ -41,6 +41,7 @@ public class AbilityInputEncoder : NetworkMessageEncoder {
             //Debug.Log("(Input)Time end" + Time.realtimeSinceStartup);
         } else {
             NetworkObjectTracker.inst.AddNetworkObject(playerGeneratedAbilities[0]);
+            playerGeneratedAbilities[0].RenameAllNodes();
             playerGeneratedAbilities.RemoveAt(0);
         }
     }

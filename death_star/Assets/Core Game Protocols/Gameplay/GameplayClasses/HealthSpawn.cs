@@ -15,7 +15,8 @@ public class HealthSpawn : AbilityTreeNode, IOnSpawn {
     Rigidbody2D rB;
 
     void Update () {
-		
+        if(GetNodeVariable<float>(HEALTH) < 0)
+            transform.root.gameObject.SetActive(false);
 	}
 
     public override void NodeCallback(int threadId) {
@@ -24,15 +25,15 @@ public class HealthSpawn : AbilityTreeNode, IOnSpawn {
     }
 
     public void OnCollisionStay2D(Collision2D collision) {
-
+        //collision.name
     }
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Health",100)),
-            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
-            new LoadedRuntimeParameters(new RuntimeParameters<object>("On Collide", null),VariableTypes.HOST_ACTIVATED),
-            new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY)
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Health",100),VariableTypes.AUTO_MANAGED),
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null),VariableTypes.AUTO_MANAGED),
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("On Collide", null),VariableTypes.HOST_ACTIVATED),
+            new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)
         };
     }
 
@@ -42,7 +43,11 @@ public class HealthSpawn : AbilityTreeNode, IOnSpawn {
 
         if(rB == null) {
             rB = GetComponent<Rigidbody2D>();
-            rB.simulated = false;
+            rB.gravityScale = 0;
+            rB.mass = 0;
+            rB.drag = 0;
+            rB.angularDrag = 0;
+            rB.constraints = RigidbodyConstraints2D.FreezeAll;
         }
     }
 

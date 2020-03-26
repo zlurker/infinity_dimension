@@ -29,7 +29,7 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 
     public override void NodeCallback(int threadId) {
 
-        allDataRecv = CheckIfVarRegionBlocked(new int[] { 0,1,2,3 });
+        allDataRecv = CheckIfVarRegionBlocked(0,1,2,3);
 
         if(allDataRecv) {
             float[] vectorHolder = GetNodeVariable<float[]>(DIRECTION_FROM_TARGET);

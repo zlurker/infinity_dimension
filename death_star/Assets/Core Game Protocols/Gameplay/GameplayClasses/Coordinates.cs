@@ -9,7 +9,7 @@ public class Coordinates : AbilityTreeNode {
     public const int OUTPUT_COORDINATES = 2;
 
     public override void NodeCallback(int threadId) {
-        bool allDataRecv = CheckIfVarRegionBlocked(new int[] { 0, 1 });
+        bool allDataRecv = CheckIfVarRegionBlocked(0, 1 );
 
         if(allDataRecv) {
             float[] coords = new float[] { GetNodeVariable<float>(X), GetNodeVariable<float>(Y) };
