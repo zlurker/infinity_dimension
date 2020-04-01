@@ -28,16 +28,14 @@ public sealed class AbilitiesManager : MonoBehaviour {
         string[] description;
         Type[] dataType;
         int[] rootSubclasses;
-        int[] nodeType;
         int[] nodeBranchingData;
         Dictionary<int, int> specialisedNodeData;
         int abilityId;
 
-        public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] nT, int[] nBD, Dictionary<int, int> sND, int aId, AbilityBooleanData aBD) {
+        public AbilityData(Variable[][] dV, Type[] dT, int[] rS, int[] nBD, Dictionary<int, int> sND, int aId, AbilityBooleanData aBD) {
             dataVar = dV;
             dataType = dT;
             rootSubclasses = rS;
-            nodeType = nT;
             nodeBranchingData = nBD;
             specialisedNodeData = sND;
             abilityId = aId;
@@ -66,7 +64,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
             // Rather than create new instance, everything except variables will be taken from here.
-            threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, nodeType, specialisedNodeData, clonedBoolValues);
+            threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, specialisedNodeData, clonedBoolValues);
             threadInst.StartThreads();
             //threadInst.SendVariableNetworkData();
         }

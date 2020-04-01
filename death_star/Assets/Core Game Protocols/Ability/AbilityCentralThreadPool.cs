@@ -93,7 +93,6 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     private int[] branchStartData;
     private int[] nodeBranchingData;
-    private int[] nodeType;
 
     private Dictionary<int, int> specialisedNodeData;
 
@@ -152,7 +151,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, int[] nT, Dictionary<int, int> sND, bool[][] aBD) {
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, Dictionary<int, int> sND, bool[][] aBD) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
@@ -161,7 +160,6 @@ public class AbilityCentralThreadPool : NetworkObject {
         subclassTypes = sT;
         branchStartData = bSD;
         nodeBranchingData = nBD;
-        nodeType = nT;
         specialisedNodeData = sND;
         booleanData = aBD;
 

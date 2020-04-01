@@ -1,11 +1,9 @@
-﻿/*using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ReturnValue : AbilityTreeNode {
 
-
-    Dictionary<int, int> threadMap = new Dictionary<int, int>();
     // Use this for initialization
     void Start() {
 
@@ -16,11 +14,11 @@ public class ReturnValue : AbilityTreeNode {
 
     }
 
-    public override RuntimeParameters[] GetRuntimeParameters() {
-        // I need to think of a way to make it such that it can accept any type of variable.
-        return new RuntimeParameters[] {
-            new RuntimeParameters<int>("Extended Path", 0),
-            new RuntimeParameters<int>("Return from Variable", 0)
+    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
+
+        return new LoadedRuntimeParameters[] {
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Extended Path", 0)),
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Return from Variable", 0))
         };
     }
 
@@ -35,10 +33,10 @@ public class ReturnValue : AbilityTreeNode {
 
         int threadToUse = inst.AddNewThread(trdInst);
         Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-        inst.NodeVariableCallback<int>(threadToUse, 0, 20);
+        inst.NodeVariableCallback<int>(threadToUse, 0, 20);*/
     }
 
-    public override void ThreadEndStartCallback(int threadId) {
+    /*public override void ThreadEndStartCallback(int threadId) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         NodeThread nT = inst.GetActiveThread(threadId);
 
@@ -52,7 +50,7 @@ public class ReturnValue : AbilityTreeNode {
 
             if(threadMap[parentThread] >= inst.GetSpecialisedNodeData(GetNodeId())) {
                 // Return value of target.
-                Variable storedAddress = inst.ReturnVariable(GetNodeId(), 1);
+                //Variable storedAddress = inst.ReturnVariable(GetNodeId(), 1);
 
                 if(storedAddress.links.Length > 0) {
                     int[] latestAddress = storedAddress.links[storedAddress.links.Length - 1];
@@ -62,6 +60,5 @@ public class ReturnValue : AbilityTreeNode {
                 //
             }
         }
-    }
+    }*/
 }
-*/

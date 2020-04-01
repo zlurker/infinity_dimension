@@ -94,7 +94,7 @@ public class AbilityDataSubclass {
         return bData;
     }
 
-    public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues, AbilityBooleanData bData) {
+    public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues, AbilityBooleanData bData,List<int[]> interconnectGet) {
 
         int total = 0;
 
@@ -114,28 +114,25 @@ public class AbilityDataSubclass {
 
                     if(target[nextId[i]].var[j].field.t == target[currLink[0]].var[currLink[1]].field.t)
                         bData.varsBlocked[currLink[0]][currLink[1]] = true;
-                    //bData.blockedVars++;
+
+                    if(target[currLink[0]].classType == typeof(ReturnValue))
+                        interconnectGet.Add(new int[] { nextId[i],j});
                 }
 
                 int nextNodeValues = 0;
 
                 if(followingIds.Length > 0)
-                    nextNodeValues = IterateLinks(target, followingIds, mappedValues, bData);
+                    nextNodeValues = IterateLinks(target, followingIds, mappedValues, bData,interconnectGet);
 
                 //total += nextNodeValues;
                 currNodeTotal += nextNodeValues;
             }
 
-            if(target[nextId[i]].classType == typeof(ThreadSplitter)) {
+            if(target[nextId[i]].classType == typeof(ThreadSplitter) || target[nextId[i]].classType == typeof(ReturnValue)) {
                 if(!mappedValues.ContainsKey(nextId[i]))
                     mappedValues.Add(nextId[i], currNodeTotal);
 
-
-                // Because these threads will be combined in Threadsplitter,
-                // We must combine them as 1 so if it is nested it would be counted correctly.
-                Debug.Log("Previous Value: " + total);
                 currNodeTotal = 1;
-                Debug.Log("Current Value: " + total);
             }
 
             if(totalLinks == 0)

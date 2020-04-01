@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
-    static int[] datafilesToSend = new int[] { 0, 1, 3, 4, 5, 6 };
+    static int[] datafilesToSend = new int[] { 0, 1, 3, 4, 5, 6, 8 };
     public Dictionary<int, List<byte[]>> builders;
 
     public int expectedFiles;
@@ -27,8 +27,6 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         HashSet<string> manifestFiles = new HashSet<string>();
         Dictionary<string, int> remappedFiles = new Dictionary<string, int>();
 
-
-
         expectedFiles += dData.filesData.Length * datafilesToSend.Length;
         SetBytesToSend(BitConverter.GetBytes(dData.filesData.Length));
 
@@ -42,7 +40,6 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
         ManifestEncoder mEncoder = encoders[(int)NetworkEncoderTypes.MANIFEST] as ManifestEncoder;
         mEncoder.SendManifest(remappedFiles);
-
     }
 
     public override void MessageRecievedCallback() {
@@ -69,12 +66,13 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
         int latestEntry = builders[targetId].Count - 1;
 
-        string abilityNodeData = Encoding.Default.GetString(builders[targetId][latestEntry - 5]);
-        string abilityDescription = Encoding.Default.GetString(builders[targetId][latestEntry - 4]);
-        string abilityRootData = Encoding.Default.GetString(builders[targetId][latestEntry - 3]);
-        string abilityNodeBranchingData = Encoding.Default.GetString(builders[targetId][latestEntry - 2]);
-        string abilitySpecialisedData = Encoding.Default.GetString(builders[targetId][latestEntry - 1]);
-        string variableBlockData = Encoding.Default.GetString(builders[targetId][latestEntry]);
+        string abilityNodeData = Encoding.Default.GetString(builders[targetId][latestEntry - 6]);
+        string abilityDescription = Encoding.Default.GetString(builders[targetId][latestEntry - 5]);
+        string abilityRootData = Encoding.Default.GetString(builders[targetId][latestEntry - 4]);
+        string abilityNodeBranchingData = Encoding.Default.GetString(builders[targetId][latestEntry - 3]);
+        string abilitySpecialisedData = Encoding.Default.GetString(builders[targetId][latestEntry - 2]);
+        string variableBlockData = Encoding.Default.GetString(builders[targetId][latestEntry-1]);
+        string gDataStr = Encoding.Default.GetString(builders[targetId][latestEntry]);
 
         AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData));
 
@@ -85,13 +83,18 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData);
         Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData);
         AbilityBooleanData boolData = JsonConvert.DeserializeObject<AbilityBooleanData>(variableBlockData);
-
+        int[][] getData = JsonConvert.DeserializeObject<int[][]>(gDataStr);
+ 
         Variable[][] tempVar = new Variable[ability.Length][];
         Type[] tempTypes = new Type[ability.Length];
 
-        for(int j = 0; j < ability.Length; j++) {
-            tempVar[j] = ability[j].var;
-            tempTypes[j] = ability[j].classType;
+        for (int i=0; i < ability.Length; i++) {
+
+        }
+
+        for(int i = 0; i < ability.Length; i++) {
+            tempVar[i] = ability[i].var;
+            tempTypes[i] = ability[i].classType;
         }
 
         int[] nodeType = new int[ability.Length];
@@ -99,7 +102,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         int currAbility = builders[targetId].Count / datafilesToSend.Length;
         currAbility--;
 
-        AbilitiesManager.aData[targetId].abilties[currAbility] = new AbilitiesManager.AbilityData(tempVar, tempTypes, rootSubclasses, nodeType, nodeBranchData, specialisedNodeData, currAbility, boolData);
+        AbilitiesManager.aData[targetId].abilties[currAbility] = new AbilitiesManager.AbilityData(tempVar, tempTypes, rootSubclasses, nodeBranchData, specialisedNodeData, currAbility, boolData);
         //aData[i] = 
         //LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[i], 0, (KeyCode)97 + i, 0);
     }

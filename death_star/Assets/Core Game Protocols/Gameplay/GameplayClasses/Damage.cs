@@ -12,13 +12,8 @@ public class Damage : AbilityTreeNode {
         if(CheckIfVarRegionBlocked(0, 1)) {
             int[] coords = GetNodeVariable<int[]>(TARGET);
 
-            Debug.Log(coords.Length);
-
-            Debug.LogFormat("Coords: {0},{1}", coords[0], coords[1]);
             AbilityCentralThreadPool central = NetworkObjectTracker.inst.ReturnNetworkObject(coords[0]) as AbilityCentralThreadPool;
-            Debug.Log(globalList.l[central.GetAbilityNodeId()].abiNodes[coords[1]].name);
             HealthSpawn inst = globalList.l[central.GetAbilityNodeId()].abiNodes[coords[1]] as HealthSpawn;
-            Debug.Log(inst);
 
             if(inst != null) {
                 RuntimeParameters<float> hpRp = inst.GetCentralInst().ReturnRuntimeParameter<float>(inst.GetNodeId(), HealthSpawn.HEALTH);
