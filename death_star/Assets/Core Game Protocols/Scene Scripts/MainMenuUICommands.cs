@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System;
 using UnityEngine.EventSystems;
 using Newtonsoft.Json;
+using System.Linq;
 
 public enum ActionType {
     RECIEVE, SEND
@@ -138,8 +139,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             AbilityBooleanData bData = new AbilityBooleanData();
 
-            Dictionary<Tuple<int, int, int>, List<int[]>> listedGData = new Dictionary<Tuple<int, int, int>, List<int[]>>();
-            Dictionary<Tuple<int, int, int>, int[][]> gData = new Dictionary<Tuple<int, int, int>, int[][]>();
+            Dictionary<Tuple<int, int>, HashSet<int>> listedGData = new Dictionary<Tuple<int, int>, HashSet<int>>();
+            Dictionary<Tuple<int, int>, int[]> gData = new Dictionary<Tuple<int, int>, int[]>();
             string[] imgDependencies = AbilityDataSubclass.GetImageDependencies(cAD);
 
             bData.varsBlocked = new bool[cAD.Length][];

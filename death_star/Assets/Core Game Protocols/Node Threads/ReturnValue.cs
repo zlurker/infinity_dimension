@@ -55,7 +55,7 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric {
 
         int overridenNode = inst.GetActiveThread((int)(object)arg).GetNodeSource();
         int vSource = inst.GetActiveThread((int)(object)arg).GetVariableSource();
-        int[][] overridenLinks = inst.GetOverridenConnections(overridenNode);
+        int[][] overridenLinks = inst.GetOverridenConnections(overridenNode,vSource);
 
         int[] varToReturn = inst.ReturnVariable(GetNodeId(), RETURN_FROM_VARIABLE).links[0];
 

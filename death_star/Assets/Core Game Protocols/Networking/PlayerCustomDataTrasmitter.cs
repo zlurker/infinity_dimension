@@ -84,17 +84,25 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData);
         Dictionary<int, int[][]> gData = new Dictionary<int, int[][]>();
         AbilityBooleanData boolData = JsonConvert.DeserializeObject<AbilityBooleanData>(variableBlockData);
-        int[][] getData = JsonConvert.DeserializeObject<int[][]>(gDataStr);
+        Dictionary<Tuple<int, int>, int[]> getData = JsonConvert.DeserializeObject< Dictionary<Tuple<int, int>, int[]>>(gDataStr);
 
+        Dictionary<Tuple<int, int>, int[][]> reorgGetData = new Dictionary<Tuple<int, int>, int[][]>();
         Variable[][] tempVar = new Variable[ability.Length][];
-        Type[] tempTypes = new Type[ability.Length];       
+        Type[] tempTypes = new Type[ability.Length];   
+        
+        foreach (var kP in getData) {           
+            List<int[]> tLinks = new List<int[]>(ability[kP.Key.Item1].var[kP.Key.Item2].links);
 
-        for(int i = 0; i < getData.Length; i++) {
-            List<int[]> tLinks = new List<int[]>(ability[getData[i][0]].var[getData[i][1]].links);
-            ability[getData[i][0]].var[getData[i][1]].links = new int[][] { tLinks[getData[i][2]] };
-            tLinks.RemoveAt(getData[i][2]);
+            int[][] replacedLinks = new int[kP.Value.Length][];
 
-            gData.Add(getData[i][0], tLinks.ToArray());
+            for(int i = kP.Value.Length-1; i >=0 ; i--) {
+                replacedLinks[i] = ability[kP.Key.Item1].var[kP.Key.Item2].links[kP.Value[i]];
+                tLinks.RemoveAt(i);
+            }
+
+            // Does the data swap.
+            reorgGetData.Add(kP.Key, tLinks.ToArray());
+            ability[kP.Key.Item1].var[kP.Key.Item2].links = replacedLinks;
         }
 
         for(int i = 0; i < ability.Length; i++) {
@@ -107,7 +115,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         int currAbility = builders[targetId].Count / datafilesToSend.Length;
         currAbility--;
 
-        AbilitiesManager.aData[targetId].abilties[currAbility] = new AbilitiesManager.AbilityData(tempVar, tempTypes, rootSubclasses, nodeBranchData, specialisedNodeData, currAbility, boolData);
+        AbilitiesManager.aData[targetId].abilties[currAbility] = new AbilitiesManager.AbilityData(tempVar, tempTypes, rootSubclasses, nodeBranchData, specialisedNodeData, currAbility, boolData,reorgGetData);
         //aData[i] = 
         //LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[i], 0, (KeyCode)97 + i, 0);
     }
