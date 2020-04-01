@@ -116,7 +116,7 @@ public class AbilityDataSubclass {
                         bData.varsBlocked[currLink[0]][currLink[1]] = true;
 
                     if(target[currLink[0]].classType == typeof(ReturnValue))
-                        interconnectGet.Add(new int[] { nextId[i],j});
+                        interconnectGet.Add(new int[] { nextId[i],j,k});
                 }
 
                 int nextNodeValues = 0;

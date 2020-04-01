@@ -82,14 +82,19 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         int[] rootSubclasses = JsonConvert.DeserializeObject<int[]>(abilityRootData);
         int[] nodeBranchData = JsonConvert.DeserializeObject<int[]>(abilityNodeBranchingData);
         Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData);
+        Dictionary<int, int[][]> gData = new Dictionary<int, int[][]>();
         AbilityBooleanData boolData = JsonConvert.DeserializeObject<AbilityBooleanData>(variableBlockData);
         int[][] getData = JsonConvert.DeserializeObject<int[][]>(gDataStr);
  
         Variable[][] tempVar = new Variable[ability.Length][];
         Type[] tempTypes = new Type[ability.Length];
 
-        for (int i=0; i < ability.Length; i++) {
+        for (int i=0; i < getData.Length; i++) {
+            List<int[]> tLinks = new List<int[]>(ability[getData[i][0]].var[getData[i][1]].links);
+            ability[getData[i][0]].var[getData[i][1]].links = new int[][] { tLinks[getData[i][2]] };
+            tLinks.RemoveAt(getData[i][2]);
 
+            gData.Add(getData[i][0], tLinks.ToArray());
         }
 
         for(int i = 0; i < ability.Length; i++) {
