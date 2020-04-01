@@ -172,6 +172,10 @@ public class AbilityCentralThreadPool : NetworkObject {
         return nodeBranchingData[id];
     }
 
+    public int[][] GetOverridenConnections(int id) {
+        return getReplacedConnections[id];
+    }
+
     public int GetNewThread(int startNode) {
         return activeThreads.Add(new NodeThread(startNode));
     }
@@ -238,23 +242,23 @@ public class AbilityCentralThreadPool : NetworkObject {
 
         if(sharedNetworkData)
             AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, value));
-
-        UpdateVariableData<T>(threadId, variableId, value);
+       
+        UpdateVariableData<T>(threadId, runtimeParameters[currNode][variableId].links, value);
     }
 
-    public void UpdateVariableData<T>(int threadId, int variableId, T value) {
+    public void UpdateVariableData<T>(int threadId, int[][] links, T value) {
 
         //Debug.Log("ThreadId in loop:" + threadId);
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
 
 
-        for(int i = 0; i < runtimeParameters[currNode][variableId].links.Length; i++) {
+        for(int i = 0; i < links.Length; i++) {
 
             NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
             int threadIdToUse = threadId;
-            int nodeId = runtimeParameters[currNode][variableId].links[i][0];
-            int nodeVariableId = runtimeParameters[currNode][variableId].links[i][1];
+            int nodeId = links[i][0];
+            int nodeVariableId = links[i][1];
 
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
@@ -280,7 +284,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         }
 
         if(jointThreadId > -1)
-            UpdateVariableData<T>(jointThreadId, variableId, value);
+            UpdateVariableData<T>(jointThreadId, links, value);
         //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
     }
 

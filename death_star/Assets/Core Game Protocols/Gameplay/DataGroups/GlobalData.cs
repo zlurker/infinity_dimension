@@ -11,8 +11,18 @@ public interface ISingleton {
     void RunOnCreated();
 }
 
+public interface IRPGeneric {
+    void RunAccordingToGeneric<T>();
+}
+
 public enum VariableTypes {
     CLIENT_ACTIVATED, HOST_ACTIVATED, IMAGE_DEPENDENCY, AUTO_MANAGED
+}
+
+
+
+public class GenericHolderBase<T> {
+
 }
 
 public class RuntimeParameters<T> : RuntimeParameters {
@@ -34,6 +44,10 @@ public class RuntimeParameters<T> : RuntimeParameters {
 
     public override RuntimeParameters ReturnNewRuntimeParamCopy() {
         return new RuntimeParameters<T>(n, v);
+    }
+
+    public override void RunGenericBasedOnRP(IRPGeneric inst) {
+        inst.RunAccordingToGeneric<T>();
     }
 }
 
@@ -63,6 +77,9 @@ public class RuntimeParameters {
 
     public virtual RuntimeParameters ReturnNewRuntimeParamCopy() {
         return null;
+    }
+
+    public virtual void RunGenericBasedOnRP(IRPGeneric inst){
     }
 }
 
