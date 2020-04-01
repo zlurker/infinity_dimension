@@ -94,8 +94,8 @@ public class AbilityDataSubclass {
         return bData;
     }
 
-    public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues, AbilityBooleanData bData,List<int[]> interconnectGet) {
-
+    public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues, AbilityBooleanData bData,Dictionary<Tuple<int,int,int>,List<int[]>> interconnectGet) {
+        //Tuple<>
         int total = 0;
 
         for(int i = 0; i < nextId.Length; i++) {
@@ -109,14 +109,19 @@ public class AbilityDataSubclass {
                 totalLinks += followingIds.Length;
 
                 for(int k = 0; k < target[nextId[i]].var[j].links.Length; k++) {
+                    Tuple<int, int, int> path = Tuple.Create<int, int, int>(nextId[i], j, k);
                     int[] currLink = target[nextId[i]].var[j].links[k];
                     followingIds[k] = currLink[0];
 
                     if(target[nextId[i]].var[j].field.t == target[currLink[0]].var[currLink[1]].field.t)
                         bData.varsBlocked[currLink[0]][currLink[1]] = true;
 
-                    if(target[currLink[0]].classType == typeof(ReturnValue))
-                        interconnectGet.Add(new int[] { nextId[i],j,k});
+                    if(target[currLink[0]].classType == typeof(ReturnValue)) {
+                        if(!interconnectGet.ContainsKey(path))
+                            interconnectGet.Add(path, new List<int[]>());
+
+                        interconnectGet[path].Add(new int[] { nextId[i], j, k });
+                    }
                 }
 
                 int nextNodeValues = 0;

@@ -2,23 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ReturnValue : AbilityTreeNode {
+public class ReturnValue : AbilityTreeNode, IRPGeneric {
 
-    public class InternalGenericHolder<T> {
-
-    }
-
+    public const int EXTENDED_PATH = 0;
+    public const int RETURN_FROM_VARIABLE = 1;
     Dictionary<int, int> threadMap = new Dictionary<int, int>();
-
-    // Use this for initialization
-    void Start() {
-
-    }
-
-    // Update is called once per frame
-    void Update() {
-
-    }
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
@@ -29,7 +17,6 @@ public class ReturnValue : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
 
-
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
         threadMap.Add(threadId, 0);
@@ -38,7 +25,7 @@ public class ReturnValue : AbilityTreeNode {
 
         int threadToUse = inst.AddNewThread(trdInst);
         Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-        inst.NodeVariableCallback<int>(threadToUse, 0,0);
+        inst.NodeVariableCallback<int>(threadToUse, 0, 0);
     }
 
     public override void ThreadEndStartCallback(int threadId) {
@@ -55,20 +42,24 @@ public class ReturnValue : AbilityTreeNode {
             Debug.LogFormat("Thread id {0}, current node collection progress {1}/{2}", threadId, threadMap[parentThread], inst.GetSpecialisedNodeData(GetNodeId()));
 
             if(threadMap[parentThread] >= inst.GetSpecialisedNodeData(GetNodeId())) {
-                // Return value of target.
-                //Variable storedAddress = inst.ReturnVariable(GetNodeId(), 1);
+                int nS = inst.GetActiveThread(parentThread).GetNodeSource();
+                int vS = inst.GetActiveThread(parentThread).GetVariableSource();
 
-                int overridenNode = inst.GetActiveThread(parentThread).GetCurrentNodeID();
-                int[][] overridenLinks = inst.GetOverridenConnections(overridenNode);
-
-                inst.UpdateVariableData<>
-                if(storedAddress.links.Length > 0) {
-                    int[] latestAddress = storedAddress.links[storedAddress.links.Length - 1];
-                    Debug.Log("Variable returned: " + (inst.ReturnRuntimeParameter<int>(latestAddress[0], latestAddress[1]) as RuntimeParameters<int>).v);
-                }
-                //storedAddress.links[1][storedAddress.links[1].Length-1][0]
-                //
+                inst.ReturnVariable(nS, vS).field.RunGenericBasedOnRP(this, parentThread);
             }
         }
+    }
+
+    public void RunAccordingToGeneric<T, P>(P arg) {
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+
+        int overridenNode = inst.GetActiveThread((int)(object)arg).GetNodeSource();
+        int vSource = inst.GetActiveThread((int)(object)arg).GetVariableSource();
+        int[][] overridenLinks = inst.GetOverridenConnections(overridenNode);
+
+        int[] varToReturn = inst.ReturnVariable(GetNodeId(), RETURN_FROM_VARIABLE).links[0];
+
+        RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
+        inst.UpdateVariableData<T>((int)(object)arg, overridenLinks, rP.v);
     }
 }

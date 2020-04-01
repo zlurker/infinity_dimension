@@ -71,7 +71,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         string abilityRootData = Encoding.Default.GetString(builders[targetId][latestEntry - 4]);
         string abilityNodeBranchingData = Encoding.Default.GetString(builders[targetId][latestEntry - 3]);
         string abilitySpecialisedData = Encoding.Default.GetString(builders[targetId][latestEntry - 2]);
-        string variableBlockData = Encoding.Default.GetString(builders[targetId][latestEntry-1]);
+        string variableBlockData = Encoding.Default.GetString(builders[targetId][latestEntry - 1]);
         string gDataStr = Encoding.Default.GetString(builders[targetId][latestEntry]);
 
         AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData));
@@ -85,11 +85,11 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         Dictionary<int, int[][]> gData = new Dictionary<int, int[][]>();
         AbilityBooleanData boolData = JsonConvert.DeserializeObject<AbilityBooleanData>(variableBlockData);
         int[][] getData = JsonConvert.DeserializeObject<int[][]>(gDataStr);
- 
-        Variable[][] tempVar = new Variable[ability.Length][];
-        Type[] tempTypes = new Type[ability.Length];
 
-        for (int i=0; i < getData.Length; i++) {
+        Variable[][] tempVar = new Variable[ability.Length][];
+        Type[] tempTypes = new Type[ability.Length];       
+
+        for(int i = 0; i < getData.Length; i++) {
             List<int[]> tLinks = new List<int[]>(ability[getData[i][0]].var[getData[i][1]].links);
             ability[getData[i][0]].var[getData[i][1]].links = new int[][] { tLinks[getData[i][2]] };
             tLinks.RemoveAt(getData[i][2]);

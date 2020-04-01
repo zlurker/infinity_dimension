@@ -138,8 +138,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             AbilityBooleanData bData = new AbilityBooleanData();
 
-            List<int[]> gData = new List<int[]>();
-
+            Dictionary<Tuple<int, int, int>, List<int[]>> listedGData = new Dictionary<Tuple<int, int, int>, List<int[]>>();
+            Dictionary<Tuple<int, int, int>, int[][]> gData = new Dictionary<Tuple<int, int, int>, int[][]>();
             string[] imgDependencies = AbilityDataSubclass.GetImageDependencies(cAD);
 
             bData.varsBlocked = new bool[cAD.Length][];
@@ -147,7 +147,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             for(int i = 0; i < cAD.Length; i++)
                 bData.varsBlocked[i] = new bool[cAD[i].var.Length];
 
-            AbilityDataSubclass.IterateLinks(cAD, rootClasses, specialisedNodeThreadCount,bData,gData);
+            AbilityDataSubclass.IterateLinks(cAD, rootClasses, specialisedNodeThreadCount,bData, listedGData);
+
+            // Converts list in listedGData to array form.
+            foreach(var kP in listedGData)
+                gData.Add(kP.Key, kP.Value.ToArray());
 
             // Gets all window locations.
             float[][] windowLocations = new float[cAD.Length][];
@@ -167,7 +171,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 5, JsonConvert.SerializeObject(specialisedNodeThreadCount));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 6, JsonConvert.SerializeObject(bData));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 7, JsonConvert.SerializeObject(imgDependencies));
-            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 8, JsonConvert.SerializeObject(gData.ToArray()));            
+            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 8, JsonConvert.SerializeObject(gData));            
         });
 
         UIDrawer.GetTypeInElement<Text>(saveButton).text = "Save JSON";

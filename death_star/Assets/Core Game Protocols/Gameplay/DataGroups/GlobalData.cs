@@ -12,7 +12,7 @@ public interface ISingleton {
 }
 
 public interface IRPGeneric {
-    void RunAccordingToGeneric<T>();
+    void RunAccordingToGeneric<T,P>(P arg);
 }
 
 public enum VariableTypes {
@@ -46,8 +46,8 @@ public class RuntimeParameters<T> : RuntimeParameters {
         return new RuntimeParameters<T>(n, v);
     }
 
-    public override void RunGenericBasedOnRP(IRPGeneric inst) {
-        inst.RunAccordingToGeneric<T>();
+    public override void RunGenericBasedOnRP<P>(IRPGeneric inst, P arg) {
+        inst.RunAccordingToGeneric<T,P>(arg);
     }
 }
 
@@ -79,7 +79,7 @@ public class RuntimeParameters {
         return null;
     }
 
-    public virtual void RunGenericBasedOnRP(IRPGeneric inst){
+    public virtual void RunGenericBasedOnRP<P>(IRPGeneric inst, P arg){
     }
 }
 
