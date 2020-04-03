@@ -84,13 +84,17 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         Dictionary<int, int> specialisedNodeData = JsonConvert.DeserializeObject<Dictionary<int, int>>(abilitySpecialisedData);
         Dictionary<int, int[][]> gData = new Dictionary<int, int[][]>();
         AbilityBooleanData boolData = JsonConvert.DeserializeObject<AbilityBooleanData>(variableBlockData);
-        Dictionary<Tuple<int, int>, int[]> getData = JsonConvert.DeserializeObject< Dictionary<Tuple<int, int>, int[]>>(gDataStr);
-
-        Dictionary<Tuple<int, int>, int[][]> reorgGetData = new Dictionary<Tuple<int, int>, int[][]>();
-        Variable[][] tempVar = new Variable[ability.Length][];
-        Type[] tempTypes = new Type[ability.Length];   
         
-        foreach (var kP in getData) {           
+        Variable[][] tempVar = new Variable[ability.Length][];
+        Type[] tempTypes = new Type[ability.Length];
+
+        Debug.Log(gDataStr);
+
+        DictionaryTupleSerializedData<Tuple<int, int>, int[]> sData = JsonConvert.DeserializeObject<DictionaryTupleSerializedData<Tuple<int, int>, int[]>>(gDataStr);
+        Dictionary<Tuple<int, int>, int[]> getData = sData.RetrieveDictionary();
+        Dictionary<Tuple<int, int>, int[][]> reorgGetData = new Dictionary<Tuple<int, int>, int[][]>();
+        
+        /*foreach (var kP in getData) {           
             List<int[]> tLinks = new List<int[]>(ability[kP.Key.Item1].var[kP.Key.Item2].links);
 
             int[][] replacedLinks = new int[kP.Value.Length][];
@@ -103,7 +107,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
             // Does the data swap.
             reorgGetData.Add(kP.Key, tLinks.ToArray());
             ability[kP.Key.Item1].var[kP.Key.Item2].links = replacedLinks;
-        }
+        }*/
 
         for(int i = 0; i < ability.Length; i++) {
             tempVar[i] = ability[i].var;

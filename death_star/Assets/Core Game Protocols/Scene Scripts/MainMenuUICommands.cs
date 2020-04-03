@@ -154,6 +154,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             foreach(var kP in listedGData)
                 gData.Add(kP.Key, kP.Value.ToArray());
 
+            DictionaryTupleSerializedData<Tuple<int, int>, int[]> serializedDict = new DictionaryTupleSerializedData<Tuple<int, int>, int[]> (gData);
+
             // Gets all window locations.
             float[][] windowLocations = new float[cAD.Length][];
 
@@ -172,7 +174,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 5, JsonConvert.SerializeObject(specialisedNodeThreadCount));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 6, JsonConvert.SerializeObject(bData));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 7, JsonConvert.SerializeObject(imgDependencies));
-            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 8, JsonConvert.SerializeObject(gData));            
+            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 8, JsonConvert.SerializeObject(serializedDict));            
         });
 
         UIDrawer.GetTypeInElement<Text>(saveButton).text = "Save JSON";

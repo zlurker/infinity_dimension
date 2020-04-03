@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Newtonsoft.Json;
 
 public class Variable {
     //Variable details
@@ -120,7 +121,7 @@ public class AbilityDataSubclass {
                         if(!interconnectGet.ContainsKey(path))
                             interconnectGet.Add(path, new HashSet<int>());
 
-                        if(interconnectGet[path].Contains(k))
+                        if(!interconnectGet[path].Contains(k))
                             interconnectGet[path].Add(k);
                     }
                 }
