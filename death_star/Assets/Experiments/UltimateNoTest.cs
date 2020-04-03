@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NumberTest : AbilityTreeNode {
+public class UltimateNoTest : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
-        GetCentralInst().NodeVariableCallback<float>(threadId, 0,GetNodeVariable<float>(0));
+        Debug.Log(GetNodeVariable<float>(0));
     }
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Number",0))
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Num",0))
         };
     }
 }
