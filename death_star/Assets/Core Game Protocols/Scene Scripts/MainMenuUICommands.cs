@@ -156,7 +156,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         });
 
         SpawnerOutput rmConnButt = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-        rmConnButt.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.9f, 0.8f));
+        rmConnButt.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.9f, 0.7f));
         UIDrawer.GetTypeInElement<Text>(rmConnButt).text = "Remove Conection";
         UIDrawer.GetTypeInElement<Image>(rmConnButt).color = Color.red;
 
@@ -230,7 +230,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         for(int i = 0; i < abilityData.linkAddresses.l.Count; i++) {
             prevPath = new int[] { abilityData.linkAddresses.l[i][0], abilityData.linkAddresses.l[i][1] };
-            CreateLinkage(new int[] { abilityData.linkAddresses.l[i][2], abilityData.linkAddresses.l[i][3] }, i);
+            CreateLinkage(new int[] { abilityData.linkAddresses.l[i][2], abilityData.linkAddresses.l[i][3], abilityData.linkAddresses.l[i][4] }, i);
         }
     }
 
@@ -344,7 +344,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             if(connectionId == -1)
                 connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0], prevPath[1], id[0], id[1],0 });
 
-            Debug.LogFormat("ConnectionID assigned {0}. For {1} and {2}", connectionId, prevPath[0], id[0]);
+            //Debug.LogFormat("ConnectionID assigned {0}. For {1} and {2}", connectionId, prevPath[0], id[0]);
+
             // Make sure both ends will feedback if window was dragged.
             abilityWindows.l[prevPath[0]].linesRelated.Add(connectionId);
             abilityWindows.l[id[0]].linesRelated.Add(connectionId);
@@ -353,7 +354,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             int lastObj = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects.Count - 1;
             points[0] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects[lastObj];
-
             points[1] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[id[0]].variables[id[1]]).objects[0];
 
             CreateLines(points, connectionId);
@@ -372,7 +372,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         UIDrawer.GetTypeInElement<Button>(lGraphic).onClick.AddListener(() => {
             switch(mMode) {
                 case MouseMode.EDIT_CONN:
-
+                    abilityData.linkAddresses.l[id][4] = (int)lMode;
+                    UpdateLineColor(id);
                     mMode = MouseMode.NONE;
                     break;
 
@@ -385,7 +386,20 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         LineData line = new LineData(points[0], points[1], lGraphic);
         lineData.ModifyElementAt(id, line);
+        UpdateLineColor(id);
         UpdateLines(id);
+    }
+
+    void UpdateLineColor(int id) {
+        switch((LinkMode)abilityData.linkAddresses.l[id][4]) {
+            case LinkMode.NORMAL:
+                UIDrawer.GetTypeInElement<Image>(lineData.GetElementAt(id).l).color = Color.green;
+                break;
+
+            case LinkMode.SIGNAL:
+                UIDrawer.GetTypeInElement<Image>(lineData.GetElementAt(id).l).color = Color.red;
+                break;
+        }
     }
 
     SpawnerOutput[] CreateVariableField(int id, int varId) {

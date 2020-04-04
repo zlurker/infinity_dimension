@@ -199,7 +199,8 @@ public class UIAbilityData {
             for(int j = 0; j < elements[i].var.Length; j++) {
                 for(int k = 0; k < elements[i].var[j].links.Length; k++) {
                     int[] link = elements[i].var[j].links[k];
-                    linkAddresses.Add(new int[] { i, j, link[0], link[1] });
+
+                    linkAddresses.Add(new int[] { i, j, link[0], link[1],link[2] });
                 }
             }
     }
