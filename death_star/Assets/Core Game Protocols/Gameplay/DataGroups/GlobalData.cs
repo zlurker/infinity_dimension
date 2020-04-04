@@ -16,13 +16,14 @@ public interface IRPGeneric {
 }
 
 public enum VariableTypes {
-    CLIENT_ACTIVATED, HOST_ACTIVATED, IMAGE_DEPENDENCY, AUTO_MANAGED
-}
 
+    // Used by network
+    CLIENT_ACTIVATED, HOST_ACTIVATED,
 
+    // Used by variable connections
+    PERMENANT_TYPE, SIGNAL_ONLY,
 
-public class GenericHolderBase<T> {
-
+    IMAGE_DEPENDENCY, AUTO_MANAGED   
 }
 
 public class RuntimeParameters<T> : RuntimeParameters {

@@ -8,9 +8,6 @@ using Newtonsoft.Json;
 public class Variable {
     //Variable details
     public RuntimeParameters field;
-    //
-    public bool varUpdated;
-    //Addressed to [subclass, variable]
     public int[][] links;
 
     public Variable() {
@@ -96,7 +93,7 @@ public class AbilityDataSubclass {
     }
 
     public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues, AbilityBooleanData bData, Dictionary<Tuple<int, int>, HashSet<int>> interconnectGet) {
-        //Tuple<>
+
         int total = 0;
 
         for(int i = 0; i < nextId.Length; i++) {
@@ -241,7 +238,7 @@ public class UIAbilityData {
             int modS = globalAddress[linkAddresses.l[activeConnections[i]][0]];
             int modR = globalAddress[linkAddresses.l[activeConnections[i]][2]];
 
-            int[] linkTarget = new int[] { modR, linkAddresses.l[activeConnections[i]][3] };
+            int[] linkTarget = new int[] { modR, linkAddresses.l[activeConnections[i]][3], linkAddresses.l[activeConnections[i]][4] };
 
             vLinks[modS][linkAddresses.l[activeConnections[i]][1]].Add(linkTarget);
         }

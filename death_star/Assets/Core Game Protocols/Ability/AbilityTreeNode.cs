@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum LinkMode {
+    NORMAL,SIGNAL
+}
+
 public class AbilityNodeHolder {
     public Transform abilityNodeRoot;
     public AbilityTreeNode[] abiNodes;

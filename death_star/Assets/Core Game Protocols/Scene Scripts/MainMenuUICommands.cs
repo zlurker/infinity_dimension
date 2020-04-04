@@ -11,6 +11,10 @@ public enum ActionType {
     RECIEVE, SEND
 }
 
+public enum MouseMode {
+    NONE, CREATE_NODE, EDIT_CONN, REMOVE_CONN
+}
+
 public interface ILineHandler {
     void UpdateLines(int[] id);
 }
@@ -62,10 +66,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     Text instance;
 
     SpawnerOutput windowSpawner;
-    bool windowSpawnMode;
-    int dataIndex;
 
+    MouseMode mMode;
+    LinkMode lMode;
     Type selectedType;
+
 
     //Line Drawing System
     Camera cam;
@@ -116,7 +121,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             // Need another way to get elements within spawner output...
             UIDrawer.GetTypeInElement<Text>(button).text = entry.Key.Name;
 
-            butInst.onClick.AddListener(() => { WindowSpawnState(entry.Key); });
+            butInst.onClick.AddListener(() => {
+                selectedType = entry.Key;
+                windowSpawner.script.gameObject.SetActive(true);
+                mMode = MouseMode.CREATE_NODE;
+            });
+
             (mainClassSelection.script as LinearLayout).Add(butInst.transform as RectTransform);
 
         }
@@ -124,6 +134,35 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         mainClassSelection.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
         windowSpawner = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image));
         windowSpawner.script.gameObject.SetActive(false);
+
+        SpawnerOutput normConnButt = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
+        normConnButt.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.9f, 0.9f));
+        UIDrawer.GetTypeInElement<Text>(normConnButt).text = "Normal Conection";
+        UIDrawer.GetTypeInElement<Image>(normConnButt).color = Color.green;
+
+        UIDrawer.GetTypeInElement<Button>(normConnButt).onClick.AddListener(() => {
+            mMode = MouseMode.EDIT_CONN;
+            lMode = LinkMode.NORMAL;
+        });
+
+        SpawnerOutput sigConnButt = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
+        sigConnButt.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.9f, 0.8f));
+        UIDrawer.GetTypeInElement<Text>(sigConnButt).text = "Signal Conection";
+        UIDrawer.GetTypeInElement<Image>(sigConnButt).color = Color.red;
+
+        UIDrawer.GetTypeInElement<Button>(sigConnButt).onClick.AddListener(() => {
+            mMode = MouseMode.EDIT_CONN;
+            lMode = LinkMode.SIGNAL;
+        });
+
+        SpawnerOutput rmConnButt = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
+        rmConnButt.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.9f, 0.8f));
+        UIDrawer.GetTypeInElement<Text>(rmConnButt).text = "Remove Conection";
+        UIDrawer.GetTypeInElement<Image>(rmConnButt).color = Color.red;
+
+        UIDrawer.GetTypeInElement<Button>(rmConnButt).onClick.AddListener(() => {
+            mMode = MouseMode.REMOVE_CONN;
+        });
 
         SpawnerOutput saveButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
@@ -148,13 +187,13 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             for(int i = 0; i < cAD.Length; i++)
                 bData.varsBlocked[i] = new bool[cAD[i].var.Length];
 
-            AbilityDataSubclass.IterateLinks(cAD, rootClasses, specialisedNodeThreadCount,bData, listedGData);
+            AbilityDataSubclass.IterateLinks(cAD, rootClasses, specialisedNodeThreadCount, bData, listedGData);
 
             // Converts list in listedGData to array form.
             foreach(var kP in listedGData)
                 gData.Add(kP.Key, kP.Value.ToArray());
 
-            DictionaryTupleSerializedData<Tuple<int, int>, int[]> serializedDict = new DictionaryTupleSerializedData<Tuple<int, int>, int[]> (gData);
+            DictionaryTupleSerializedData<Tuple<int, int>, int[]> serializedDict = new DictionaryTupleSerializedData<Tuple<int, int>, int[]>(gData);
 
             // Gets all window locations.
             float[][] windowLocations = new float[cAD.Length][];
@@ -174,7 +213,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 5, JsonConvert.SerializeObject(specialisedNodeThreadCount));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 6, JsonConvert.SerializeObject(bData));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 7, JsonConvert.SerializeObject(imgDependencies));
-            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 8, JsonConvert.SerializeObject(serializedDict));            
+            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 8, JsonConvert.SerializeObject(serializedDict));
         });
 
         UIDrawer.GetTypeInElement<Text>(saveButton).text = "Save JSON";
@@ -195,30 +234,21 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         }
     }
 
-    public void WindowSpawnState(Type type) {
-        selectedType = type;
-
-        windowSpawner.script.gameObject.SetActive(true);
-        windowSpawnMode = true;
-    }
-
     public void OnPointerDown(PointerEventData eventData) {
-        if(!cam)
-            cam = eventData.pressEventCamera;
 
+        if(mMode == MouseMode.CREATE_NODE) {
+            if(!cam)
+                cam = eventData.pressEventCamera;
 
-        if(windowSpawnMode) {
-            windowSpawnMode = false;
             windowSpawner.script.gameObject.SetActive(false);
 
-            //Debug.Log(typeMap.Length);
-            Debug.Log(dataIndex);
             int id = abilityData.subclasses.Add(new AbilityDataSubclass(selectedType));
-
 
             Vector3 cursorPos;
             RectTransformUtility.ScreenPointToWorldPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out cursorPos);
             CreateWindow(id, cursorPos);
+
+            mMode = MouseMode.NONE;
         }
     }
 
@@ -240,7 +270,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 //abilityData.linkAddresses.Remove(editWindow.linesRelated[i]);
 
                 int relatedLine = editWindow.linesRelated[i];
-                lineData.l[relatedLine].line.script.gameObject.SetActive(false);
+                lineData.l[relatedLine].l.script.gameObject.SetActive(false);
 
                 // Removes the linkage from the other to prevent the other window closing linkage.
                 abilityWindows.l[abilityData.linkAddresses.l[relatedLine][0]].linesRelated.Remove(relatedLine);
@@ -249,10 +279,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 abilityData.linkAddresses.Remove(relatedLine);
             }
 
-            //Handles UI Data deletion.
             abilityData.subclasses.Remove(id);
-            //abilityData.linksEdit.ModifyElementAt(id, null);
-            //abilityData.ResetTunnelEnd(id);
         });
 
         editWindow.transform.position = location;
@@ -297,27 +324,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         switch(aT) {
             case ActionType.RECIEVE:
                 UIDrawer.GetTypeInElement<Button>(linkageButton).onClick.AddListener(() => {
-                    // Checks if there's a prev path.
-                    if(prevPath.Length > 0) {
-
-                        int connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0], prevPath[1], id[0], id[1] });
-
-                        Debug.LogFormat("ConnectionID assigned {0}. For {1} and {2}", connectionId, prevPath[0], id[0]);
-                        // Make sure both ends will feedback if window was dragged.
-                        abilityWindows.l[prevPath[0]].linesRelated.Add(connectionId);
-                        abilityWindows.l[id[0]].linesRelated.Add(connectionId);
-
-                        Transform[] points = new Transform[2];
-
-                        int lastObj = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects.Count - 1;
-                        points[0] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[prevPath[0]].variables[prevPath[1]]).objects[lastObj];
-
-                        points[1] = UIDrawer.GetTypeInElement<LinearLayout>(abilityWindows.l[id[0]].variables[id[1]]).objects[0];
-
-                        CreateLines(points, connectionId);
-                        // Removes the prev path. 
-                        prevPath = new int[0];
-                    }
+                    CreateLinkage(id);                   
                 });
                 break;
 
@@ -335,7 +342,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         if(prevPath.Length > 0) {
 
             if(connectionId == -1)
-                connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0], prevPath[1], id[0], id[1] });
+                connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0], prevPath[1], id[0], id[1],0 });
 
             Debug.LogFormat("ConnectionID assigned {0}. For {1} and {2}", connectionId, prevPath[0], id[0]);
             // Make sure both ends will feedback if window was dragged.
@@ -357,9 +364,28 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
     void CreateLines(Transform[] points, int id) {
         // Creates the graphical strings.
-        LineData line = new LineData(points[0], points[1]);
+        SpawnerOutput lGraphic = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
+        UIDrawer.GetTypeInElement<Image>(lGraphic).rectTransform.pivot = new Vector2(0.5f, 0);
+        UIDrawer.GetTypeInElement<Text>(lGraphic).text = "";
+
+        // Adds event for changing of button colors
+        UIDrawer.GetTypeInElement<Button>(lGraphic).onClick.AddListener(() => {
+            switch(mMode) {
+                case MouseMode.EDIT_CONN:
+
+                    mMode = MouseMode.NONE;
+                    break;
+
+                case MouseMode.REMOVE_CONN:
+
+                    mMode = MouseMode.NONE;
+                    break;
+            }
+        });
+
+        LineData line = new LineData(points[0], points[1], lGraphic);
         lineData.ModifyElementAt(id, line);
-        UpdateLines(new int[] { id });
+        UpdateLines(id);
     }
 
     SpawnerOutput[] CreateVariableField(int id, int varId) {
@@ -455,19 +481,17 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     }
 
     void Update() {
-        if(windowSpawnMode)
+        if(mMode == MouseMode.CREATE_NODE)
             windowSpawner.script.transform.position = Input.mousePosition;
     }
 
-    public void UpdateLines(int[] id) {
+    public void UpdateLines(params int[] id) {
         for(int i = 0; i < id.Length; i++)
-            if(lineData.l[id[i]].line != null) {
-                lineData.l[id[i]].line.script.transform.position = lineData.l[id[i]].s.position;
+            if(lineData.l[id[i]].l != null) {
+                lineData.l[id[i]].l.script.transform.position = lineData.l[id[i]].s.position;
                 Vector2 d = lineData.l[id[i]].e.position - lineData.l[id[i]].s.position;
-                UIDrawer.GetTypeInElement<Image>(lineData.l[id[i]].line).rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
-                lineData.l[id[i]].line.script.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(d)));
-
-                //Debug.Log("Line ID Rendered: " + id[i]);
+                UIDrawer.GetTypeInElement<Image>(lineData.l[id[i]].l).rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
+                lineData.l[id[i]].l.script.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(d)));
             }
     }
 }

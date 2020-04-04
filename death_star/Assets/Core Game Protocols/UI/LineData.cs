@@ -5,12 +5,11 @@ using System;
 public struct LineData {
     public Transform s;
     public Transform e;
-    public SpawnerOutput line;
+    public SpawnerOutput l;
 
-    public LineData(Transform start, Transform end) {
+    public LineData(Transform start, Transform end, SpawnerOutput line) {
         s = start;
         e = end;
-        line = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image));
-        UIDrawer.GetTypeInElement<Image>(line).rectTransform.pivot = new Vector2(0.5f,0);
+        l = line;        
     }
 }

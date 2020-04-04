@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+
 public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
 
     public T value;
@@ -26,7 +27,6 @@ public class NodeThread {
 
     int currNode;
     int startingPt;
-
 
     // Data pointing to previous node/variable that it was at.
     int nodeSource;
