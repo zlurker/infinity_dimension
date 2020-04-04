@@ -92,7 +92,7 @@ public class AbilityDataSubclass {
         return bData;
     }
 
-    public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues, AbilityBooleanData bData, Dictionary<Tuple<int, int>, HashSet<int>> interconnectGet) {
+    public static int IterateLinks(AbilityDataSubclass[] target, int[] nextId, Dictionary<int, int> mappedValues, AbilityBooleanData bData, Dictionary<Tuple<int, int>, HashSet<int>> interconnectGet, HashSet<int>[] aMVar) {
 
         int total = 0;
 
@@ -111,8 +111,12 @@ public class AbilityDataSubclass {
                     int[] currLink = target[nextId[i]].var[j].links[k];
                     followingIds[k] = currLink[0];
 
-                    if(target[nextId[i]].var[j].field.t == target[currLink[0]].var[currLink[1]].field.t)
+                    if(target[nextId[i]].var[j].field.t == target[currLink[0]].var[currLink[1]].field.t) {
                         bData.varsBlocked[currLink[0]][currLink[1]] = true;
+
+                        if(aMVar[nextId[i]].Contains(j))
+                            aMVar[nextId[i]].Remove(j);
+                    }
 
                     if(target[currLink[0]].classType == typeof(ReturnValue)) {
                         if(!interconnectGet.ContainsKey(path))
@@ -126,7 +130,7 @@ public class AbilityDataSubclass {
                 int nextNodeValues = 0;
 
                 if(followingIds.Length > 0)
-                    nextNodeValues = IterateLinks(target, followingIds, mappedValues, bData, interconnectGet);
+                    nextNodeValues = IterateLinks(target, followingIds, mappedValues, bData, interconnectGet,aMVar);
 
                 //total += nextNodeValues;
                 currNodeTotal += nextNodeValues;

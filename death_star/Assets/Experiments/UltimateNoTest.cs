@@ -10,7 +10,7 @@ public class UltimateNoTest : AbilityTreeNode {
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Num",0))
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Num",0),VariableTypes.AUTO_MANAGED)
         };
     }
 }

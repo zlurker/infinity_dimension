@@ -24,8 +24,8 @@ public class Damage : AbilityTreeNode {
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Damage",0)),
-            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Target",null))
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Damage",0),VariableTypes.AUTO_MANAGED),
+            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Target",null),VariableTypes.AUTO_MANAGED)
         };
     }
 }

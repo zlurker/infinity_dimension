@@ -11,7 +11,7 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric {
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Extended Path", 0)),
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Return from Variable", 0))
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Return from Variable", 0),VariableTypes.PERMENANT_TYPE,VariableTypes.SIGNAL_ONLY)
         };
     }
 
@@ -25,7 +25,7 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric {
 
         int threadToUse = inst.AddNewThread(trdInst);
         Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-        inst.NodeVariableCallback<int>(threadToUse, 0, 0);
+        inst.NodeVariableCallback<int>(threadToUse, EXTENDED_PATH, 0);
     }
 
     public override void ThreadEndStartCallback(int threadId) {

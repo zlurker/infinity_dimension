@@ -136,7 +136,7 @@ public class FileSaver {
     public static FileSaveTemplate[] sFT = new FileSaveTemplate[] {
          new FileSaveTemplate<string>(
              new string[]{ "Datafiles" },
-             new string[]{"Ability.json","Info.json","WindowLocation.json","AbilityLauncher.json","NodeBranchData.json","SpecialisedNodeData.json","VariableBlockData.json","ImageDependencies.json","ReturnValue.json"},
+             new string[]{"Ability.json","Info.json","WindowLocation.json","AbilityLauncher.json","NodeBranchData.json","SpecialisedNodeData.json","VariableBlockData.json","ImageDependencies.json","ReturnValue.json","AutoManagedVariables.json"},
              new string[0],
              (fP, t)=>{
 

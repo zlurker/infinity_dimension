@@ -36,7 +36,7 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
         int threadToUse = GetCentralInst().AddNewThread(trdInst);
         Debug.Log("Launching repeater...");
         Debug.Log(threadToUse);
-        GetCentralInst().NodeVariableCallback<float>(threadToUse, 0, 0);       
+        GetCentralInst().NodeVariableCallback<float>(threadToUse, TIME_INTERVAL, 0);       
     }
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {

@@ -31,7 +31,7 @@ public class HealthSpawn : AbilityTreeNode, IOnSpawn {
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Health",100),VariableTypes.AUTO_MANAGED),
-            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null),VariableTypes.AUTO_MANAGED),
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("On Collide", null),VariableTypes.HOST_ACTIVATED),
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)
         };

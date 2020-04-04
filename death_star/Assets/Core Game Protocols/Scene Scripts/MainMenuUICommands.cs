@@ -184,6 +184,18 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             Dictionary<Tuple<int, int>, HashSet<int>> listedGData = new Dictionary<Tuple<int, int>, HashSet<int>>();
             Dictionary<Tuple<int, int>, int[]> gData = new Dictionary<Tuple<int, int>, int[]>();
+
+            // Loads up all Auto-Managed variables.
+            HashSet<int>[] aMVar = new HashSet<int>[cAD.Length];
+
+            for (int i=0; i< aMVar.Length; i++) {
+                aMVar[i] = new HashSet<int>();
+
+                for(int j = 0; j < LoadedData.loadedParamInstances[cAD[i].classType].Length; j++)
+                    if(LoadedData.GetVariableType(cAD[i].classType, j, VariableTypes.AUTO_MANAGED))
+                        aMVar[i].Add(j);                
+            }
+
             string[] imgDependencies = AbilityDataSubclass.GetImageDependencies(cAD);
 
             bData.varsBlocked = new bool[cAD.Length][];
@@ -191,7 +203,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             for(int i = 0; i < cAD.Length; i++)
                 bData.varsBlocked[i] = new bool[cAD[i].var.Length];
 
-            AbilityDataSubclass.IterateLinks(cAD, rootClasses, specialisedNodeThreadCount, bData, listedGData);
+            AbilityDataSubclass.IterateLinks(cAD, rootClasses, specialisedNodeThreadCount, bData, listedGData,aMVar);
 
             // Converts list in listedGData to array form.
             foreach(var kP in listedGData)
@@ -209,6 +221,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 windowLocations[i][1] = abilityWindows.l[aEle[i]].transform.position.y;
             }
 
+            int[][] pAMVar = new int[cAD.Length][];
+
+            for(int i = 0; i < pAMVar.Length; i++)
+                pAMVar[i] = aMVar[i].ToArray();
+
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(cAD)));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 1, JsonConvert.SerializeObject(abilityDescription));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 2, JsonConvert.SerializeObject(windowLocations));
@@ -218,6 +235,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 6, JsonConvert.SerializeObject(bData));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 7, JsonConvert.SerializeObject(imgDependencies));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 8, JsonConvert.SerializeObject(serializedDict));
+            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 9, JsonConvert.SerializeObject(pAMVar));
         });
 
         UIDrawer.GetTypeInElement<Text>(saveButton).text = "Save JSON";

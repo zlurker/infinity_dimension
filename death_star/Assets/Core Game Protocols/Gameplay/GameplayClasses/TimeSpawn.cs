@@ -6,7 +6,7 @@ using UnityEngine;
 public class TimeSpawn : AbilityTreeNode, IOnSpawn {
 
     public const int SPAWN_LIFETIME =0;
-    public const int TASKS = 1;
+    public const int SPAWN = 1;
     public const int ON_COLLIDE = 2;
     public const int SPRITE_FILE_PATH = 3;
 
@@ -19,7 +19,7 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
 
     public override void NodeCallback(int threadId) {
         sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>(SPRITE_FILE_PATH)];
-        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(GetNodeThreadId(), TASKS, this);        
+        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(GetNodeThreadId(), SPAWN, this);        
     }
 
 
@@ -31,10 +31,10 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Spawn Lifetime",3)),
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Spawn Lifetime",3),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<int[]>("On Collide", null),VariableTypes.HOST_ACTIVATED),
-            new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY)
+            new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)
         };
     }
 
