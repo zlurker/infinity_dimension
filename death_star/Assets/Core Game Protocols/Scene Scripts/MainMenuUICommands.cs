@@ -135,8 +135,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         windowSpawner = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image));
         windowSpawner.script.gameObject.SetActive(false);
 
+        SpawnerOutput optLL = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));
+
         SpawnerOutput normConnButt = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-        normConnButt.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.9f, 0.9f));
         UIDrawer.GetTypeInElement<Text>(normConnButt).text = "Normal Conection";
         UIDrawer.GetTypeInElement<Image>(normConnButt).color = Color.green;
 
@@ -146,7 +147,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         });
 
         SpawnerOutput sigConnButt = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-        sigConnButt.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.9f, 0.8f));
         UIDrawer.GetTypeInElement<Text>(sigConnButt).text = "Signal Conection";
         UIDrawer.GetTypeInElement<Image>(sigConnButt).color = Color.red;
 
@@ -156,13 +156,17 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         });
 
         SpawnerOutput rmConnButt = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-        rmConnButt.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.9f, 0.7f));
         UIDrawer.GetTypeInElement<Text>(rmConnButt).text = "Remove Conection";
-        UIDrawer.GetTypeInElement<Image>(rmConnButt).color = Color.red;
 
         UIDrawer.GetTypeInElement<Button>(rmConnButt).onClick.AddListener(() => {
             mMode = MouseMode.REMOVE_CONN;
         });
+
+        UIDrawer.GetTypeInElement<LinearLayout>(optLL).Add(normConnButt.script.transform as RectTransform);
+        UIDrawer.GetTypeInElement<LinearLayout>(optLL).Add(sigConnButt.script.transform as RectTransform);
+        UIDrawer.GetTypeInElement<LinearLayout>(optLL).Add(rmConnButt.script.transform as RectTransform);
+
+        optLL.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.9f, 0.9f));
 
         SpawnerOutput saveButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
@@ -268,15 +272,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             for(int i = editWindow.linesRelated.Count - 1; i >= 0; i--) {
                 //lineData.l[editWindow.linesRelated[i]].line.gameObject.SetActive(false);
                 //abilityData.linkAddresses.Remove(editWindow.linesRelated[i]);
-
-                int relatedLine = editWindow.linesRelated[i];
-                lineData.l[relatedLine].l.script.gameObject.SetActive(false);
-
-                // Removes the linkage from the other to prevent the other window closing linkage.
-                abilityWindows.l[abilityData.linkAddresses.l[relatedLine][0]].linesRelated.Remove(relatedLine);
-                abilityWindows.l[abilityData.linkAddresses.l[relatedLine][2]].linesRelated.Remove(relatedLine);
-
-                abilityData.linkAddresses.Remove(relatedLine);
+                RemoveLine(editWindow.linesRelated[i]);
             }
 
             abilityData.subclasses.Remove(id);
@@ -378,7 +374,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                     break;
 
                 case MouseMode.REMOVE_CONN:
-
+                    RemoveLine(id);
                     mMode = MouseMode.NONE;
                     break;
             }
@@ -400,6 +396,16 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 UIDrawer.GetTypeInElement<Image>(lineData.GetElementAt(id).l).color = Color.red;
                 break;
         }
+    }
+
+    void RemoveLine(int id) {
+        lineData.l[id].l.script.gameObject.SetActive(false);
+
+        // Removes the linkage from the other to prevent the other window closing linkage.
+        abilityWindows.l[abilityData.linkAddresses.l[id][0]].linesRelated.Remove(id);
+        abilityWindows.l[abilityData.linkAddresses.l[id][2]].linesRelated.Remove(id);
+
+        abilityData.linkAddresses.Remove(id);
     }
 
     SpawnerOutput[] CreateVariableField(int id, int varId) {
