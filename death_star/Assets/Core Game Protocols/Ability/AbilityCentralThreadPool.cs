@@ -50,7 +50,7 @@ public class NodeThread {
     public int GetVariableSource() {
         return varSource;
     }
-
+    
     public int GetNodeSource() {
         return nodeSource;
     }
@@ -327,7 +327,6 @@ public class AbilityCentralThreadPool : NetworkObject {
 
         //if(activeThreads.l[threadId].ReturnOverride())
         inst.SetNodeThreadId(threadId);
-
         inst.NodeCallback(threadId);
 
         // Checks if node has no more output

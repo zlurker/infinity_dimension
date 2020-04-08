@@ -15,13 +15,17 @@ public interface IRPGeneric {
     void RunAccordingToGeneric<T,P>(P arg);
 }
 
+public interface ISubNode {
+    void AddThread(int oT);
+}
+
 public enum VariableTypes {
 
     // Used by network
     CLIENT_ACTIVATED, HOST_ACTIVATED,
 
     // Used by variable connections
-    PERMENANT_TYPE, SIGNAL_ONLY,
+    PERMENANT_TYPE, SIGNAL_ONLY, 
 
     IMAGE_DEPENDENCY, AUTO_MANAGED   
 }

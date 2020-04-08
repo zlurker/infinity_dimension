@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThreadSplitter : AbilityTreeNode {
+public class ThreadSplitter : AbilityTreeNode,ISubNode {
 
     public const int NUMBER_OF_LOOPS = 0;
 
@@ -32,7 +32,7 @@ public class ThreadSplitter : AbilityTreeNode {
 
             threadMap[parentThread][1] += 1;
 
-            Debug.LogFormat("Thread id {0}, current node collection progress {1}/{2}", threadId, threadMap[parentThread][1], inst.GetSpecialisedNodeData(GetNodeId()));
+            Debug.LogFormat("Thread id {0}, current node collection progress {1}", threadId, threadMap[parentThread][1]);
 
             if(threadMap[parentThread][1] >= inst.GetSpecialisedNodeData(GetNodeId())) {
 
@@ -51,7 +51,7 @@ public class ThreadSplitter : AbilityTreeNode {
         Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
       
         if(threadMap[threadId][0] < GetNodeVariable<int>(NUMBER_OF_LOOPS) || GetNodeVariable<int>(NUMBER_OF_LOOPS) ==-1) {
-            ChildThread trdInst = new ChildThread(GetNodeId(), threadId);
+            ChildThread trdInst = new ChildThread(GetNodeId(), threadId,this);
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
             int threadToUse = inst.AddNewThread(trdInst);
@@ -67,5 +67,9 @@ public class ThreadSplitter : AbilityTreeNode {
                 SetNodeThreadId(-1);
             }
         }
+    }
+
+    public void AddThread(int oT) {
+        threadMap[oT][1]++;
     }
 }

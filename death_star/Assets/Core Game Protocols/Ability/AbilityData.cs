@@ -149,7 +149,6 @@ public class AbilityDataSubclass {
             total += currNodeTotal;
         }
 
-
         return total;
     }
 
