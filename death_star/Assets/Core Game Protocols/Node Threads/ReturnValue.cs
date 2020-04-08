@@ -18,8 +18,10 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
 
     public override void PreSetCallback(int threadId) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+        NodeThread nT = inst.GetActiveThread(threadId);
+        int node = nT.GetCurrentNodeID() > -1 ? nT.GetCurrentNodeID() : nT.GetStartingPoint();
 
-        threadMap.Add(threadId, new int[] { inst.GetActiveThread(threadId).GetCurrentNodeID(), inst.GetActiveThread(threadId).GetVariableSource(), 0 });
+        threadMap.Add(threadId, new int[] { node, inst.GetActiveThread(threadId).GetVariableSource(), 0 });
     }
 
     public override void NodeCallback(int threadId) {
@@ -51,8 +53,6 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
             if(threadMap[parentThread][2] == 0) {
                 int nS = threadMap[parentThread][0];
                 int vS = threadMap[parentThread][1];
-
-                Debug.LogFormat("NID: {0}, VID {1}", nS, vS);
 
                 inst.ReturnVariable(nS, vS).field.RunGenericBasedOnRP(this, parentThread);
 
