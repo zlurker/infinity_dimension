@@ -28,8 +28,7 @@ public class NodeThread {
     int currNode;
     int startingPt;
 
-    // Data pointing to previous node/variable that it was at.
-    int nodeSource;
+    int[][] links;
     int varSource;
 
     // To be used for creation of new threads when it branches out.
@@ -50,13 +49,8 @@ public class NodeThread {
     public int GetVariableSource() {
         return varSource;
     }
-    
-    public int GetNodeSource() {
-        return nodeSource;
-    }
 
-    public void SetSources(int nS, int vS) {      
-        nodeSource = nS;
+    public void SetVariableSource(int vS) {      
         varSource = vS;
     }
 
@@ -82,6 +76,14 @@ public class NodeThread {
 
     public int GetCurrentNodeID() {
         return currNode;
+    }
+
+    public int[][] GetLinksData() {
+        return links;
+    }
+
+    public void SetLinksData(int[][] l) {
+        links = l;
     }
 
     public virtual NodeThread CreateNewThread() {
@@ -241,6 +243,8 @@ public class AbilityCentralThreadPool : NetworkObject {
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         bool sharedNetworkData = false;
 
+        Debug.Log(variableId);
+
         if(LoadedData.GetVariableType(subclassTypes[currNode], variableId, VariableTypes.CLIENT_ACTIVATED))
             if(playerCasted != ClientProgram.clientId)
                 return;
@@ -255,21 +259,25 @@ public class AbilityCentralThreadPool : NetworkObject {
 
         if(sharedNetworkData)
             AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, value));
-       
-        UpdateVariableData<T>(threadId, runtimeParameters[currNode][variableId].links, value,variableId);
+
+        DefaultPopulateThread(threadId, variableId);
+        UpdateVariableData<T>(threadId, value);
     }
 
-    public void UpdateVariableData<T>(int threadId,int variableId, T value) {
+    public void DefaultPopulateThread(int threadId, int varId) {
+        activeThreads.l[threadId].SetVariableSource(varId);
+
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-        UpdateVariableData<T>(threadId, runtimeParameters[currNode][variableId].links, value, variableId);
+        int[][] selectedLinks = runtimeParameters[currNode][varId].links;
+        activeThreads.l[threadId].SetLinksData(selectedLinks);
     }
 
-    public void UpdateVariableData<T>(int threadId, int[][] links, T value, int vSource =-1) {
+    public void UpdateVariableData<T>(int threadId, T value) {
 
         //Debug.Log("ThreadId in loop:" + threadId);
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-
+        int[][] links = activeThreads.l[threadId].GetLinksData();
 
         for(int i = 0; i < links.Length; i++) {
 
@@ -280,7 +288,7 @@ public class AbilityCentralThreadPool : NetworkObject {
 
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
-                newThread.SetSources(currNode,vSource);
+                //newThread.SetSources(currNode,vSource);
                 Debug.LogFormat("{0} has been spawned by {1}, ischild: {2}", threadIdToUse, threadId, activeThreads.l[threadId] is ChildThread);
 
             } else {
@@ -292,7 +300,7 @@ public class AbilityCentralThreadPool : NetworkObject {
                 if(inst.GetNodeThreadId() == threadId)
                     inst.SetNodeThreadId(-1);
 
-                activeThreads.l[threadId].SetSources(currNode,vSource);
+                //activeThreads.l[threadId].SetSources(currNode,vSource);
             }
 
             RuntimeParameters<T> paramInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
@@ -306,7 +314,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         }
 
         if(jointThreadId > -1)
-            UpdateVariableData<T>(jointThreadId, links, value,vSource);
+            UpdateVariableData<T>(jointThreadId, value);
         //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
     }
 
@@ -317,7 +325,8 @@ public class AbilityCentralThreadPool : NetworkObject {
         //int prevNodeId = activeThreads.l[threadId].GetCurrentNodeID();
         int existingThread = inst.GetNodeThreadId();
 
-        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
+        inst.SetNodeThreadId(threadId);
+        inst.PreSetCallback(threadId);
 
         if(existingThread > -1) {
             //if(activeThreads.l[threadId].ReturnJoin() && activeThreads.l[existingThread].ReturnJoin()) {
@@ -325,9 +334,11 @@ public class AbilityCentralThreadPool : NetworkObject {
             activeThreads.l[threadId].JoinThread(existingThread);
         }
 
-        //if(activeThreads.l[threadId].ReturnOverride())
-        inst.SetNodeThreadId(threadId);
+        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);
+       
         inst.NodeCallback(threadId);
+
+        //if(activeThreads.l[threadId].ReturnOverride())
 
         // Checks if node has no more output
         if(nodeBranchingData[node] == 0) {

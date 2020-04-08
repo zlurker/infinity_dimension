@@ -169,11 +169,11 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         // Checks if inst id given was updated.
         if(NetworkObjectTracker.inst.CheckIfInstIdMatches(central, instId)) {
             AbilityCentralThreadPool centralInst = NetworkObjectTracker.inst.ReturnNetworkObject(central) as AbilityCentralThreadPool;
-            ParseManifest(centralInst,bytesRecieved,8);
+            ParseManifest(centralInst, bytesRecieved, 8);
         }
     }
 
-    public static void ParseManifest(AbilityCentralThreadPool centralInst,byte[] bytesRecieved,int offset=0) {
+    public static void ParseManifest(AbilityCentralThreadPool centralInst, byte[] bytesRecieved, int offset = 0) {
 
         int i = offset;
 
@@ -184,26 +184,30 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             int argType = BitConverter.ToInt32(bytesRecieved, i + 8);
             int valueLen = BitConverter.ToInt32(bytesRecieved, i + 12);
 
-            
+
             int abilityNodes = centralInst.GetAbilityNodeId();
             int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
 
-            if(nTID > -1)
+            if(nTID > -1) {
+
+                centralInst.DefaultPopulateThread(nTID, var);
+
                 switch(argType) {
 
                     case 0: //int                    
                         int iData = BitConverter.ToInt32(bytesRecieved, i + 16);
-                        centralInst.UpdateVariableData<int>(nTID, var, iData);
+                        
+                        centralInst.UpdateVariableData<int>(nTID, iData);
                         break;
 
                     case 1: //float                    
                         float fData = BitConverter.ToSingle(bytesRecieved, i + 16);
-                        centralInst.UpdateVariableData<float>(nTID, var, fData);
+                        centralInst.UpdateVariableData<float>(nTID, fData);
                         break;
 
                     case 2: //string
                         string sData = Encoding.Default.GetString(bytesRecieved, i + 16, valueLen);
-                        centralInst.UpdateVariableData<string>(nTID, var, sData);
+                        centralInst.UpdateVariableData<string>(nTID, sData);
                         break;
 
                     case 3: //int[]
@@ -212,7 +216,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                         for(int j = 0; j < iArray.Length; j++)
                             iArray[j] = BitConverter.ToInt32(bytesRecieved, i + 16 + (j * 4));
 
-                        centralInst.UpdateVariableData<int[]>(nTID, var, iArray);
+                        centralInst.UpdateVariableData<int[]>(nTID, iArray);
                         break;
 
                     case 4: //float[]
@@ -221,9 +225,10 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                         for(int j = 0; j < fArray.Length; j++)
                             fArray[j] = BitConverter.ToSingle(bytesRecieved, i + 16 + (j * 4));
 
-                        centralInst.UpdateVariableData<float[]>(nTID, var, fArray);
+                        centralInst.UpdateVariableData<float[]>(nTID, fArray);
                         break;
                 }
+            }
 
             i += 16 + valueLen;
         }

@@ -7,7 +7,7 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
     public const int EXTENDED_PATH = 0;
     public const int RETURN_FROM_VARIABLE = 1;
 
-    Dictionary<int, int> threadMap = new Dictionary<int, int>();
+    Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
     public override LoadedRuntimeParameters[] GetRuntimeParameters() {
         return new LoadedRuntimeParameters[] {
@@ -16,16 +16,19 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
         };
     }
 
-    public override void NodeCallback(int threadId) {
-        threadMap.Add(threadId, 0);
-
+    public override void PreSetCallback(int threadId) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-        ChildThread trdInst = new ChildThread(GetNodeId(), threadId,this);
+
+        threadMap.Add(threadId, new int[] { inst.GetActiveThread(threadId).GetCurrentNodeID(), inst.GetActiveThread(threadId).GetVariableSource(), 0 });
+    }
+
+    public override void NodeCallback(int threadId) {
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+        ChildThread trdInst = new ChildThread(GetNodeId(), threadId, this);
 
         int falseGeneratedLinks = inst.ReturnVariable(GetNodeId(), RETURN_FROM_VARIABLE).links.Length;
-        
-        trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()) - falseGeneratedLinks);
 
+        trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()) - falseGeneratedLinks);
         int threadToUse = inst.AddNewThread(trdInst);
         Debug.Log(threadId);
         Debug.LogFormat("Thread id {0} has been created. Uses left {1}", threadToUse, inst.GetNodeBranchData(GetNodeId()) - falseGeneratedLinks);
@@ -41,13 +44,15 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
 
             int parentThread = (nT as ChildThread).GetOriginalThread();
 
-            threadMap[parentThread]--;
+            threadMap[parentThread][2]--;
 
-            Debug.LogFormat("Thread id {0}, current node collection progress {1}", threadId, threadMap[parentThread]);
+            Debug.LogFormat("Thread id {0}, current node collection progress {1}", threadId, threadMap[parentThread][2]);
 
-            if(threadMap[parentThread] == 0) {
-                int nS = inst.GetActiveThread(parentThread).GetNodeSource();
-                int vS = inst.GetActiveThread(parentThread).GetVariableSource();
+            if(threadMap[parentThread][2] == 0) {
+                int nS = threadMap[parentThread][0];
+                int vS = threadMap[parentThread][1];
+
+                Debug.LogFormat("NID: {0}, VID {1}", nS, vS);
 
                 inst.ReturnVariable(nS, vS).field.RunGenericBasedOnRP(this, parentThread);
 
@@ -65,19 +70,20 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
     public void RunAccordingToGeneric<T, P>(P arg) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
 
-        int overridenNode = inst.GetActiveThread((int)(object)arg).GetNodeSource();
-        int vSource = inst.GetActiveThread((int)(object)arg).GetVariableSource();
+        int overridenNode = threadMap[(int)(object)arg][0];
+        int vSource = threadMap[(int)(object)arg][1];
         int[][] overridenLinks = inst.GetOverridenConnections(overridenNode, vSource);
 
         int[] varToReturn = inst.ReturnVariable(GetNodeId(), RETURN_FROM_VARIABLE).links[0];
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
 
-        int testTId = globalList.l[inst.GetAbilityNodeId()].abiNodes[overridenNode].GetNodeThreadId();
-        inst.UpdateVariableData<T>(testTId, overridenLinks, rP.v);
+        int targetThreadId = globalList.l[inst.GetAbilityNodeId()].abiNodes[overridenNode].GetNodeThreadId();
+        inst.GetActiveThread(targetThreadId).SetLinksData(overridenLinks);
+        inst.UpdateVariableData<T>(targetThreadId, rP.v);
     }
 
     public void AddThread(int oT) {
-        threadMap[oT]++;
+        threadMap[oT][2]++;
     }
 }
