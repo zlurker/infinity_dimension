@@ -180,7 +180,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             Dictionary<int, int> specialisedNodeThreadCount = new Dictionary<int, int>();
 
-            AbilityBooleanData bData = new AbilityBooleanData();
+            AbilityBooleanData bData = new AbilityBooleanData(null);
 
             Dictionary<Tuple<int, int>, HashSet<int>> listedGData = new Dictionary<Tuple<int, int>, HashSet<int>>();
             Dictionary<Tuple<int, int>, int[]> gData = new Dictionary<Tuple<int, int>, int[]>();

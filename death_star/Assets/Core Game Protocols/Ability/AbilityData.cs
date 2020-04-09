@@ -27,6 +27,13 @@ public class Variable {
 public class AbilityBooleanData {
     public bool[][] varsBlocked;
 
+    public AbilityBooleanData(Variable[][] variables) {
+        varsBlocked = new bool[variables.Length][];
+
+        for(int i = 0; i < variables.Length; i++)
+            varsBlocked[i] = new bool[variables[i].Length];
+    }
+
     public bool[][] ReturnNewCopy() {
         bool[][] clone = new bool[varsBlocked.Length][];
 
@@ -130,7 +137,7 @@ public class AbilityDataSubclass {
                 int nextNodeValues = 0;
 
                 if(followingIds.Length > 0)
-                    nextNodeValues = IterateLinks(target, followingIds, mappedValues, bData, interconnectGet,aMVar);
+                    nextNodeValues = IterateLinks(target, followingIds, mappedValues, bData, interconnectGet, aMVar);
 
                 //total += nextNodeValues;
                 currNodeTotal += nextNodeValues;
@@ -203,7 +210,7 @@ public class UIAbilityData {
                 for(int k = 0; k < elements[i].var[j].links.Length; k++) {
                     int[] link = elements[i].var[j].links[k];
 
-                    linkAddresses.Add(new int[] { i, j, link[0], link[1],link[2] });
+                    linkAddresses.Add(new int[] { i, j, link[0], link[1], link[2] });
                 }
             }
     }

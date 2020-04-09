@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThreadSplitter : AbilityTreeNode,ISubNode {
+public class ThreadSplitter : AbilityTreeNode, ISubNode {
 
     public const int NUMBER_OF_LOOPS = 0;
 
@@ -25,22 +25,22 @@ public class ThreadSplitter : AbilityTreeNode,ISubNode {
         NodeThread nT = inst.GetActiveThread(threadId);
 
         //Debug.LogFormat("Thread id {0} has finished looping. Returned to {1}", threadId, (nT as ChildThread).GetOriginalThread());
-        
+
         if(nT is ChildThread) {
-            
+
             int parentThread = (nT as ChildThread).GetOriginalThread();
 
             threadMap[parentThread][1] += 1;
 
             Debug.LogFormat("Thread id {0}, current node collection progress {1}", threadId, threadMap[parentThread][1]);
 
-            if(threadMap[parentThread][1] >= inst.GetSpecialisedNodeData(GetNodeId())) {
+            /*if(threadMap[parentThread][1] >= inst.GetSpecialisedNodeData(GetNodeId())) {
 
                 // Resets thread counter and adds one to loop counter.
                 threadMap[parentThread][0] += 1;
                 threadMap[parentThread][1] = 0;
                 ProcessThreads(parentThread);
-            }         
+            }         */
         }
     }
 
@@ -49,9 +49,9 @@ public class ThreadSplitter : AbilityTreeNode,ISubNode {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
 
         Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
-      
-        if(threadMap[threadId][0] < GetNodeVariable<int>(NUMBER_OF_LOOPS) || GetNodeVariable<int>(NUMBER_OF_LOOPS) ==-1) {
-            ChildThread trdInst = new ChildThread(GetNodeId(), threadId,this);
+
+        if(threadMap[threadId][0] < GetNodeVariable<int>(NUMBER_OF_LOOPS) || GetNodeVariable<int>(NUMBER_OF_LOOPS) == -1) {
+            ChildThread trdInst = new ChildThread(GetNodeId(), threadId, this);
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
             int threadToUse = inst.AddNewThread(trdInst);

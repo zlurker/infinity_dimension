@@ -115,7 +115,6 @@ public class AbilityCentralThreadPool : NetworkObject {
     private int[] nodeBranchingData;
 
     private Dictionary<Tuple<int,int>,int[][]> getReplacedConnections;
-    private Dictionary<int, int> specialisedNodeData;
 
     //private AbilityBooleanData booleanData;
     private bool[][] booleanData;
@@ -155,10 +154,6 @@ public class AbilityCentralThreadPool : NetworkObject {
         return abilityNodes;
     }
 
-    public int GetSpecialisedNodeData(int threadId) {
-        return specialisedNodeData[threadId];
-    }
-
     public Variable ReturnVariable(int node, int variable) {
         return runtimeParameters[node][variable];
     }
@@ -167,7 +162,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, Dictionary<int, int> sND, bool[][] aBD, Dictionary<Tuple<int, int>, int[][]> gRC) {
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, bool[][] aBD, Dictionary<Tuple<int, int>, int[][]> gRC) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
@@ -176,7 +171,6 @@ public class AbilityCentralThreadPool : NetworkObject {
         subclassTypes = sT;
         branchStartData = bSD;
         nodeBranchingData = nBD;
-        specialisedNodeData = sND;
         booleanData = aBD;
         getReplacedConnections = gRC;
 
@@ -243,7 +237,6 @@ public class AbilityCentralThreadPool : NetworkObject {
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         bool sharedNetworkData = false;
 
-        Debug.Log(variableId);
 
         if(LoadedData.GetVariableType(subclassTypes[currNode], variableId, VariableTypes.CLIENT_ACTIVATED))
             if(playerCasted != ClientProgram.clientId)
@@ -274,7 +267,6 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     public void UpdateVariableData<T>(int threadId, T value) {
 
-        //Debug.Log("ThreadId in loop:" + threadId);
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         int[][] links = activeThreads.l[threadId].GetLinksData();
@@ -327,14 +319,13 @@ public class AbilityCentralThreadPool : NetworkObject {
         inst.SetNodeThreadId(threadId);
         inst.PreSetCallback(threadId);
 
+        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);       
+        inst.NodeCallback(threadId);
+
         if(existingThread > -1) {
             Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadId, existingThread);
             activeThreads.l[threadId].JoinThread(existingThread);
         }
-
-        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);       
-        inst.NodeCallback(threadId);
-
 
         // Checks if node has no more output
         if(nodeBranchingData[node] == 0) {
