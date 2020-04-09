@@ -39,10 +39,10 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
         GetCentralInst().NodeVariableCallback<float>(threadToUse, TIME_INTERVAL, 0);       
     }
 
-    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
-        return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Time Interval",1))
-        };
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+        base.GetRuntimeParameters(holder);
+
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<float>("Time Interval", 1)));
     }
 
     public void OnSpawn() {

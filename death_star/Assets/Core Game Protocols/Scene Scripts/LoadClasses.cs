@@ -39,7 +39,10 @@ public class LoadClasses : MonoBehaviour {
                 inst = info.Invoke(new object[0]) as AbilityTreeNode;
 
                 LoadedData.loadedNodeInstance.Add(types[i], inst);
-                LoadedData.loadedParamInstances.Add(types[i], inst.GetRuntimeParameters());
+
+                List<LoadedRuntimeParameters> nodeRp = new List<LoadedRuntimeParameters>();
+                inst.GetRuntimeParameters(nodeRp);
+                LoadedData.loadedParamInstances.Add(types[i], nodeRp.ToArray());
             }
         }
     }

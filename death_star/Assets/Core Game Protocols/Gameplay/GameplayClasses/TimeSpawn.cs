@@ -29,13 +29,15 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
         GetCentralInst().NodeVariableCallback<int[]>(GetNodeThreadId(), ON_COLLIDE, objLoc);
     }
 
-    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
-        return new LoadedRuntimeParameters[] {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+        base.GetRuntimeParameters(holder);
+
+        holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Spawn Lifetime",3),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<int[]>("On Collide", null),VariableTypes.HOST_ACTIVATED),
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)
-        };
+        });
     }
 
     public void OnSpawn() {

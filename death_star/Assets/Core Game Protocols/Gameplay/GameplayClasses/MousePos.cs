@@ -14,9 +14,9 @@ public class MousePos : AbilityTreeNode {
         }
     }
 
-    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
-        return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Mouse Pos", null), VariableTypes.CLIENT_ACTIVATED)
-        };
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+        base.GetRuntimeParameters(holder);
+
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Mouse Pos", null), VariableTypes.CLIENT_ACTIVATED));
     }
 }

@@ -17,15 +17,17 @@ public class Damage : AbilityTreeNode {
 
             if(inst != null) {
                 RuntimeParameters<float> hpRp = inst.GetCentralInst().ReturnRuntimeParameter<float>(inst.GetNodeId(), HealthSpawn.HEALTH);
-                hpRp.v -= GetNodeVariable<float>(DAMAGE);                
+                hpRp.v -= GetNodeVariable<float>(DAMAGE);
             }
         }
     }
 
-    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
-        return new LoadedRuntimeParameters[] {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+        base.GetRuntimeParameters(holder);
+
+        holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Damage",0),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Target",null),VariableTypes.AUTO_MANAGED)
-        };
+        });
     }
 }

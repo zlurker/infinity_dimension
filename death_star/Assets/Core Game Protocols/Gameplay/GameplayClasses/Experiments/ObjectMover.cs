@@ -11,12 +11,14 @@ public class ObjectMover : AbilityTreeNode {
         central.ReturnRuntimeParameter<GameObject>(GetNodeId(), 0).v.transform.position += movement;
     }
 
-    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
-        return new LoadedRuntimeParameters[] {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+        base.GetRuntimeParameters(holder);
+        
+        holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<GameObject>("Move Target", null),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("X", 0),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Y", 0),VariableTypes.AUTO_MANAGED)       
-        };
+        });
     }
 
 }

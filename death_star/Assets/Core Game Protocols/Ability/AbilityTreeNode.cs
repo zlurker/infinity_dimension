@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum LinkMode {
-    NORMAL,SIGNAL
+    NORMAL, SIGNAL
 }
 
 public class AbilityNodeHolder {
     public Transform abilityNodeRoot;
     public AbilityTreeNode[] abiNodes;
-    
+
     public AbilityNodeHolder(string id, AbilityTreeNode[] nodes) {
         abilityNodeRoot = new GameObject(id).transform;
         abiNodes = nodes;
@@ -59,8 +59,8 @@ public class AbilityTreeNode : MonoBehaviour {
         sourceObject = srcObject;
     }
 
-    public virtual LoadedRuntimeParameters[] GetRuntimeParameters() {
-        return new LoadedRuntimeParameters[0];
+    public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+        
     }
 
     public virtual void PreSetCallback(int threadId) {
@@ -68,8 +68,7 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void NodeCallback(int threadId) {
-        //Debug.LogFormat("curr node {0}, nodeValue{1}, nodeThreadId{2}", nodeId, AbilityCentralThreadPool.globalCentralList.l[centralThreadId].ReturnRuntimeParameter<int>(nodeId, 0).v, nodeThreadId);
-        //AbilityCentralThreadPool.globalCentralList.l[centralThreadId].NodeVariableCallback<int>(nodeThreadId, 0, AbilityCentralThreadPool.globalCentralList.l[centralThreadId].ReturnRuntimeParameter<int>(nodeId, 0).v);
+
     }
 
     public virtual void ThreadEndStartCallback(int threadId) {
@@ -85,30 +84,6 @@ public class AbilityTreeNode : MonoBehaviour {
 
         return true;
     }
-
-    /*public void SyncDataWithNetwork<T>(int variableId, T value) {
-        AbilityNodeNetworkData inst = new AbilityNodeNetworkData<T>(nodeId, variableId, value);
-        GetCentralInst().AddVariableNetworkData(inst);
-        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, variableId, value);
-    }*/
-
-    /*public void SyncDataWithNetwork<T>(int variableId, T value,VariableTypes vType = VariableTypes.DEFAULT) {
-        AbilityCentralThreadPool central = GetCentralInst();
-        int centralId = central.ReturnNetworkObjectId();
-        int centralInstId = central.ReturnInstId();
-
-        UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
-        inst.SendUpdatedNodeData(centralId,centralInstId, nodeId, variableId,(int)vType, value);
-    }
-
-    public void SyncDataWithNetwork<T>(int variableId, T[] value, VariableTypes vType=VariableTypes.DEFAULT) {
-        AbilityCentralThreadPool central = GetCentralInst();
-        int centralId = central.ReturnNetworkObjectId();
-        int centralInstId = central.ReturnInstId();
-
-        UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
-        inst.SendUpdatedNodeData(centralId, centralInstId, nodeId, variableId, (int)vType, value);
-    }*/
 
     public AbilityCentralThreadPool GetCentralInst() {
         return AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];

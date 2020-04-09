@@ -9,11 +9,13 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
 
     Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
-    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
-        return new LoadedRuntimeParameters[] {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+        base.GetRuntimeParameters(holder);
+
+        holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Extended Path", 0)),
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Return from Variable", 0),VariableTypes.PERMENANT_TYPE,VariableTypes.SIGNAL_ONLY)
-        };
+        });
     }
 
     public override void PreSetCallback(int threadId) {

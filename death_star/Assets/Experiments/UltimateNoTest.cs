@@ -8,9 +8,9 @@ public class UltimateNoTest : AbilityTreeNode {
         Debug.Log(GetNodeVariable<float>(0));
     }
 
-    public override LoadedRuntimeParameters[] GetRuntimeParameters() {
-        return new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Num",0),VariableTypes.AUTO_MANAGED)
-        };
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+        base.GetRuntimeParameters(holder);
+
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<float>("Num", 0), VariableTypes.AUTO_MANAGED));      
     }
 }
