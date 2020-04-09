@@ -56,8 +56,8 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
 
                 inst.ReturnVariable(nS, vS).field.RunGenericBasedOnRP(this, parentThread);
 
-                Debug.LogFormat("Thread id {0} will end.", parentThread);
-                inst.HandleThreadRemoval(parentThread);
+                //Debug.LogFormat("Thread id {0} will end.", parentThread);
+                //inst.HandleThreadRemoval(parentThread);
 
                 if(threadMap.Count == 0) {
                     Debug.Log("Threadmap empty. Setting node thread id to -1.");
@@ -70,17 +70,20 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
     public void RunAccordingToGeneric<T, P>(P arg) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
 
-        int overridenNode = threadMap[(int)(object)arg][0];
-        int vSource = threadMap[(int)(object)arg][1];
+        int parentThread = (int)(object)arg;
+        int overridenNode = threadMap[parentThread][0];
+        int vSource = threadMap[parentThread][1];
+         
         int[][] overridenLinks = inst.GetOverridenConnections(overridenNode, vSource);
 
         int[] varToReturn = inst.ReturnVariable(GetNodeId(), RETURN_FROM_VARIABLE).links[0];
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
-
-        int targetThreadId = globalList.l[inst.GetAbilityNodeId()].abiNodes[overridenNode].GetNodeThreadId();
-        inst.GetActiveThread(targetThreadId).SetLinksData(overridenLinks);
-        inst.UpdateVariableData<T>(targetThreadId, rP.v);
+        
+        inst.GetActiveThread(parentThread).SetLinksData(overridenLinks);
+        inst.GetActiveThread(parentThread).SetVariableSource(vSource);
+        inst.GetActiveThread(parentThread).SetNodeData(overridenNode,overridenLinks.Length);
+        inst.UpdateVariableData<T>(parentThread, rP.v);
     }
 
     public void AddThread(int oT) {

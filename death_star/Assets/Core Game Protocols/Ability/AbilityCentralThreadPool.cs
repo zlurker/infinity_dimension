@@ -319,13 +319,15 @@ public class AbilityCentralThreadPool : NetworkObject {
         inst.SetNodeThreadId(threadId);
         inst.PreSetCallback(threadId);
 
-        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);       
-        inst.NodeCallback(threadId);
-
         if(existingThread > -1) {
             Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadId, existingThread);
             activeThreads.l[threadId].JoinThread(existingThread);
         }
+
+        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);       
+        inst.NodeCallback(threadId);
+
+        
 
         // Checks if node has no more output
         if(nodeBranchingData[node] == 0) {
