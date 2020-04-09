@@ -60,7 +60,6 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
-        
     }
 
     public virtual void PreSetCallback(int threadId) {
@@ -95,5 +94,9 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public bool IsClientPlayerUpdate() {
         return GetCentralInst().GetPlayerId() == ClientProgram.clientId;
+    }
+
+    public int GetVariableId(string var) {       
+        return LoadedData.loadedParamInstances[GetType()].variableAddresses[var];
     }
 }

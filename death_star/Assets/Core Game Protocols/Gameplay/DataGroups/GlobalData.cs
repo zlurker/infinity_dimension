@@ -91,11 +91,13 @@ public class RuntimeParameters {
 public class LoadedRPWrapper {
 
     public LoadedRuntimeParameters[] runtimeParameters;
-    public int varOffset;
+    public Dictionary<string, int> variableAddresses;
 
-    public LoadedRPWrapper(LoadedRuntimeParameters[] rP, int vO) {
+    public LoadedRPWrapper(LoadedRuntimeParameters[] rP) {
         runtimeParameters = rP;
-        varOffset = vO;
+
+        for(int i = 0; i < rP.Length; i++)
+            variableAddresses.Add(rP[i].rP.n, i);
     }
 }
 
