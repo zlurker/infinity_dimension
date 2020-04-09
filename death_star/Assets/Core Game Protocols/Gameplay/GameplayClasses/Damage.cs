@@ -22,10 +22,10 @@ public class Damage : AbilityTreeNode {
         }
     }
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters[] {
+        holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Damage",0),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Target",null),VariableTypes.AUTO_MANAGED)
         });

@@ -96,8 +96,12 @@ public class LoadedRPWrapper {
     public LoadedRPWrapper(LoadedRuntimeParameters[] rP) {
         runtimeParameters = rP;
 
-        for(int i = 0; i < rP.Length; i++)
+        variableAddresses = new Dictionary<string, int>();
+
+        for(int i = 0; i < rP.Length; i++) {
+            Debug.Log(rP[i].rP.n);
             variableAddresses.Add(rP[i].rP.n, i);
+        }
     }
 }
 

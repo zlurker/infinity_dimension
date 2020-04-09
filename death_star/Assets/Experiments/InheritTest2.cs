@@ -14,14 +14,12 @@ public class InheritTest2 : InheritTest1 {
 		
 	}
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters[] {
+        holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("2-1", 2)),
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("2-1", 2)),
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("2-1", 2)),
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("2-2", 3))
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("2-2", 2))
         });
     }
 }

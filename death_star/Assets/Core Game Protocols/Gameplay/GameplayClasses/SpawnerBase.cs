@@ -20,10 +20,10 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
         GetCentralInst().NodeVariableCallback<int[]>(GetNodeThreadId(), GetVariableId("On Collide"), objLoc);
     }
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters[] {
+        holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<int[]>("On Collide", null),VariableTypes.HOST_ACTIVATED),
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)

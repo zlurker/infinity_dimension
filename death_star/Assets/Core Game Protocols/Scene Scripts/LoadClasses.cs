@@ -41,19 +41,10 @@ public class LoadClasses : MonoBehaviour {
                 LoadedData.loadedNodeInstance.Add(types[i], inst);
 
 
-                List<LoadedRuntimeParameters[]> nodeRp = new List<LoadedRuntimeParameters[]>();
-                List<LoadedRuntimeParameters> concatRp = new List<LoadedRuntimeParameters>();
+                List<LoadedRuntimeParameters> nodeRp = new List<LoadedRuntimeParameters>();
                 inst.GetRuntimeParameters(nodeRp);
 
-                for(int j = 0; j < nodeRp.Count; j++)
-                    concatRp.AddRange(nodeRp[j]);
-
-                int offset = 0;
-
-                if(nodeRp.Count > 1) 
-                    offset = concatRp.Count - nodeRp[nodeRp.Count - 1].Length;
-
-                LoadedData.loadedParamInstances.Add(types[i], new LoadedRPWrapper(concatRp.ToArray(), offset));
+                LoadedData.loadedParamInstances.Add(types[i], new LoadedRPWrapper(nodeRp.ToArray()));
             }
         }
     }

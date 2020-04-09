@@ -8,10 +8,10 @@ public class ThreadSplitter : AbilityTreeNode, ISubNode {
 
     protected Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters[] {
+        holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Number of Loops", 1))
         });
     }

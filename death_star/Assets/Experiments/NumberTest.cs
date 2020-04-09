@@ -8,10 +8,10 @@ public class NumberTest : AbilityTreeNode {
         GetCentralInst().NodeVariableCallback<float>(threadId, 0,GetNodeVariable<float>(0));
     }
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters[]{
+        holder.AddRange(new LoadedRuntimeParameters[]{
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Number", 0), VariableTypes.AUTO_MANAGED)
         });
     }
