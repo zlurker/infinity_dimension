@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D),typeof(SpriteRenderer))]
-public class TimeSpawn : AbilityTreeNode, IOnSpawn {
+public class TimeSpawn : SpawnerBase, IOnSpawn {
 
     public const int SPAWN_LIFETIME =0;
     public const int SPAWN = 1;
     public const int ON_COLLIDE = 2;
     public const int SPRITE_FILE_PATH = 3;
-
-    SpriteRenderer sR;
-    Rigidbody2D rB;
 
 	void Update () {
 		
@@ -29,10 +26,10 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
         GetCentralInst().NodeVariableCallback<int[]>(GetNodeThreadId(), ON_COLLIDE, objLoc);
     }
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.AddRange(new LoadedRuntimeParameters[] {
+        holder.Add(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Spawn Lifetime",3),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<int[]>("On Collide", null),VariableTypes.HOST_ACTIVATED),
@@ -41,16 +38,6 @@ public class TimeSpawn : AbilityTreeNode, IOnSpawn {
     }
 
     public void OnSpawn() {
-        if(sR == null)
-            sR = GetComponent<SpriteRenderer>();
-
-        if(rB == null) {
-            rB = GetComponent<Rigidbody2D>();
-            rB.gravityScale = 0;
-            rB.mass = 0;
-            rB.drag = 0;
-            rB.angularDrag = 0;
-            rB.constraints = RigidbodyConstraints2D.FreezeAll;
-        }
+        
     }
 }

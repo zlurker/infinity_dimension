@@ -22,7 +22,7 @@ public class LoadClasses : MonoBehaviour {
     void LoadAbilityNodes() {
 
         LoadedData.loadedNodeInstance = new Dictionary<Type, AbilityTreeNode>();
-        LoadedData.loadedParamInstances = new Dictionary<Type, LoadedRuntimeParameters[]>();
+        LoadedData.loadedParamInstances = new Dictionary<Type, LoadedRPWrapper>();
 
         Type[] types = new Type[0];
         Type t = typeof(AbilityTreeNode);
@@ -40,9 +40,20 @@ public class LoadClasses : MonoBehaviour {
 
                 LoadedData.loadedNodeInstance.Add(types[i], inst);
 
-                List<LoadedRuntimeParameters> nodeRp = new List<LoadedRuntimeParameters>();
+
+                List<LoadedRuntimeParameters[]> nodeRp = new List<LoadedRuntimeParameters[]>();
+                List<LoadedRuntimeParameters> concatRp = new List<LoadedRuntimeParameters>();
                 inst.GetRuntimeParameters(nodeRp);
-                LoadedData.loadedParamInstances.Add(types[i], nodeRp.ToArray());
+
+                for(int j = 0; j < nodeRp.Count; j++)
+                    concatRp.AddRange(nodeRp[j]);
+
+                int offset = 0;
+
+                if(nodeRp.Count > 1) 
+                    offset = concatRp.Count - nodeRp[nodeRp.Count - 1].Length;
+
+                LoadedData.loadedParamInstances.Add(types[i], new LoadedRPWrapper(concatRp.ToArray(), offset));
             }
         }
     }

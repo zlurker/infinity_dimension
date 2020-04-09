@@ -14,9 +14,11 @@ public class InheritTest1 : AbilityTreeNode {
 		
 	}
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<float>("1-1", 1)));
+        holder.Add(new LoadedRuntimeParameters[] {
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("1-1", 2))
+        });
     }
 }

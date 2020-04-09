@@ -40,10 +40,10 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
         }      
     }
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.AddRange(new LoadedRuntimeParameters[] {
+        holder.Add(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Direction From Target",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Total Distance",0)),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Duration",1)),

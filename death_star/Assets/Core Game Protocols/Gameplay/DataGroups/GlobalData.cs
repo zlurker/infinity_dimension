@@ -88,6 +88,17 @@ public class RuntimeParameters {
     }
 }
 
+public class LoadedRPWrapper {
+
+    public LoadedRuntimeParameters[] runtimeParameters;
+    public int varOffset;
+
+    public LoadedRPWrapper(LoadedRuntimeParameters[] rP, int vO) {
+        runtimeParameters = rP;
+        varOffset = vO;
+    }
+}
+
 public static class LoadedData {
 
     public static double connectionTimeOffset;
@@ -97,7 +108,7 @@ public static class LoadedData {
 
     public static Dictionary<Type, ISingleton> singletonList;
     public static Dictionary<Type, AbilityTreeNode> loadedNodeInstance;
-    public static Dictionary<Type, LoadedRuntimeParameters[]> loadedParamInstances;
+    public static Dictionary<Type, LoadedRPWrapper> loadedParamInstances;
 
     public static T GetSingleton<T>() {
         return (T)singletonList[typeof(T)];
@@ -110,10 +121,10 @@ public static class LoadedData {
     public static RuntimeParameters[] ReturnNodeVariables(Type nodeT) {
         if(loadedParamInstances.ContainsKey(nodeT)) {
 
-            RuntimeParameters[] rP = new RuntimeParameters[loadedParamInstances[nodeT].Length];
+            RuntimeParameters[] rP = new RuntimeParameters[loadedParamInstances[nodeT].runtimeParameters.Length];
 
             for(int i = 0; i < rP.Length; i++)
-                rP[i] = loadedParamInstances[nodeT][i].rP;
+                rP[i] = loadedParamInstances[nodeT].runtimeParameters[i].rP;
 
             return rP;
         }
@@ -122,7 +133,7 @@ public static class LoadedData {
     }
 
     public static bool GetVariableType(Type t, int var, VariableTypes vTypes) {
-        LoadedRuntimeParameters lRP = loadedParamInstances[t][var];
+        LoadedRuntimeParameters lRP = loadedParamInstances[t].runtimeParameters[var];
 
         if(lRP.vT != null)
             return lRP.vT.Contains(vTypes);

@@ -17,10 +17,10 @@ public class Coordinates : AbilityTreeNode {
         }
     }
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.AddRange(new LoadedRuntimeParameters[] {
+        holder.Add(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("X",0),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Y",0),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Output Coordinates",null))

@@ -59,7 +59,7 @@ public class AbilityTreeNode : MonoBehaviour {
         sourceObject = srcObject;
     }
 
-    public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+    public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
         
     }
 

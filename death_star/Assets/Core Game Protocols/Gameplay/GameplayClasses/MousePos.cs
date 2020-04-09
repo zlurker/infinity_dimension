@@ -10,13 +10,15 @@ public class MousePos : AbilityTreeNode {
 
         if(IsClientPlayerUpdate()) {
             Vector2 currPosInWorld = LoadedData.currSceneCamera.ScreenToWorldPoint(Input.mousePosition);
-            GetCentralInst().NodeVariableCallback<float[]>(GetNodeThreadId(),MOUSE_POS, new float[] { currPosInWorld.x, currPosInWorld.y });
+            GetCentralInst().NodeVariableCallback<float[]>(GetNodeThreadId(), MOUSE_POS, new float[] { currPosInWorld.x, currPosInWorld.y });
         }
     }
 
-    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters[]> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Mouse Pos", null), VariableTypes.CLIENT_ACTIVATED));
+        holder.Add(new LoadedRuntimeParameters[]{
+            new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Mouse Pos", null), VariableTypes.CLIENT_ACTIVATED)
+        });
     }
 }
