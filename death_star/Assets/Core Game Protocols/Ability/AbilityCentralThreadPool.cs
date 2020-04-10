@@ -240,7 +240,6 @@ public class AbilityCentralThreadPool : NetworkObject {
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         int variableId = LoadedData.loadedParamInstances[subclassTypes[currNode]].variableAddresses[varName];
 
-        Debug.Log(variableId);
         bool sharedNetworkData = false;
 
 

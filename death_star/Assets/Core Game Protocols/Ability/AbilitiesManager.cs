@@ -72,7 +72,6 @@ public class AbilityData : IInputCallback<int> {
                         dataVar[i][j].links[k] = new int[0][];
 
                 // Gets the sum of latest branch. Latest branch will be the default branch.
-                Debug.Log(varLinks.l.Count - 1);
                 nodeBranchingData[i] += dataVar[i][j].links[varLinks.l.Count - 1].Length;
             }
         }

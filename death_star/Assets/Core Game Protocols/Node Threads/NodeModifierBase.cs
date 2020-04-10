@@ -16,7 +16,6 @@ public class NodeModifierBase : AbilityTreeNode {
     protected Dictionary<int, ThreadMapDataBase> threadMap = new Dictionary<int, ThreadMapDataBase>();
 
     public override void ThreadEndStartCallback(int threadId) {
-        base.ThreadEndStartCallback(threadId);
 
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         NodeThread nT = inst.GetActiveThread(threadId);
@@ -25,16 +24,23 @@ public class NodeModifierBase : AbilityTreeNode {
             int parentThread = (nT as ChildThread).GetOriginalThread();
             threadMap[parentThread].totalThreadsSpawned--;
 
-            if(threadMap[parentThread].totalThreadsSpawned == 0)
-                ThreadZeroed(parentThread);
+            if(threadMap[parentThread].totalThreadsSpawned == 0) 
+                ThreadZeroed(parentThread);            
+            
+            // Checks if node is already empty with no more threads.
+            if(threadMap.Count == 0) {
+                Debug.Log("Threadmap empty. Setting node thread id to -1.");
+                SetNodeThreadId(-1);
+            }
         }
     }
 
     public virtual void ThreadZeroed(int parentThread) {
-        threadMap.Remove(parentThread);
+
     }
 
     public void AddThread(int oT) {
         threadMap[oT].totalThreadsSpawned++;
+        Debug.Log("Thread added.");
     }
 }
