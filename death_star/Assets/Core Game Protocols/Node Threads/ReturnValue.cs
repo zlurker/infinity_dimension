@@ -2,9 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ReturnValue : NodeModifierBase, IRPGeneric {
+public class ReturnNodeData : ThreadMapDataBase {
 
-    Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
+    public int node;
+    public int vSource;
+    public ReturnNodeData(int n, int vSrc) {
+        node = n;
+        vSource = vSrc;
+    }
+}
+
+public class ReturnValue : NodeModifierBase, IRPGeneric {
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
@@ -20,14 +28,14 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         NodeThread nT = inst.GetActiveThread(threadId);
         int node = nT.GetCurrentNodeID() > -1 ? nT.GetCurrentNodeID() : nT.GetStartingPoint();
 
-        threadMap.Add(threadId, new int[] { node, inst.GetActiveThread(threadId).GetVariableSource(), 0 });
+        threadMap.Add(threadId, new ReturnNodeData(node, inst.GetActiveThread(threadId).GetVariableSource()));
     }
 
     public override void NodeCallback(int threadId) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         ChildThread trdInst = new ChildThread(GetNodeId(), threadId, this);
 
-        int falseGeneratedLinks = inst.ReturnVariable(GetNodeId(), "Return From Variable").links.Length;
+        int falseGeneratedLinks = inst.ReturnVariable(GetNodeId(), "Return from Variable").links.Length;
 
         trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()) - falseGeneratedLinks);
         int threadToUse = inst.AddNewThread(trdInst);
@@ -36,31 +44,17 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         inst.NodeVariableCallback<int>(threadToUse, "Extended Path", 0);
     }
 
-    public override void ThreadEndStartCallback(int threadId) {
+    public override void ThreadZeroed(int parentThread) {
+        AbilityCentralThreadPool inst = GetCentralInst();
+        ReturnNodeData returnNodeData = threadMap[parentThread] as ReturnNodeData;
 
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-        NodeThread nT = inst.GetActiveThread(threadId);
+        inst.ReturnVariable(returnNodeData.node, returnNodeData.vSource).field.RunGenericBasedOnRP(this, new int[] { parentThread, returnNodeData.node, returnNodeData.vSource });
 
-        if(nT is ChildThread) {
-
-            int parentThread = (nT as ChildThread).GetOriginalThread();
-
-            threadMap[parentThread][2]--;
-
-            Debug.LogFormat("Thread id {0}, current node collection progress {1}", threadId, threadMap[parentThread][2]);
-
-            if(threadMap[parentThread][2] == 0) {
-                int nS = threadMap[parentThread][0];
-                int vS = threadMap[parentThread][1];
-
-                inst.ReturnVariable(nS, vS).field.RunGenericBasedOnRP(this, parentThread);
-
-                if(threadMap.Count == 0) {
-                    Debug.Log("Threadmap empty. Setting node thread id to -1.");
-                    SetNodeThreadId(-1);
-                }
-            }
-        }
+        //base.ThreadZeroed(parentThread);
+        //if(threadMap.Count == 0) {
+        //    Debug.Log("Threadmap empty. Setting node thread id to -1.");
+        //    SetNodeThreadId(-1);
+        //}
     }
 
     public override int ReturnLinkWeight() {
@@ -70,13 +64,14 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
     public void RunAccordingToGeneric<T, P>(P arg) {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
 
-        int parentThread = (int)(object)arg;
-        int overridenNode = threadMap[parentThread][0];
-        int vSource = threadMap[parentThread][1];
+        int[] rData = (int[])(object)arg;
+        int parentThread = rData[0];
+        int overridenNode = rData[1];
+        int vSource = rData[2];
          
-        int[][] overridenLinks = inst.GetOverridenConnections(overridenNode, vSource);
+        int[][] overridenLinks = inst.ReturnVariable(overridenNode, vSource).links[0];
 
-        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return From Variable").links[0][0];
+        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return from Variable").links[0][0];
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
         
@@ -85,10 +80,4 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         inst.GetActiveThread(parentThread).SetNodeData(overridenNode,overridenLinks.Length);
         inst.UpdateVariableData<T>(parentThread, rP.v);
     }
-
-    public void AddThread(int oT) {
-        threadMap[oT][2]++;
-    }
-
-
 }

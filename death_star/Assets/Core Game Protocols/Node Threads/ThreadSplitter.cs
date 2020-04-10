@@ -68,8 +68,4 @@ public class ThreadSplitter : NodeModifierBase {
             }
         }
     }
-
-    public void AddThread(int oT) {
-        threadMap[oT][1]++;
-    }
 }

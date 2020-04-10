@@ -114,8 +114,6 @@ public class AbilityCentralThreadPool : NetworkObject {
     private int[] branchStartData;
     private int[] nodeBranchingData;
 
-    private Dictionary<Tuple<int,int>,int[][]> getReplacedConnections;
-
     //private AbilityBooleanData booleanData;
     private bool[][] booleanData;
 
@@ -172,7 +170,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, bool[][] aBD, Dictionary<Tuple<int, int>, int[][]> gRC) {
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, bool[][] aBD) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
@@ -182,17 +180,12 @@ public class AbilityCentralThreadPool : NetworkObject {
         branchStartData = bSD;
         nodeBranchingData = nBD;
         booleanData = aBD;
-        getReplacedConnections = gRC;
 
         networkNodeData = new List<AbilityNodeNetworkData>();
     }
 
     public int GetNodeBranchData(int id) {
         return nodeBranchingData[id];
-    }
-
-    public int[][] GetOverridenConnections(int nId, int vId) {
-        return getReplacedConnections[Tuple.Create<int,int>(nId,vId)];
     }
 
     public int GetNewThread(int startNode) {

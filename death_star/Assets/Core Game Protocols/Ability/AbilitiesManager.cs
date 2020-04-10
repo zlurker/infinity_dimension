@@ -16,7 +16,6 @@ public class AbilityData : IInputCallback<int> {
     string[] description;
     int[] rootSubclasses;
     int[] nodeBranchingData;
-    Dictionary<Tuple<int, int>, int[][]> gData;
     int abilityId;
 
     public AbilityData(AbilityDataSubclass[] data, int aId) {
@@ -57,15 +56,13 @@ public class AbilityData : IInputCallback<int> {
 
                     int linkWeight = LoadedData.loadedNodeInstance[dataType[currLink[0]]].ReturnLinkWeight();
 
-                    if(varLinks.GetElementAt(linkWeight) == null) {
+                    if(varLinks.GetElementAt(linkWeight) == null) 
                         varLinks.ModifyElementAt(linkWeight, new List<int[]>());
-                        Debug.Log(varLinks.l[linkWeight]);
-                    }
 
                     varLinks.l[linkWeight].Add(currLink);
                 }
 
-                // Sorts out all the arrays accordingly.
+                // Sorts out all the arrays accordingly by weight.
                 dataVar[i][j].links = new int[varLinks.l.Count][][];
 
                 for(int k = 0; k < dataVar[i][j].links.Length; k++)
@@ -111,7 +108,7 @@ public class AbilityData : IInputCallback<int> {
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
         // Rather than create new instance, everything except variables will be taken from here.
-        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, clonedBoolValues, gData);
+        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, clonedBoolValues);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
