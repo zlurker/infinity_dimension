@@ -74,6 +74,10 @@ public class AbilityTreeNode : MonoBehaviour {
 
     }
 
+    public virtual int ReturnLinkWeight() {
+        return 0;
+    }
+
     public bool CheckIfVarRegionBlocked(params int[] target) {
         bool[] nodeBoolValues = AbilityCentralThreadPool.globalCentralList.l[centralThreadId].GetNodeBoolValues(nodeId);
 
@@ -94,9 +98,5 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public bool IsClientPlayerUpdate() {
         return GetCentralInst().GetPlayerId() == ClientProgram.clientId;
-    }
-
-    public int GetVariableId(string var) {       
-        return LoadedData.loadedParamInstances[GetType()].variableAddresses[var];
     }
 }

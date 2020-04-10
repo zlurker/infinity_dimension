@@ -5,20 +5,20 @@ using UnityEngine;
 public class ChildThread : NodeThread {
 
     int originalThread;
-    ISubNode subNode;
+    NodeModifierBase nMB;
 
-    public ChildThread(int sPt, int oT,ISubNode sN) : base(sPt) {
+    public ChildThread(int sPt, int oT, NodeModifierBase sN) : base(sPt) {
         originalThread = oT;
-        subNode = sN;
+        nMB = sN;
 
-        subNode.AddThread(originalThread);
+        nMB.AddThread(originalThread);
     }
 
     public override NodeThread CreateNewThread() {
         generatedNodeThreads++;
 
         if(possiblePaths > generatedNodeThreads)
-            return new ChildThread(GetStartingPoint(), originalThread, subNode);
+            return new ChildThread(GetStartingPoint(), originalThread, nMB);
 
         return null;
     }

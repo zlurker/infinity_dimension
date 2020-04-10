@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class NodeModifierBase : AbilityTreeNode {
 
-    protected Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
+    protected Dictionary<int, int> threadMap = new Dictionary<int, int>();
 
     // Use this for initialization
     void Start () {
@@ -15,4 +15,8 @@ public class NodeModifierBase : AbilityTreeNode {
 	void Update () {
 		
 	}
+
+    public void AddThread(int oT) {
+        threadMap[oT]++;
+    }
 }

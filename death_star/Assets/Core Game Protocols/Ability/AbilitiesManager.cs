@@ -37,47 +37,46 @@ public class AbilityData : IInputCallback<int> {
     void BeginDepenciesBuild() {
 
         AutoPopulationList<bool> connected = new AutoPopulationList<bool>(dataVar.Length);
-
         nodeBranchingData = new int[dataVar.Length];
         boolData = new AbilityBooleanData(dataVar);
-        gData = new Dictionary<Tuple<int, int>, int[][]>();
 
         for(int i = 0; i < dataVar.Length; i++) {
             for(int j = 0; j < dataVar[i].Length; j++) {
 
-                List<int> retThreads = new List<int>();
+                AutoPopulationList<List<int[]>> varLinks = new AutoPopulationList<List<int[]>>(1);
 
-                for(int k = 0; k < dataVar[i][j].links.Length; k++) {
-                    int[] currLink = dataVar[i][j].links[k];
+                for(int k = 0; k < dataVar[i][j].links[0].Length; k++) {
+                    int[] currLink = dataVar[i][j].links[0][k];
 
                     // Marks target as true so it can't be root.
-                    connected.ModifyElementAt(dataVar[i][j].links[k][0], true);
+                    connected.ModifyElementAt(currLink[0], true);
 
                     // Marks target as true so it will be blocked.
                     if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t)
                         boolData.varsBlocked[currLink[0]][currLink[1]] = true;
 
-                    // If return, add to return threads
-                    if(dataType[currLink[0]] == typeof(ReturnValue))
-                        retThreads.Add(j);
-                }
+                    int linkWeight = LoadedData.loadedNodeInstance[dataType[currLink[0]]].ReturnLinkWeight();
 
-                // Manages the swapping of threads. Removes links that are to be blocked.
-                if(retThreads.Count > 0) {
-                    List<int[]> listToProcess = new List<int[]>(dataVar[i][j].links);
-                    int[][] subLinks = new int[retThreads.Count][];
-
-                    for(int k = retThreads.Count - 1; k >= 0; k--) {
-                        subLinks[k] = listToProcess[retThreads[k]];
-                        listToProcess.RemoveAt(retThreads[k]);
+                    if(varLinks.GetElementAt(linkWeight) == null) {
+                        varLinks.ModifyElementAt(linkWeight, new List<int[]>());
+                        Debug.Log(varLinks.l[linkWeight]);
                     }
 
-                    dataVar[i][j].links = subLinks;
-                    gData.Add(Tuple.Create<int, int>(i, j), listToProcess.ToArray());
+                    varLinks.l[linkWeight].Add(currLink);
                 }
 
-                // Gets the sum of branches.
-                nodeBranchingData[i] += dataVar[i][j].links.Length;
+                // Sorts out all the arrays accordingly.
+                dataVar[i][j].links = new int[varLinks.l.Count][][];
+
+                for(int k = 0; k < dataVar[i][j].links.Length; k++)
+                    if(varLinks.l[k] != null)
+                        dataVar[i][j].links[k] = varLinks.l[k].ToArray();
+                    else
+                        dataVar[i][j].links[k] = new int[0][];
+
+                // Gets the sum of latest branch. Latest branch will be the default branch.
+                Debug.Log(varLinks.l.Count - 1);
+                nodeBranchingData[i] += dataVar[i][j].links[varLinks.l.Count - 1].Length;
             }
         }
 

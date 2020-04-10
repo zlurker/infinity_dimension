@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThreadSplitter : AbilityTreeNode, ISubNode {
+public class ThreadSplitter : NodeModifierBase {
 
     protected Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
@@ -40,7 +40,7 @@ public class ThreadSplitter : AbilityTreeNode, ISubNode {
                 threadMap[parentThread][0] += 1;
                 threadMap[parentThread][1] = 0;
                 ProcessThreads(parentThread);
-            }         */
+            }*/
         }
     }
 

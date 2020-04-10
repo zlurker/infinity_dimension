@@ -274,7 +274,9 @@ public class AbilityCentralThreadPool : NetworkObject {
         activeThreads.l[threadId].SetVariableSource(varId);
 
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-        int[][] selectedLinks = runtimeParameters[currNode][varId].links;
+
+        int lastA = runtimeParameters[currNode][varId].links.Length-1;
+        int[][] selectedLinks = runtimeParameters[currNode][varId].links[lastA];
         activeThreads.l[threadId].SetLinksData(selectedLinks);
     }
 

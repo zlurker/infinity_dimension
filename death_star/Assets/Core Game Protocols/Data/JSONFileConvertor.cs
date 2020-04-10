@@ -11,36 +11,6 @@ public class StandardJSONFileFormat {
     public int[] vT; //variableType
 }
 
-public class DictionaryTupleSerializedData<J, T> {
-    public string[] tuple;
-    public T[] dataSet;
-
-    public DictionaryTupleSerializedData() {
-    }
-
-    public DictionaryTupleSerializedData(Dictionary<J, T> dict) {
-
-        tuple = new string[dict.Count];
-        dataSet = new T[dict.Count];
-        int i = 0;
-
-        foreach(var ele in dict) {
-            tuple[i] = JsonConvert.SerializeObject(ele.Key);
-            dataSet[i] = ele.Value;
-            i++;
-        }
-    }
-
-    public Dictionary<J, T> RetrieveDictionary() {
-        Dictionary<J, T> dict = new Dictionary<J, T>();
-
-        for(int i = 0; i < tuple.Length; i++)
-            dict.Add(JsonConvert.DeserializeObject<J>(tuple[i]), dataSet[i]);
-
-        return dict;
-    }
-}
-
 public static class JSONFileConvertor {
 
     public static StandardJSONFileFormat[] ConvertToStandard(AbilityDataSubclass[] aDS) {
@@ -81,11 +51,11 @@ public static class JSONFileConvertor {
 
                 for(int j = 0; j < convertedFormat[i].var.Length; j++) {
                     if(sFs[i].vT[j] > -1) {
-                        convertedFormat[i].var[j] = new Variable(VariableTypeIndex.convertors[sFs[i].vT[j]].ReturnRuntimeType(sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
+                        convertedFormat[i].var[j] = new Variable(VariableTypeIndex.convertors[sFs[i].vT[j]].ReturnRuntimeType(sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][][]>(sFs[i].l[j]));
                     } else {
                         Debug.Log(LoadedData.ReturnNodeVariables(convertedFormat[i].classType));
                         RuntimeParameters inst = LoadedData.ReturnNodeVariables(convertedFormat[i].classType)[j];
-                        convertedFormat[i].var[j] = new Variable(inst, JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
+                        convertedFormat[i].var[j] = new Variable(inst, JsonConvert.DeserializeObject<int[][][]>(sFs[i].l[j]));
                     }
                 }
             }

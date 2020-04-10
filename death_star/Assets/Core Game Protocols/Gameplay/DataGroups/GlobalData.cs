@@ -15,10 +15,6 @@ public interface IRPGeneric {
     void RunAccordingToGeneric<T,P>(P arg);
 }
 
-public interface ISubNode {
-    void AddThread(int oT);
-}
-
 public enum VariableTypes {
 
     // Used by network

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
+public class ReturnValue : NodeModifierBase, IRPGeneric {
 
     Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
@@ -55,15 +55,16 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
 
                 inst.ReturnVariable(nS, vS).field.RunGenericBasedOnRP(this, parentThread);
 
-                //Debug.LogFormat("Thread id {0} will end.", parentThread);
-                //inst.HandleThreadRemoval(parentThread);
-
                 if(threadMap.Count == 0) {
                     Debug.Log("Threadmap empty. Setting node thread id to -1.");
                     SetNodeThreadId(-1);
                 }
             }
         }
+    }
+
+    public override int ReturnLinkWeight() {
+        return 1;
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {
@@ -75,7 +76,7 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
          
         int[][] overridenLinks = inst.GetOverridenConnections(overridenNode, vSource);
 
-        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return From Variable").links[0];
+        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return From Variable").links[0][0];
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
         
