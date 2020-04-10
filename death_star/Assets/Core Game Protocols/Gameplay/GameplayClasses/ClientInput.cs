@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn {
 
-    public const int INPUT_KEY = 0;
-
     bool inputSet;
 
     public void InputCallback(int callbackData) {
         Debug.Log("Input callback, Client has been inputted.");
         inputSet = false;
-        GetCentralInst().NodeVariableCallback<int>(GetNodeThreadId(),INPUT_KEY, 0);       
+        GetCentralInst().NodeVariableCallback<int>(GetNodeThreadId(),"Input Key", 0);       
     }
 
     public override void NodeCallback(int threadId) {
@@ -19,9 +17,9 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn {
 
         if(IsClientPlayerUpdate()) {
             if(!inputSet) {
-                Debug.Log(GetNodeVariable<int>(INPUT_KEY));
-                Debug.Log((KeyCode)GetNodeVariable<int>(INPUT_KEY));
-                LoadedData.GetSingleton<PlayerInput>().AddNewInput<int>(this, 0, (KeyCode)GetNodeVariable<int>(INPUT_KEY), 1);
+                Debug.Log(GetNodeVariable<int>("Input Key"));
+                Debug.Log((KeyCode)GetNodeVariable<int>("Input Key"));
+                LoadedData.GetSingleton<PlayerInput>().AddNewInput<int>(this, 0, (KeyCode)GetNodeVariable<int>("Input Key"), 1);
             }
 
             inputSet = true;

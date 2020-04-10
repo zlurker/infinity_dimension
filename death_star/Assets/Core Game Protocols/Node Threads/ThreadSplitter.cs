@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class ThreadSplitter : AbilityTreeNode, ISubNode {
 
-    public const int NUMBER_OF_LOOPS = 0;
-
     protected Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
@@ -52,13 +50,13 @@ public class ThreadSplitter : AbilityTreeNode, ISubNode {
 
         Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, threadMap[threadId][0], inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
 
-        if(threadMap[threadId][0] < GetNodeVariable<int>(NUMBER_OF_LOOPS) || GetNodeVariable<int>(NUMBER_OF_LOOPS) == -1) {
+        if(threadMap[threadId][0] < GetNodeVariable<int>("Number of Loops") || GetNodeVariable<int>("Number of Loops") == -1) {
             ChildThread trdInst = new ChildThread(GetNodeId(), threadId, this);
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
             int threadToUse = inst.AddNewThread(trdInst);
             Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-            inst.NodeVariableCallback<int>(threadToUse, NUMBER_OF_LOOPS, GetNodeVariable<int>(NUMBER_OF_LOOPS));
+            inst.NodeVariableCallback<int>(threadToUse, "Number of Loops", GetNodeVariable<int>("Number of Loops"));
         } else {
             Debug.LogFormat("Thread id {0} will end.", threadId);
             inst.HandleThreadRemoval(threadId);

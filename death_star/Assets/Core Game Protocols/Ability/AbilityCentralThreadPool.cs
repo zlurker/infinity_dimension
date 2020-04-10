@@ -162,6 +162,16 @@ public class AbilityCentralThreadPool : NetworkObject {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
+    public Variable ReturnVariable(int node, string vName) {
+        int variable = LoadedData.loadedParamInstances[subclassTypes[node]].variableAddresses[vName];
+        return runtimeParameters[node][variable];
+    }
+
+    public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, string vName) {
+        int variable = LoadedData.loadedParamInstances[subclassTypes[node]].variableAddresses[vName];
+        return runtimeParameters[node][variable].field as RuntimeParameters<T>;
+    }
+
     public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, bool[][] aBD, Dictionary<Tuple<int, int>, int[][]> gRC) {
         activeThreads = new EnhancedList<NodeThread>();
 
@@ -229,12 +239,15 @@ public class AbilityCentralThreadPool : NetworkObject {
         }
     }
 
-    public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
+    public void NodeVariableCallback<T>(int threadId, string varName, T value) {
 
         if(threadId == -1)
             return;
-
+       
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
+        int variableId = LoadedData.loadedParamInstances[subclassTypes[currNode]].variableAddresses[varName];
+
+        Debug.Log(variableId);
         bool sharedNetworkData = false;
 
 

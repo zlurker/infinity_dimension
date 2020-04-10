@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class Repeater : AbilityTreeNode, IOnSpawn {
 
-    public const int TIME_INTERVAL = 0;
-
     float startTime = -1;
 
 	void Update () {
 		if (startTime > -1) {
             float diff = Time.realtimeSinceStartup - startTime;
-            int diffMultiplier = Mathf.FloorToInt(diff / GetNodeVariable<float>(TIME_INTERVAL));
+            int diffMultiplier = Mathf.FloorToInt(diff / GetNodeVariable<float>("Time Interval"));
 
             for(int i = 0; i < diffMultiplier; i++)
                 BeginRepeater();
@@ -36,7 +34,7 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
         int threadToUse = GetCentralInst().AddNewThread(trdInst);
         Debug.Log("Launching repeater...");
         Debug.Log(threadToUse);
-        GetCentralInst().NodeVariableCallback<float>(threadToUse, TIME_INTERVAL, 0);       
+        GetCentralInst().NodeVariableCallback<float>(threadToUse, "Time Interval", 0);       
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

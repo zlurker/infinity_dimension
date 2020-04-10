@@ -5,7 +5,7 @@ using UnityEngine;
 public class UltimateNoTest : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
-        Debug.Log(GetNodeVariable<float>(0));
+        Debug.Log(GetNodeVariable<float>("Num"));
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

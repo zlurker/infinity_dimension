@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
 
-    public const int EXTENDED_PATH = 0;
-    public const int RETURN_FROM_VARIABLE = 1;
-
     Dictionary<int, int[]> threadMap = new Dictionary<int, int[]>();
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
@@ -30,13 +27,13 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         ChildThread trdInst = new ChildThread(GetNodeId(), threadId, this);
 
-        int falseGeneratedLinks = inst.ReturnVariable(GetNodeId(), RETURN_FROM_VARIABLE).links.Length;
+        int falseGeneratedLinks = inst.ReturnVariable(GetNodeId(), "Return From Variable").links.Length;
 
         trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()) - falseGeneratedLinks);
         int threadToUse = inst.AddNewThread(trdInst);
         Debug.Log(threadId);
         Debug.LogFormat("Thread id {0} has been created. Uses left {1}", threadToUse, inst.GetNodeBranchData(GetNodeId()) - falseGeneratedLinks);
-        inst.NodeVariableCallback<int>(threadToUse, EXTENDED_PATH, 0);
+        inst.NodeVariableCallback<int>(threadToUse, "Extended Path", 0);
     }
 
     public override void ThreadEndStartCallback(int threadId) {
@@ -78,7 +75,7 @@ public class ReturnValue : AbilityTreeNode, IRPGeneric, ISubNode {
          
         int[][] overridenLinks = inst.GetOverridenConnections(overridenNode, vSource);
 
-        int[] varToReturn = inst.ReturnVariable(GetNodeId(), RETURN_FROM_VARIABLE).links[0];
+        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return From Variable").links[0];
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
         

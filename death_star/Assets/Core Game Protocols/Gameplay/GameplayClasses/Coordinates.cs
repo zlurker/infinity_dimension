@@ -4,16 +4,12 @@ using UnityEngine;
 
 public class Coordinates : AbilityTreeNode {
 
-    public const int X = 0;
-    public const int Y = 1;
-    public const int OUTPUT_COORDINATES = 2;
-
     public override void NodeCallback(int threadId) {
         bool allDataRecv = CheckIfVarRegionBlocked(0, 1);
 
         if(allDataRecv) {
-            float[] coords = new float[] { GetNodeVariable<float>(X), GetNodeVariable<float>(Y) };
-            GetCentralInst().NodeVariableCallback(GetNodeThreadId(), OUTPUT_COORDINATES, coords);
+            float[] coords = new float[] { GetNodeVariable<float>("X"), GetNodeVariable<float>("Y") };
+            GetCentralInst().NodeVariableCallback(GetNodeThreadId(), "Output Coordinates", coords);
         }
     }
 

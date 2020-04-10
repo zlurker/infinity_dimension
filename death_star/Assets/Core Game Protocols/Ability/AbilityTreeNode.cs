@@ -88,8 +88,8 @@ public class AbilityTreeNode : MonoBehaviour {
         return AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
     }
 
-    public T GetNodeVariable<T>(int varId) {
-        return GetCentralInst().ReturnRuntimeParameter<T>(GetNodeId(), varId).v;
+    public T GetNodeVariable<T>(string var) {
+        return GetCentralInst().ReturnRuntimeParameter<T>(GetNodeId(), var).v;
     }
 
     public bool IsClientPlayerUpdate() {

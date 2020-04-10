@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 
-    public const int DIRECTION_FROM_TARGET = 0;
-    public const int TOTAL_DISTANCE = 1;
-    public const int DURATION = 2;
-    public const int TARGET = 3;
-
     bool allDataRecv;
     Vector3 normDir;
 
@@ -19,11 +14,11 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
         
         if(allDataRecv) {
 
-            if(GetNodeVariable<float>(DURATION) > Time.realtimeSinceStartup - timeDirChanged) {
-                float timeRatio = (Time.realtimeSinceStartup - timeDirChanged)/GetNodeVariable<float>(DURATION);
-                GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position = dirChangeStart + (normDir * (GetNodeVariable<float>(TOTAL_DISTANCE) * timeRatio));
+            if(GetNodeVariable<float>("Duration") > Time.realtimeSinceStartup - timeDirChanged) {
+                float timeRatio = (Time.realtimeSinceStartup - timeDirChanged)/GetNodeVariable<float>("Duration");
+                GetNodeVariable<AbilityTreeNode>("Target").transform.root.position = dirChangeStart + (normDir * (GetNodeVariable<float>("Total Distance") * timeRatio));
             } else
-                GetNodeVariable<AbilityTreeNode>(TARGET).transform.root.position = dirChangeStart + (normDir * GetNodeVariable<float>(TOTAL_DISTANCE));
+                GetNodeVariable<AbilityTreeNode>("Target").transform.root.position = dirChangeStart + (normDir * GetNodeVariable<float>("Total Distance"));
         }
 	}
 
@@ -32,7 +27,7 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
         allDataRecv = CheckIfVarRegionBlocked(0,1,2,3);
 
         if(allDataRecv) {
-            float[] vectorHolder = GetNodeVariable<float[]>(DIRECTION_FROM_TARGET);
+            float[] vectorHolder = GetNodeVariable<float[]>("Direction From Target");
             normDir = new Vector3(vectorHolder[0],vectorHolder[1]).normalized;
 
             dirChangeStart = transform.position;
