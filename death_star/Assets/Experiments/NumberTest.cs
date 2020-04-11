@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class NumberTest : AbilityTreeNode {
 
-    public override void NodeCallback(int threadId) {
-        GetCentralInst().NodeVariableCallback<float>(threadId, "Number",GetNodeVariable<float>("Number"));
-    }
-
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 

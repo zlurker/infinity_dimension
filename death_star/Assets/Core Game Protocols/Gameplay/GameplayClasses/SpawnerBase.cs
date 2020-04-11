@@ -10,6 +10,7 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
 
     public override void NodeCallback(int threadId) {
         base.NodeCallback(threadId);
+
         sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite File Path")];
         GetCentralInst().NodeVariableCallback<AbilityTreeNode>(GetNodeThreadId(), "Spawn", this);
     }

@@ -80,7 +80,7 @@ public class NodeThread {
     }
 }
 
-public class AbilityCentralThreadPool : NetworkObject {
+public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
 
     public static EnhancedList<AbilityCentralThreadPool> globalCentralList = new EnhancedList<AbilityCentralThreadPool>();
 
@@ -99,6 +99,8 @@ public class AbilityCentralThreadPool : NetworkObject {
 
     //private AbilityBooleanData booleanData;
     private bool[][] booleanData;
+
+    private int[][] autoManagedVar;
 
     // Link to ability nodes
     private int abilityNodes;
@@ -153,7 +155,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD) {
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
@@ -162,6 +164,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         subclassTypes = sT;
         nodeBranchingData = nBD;
         booleanData = aBD;
+        autoManagedVar = amVar;
 
         networkNodeData = new List<AbilityNodeNetworkData>();
     }
@@ -248,6 +251,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         int[][] links = runtimeParameters[currNode][variableId].links;
+        
 
         for(int i = 0; i < links.Length; i++) {
 
@@ -264,53 +268,48 @@ public class AbilityCentralThreadPool : NetworkObject {
             } else {
                 //If no creation needed, means its the last.
                 //int node = activeThreads.l[threadId].GetCurrentNodeID();
-                AbilityTreeNode inst = CreateNewNodeIfNull(currNode);
+                AbilityTreeNode currNodeInst = CreateNewNodeIfNull(currNode);
 
                 // Checks if the original thread is equal to the NTID to make sure we only set the thread id once to default.
-                if(inst.GetNodeThreadId() == threadId)
-                    inst.SetNodeThreadId(-1);
+                if(currNodeInst.GetNodeThreadId() == threadId)
+                    currNodeInst.SetNodeThreadId(-1);
 
                 //activeThreads.l[threadId].SetSources(currNode,vSource);
             }
 
             RuntimeParameters<T> paramInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
 
-            if(paramInst != null) {
+            if(paramInst != null && !LoadedData.GetVariableType(subclassTypes[nodeId],nodeVariableId,VariableTypes.SIGNAL_ONLY)) {
                 paramInst.v = value;
                 booleanData[nodeId][nodeVariableId] = false;
             }
 
-            UpdateThreadNodeData(threadIdToUse, nodeId);
+            AbilityTreeNode nextNodeInst = CreateNewNodeIfNull(nodeId);
+
+            int existingThread = nextNodeInst.GetNodeThreadId();
+
+            nextNodeInst.SetNodeThreadId(threadIdToUse);
+
+            if(existingThread > -1) {
+                Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadIdToUse, existingThread);
+                activeThreads.l[threadIdToUse].JoinThread(existingThread);
+            }
+
+            activeThreads.l[threadIdToUse].SetNodeData(nodeId, nodeBranchingData[nodeId]);
+            nextNodeInst.NodeCallback(threadIdToUse);
+
+            for(int j = 0; j < autoManagedVar[nodeId].Length; j++) 
+                runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { threadIdToUse, nodeId, autoManagedVar[nodeId][j] });
+            
+            // Checks if node has no more output
+            if(nodeBranchingData[nodeId] == 0) {
+                nextNodeInst.SetNodeThreadId(-1);
+                HandleThreadRemoval(threadIdToUse);
+            }
         }
 
         if(jointThreadId > -1)
-            UpdateVariableData<T>(jointThreadId, variableId,value);
-        //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
-    }
-
-    // Handles the aftermath of callback. Passes thread to another node.
-    public void UpdateThreadNodeData(int threadId, int node) {
-
-        AbilityTreeNode inst = CreateNewNodeIfNull(node);
-        int existingThread = inst.GetNodeThreadId();
-
-        inst.SetNodeThreadId(threadId);
-
-        if(existingThread > -1) {
-            Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadId, existingThread);
-            activeThreads.l[threadId].JoinThread(existingThread);
-        }
-
-        activeThreads.l[threadId].SetNodeData(node, nodeBranchingData[node]);       
-        inst.NodeCallback(threadId);
-
-        
-
-        // Checks if node has no more output
-        if(nodeBranchingData[node] == 0) {
-            inst.SetNodeThreadId(-1);
-            HandleThreadRemoval(threadId);
-        }
+            UpdateVariableData<T>(jointThreadId, variableId,value);      
     }
 
     public void HandleThreadRemoval(int threadId) {
@@ -365,5 +364,12 @@ public class AbilityCentralThreadPool : NetworkObject {
         for (int i =0; i < AbilityTreeNode.globalList.l[abilityNodes].abiNodes.Length; i++) 
             if (AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i] != null)
             AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i].name = networkObjectId.ToString() + '/' + i.ToString();        
+    }
+
+    public void RunAccordingToGeneric<T, P>(P arg) {
+        int[] nodeCBInfo = (int[])(object)arg;
+
+        RuntimeParameters<T> rp = runtimeParameters[nodeCBInfo[1]][nodeCBInfo[2]].field as RuntimeParameters<T>;
+        NodeVariableCallback<T>(nodeCBInfo[0], nodeCBInfo[2],rp.v);
     }
 }

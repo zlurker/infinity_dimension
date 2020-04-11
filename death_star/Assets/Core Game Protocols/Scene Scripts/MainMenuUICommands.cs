@@ -259,6 +259,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         editWindow.variables = new SpawnerOutput[abilityData.subclasses.l[id].var.Length];
 
         for(int i = 0; i < abilityData.subclasses.l[id].var.Length; i++) {
+
+            if(LoadedData.GetVariableType(abilityData.subclasses.l[id].classType, i, VariableTypes.HIDDEN))
+                continue;
+
             SpawnerOutput[] var = CreateVariableField(id, i);
 
             SpawnerOutput get = CreateVariableButtons(ActionType.RECIEVE, new int[] { id, i });
@@ -294,7 +298,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         switch(aT) {
             case ActionType.RECIEVE:
                 UIDrawer.GetTypeInElement<Button>(linkageButton).onClick.AddListener(() => {
-                    CreateLinkage(id);                   
+                    CreateLinkage(id);
                 });
                 break;
 
@@ -312,7 +316,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         if(prevPath.Length > 0) {
 
             if(connectionId == -1)
-                connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0], prevPath[1], id[0], id[1],0 });
+                connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0], prevPath[1], id[0], id[1], 0 });
 
             //Debug.LogFormat("ConnectionID assigned {0}. For {1} and {2}", connectionId, prevPath[0], id[0]);
 

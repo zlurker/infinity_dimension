@@ -54,13 +54,14 @@ public class LinkModifier {
 public class AbilityData : IInputCallback<int> {
     // Data that needs to be read/written
     Variable[][] dataVar;
-    Type[] dataType;
     AbilityBooleanData boolData;
 
     // Data that will purely only be read.
+    Type[] dataType;
     string[] description;
     int[][] rootSubclasses;
     int[] nodeBranchingData;
+    int[][] autoManagedVariables;
     int abilityId;
 
     public AbilityData(AbilityDataSubclass[] data, int aId) {
@@ -169,23 +170,32 @@ public class AbilityData : IInputCallback<int> {
     void BeginDepenciesBuild() {
 
         nodeBranchingData = new int[dataVar.Length];
+        autoManagedVariables = new int[dataVar.Length][];
         boolData = new AbilityBooleanData(dataVar);
 
         for(int i = 0; i < dataVar.Length; i++) {
+            List<int> aMVar = new List<int>();
+
             for(int j = 0; j < dataVar[i].Length; j++) {
 
+                bool signal = LoadedData.GetVariableType(dataType[i], j, VariableTypes.SIGNAL_ONLY);
                 AutoPopulationList<List<int[]>> varLinks = new AutoPopulationList<List<int[]>>(1);
 
                 for(int k = 0; k < dataVar[i][j].links.Length; k++) {
                     int[] currLink = dataVar[i][j].links[k];
 
                     // Marks target as true so it will be blocked.
-                    if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t)
+                    if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t && !signal)
                         boolData.varsBlocked[currLink[0]][currLink[1]] = true;
+                }
+
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED)) {
+                    aMVar.Add(j);
                 }
 
                 nodeBranchingData[i] += dataVar[i][j].links.Length;
             }
+            autoManagedVariables[i] = aMVar.ToArray();
         }
     }
 
@@ -211,7 +221,7 @@ public class AbilityData : IInputCallback<int> {
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
         // Rather than create new instance, everything except variables will be taken from here.
-        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues);
+        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
