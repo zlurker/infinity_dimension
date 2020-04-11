@@ -23,6 +23,11 @@ public class LinkModifier {
     public Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> add;
     public Dictionary<Tuple<int, int>, HashSet<int>> remove;
 
+    public LinkModifier() {
+        add = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
+        remove = new Dictionary<Tuple<int, int>, HashSet<int>>();
+    }
+
     public void Add(int a1, int a2, int b1, int b2) {
         Tuple<int, int> turpA = Tuple.Create(a1, a2);
 

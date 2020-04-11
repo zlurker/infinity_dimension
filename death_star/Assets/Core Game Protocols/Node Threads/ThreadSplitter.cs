@@ -48,8 +48,6 @@ public class ThreadSplitter : NodeModifierBase {
         } else {
             inst.HandleThreadRemoval(threadId);
             threadMap.Remove(threadId);
-        }
-
-        
+        }      
     }
 }

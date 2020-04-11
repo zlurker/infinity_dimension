@@ -41,11 +41,9 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         ChildThread trdInst = new ChildThread(GetNodeId(), threadId, this);
 
-        int falseGeneratedLinks = inst.ReturnVariable(GetNodeId(), "Return from Variable").links.Length;
-
-        trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()) - falseGeneratedLinks);
+        trdInst.SetNodeData(GetNodeId(), inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
         int threadToUse = inst.AddNewThread(trdInst);
-        Debug.LogFormat("Thread id {0} has been created. Uses left {1}", threadToUse, inst.GetNodeBranchData(GetNodeId()) - falseGeneratedLinks);
+        Debug.LogFormat("Thread id {0} has been created. Uses left {1}", threadToUse, inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
         inst.NodeVariableCallback<int>(threadToUse, "Extended Path", 0);
     }
 
@@ -68,6 +66,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
 
+        inst.GetActiveThread(parentThread).SetPossiblePaths(inst.ReturnVariable(GetNodeId(), "Internal Redirect").links.Length);
         inst.NodeVariableCallback<T>(parentThread, "Internal Redirect", rP.v);
     }
 }

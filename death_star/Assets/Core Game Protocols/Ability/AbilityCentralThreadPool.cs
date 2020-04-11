@@ -56,10 +56,13 @@ public class NodeThread {
     }
 
     public void SetNodeData(int cN, int pS) {
-
-        generatedNodeThreads = 0;
         jointThread = -1;
         currNode = cN;
+        SetPossiblePaths(pS);
+    }
+
+    public void SetPossiblePaths(int pS) {
+        generatedNodeThreads = 0;
         possiblePaths = pS;
     }
 
@@ -214,6 +217,9 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
 
     public void NodeVariableCallback<T>(int threadId, string varName, T value) {
+        if(threadId == -1)
+            return;
+
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         NodeVariableCallback<T>(threadId, LoadedData.loadedParamInstances[subclassTypes[currNode]].variableAddresses[varName], value);
     }
