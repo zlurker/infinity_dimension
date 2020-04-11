@@ -51,11 +51,11 @@ public static class JSONFileConvertor {
 
                 for(int j = 0; j < convertedFormat[i].var.Length; j++) {
                     if(sFs[i].vT[j] > -1) {
-                        convertedFormat[i].var[j] = new Variable(VariableTypeIndex.convertors[sFs[i].vT[j]].ReturnRuntimeType(sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][][]>(sFs[i].l[j]));
+                        convertedFormat[i].var[j] = new Variable(VariableTypeIndex.convertors[sFs[i].vT[j]].ReturnRuntimeType(sFs[i].rP[j]), JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
                     } else {
                         Debug.Log(LoadedData.ReturnNodeVariables(convertedFormat[i].classType));
                         RuntimeParameters inst = LoadedData.ReturnNodeVariables(convertedFormat[i].classType)[j];
-                        convertedFormat[i].var[j] = new Variable(inst, JsonConvert.DeserializeObject<int[][][]>(sFs[i].l[j]));
+                        convertedFormat[i].var[j] = new Variable(inst, JsonConvert.DeserializeObject<int[][]>(sFs[i].l[j]));
                     }
                 }
             }

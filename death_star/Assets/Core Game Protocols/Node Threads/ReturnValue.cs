@@ -14,11 +14,6 @@ public class ReturnNodeData : ThreadMapDataBase {
 
 public class ReturnValue : NodeModifierBase, IRPGeneric {
 
-
-    public override int ReturnLinkWeight() {
-        return 1;
-    }
-
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 

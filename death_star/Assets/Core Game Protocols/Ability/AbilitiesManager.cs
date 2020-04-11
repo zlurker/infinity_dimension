@@ -6,6 +6,49 @@ using System;
 using System.IO;
 using System.Text;
 
+public class LinkData {
+
+    public HashSet<Tuple<int, int, int>> lHS;
+    public HashSet<Tuple<int, int>> rHS;
+
+    public LinkData() {
+        lHS = new HashSet<Tuple<int, int, int>>();
+        rHS = new HashSet<Tuple<int, int>>();
+    }
+}
+
+public class LinkModifier {
+
+    public Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> add;
+    public Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> replace;
+    public Dictionary<Tuple<int, int>, HashSet<int>> remove;
+
+    public void Add(int a1, int a2, int b1, int b2) {
+        InBuiltProcessor(add, a1, a2, b1, b2);       
+    }
+
+    public void Replace(int a1, int a2, int b1, int b2) {
+        InBuiltProcessor(replace, a1, a2, b1, b2);
+    }
+
+    public void Remove(int a1, int a2, int b1) {
+
+    }
+
+    void InBuiltProcessor(Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> dict, int a1, int a2, int b1, int b2) {
+
+        Tuple<int, int> turpA = Tuple.Create(a1, a2);
+
+        if(!dict.ContainsKey(turpA))
+            dict.Add(turpA, new HashSet<Tuple<int, int>>());
+
+        Tuple<int, int> turpB = Tuple.Create(b1, b2);
+
+        if(!dict[turpA].Contains(turpB))
+            dict[turpA].Add(turpB);
+    }
+}
+
 public class AbilityData : IInputCallback<int> {
     // Data that needs to be read/written
     Variable[][] dataVar;
@@ -23,58 +66,36 @@ public class AbilityData : IInputCallback<int> {
         // Sorts variable out accordingly.
         dataVar = new Variable[data.Length][];
         dataType = new Type[data.Length];
+        LinkData[] linkData = new LinkData[data.Length];
 
         for(int i = 0; i < data.Length; i++) {
             dataVar[i] = data[i].var;
             dataType[i] = data[i].classType;
+            linkData[i] = new LinkData();
         }
 
         abilityId = aId;
+
+        RetrieveStartNodes();
+
+        for(int i = 0; i < rootSubclasses.Length; i++)
+            CreateAbilityLinkMap(rootSubclasses[i], linkData);
+
+        EditLinks(linkData);
         BeginDepenciesBuild();
     }
 
-    void BeginDepenciesBuild() {
-
+    void RetrieveStartNodes() {
         AutoPopulationList<bool> connected = new AutoPopulationList<bool>(dataVar.Length);
-        nodeBranchingData = new int[dataVar.Length];
-        boolData = new AbilityBooleanData(dataVar);
 
-        for(int i = 0; i < dataVar.Length; i++) {
-            for(int j = 0; j < dataVar[i].Length; j++) {
-
-                AutoPopulationList<List<int[]>> varLinks = new AutoPopulationList<List<int[]>>(1);
-
-                for(int k = 0; k < dataVar[i][j].links[0].Length; k++) {
-                    int[] currLink = dataVar[i][j].links[0][k];
+        for(int i = 0; i < dataVar.Length; i++)
+            for(int j = 0; j < dataVar[i].Length; j++)
+                for(int k = 0; k < dataVar[i][j].links.Length; k++) {
+                    int[] currLink = dataVar[i][j].links[k];
 
                     // Marks target as true so it can't be root.
                     connected.ModifyElementAt(currLink[0], true);
-
-                    // Marks target as true so it will be blocked.
-                    if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t)
-                        boolData.varsBlocked[currLink[0]][currLink[1]] = true;
-
-                    int linkWeight = LoadedData.loadedNodeInstance[dataType[currLink[0]]].ReturnLinkWeight();
-
-                    if(varLinks.GetElementAt(linkWeight) == null) 
-                        varLinks.ModifyElementAt(linkWeight, new List<int[]>());
-
-                    varLinks.l[linkWeight].Add(currLink);
                 }
-
-                // Sorts out all the arrays accordingly by weight.
-                dataVar[i][j].links = new int[varLinks.l.Count][][];
-
-                for(int k = 0; k < dataVar[i][j].links.Length; k++)
-                    if(varLinks.l[k] != null)
-                        dataVar[i][j].links[k] = varLinks.l[k].ToArray();
-                    else
-                        dataVar[i][j].links[k] = new int[0][];
-
-                // Gets the sum of latest branch. Latest branch will be the default branch.
-                nodeBranchingData[i] += dataVar[i][j].links[varLinks.l.Count - 1].Length;
-            }
-        }
 
         List<int> rC = new List<int>();
 
@@ -83,6 +104,61 @@ public class AbilityData : IInputCallback<int> {
                 rC.Add(i);
 
         rootSubclasses = rC.ToArray();
+    }
+
+    void CreateAbilityLinkMap(int nextNode, LinkData[] lD) {
+
+        for(int i = 0; i < dataVar[nextNode].Length; i++)
+            for(int j = 0; j < dataVar[nextNode][i].links.Length; j++) {
+                int[] currLink = dataVar[nextNode][i].links[j];
+
+                // Adds links to rhs.
+                Tuple<int, int> rhslinkTup = Tuple.Create(currLink[0], currLink[1]);
+
+                if(!lD[nextNode].rHS.Contains(rhslinkTup))
+                    lD[nextNode].rHS.Add(rhslinkTup);
+
+                // Adds links to target lhs.
+                Tuple<int, int, int> lhslinkTup = Tuple.Create(nextNode, i, j);
+
+                if(!lD[currLink[0]].lHS.Contains(lhslinkTup))
+                    lD[currLink[0]].lHS.Add(lhslinkTup);
+
+                // Iterates to target.
+                CreateAbilityLinkMap(currLink[0], lD);
+            }
+    }
+
+    void EditLinks(LinkData[] lD) {
+        LinkModifier lM = new LinkModifier();
+
+        for (int i=0; i < dataType.Length; i++) 
+            LoadedData.loadedNodeInstance[dataType[i]].LinkEdit(lD, lM);
+        
+
+    }
+
+    void BeginDepenciesBuild() {
+
+        nodeBranchingData = new int[dataVar.Length];
+        boolData = new AbilityBooleanData(dataVar);
+
+        for(int i = 0; i < dataVar.Length; i++) {
+            for(int j = 0; j < dataVar[i].Length; j++) {
+
+                AutoPopulationList<List<int[]>> varLinks = new AutoPopulationList<List<int[]>>(1);
+
+                for(int k = 0; k < dataVar[i][j].links.Length; k++) {
+                    int[] currLink = dataVar[i][j].links[k];
+
+                    // Marks target as true so it will be blocked.
+                    if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t)
+                        boolData.varsBlocked[currLink[0]][currLink[1]] = true;
+                }
+
+                nodeBranchingData[i] += dataVar[i][j].links.Length;
+            }
+        }
     }
 
     public void InputCallback(int i) {

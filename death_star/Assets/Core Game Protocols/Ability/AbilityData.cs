@@ -8,19 +8,19 @@ using Newtonsoft.Json;
 public class Variable {
     //Variable details
     public RuntimeParameters field;
-    public int[][][] links;
+    public int[][] links;
 
     public Variable() {
     }
 
-    public Variable(RuntimeParameters f, int[][][] ls) {
+    public Variable(RuntimeParameters f, int[][] ls) {
         field = f;
         links = ls;
     }
 
     public Variable(RuntimeParameters f) {
         field = f;
-        links = new int[0][][];
+        links = new int[0][];
     }
 }
 
@@ -116,8 +116,8 @@ public class UIAbilityData {
 
         for(int i = 0; i < elements.Length; i++)
             for(int j = 0; j < elements[i].var.Length; j++) {
-                for(int k = 0; k < elements[i].var[j].links[0].Length; k++) {
-                    int[] link = elements[i].var[j].links[0][k];
+                for(int k = 0; k < elements[i].var[j].links.Length; k++) {
+                    int[] link = elements[i].var[j].links[k];
 
                     linkAddresses.Add(new int[] { i, j, link[0], link[1], link[2] });
                 }
@@ -165,7 +165,7 @@ public class UIAbilityData {
 
         for(int i = 0; i < vLinks.Length; i++)
             for(int j = 0; j < vLinks[i].Length; j++)
-                relinkedClasses[i].var[j].links = new int[][][] { vLinks[i][j].ToArray() };
+                relinkedClasses[i].var[j].links = vLinks[i][j].ToArray();
 
         return relinkedClasses;
     }

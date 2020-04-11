@@ -27,6 +27,10 @@ public class AbilityTreeNode : MonoBehaviour {
 
     private SpawnerOutput sourceObject;
 
+    public virtual void LinkEdit(LinkData[] linkData,LinkModifier lM) {
+
+    }
+
     public int GetNodeThreadId() {
         return nodeThreadId;
     }
@@ -72,10 +76,6 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public virtual void ThreadEndStartCallback(int threadId) {
 
-    }
-
-    public virtual int ReturnLinkWeight() {
-        return 0;
     }
 
     public bool CheckIfVarRegionBlocked(params int[] target) {
