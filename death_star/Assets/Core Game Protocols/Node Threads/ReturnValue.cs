@@ -2,16 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ReturnNodeData : ThreadMapDataBase {
-
-    public int node;
-    public int vSource;
-    public ReturnNodeData(int n, int vSrc) {
-        node = n;
-        vSource = vSrc;
-    }
-}
-
 public class ReturnValue : NodeModifierBase, IRPGeneric {
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
@@ -43,17 +33,11 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         }
     }
 
-    public override void PreSetCallback(int threadId) {
-        Debug.Log("Preset TID: " + threadId);
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-        NodeThread nT = inst.GetActiveThread(threadId);
-        int node = nT.GetCurrentNodeID() > -1 ? nT.GetCurrentNodeID() : nT.GetStartingPoint();
-
-        threadMap.Add(threadId, new ReturnNodeData(node, inst.GetActiveThread(threadId).GetVariableSource()));
-    }
-
     public override void NodeCallback(int threadId) {
         Debug.Log("afterset TID: " + threadId);
+
+        threadMap.Add(threadId,new ThreadMapDataBase());
+
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         ChildThread trdInst = new ChildThread(GetNodeId(), threadId, this);
 
@@ -69,7 +53,9 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         AbilityCentralThreadPool inst = GetCentralInst();
         ReturnNodeData returnNodeData = threadMap[parentThread] as ReturnNodeData;
 
-        inst.ReturnVariable(returnNodeData.node, returnNodeData.vSource).field.RunGenericBasedOnRP(this, parentThread);
+        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
+
+        inst.ReturnVariable(varToReturn[0], varToReturn[1]).field.RunGenericBasedOnRP(this, parentThread);
         threadMap.Remove(parentThread);
     }
 
@@ -85,7 +71,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
         int[][] overridenLinks = inst.ReturnVariable(overridenNode, vSource).links[0];
 
-        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return from Variable").links[0][0];
+        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
 

@@ -64,9 +64,6 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
-    }
-
-    public virtual void PreSetCallback(int threadId) {
 
     }
 

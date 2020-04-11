@@ -28,9 +28,6 @@ public class NodeThread {
     int currNode;
     int startingPt;
 
-    int[][] links;
-    int varSource;
-
     // To be used for creation of new threads when it branches out.
     // generatedNodeTheads/possiblePaths.       
     protected int generatedNodeThreads;
@@ -44,14 +41,6 @@ public class NodeThread {
         startingPt = sPt;
         currNode = -1;
         jointThread = -1;
-    }
-
-    public int GetVariableSource() {
-        return varSource;
-    }
-
-    public void SetVariableSource(int vS) {      
-        varSource = vS;
     }
 
     public int GetStartingPoint() {
@@ -76,14 +65,6 @@ public class NodeThread {
 
     public int GetCurrentNodeID() {
         return currNode;
-    }
-
-    public int[][] GetLinksData() {
-        return links;
-    }
-
-    public void SetLinksData(int[][] l) {
-        links = l;
     }
 
     public virtual NodeThread CreateNewThread() {
@@ -258,25 +239,14 @@ public class AbilityCentralThreadPool : NetworkObject {
         if(sharedNetworkData)
             AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, value));
 
-        DefaultPopulateThread(threadId, variableId);
-        UpdateVariableData<T>(threadId, value);
+        UpdateVariableData<T>(threadId, variableId,value);
     }
 
-    public void DefaultPopulateThread(int threadId, int varId) {
-        activeThreads.l[threadId].SetVariableSource(varId);
-
-        int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-
-        int lastA = runtimeParameters[currNode][varId].links.Length-1;
-        int[][] selectedLinks = runtimeParameters[currNode][varId].links;
-        activeThreads.l[threadId].SetLinksData(selectedLinks);
-    }
-
-    public void UpdateVariableData<T>(int threadId, T value) {
+    public void UpdateVariableData<T>(int threadId,int variableId, T value) {
 
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-        int[][] links = activeThreads.l[threadId].GetLinksData();
+        int[][] links = runtimeParameters[currNode][variableId].links;
 
         for(int i = 0; i < links.Length; i++) {
 
@@ -313,7 +283,7 @@ public class AbilityCentralThreadPool : NetworkObject {
         }
 
         if(jointThreadId > -1)
-            UpdateVariableData<T>(jointThreadId, value);
+            UpdateVariableData<T>(jointThreadId, variableId,value);
         //Debug.LogFormat("{0} end. {1} length", threadId, runtimeParameters[activeThreads.l[threadId].GetCurrentNodeID()][variableId].links[1].Length);
     }
 
