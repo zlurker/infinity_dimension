@@ -214,15 +214,18 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
 
     public void NodeVariableCallback<T>(int threadId, string varName, T value) {
+        int currNode = activeThreads.l[threadId].GetCurrentNodeID();
+        NodeVariableCallback<T>(threadId, LoadedData.loadedParamInstances[subclassTypes[currNode]].variableAddresses[varName], value);
+    }
+
+    public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
 
         if(threadId == -1)
             return;
        
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-        int variableId = LoadedData.loadedParamInstances[subclassTypes[currNode]].variableAddresses[varName];
-
+        
         bool sharedNetworkData = false;
-
 
         if(LoadedData.GetVariableType(subclassTypes[currNode], variableId, VariableTypes.CLIENT_ACTIVATED))
             if(playerCasted != ClientProgram.clientId)
@@ -294,7 +297,6 @@ public class AbilityCentralThreadPool : NetworkObject {
         int existingThread = inst.GetNodeThreadId();
 
         inst.SetNodeThreadId(threadId);
-        inst.PreSetCallback(threadId);
 
         if(existingThread > -1) {
             Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadId, existingThread);

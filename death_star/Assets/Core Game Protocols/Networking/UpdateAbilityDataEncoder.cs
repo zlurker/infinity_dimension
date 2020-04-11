@@ -189,25 +189,22 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
 
             if(nTID > -1) {
-
-                centralInst.DefaultPopulateThread(nTID, var);
-
                 switch(argType) {
 
                     case 0: //int                    
                         int iData = BitConverter.ToInt32(bytesRecieved, i + 16);
-                        
-                        centralInst.UpdateVariableData<int>(nTID, iData);
+
+                        centralInst.NodeVariableCallback<int>(nTID, var, iData);
                         break;
 
                     case 1: //float                    
                         float fData = BitConverter.ToSingle(bytesRecieved, i + 16);
-                        centralInst.UpdateVariableData<float>(nTID, fData);
+                        centralInst.UpdateVariableData<float>(nTID, var, fData);
                         break;
 
                     case 2: //string
                         string sData = Encoding.Default.GetString(bytesRecieved, i + 16, valueLen);
-                        centralInst.UpdateVariableData<string>(nTID, sData);
+                        centralInst.UpdateVariableData<string>(nTID, var, sData);
                         break;
 
                     case 3: //int[]
@@ -216,7 +213,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                         for(int j = 0; j < iArray.Length; j++)
                             iArray[j] = BitConverter.ToInt32(bytesRecieved, i + 16 + (j * 4));
 
-                        centralInst.UpdateVariableData<int[]>(nTID, iArray);
+                        centralInst.UpdateVariableData<int[]>(nTID, var, iArray);
                         break;
 
                     case 4: //float[]
@@ -225,7 +222,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                         for(int j = 0; j < fArray.Length; j++)
                             fArray[j] = BitConverter.ToSingle(bytesRecieved, i + 16 + (j * 4));
 
-                        centralInst.UpdateVariableData<float[]>(nTID, fArray);
+                        centralInst.UpdateVariableData<float[]>(nTID, var, fArray);
                         break;
                 }
             }

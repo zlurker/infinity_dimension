@@ -51,7 +51,6 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
     public override void ThreadZeroed(int parentThread) {
         AbilityCentralThreadPool inst = GetCentralInst();
-        ReturnNodeData returnNodeData = threadMap[parentThread] as ReturnNodeData;
 
         int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
 
@@ -65,19 +64,10 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
         int parentThread = (int)(object)arg;
 
-        ReturnNodeData rData = threadMap[parentThread] as ReturnNodeData;
-        int overridenNode = rData.node;
-        int vSource = rData.vSource;
-
-        int[][] overridenLinks = inst.ReturnVariable(overridenNode, vSource).links[0];
-
         int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
 
-        inst.GetActiveThread(parentThread).SetLinksData(overridenLinks);
-        inst.GetActiveThread(parentThread).SetVariableSource(vSource);
-        inst.GetActiveThread(parentThread).SetNodeData(overridenNode, overridenLinks.Length);
-        inst.UpdateVariableData<T>(parentThread, rP.v);
+        inst.NodeVariableCallback<T>(parentThread, "Internal Redirect", rP.v);
     }
 }
