@@ -5,47 +5,44 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 public class LinkData {
 
     public HashSet<Tuple<int, int, int>> lHS;
-    public HashSet<Tuple<int, int>> rHS;
+    public HashSet<Tuple<int, int, int>> rHS;
 
     public LinkData() {
         lHS = new HashSet<Tuple<int, int, int>>();
-        rHS = new HashSet<Tuple<int, int>>();
+        rHS = new HashSet<Tuple<int, int, int>>();
     }
 }
 
 public class LinkModifier {
 
     public Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> add;
-    public Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> replace;
     public Dictionary<Tuple<int, int>, HashSet<int>> remove;
 
     public void Add(int a1, int a2, int b1, int b2) {
-        InBuiltProcessor(add, a1, a2, b1, b2);       
-    }
-
-    public void Replace(int a1, int a2, int b1, int b2) {
-        InBuiltProcessor(replace, a1, a2, b1, b2);
-    }
-
-    public void Remove(int a1, int a2, int b1) {
-
-    }
-
-    void InBuiltProcessor(Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> dict, int a1, int a2, int b1, int b2) {
-
         Tuple<int, int> turpA = Tuple.Create(a1, a2);
 
-        if(!dict.ContainsKey(turpA))
-            dict.Add(turpA, new HashSet<Tuple<int, int>>());
+        if(!add.ContainsKey(turpA))
+            add.Add(turpA, new HashSet<Tuple<int, int>>());
 
         Tuple<int, int> turpB = Tuple.Create(b1, b2);
 
-        if(!dict[turpA].Contains(turpB))
-            dict[turpA].Add(turpB);
+        if(!add[turpA].Contains(turpB))
+            add[turpA].Add(turpB);
+    }
+
+    public void Remove(int a1, int a2, int b1) {
+        Tuple<int, int> turpA = Tuple.Create(a1, a2);
+
+        if(!remove.ContainsKey(turpA))
+            remove.Add(turpA, new HashSet<int>());
+
+        if(!remove[turpA].Contains(b1))
+            remove[turpA].Add(b1);
     }
 }
 
@@ -113,7 +110,7 @@ public class AbilityData : IInputCallback<int> {
                 int[] currLink = dataVar[nextNode][i].links[j];
 
                 // Adds links to rhs.
-                Tuple<int, int> rhslinkTup = Tuple.Create(currLink[0], currLink[1]);
+                Tuple<int, int,int> rhslinkTup = Tuple.Create(currLink[0], currLink[1],j);
 
                 if(!lD[nextNode].rHS.Contains(rhslinkTup))
                     lD[nextNode].rHS.Add(rhslinkTup);
@@ -132,10 +129,30 @@ public class AbilityData : IInputCallback<int> {
     void EditLinks(LinkData[] lD) {
         LinkModifier lM = new LinkModifier();
 
-        for (int i=0; i < dataType.Length; i++) 
-            LoadedData.loadedNodeInstance[dataType[i]].LinkEdit(lD, lM);
-        
+        for(int i = 0; i < dataType.Length; i++)
+            LoadedData.loadedNodeInstance[dataType[i]].LinkEdit(i, lD, lM,dataVar);
 
+        foreach (var add in lM.add) {
+
+            List<int[]> links = new List<int[]>(dataVar[add.Key.Item1][add.Key.Item2].links);
+
+            foreach(var ele in add.Value)
+                links.Add(new int[] { ele.Item1, ele.Item2 });
+
+            dataVar[add.Key.Item1][add.Key.Item2].links = links.ToArray();
+        }
+
+        foreach (var rm in lM.remove) {
+            int[] rmArr = rm.Value.ToArray();
+            Array.Sort(rmArr);
+
+            List<int[]> links = new List<int[]>(dataVar[rm.Key.Item1][rm.Key.Item2].links);
+
+            for(int i = rmArr.Length - 1; i >= 0; i--)
+                links.RemoveAt(rmArr[i]);
+
+            dataVar[rm.Key.Item1][rm.Key.Item2].links = links.ToArray();
+        }
     }
 
     void BeginDepenciesBuild() {

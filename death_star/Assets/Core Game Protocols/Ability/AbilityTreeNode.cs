@@ -27,7 +27,7 @@ public class AbilityTreeNode : MonoBehaviour {
 
     private SpawnerOutput sourceObject;
 
-    public virtual void LinkEdit(LinkData[] linkData,LinkModifier lM) {
+    public virtual void LinkEdit(int id,LinkData[] linkData,LinkModifier lM, Variable[][] var) {
 
     }
 
