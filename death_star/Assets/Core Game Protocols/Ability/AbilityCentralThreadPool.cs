@@ -95,7 +95,6 @@ public class AbilityCentralThreadPool : NetworkObject {
     private Variable[][] runtimeParameters;
     private Type[] subclassTypes;
 
-    private int[] branchStartData;
     private int[] nodeBranchingData;
 
     //private AbilityBooleanData booleanData;
@@ -154,14 +153,13 @@ public class AbilityCentralThreadPool : NetworkObject {
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] bSD, int[] nBD, bool[][] aBD) {
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD) {
         activeThreads = new EnhancedList<NodeThread>();
 
         centralId = tId;
         abilityNodes = nId;
         runtimeParameters = rP;
         subclassTypes = sT;
-        branchStartData = bSD;
         nodeBranchingData = nBD;
         booleanData = aBD;
 
@@ -196,12 +194,6 @@ public class AbilityCentralThreadPool : NetworkObject {
         networkNodeData.Add(aNND);
     }
 
-    /*public void SendVariableNetworkData() {
-        UpdateAbilityDataEncoder inst = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
-        inst.SendVariableManifest(networkObjectId, instId, networkNodeData.ToArray());
-        networkNodeData.Clear();
-    }*/
-
     public AbilityNodeNetworkData[] GetVariableNetworkData() {
         AbilityNodeNetworkData[] data = networkNodeData.ToArray();
         networkNodeData.Clear();
@@ -209,11 +201,11 @@ public class AbilityCentralThreadPool : NetworkObject {
     }
 
     public void StartThreads() {
+        int lastNodeId = runtimeParameters.Length - 1;
+        int threadId = GetNewThread(lastNodeId);
 
-        for(int i = 0; i < branchStartData.Length; i++) {
-            int threadId = GetNewThread(branchStartData[i]);
-            UpdateThreadNodeData(threadId, branchStartData[i]);
-        }
+        activeThreads.l[threadId].SetNodeData(lastNodeId, nodeBranchingData[lastNodeId]);
+        NodeVariableCallback(threadId,0,0);
     }
 
     public void NodeVariableCallback<T>(int threadId, string varName, T value) {

@@ -59,16 +59,16 @@ public class AbilityData : IInputCallback<int> {
 
     // Data that will purely only be read.
     string[] description;
-    int[] rootSubclasses;
+    int[][] rootSubclasses;
     int[] nodeBranchingData;
     int abilityId;
 
     public AbilityData(AbilityDataSubclass[] data, int aId) {
 
         // Sorts variable out accordingly.
-        dataVar = new Variable[data.Length][];
-        dataType = new Type[data.Length];
-        LinkData[] linkData = new LinkData[data.Length];
+        dataVar = new Variable[data.Length + 1][];
+        dataType = new Type[data.Length + 1];
+        LinkData[] linkData = new LinkData[data.Length + 1];
 
         for(int i = 0; i < data.Length; i++) {
             dataVar[i] = data[i].var;
@@ -80,17 +80,20 @@ public class AbilityData : IInputCallback<int> {
 
         RetrieveStartNodes();
 
-        for(int i = 0; i < rootSubclasses.Length; i++)
-            CreateAbilityLinkMap(rootSubclasses[i], linkData);
+        dataVar[dataVar.Length - 1] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[0].rP, rootSubclasses) };
+        dataType[dataVar.Length - 1] = typeof(NodeThreadStarter);
+        linkData[dataVar.Length - 1] = new LinkData();
+
+        CreateAbilityLinkMap(dataVar.Length - 1, linkData);
 
         EditLinks(linkData);
         BeginDepenciesBuild();
     }
 
     void RetrieveStartNodes() {
-        AutoPopulationList<bool> connected = new AutoPopulationList<bool>(dataVar.Length);
+        AutoPopulationList<bool> connected = new AutoPopulationList<bool>(dataVar.Length-1);
 
-        for(int i = 0; i < dataVar.Length; i++)
+        for(int i = 0; i < dataVar.Length - 1; i++)
             for(int j = 0; j < dataVar[i].Length; j++)
                 for(int k = 0; k < dataVar[i][j].links.Length; k++) {
                     int[] currLink = dataVar[i][j].links[k];
@@ -99,11 +102,11 @@ public class AbilityData : IInputCallback<int> {
                     connected.ModifyElementAt(currLink[0], true);
                 }
 
-        List<int> rC = new List<int>();
+        List<int[]> rC = new List<int[]>();
 
         for(int i = 0; i < connected.l.Count; i++)
             if(!connected.l[i])
-                rC.Add(i);
+                rC.Add(new int[] { i, 0 });
 
         rootSubclasses = rC.ToArray();
     }
@@ -115,7 +118,7 @@ public class AbilityData : IInputCallback<int> {
                 int[] currLink = dataVar[nextNode][i].links[j];
 
                 // Adds links to rhs.
-                Tuple<int, int,int> rhslinkTup = Tuple.Create(currLink[0], currLink[1],j);
+                Tuple<int, int, int> rhslinkTup = Tuple.Create(currLink[0], currLink[1], j);
 
                 if(!lD[nextNode].rHS.Contains(rhslinkTup))
                     lD[nextNode].rHS.Add(rhslinkTup);
@@ -135,9 +138,9 @@ public class AbilityData : IInputCallback<int> {
         LinkModifier lM = new LinkModifier();
 
         for(int i = 0; i < dataType.Length; i++)
-            LoadedData.loadedNodeInstance[dataType[i]].LinkEdit(i, lD, lM,dataVar);
+            LoadedData.loadedNodeInstance[dataType[i]].LinkEdit(i, lD, lM, dataVar);
 
-        foreach (var add in lM.add) {
+        foreach(var add in lM.add) {
 
             List<int[]> links = new List<int[]>(dataVar[add.Key.Item1][add.Key.Item2].links);
 
@@ -147,7 +150,7 @@ public class AbilityData : IInputCallback<int> {
             dataVar[add.Key.Item1][add.Key.Item2].links = links.ToArray();
         }
 
-        foreach (var rm in lM.remove) {
+        foreach(var rm in lM.remove) {
             int[] rmArr = rm.Value.ToArray();
             Array.Sort(rmArr);
 
@@ -205,7 +208,7 @@ public class AbilityData : IInputCallback<int> {
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
         // Rather than create new instance, everything except variables will be taken from here.
-        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, rootSubclasses, nodeBranchingData, clonedBoolValues);
+        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }

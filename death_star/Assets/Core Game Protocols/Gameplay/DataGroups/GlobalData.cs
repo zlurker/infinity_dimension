@@ -48,6 +48,7 @@ public class RuntimeParameters<T> : RuntimeParameters {
     }
 
     public override void RunGenericBasedOnRP<P>(IRPGeneric inst, P arg) {
+        Debug.Log(typeof(T));
         inst.RunAccordingToGeneric<T,P>(arg);
     }
 }
