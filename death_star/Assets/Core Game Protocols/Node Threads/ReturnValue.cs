@@ -16,14 +16,13 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
     public override void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
 
-        // Finds second cell first before performing any actions.
         foreach(var t1 in linkData[id].lHS) {
             foreach(var t2 in linkData[t1.Item1].lHS) {
                 lM.Add(t2.Item1, t2.Item2, id, 0);
 
                 int[] links = var[t2.Item1][t2.Item2].links[t2.Item3];
 
-                if(links[1] == t1.Item2)
+                if(links[1] == t1.Item2) 
                     lM.Remove(t2.Item1, t2.Item2, t2.Item3);
             }
 
@@ -36,7 +35,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
     public override void NodeCallback(int threadId) {
         Debug.Log("afterset TID: " + threadId);
 
-        threadMap.Add(threadId,new ThreadMapDataBase());
+        threadMap.Add(threadId, new ThreadMapDataBase());
 
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         ChildThread trdInst = new ChildThread(GetNodeId(), threadId, this);
@@ -65,6 +64,8 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
+
+        Debug.Log("Redirecting variable.");
 
         inst.GetActiveThread(parentThread).SetPossiblePaths(inst.ReturnVariable(GetNodeId(), "Internal Redirect").links.Length);
         inst.NodeVariableCallback<T>(parentThread, "Internal Redirect", rP.v);

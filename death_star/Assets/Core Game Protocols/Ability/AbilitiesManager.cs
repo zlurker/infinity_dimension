@@ -80,6 +80,7 @@ public class AbilityData : IInputCallback<int> {
 
         RetrieveStartNodes();
 
+        // Adds the psuedo node after the initial calculation.
         dataVar[dataVar.Length - 1] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[0].rP, rootSubclasses) };
         dataType[dataVar.Length - 1] = typeof(NodeThreadStarter);
         linkData[dataVar.Length - 1] = new LinkData();
@@ -91,9 +92,11 @@ public class AbilityData : IInputCallback<int> {
     }
 
     void RetrieveStartNodes() {
-        AutoPopulationList<bool> connected = new AutoPopulationList<bool>(dataVar.Length-1);
+        int nonPsuedoNodes = dataVar.Length - 1;
 
-        for(int i = 0; i < dataVar.Length - 1; i++)
+        AutoPopulationList<bool> connected = new AutoPopulationList<bool>(nonPsuedoNodes);
+
+        for(int i = 0; i < nonPsuedoNodes; i++)
             for(int j = 0; j < dataVar[i].Length; j++)
                 for(int k = 0; k < dataVar[i][j].links.Length; k++) {
                     int[] currLink = dataVar[i][j].links[k];
