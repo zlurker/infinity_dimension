@@ -26,6 +26,8 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 
         allDataRecv = CheckIfVarRegionBlocked(0,1,2,3);
 
+        Debug.Log("Callback from " + threadId);
+
         if(allDataRecv) {
             float[] vectorHolder = GetNodeVariable<float[]>("Direction From Target");
             normDir = new Vector3(vectorHolder[0],vectorHolder[1]).normalized;

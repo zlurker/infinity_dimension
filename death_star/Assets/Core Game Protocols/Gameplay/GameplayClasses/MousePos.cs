@@ -8,7 +8,7 @@ public class MousePos : AbilityTreeNode {
 
         if(IsClientPlayerUpdate()) {
             Vector2 currPosInWorld = LoadedData.currSceneCamera.ScreenToWorldPoint(Input.mousePosition);
-            GetCentralInst().NodeVariableCallback<float[]>(GetNodeThreadId(), "Mouse Pos", new float[] { currPosInWorld.x, currPosInWorld.y });
+            SetVariable<float[]>("Mouse Pos", new float[] { currPosInWorld.x, currPosInWorld.y });
         }
     }
 

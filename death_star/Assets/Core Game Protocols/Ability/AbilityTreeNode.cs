@@ -27,7 +27,7 @@ public class AbilityTreeNode : MonoBehaviour {
 
     private SpawnerOutput sourceObject;
 
-    public virtual void LinkEdit(int id,LinkData[] linkData,LinkModifier lM, Variable[][] var) {
+    public virtual void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
 
     }
 
@@ -95,5 +95,16 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public bool IsClientPlayerUpdate() {
         return GetCentralInst().GetPlayerId() == ClientProgram.clientId;
+    }
+
+    public void SetVariable<T>(string varName, T value) {
+        int varId = LoadedData.loadedParamInstances[GetType()].variableAddresses[varName];
+        GetCentralInst().UpdateVariableValue(nodeThreadId, varId, value);
+        GetCentralInst().NodeVariableCallback<T>(nodeThreadId,varId);
+    }
+
+    public void SetVariable<T>(string varName) {
+        int varId = LoadedData.loadedParamInstances[GetType()].variableAddresses[varName];
+        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, varId);
     }
 }

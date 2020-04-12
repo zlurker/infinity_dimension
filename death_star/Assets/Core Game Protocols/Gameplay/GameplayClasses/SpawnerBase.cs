@@ -12,13 +12,13 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
         base.NodeCallback(threadId);
 
         sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite File Path")];
-        GetCentralInst().NodeVariableCallback<AbilityTreeNode>(GetNodeThreadId(), "Spawn", this);
+        SetVariable<AbilityTreeNode>("Spawn", this);
     }
 
     private void OnCollisionStay2D(Collision2D collision) {
         string[] objDetails = collision.gameObject.name.Split('/');
         int[] objLoc = new int[] { int.Parse(objDetails[0]), int.Parse(objDetails[1]) };
-        GetCentralInst().NodeVariableCallback<int[]>(GetNodeThreadId(), "On Collide", objLoc);
+        SetVariable("On Collide", objLoc);
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

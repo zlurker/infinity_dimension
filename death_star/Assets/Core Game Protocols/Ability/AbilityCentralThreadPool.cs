@@ -208,24 +208,34 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
         int threadId = GetNewThread(lastNodeId);
 
         activeThreads.l[threadId].SetNodeData(lastNodeId, nodeBranchingData[lastNodeId]);
-        NodeVariableCallback(threadId,0,0);
+        NodeVariableCallback<int>(threadId, 0);
     }
 
-    public void NodeVariableCallback<T>(int threadId, string varName, T value) {
+    public void UpdateVariableValue<T>(int threadId, int variableId, T value) {
+
+        if(threadId == -1)
+            return;
+
+        int nodeId = activeThreads.l[threadId].GetCurrentNodeID();
+        RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
+
+        if(paramInst != null)
+            paramInst.v = value;
+
+        else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
+            string varName = runtimeParameters[nodeId][variableId].field.n;
+            int[][] links = runtimeParameters[nodeId][variableId].links;
+            runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
+        }
+    }
+
+    public void NodeVariableCallback<T>(int threadId, int variableId) {
+
         if(threadId == -1)
             return;
 
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-        NodeVariableCallback<T>(threadId, LoadedData.loadedParamInstances[subclassTypes[currNode]].variableAddresses[varName], value);
-    }
 
-    public void NodeVariableCallback<T>(int threadId, int variableId, T value) {
-
-        if(threadId == -1)
-            return;
-       
-        int currNode = activeThreads.l[threadId].GetCurrentNodeID();
-        
         bool sharedNetworkData = false;
 
         if(LoadedData.GetVariableType(subclassTypes[currNode], variableId, VariableTypes.CLIENT_ACTIVATED))
@@ -240,18 +250,25 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
             else
                 sharedNetworkData = true;
 
-        if(sharedNetworkData)
-            AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, value));
 
-        UpdateVariableData<T>(threadId, variableId,value);
+        if(sharedNetworkData) {
+            RuntimeParameters<T> paramInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
+            AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, paramInst.v));
+        }
+
+        UpdateVariableData<T>(threadId, variableId);
     }
 
-    public void UpdateVariableData<T>(int threadId,int variableId, T value) {
+    public void UpdateVariableData<T>(int threadId, int variableId) {
+
+        if(threadId == -1)
+            return;
 
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         int[][] links = runtimeParameters[currNode][variableId].links;
-        
+
+        RuntimeParameters<T> originalParamInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
 
         for(int i = 0; i < links.Length; i++) {
 
@@ -259,6 +276,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
             int threadIdToUse = threadId;
             int nodeId = links[i][0];
             int nodeVariableId = links[i][1];
+            int linkType = links[i][2];
 
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
@@ -277,11 +295,22 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
                 //activeThreads.l[threadId].SetSources(currNode,vSource);
             }
 
-            RuntimeParameters<T> paramInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
 
-            if(paramInst != null && !LoadedData.GetVariableType(subclassTypes[nodeId],nodeVariableId,VariableTypes.SIGNAL_ONLY)) {
-                paramInst.v = value;
-                booleanData[nodeId][nodeVariableId] = false;
+            RuntimeParameters<T> targetParamInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
+
+            Debug.LogFormat("{0}, original. {1}, target", typeof(T), runtimeParameters[nodeId][nodeVariableId].field.t);
+
+            if(targetParamInst != null) {
+                switch((LinkMode)linkType) {
+                    case LinkMode.NORMAL:
+                        targetParamInst.v = originalParamInst.v;
+                        booleanData[nodeId][nodeVariableId] = false;
+
+                        
+                        Debug.LogFormat("Var set by {0},{1}",nodeId,nodeVariableId);
+                       
+                        break;
+                }
             }
 
             AbilityTreeNode nextNodeInst = CreateNewNodeIfNull(nodeId);
@@ -298,9 +327,9 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
             activeThreads.l[threadIdToUse].SetNodeData(nodeId, nodeBranchingData[nodeId]);
             nextNodeInst.NodeCallback(threadIdToUse);
 
-            for(int j = 0; j < autoManagedVar[nodeId].Length; j++) 
-                runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { threadIdToUse, nodeId, autoManagedVar[nodeId][j] });
-            
+            for(int j = 0; j < autoManagedVar[nodeId].Length; j++)
+                runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
+
             // Checks if node has no more output
             if(nodeBranchingData[nodeId] == 0) {
                 nextNodeInst.SetNodeThreadId(-1);
@@ -309,7 +338,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
         }
 
         if(jointThreadId > -1)
-            UpdateVariableData<T>(jointThreadId, variableId,value);      
+            UpdateVariableData<T>(jointThreadId, variableId);
     }
 
     public void HandleThreadRemoval(int threadId) {
@@ -361,15 +390,20 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
     }
 
     public void RenameAllNodes() {
-        for (int i =0; i < AbilityTreeNode.globalList.l[abilityNodes].abiNodes.Length; i++) 
-            if (AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i] != null)
-            AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i].name = networkObjectId.ToString() + '/' + i.ToString();        
+        for(int i = 0; i < AbilityTreeNode.globalList.l[abilityNodes].abiNodes.Length; i++)
+            if(AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i] != null)
+                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i].name = networkObjectId.ToString() + '/' + i.ToString();
     }
 
+
+    // This should be ran with curr node rather than thread.
     public void RunAccordingToGeneric<T, P>(P arg) {
         int[] nodeCBInfo = (int[])(object)arg;
 
-        RuntimeParameters<T> rp = runtimeParameters[nodeCBInfo[1]][nodeCBInfo[2]].field as RuntimeParameters<T>;
-        NodeVariableCallback<T>(nodeCBInfo[0], nodeCBInfo[2],rp.v);
+        RuntimeParameters<T> rp = runtimeParameters[nodeCBInfo[0]][nodeCBInfo[1]].field as RuntimeParameters<T>;
+
+        AbilityTreeNode inst = CreateNewNodeIfNull(nodeCBInfo[0]);
+
+        NodeVariableCallback<T>(inst.GetNodeThreadId(), nodeCBInfo[1]);
     }
 }

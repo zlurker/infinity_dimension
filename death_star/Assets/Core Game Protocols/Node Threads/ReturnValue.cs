@@ -10,7 +10,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Extended Path", 0)),
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Return from Variable", 0),VariableTypes.PERMENANT_TYPE,VariableTypes.SIGNAL_ONLY),
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Internal Redirect",0), VariableTypes.HIDDEN)
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Internal Redirect",0), VariableTypes.HIDDEN,VariableTypes.INTERCHANGEABLE)
         });
     }
 
@@ -43,7 +43,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         trdInst.SetNodeData(GetNodeId(), inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
         int threadToUse = inst.AddNewThread(trdInst);
         Debug.LogFormat("Thread id {0} has been created. Uses left {1}", threadToUse, inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
-        inst.NodeVariableCallback<int>(threadToUse, "Extended Path", 0);
+        SetVariable<int>("Extended Path");
     }
 
     public override void ThreadZeroed(int parentThread) {
@@ -68,6 +68,6 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         Debug.Log("Redirecting variable.");
 
         inst.GetActiveThread(parentThread).SetPossiblePaths(inst.ReturnVariable(GetNodeId(), "Internal Redirect").links.Length);
-        inst.NodeVariableCallback<T>(parentThread, "Internal Redirect", rP.v);
+        SetVariable("Internal Redirect", rP.v);
     }
 }

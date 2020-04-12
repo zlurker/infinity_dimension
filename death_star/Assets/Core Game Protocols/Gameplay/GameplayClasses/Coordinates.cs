@@ -9,7 +9,7 @@ public class Coordinates : AbilityTreeNode {
 
         if(allDataRecv) {
             float[] coords = new float[] { GetNodeVariable<float>("X"), GetNodeVariable<float>("Y") };
-            GetCentralInst().NodeVariableCallback(GetNodeThreadId(), "Output Coordinates", coords);
+            SetVariable("Output Coordinates", coords);
         }
     }
 

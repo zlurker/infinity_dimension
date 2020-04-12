@@ -110,7 +110,7 @@ public class AbilityData : IInputCallback<int> {
 
         for(int i = 0; i < connected.l.Count; i++)
             if(!connected.l[i])
-                rC.Add(new int[] { i, 0 });
+                rC.Add(new int[] { i, 0,1 });
 
         rootSubclasses = rC.ToArray();
     }
