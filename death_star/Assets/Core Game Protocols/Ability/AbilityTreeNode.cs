@@ -71,6 +71,10 @@ public class AbilityTreeNode : MonoBehaviour {
 
     }
 
+    public virtual void VariableChangedCallback(int varId) {
+
+    }
+
     public virtual void ThreadEndStartCallback(int threadId) {
 
     }

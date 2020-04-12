@@ -150,6 +150,8 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 vBytes = fBData.ToArray();
             }
 
+            Debug.Log(argType);
+
             if(argType > -1) {
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].nodeId));
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].varId));
@@ -179,14 +181,15 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
         while(i < bytesRecieved.Length) {
 
-            int ability = BitConverter.ToInt32(bytesRecieved, i + 0);
+            int ability = BitConverter.ToInt32(bytesRecieved, i);
             int var = BitConverter.ToInt32(bytesRecieved, i + 4);
             int argType = BitConverter.ToInt32(bytesRecieved, i + 8);
             int valueLen = BitConverter.ToInt32(bytesRecieved, i + 12);
 
-
             int abilityNodes = centralInst.GetAbilityNodeId();
             int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
+
+            Debug.Log(nTID);
 
             if(nTID > -1) {
                 switch(argType) {
@@ -218,6 +221,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                         for(int j = 0; j < iArray.Length; j++)
                             iArray[j] = BitConverter.ToInt32(bytesRecieved, i + 16 + (j * 4));
 
+                        Debug.Log("int arr recieved.");
                         centralInst.UpdateVariableValue(nTID, var, iArray);
                         centralInst.UpdateVariableData<int[]>(nTID, var);
                         break;

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+public enum NETWORK_CLIENT_ELIGIBILITY {
+    GRANTED, DENIED, LOCAL_HOST
+}
 
 public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
 
@@ -110,6 +113,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
     // This thread's ID
     private int centralId;
 
+    private int internalRecursiveEndCheck;
+
     private List<AbilityNodeNetworkData> networkNodeData;
 
     // Current threads active
@@ -148,6 +153,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
     public Variable ReturnVariable(int node, string vName) {
         int variable = LoadedData.loadedParamInstances[subclassTypes[node]].variableAddresses[vName];
         return runtimeParameters[node][variable];
+    }
+
+    public void SetInternalRecursiveCheck(int count) {
+        internalRecursiveEndCheck = count;
     }
 
     public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, string vName) {
@@ -211,24 +220,47 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
         NodeVariableCallback<int>(threadId, 0);
     }
 
+    public NETWORK_CLIENT_ELIGIBILITY CheckEligibility(int nodeId, int variableId) {
+
+        if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.CLIENT_ACTIVATED)) {
+            if(playerCasted != ClientProgram.clientId)
+                return NETWORK_CLIENT_ELIGIBILITY.DENIED;
+            else
+                return NETWORK_CLIENT_ELIGIBILITY.GRANTED;
+        }
+
+        if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.HOST_ACTIVATED))
+            if(ClientProgram.hostId != ClientProgram.clientId)
+                return NETWORK_CLIENT_ELIGIBILITY.DENIED;
+            else
+                return NETWORK_CLIENT_ELIGIBILITY.GRANTED;
+
+        return NETWORK_CLIENT_ELIGIBILITY.LOCAL_HOST;
+    }
+
     public void UpdateVariableValue<T>(int threadId, int variableId, T value) {
 
         if(threadId == -1)
             return;
 
         int nodeId = activeThreads.l[threadId].GetCurrentNodeID();
+        bool varChanged = false;
         RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
 
-        if(paramInst != null)
+        if(paramInst != null) {
             paramInst.v = value;
-
-        else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
+            varChanged = true;
+        } else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
             string varName = runtimeParameters[nodeId][variableId].field.n;
             int[][] links = runtimeParameters[nodeId][variableId].links;
 
             Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
             runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
+            varChanged = true;
         }
+
+        if(varChanged)
+            AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].VariableChangedCallback(variableId);
     }
 
     public void NodeVariableCallback<T>(int threadId, int variableId) {
@@ -237,25 +269,17 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
             return;
 
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
+        NETWORK_CLIENT_ELIGIBILITY nCE = CheckEligibility(currNode, variableId);
 
-        bool sharedNetworkData = false;
+        //Debug.Log(nCE);
 
-        if(LoadedData.GetVariableType(subclassTypes[currNode], variableId, VariableTypes.CLIENT_ACTIVATED))
-            if(playerCasted != ClientProgram.clientId)
+        switch(nCE) {
+            case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
+                RuntimeParameters<T> paramInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
+                AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, paramInst.v));
+                break;
+            case NETWORK_CLIENT_ELIGIBILITY.DENIED:
                 return;
-            else
-                sharedNetworkData = true;
-
-        if(LoadedData.GetVariableType(subclassTypes[currNode], variableId, VariableTypes.HOST_ACTIVATED))
-            if(playerCasted != ClientProgram.hostId)
-                return;
-            else
-                sharedNetworkData = true;
-
-
-        if(sharedNetworkData) {
-            RuntimeParameters<T> paramInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
-            AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, paramInst.v));
         }
 
         UpdateVariableData<T>(threadId, variableId);
@@ -265,6 +289,9 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
 
         if(threadId == -1)
             return;
+
+        if(internalRecursiveEndCheck > -1)
+            internalRecursiveEndCheck++;
 
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
@@ -305,7 +332,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
                 switch((LinkMode)linkType) {
                     case LinkMode.NORMAL:
                         targetParamInst.v = originalParamInst.v;
-                        booleanData[nodeId][nodeVariableId] = false;                      
+                        booleanData[nodeId][nodeVariableId] = false;
                         break;
                 }
             }
@@ -336,6 +363,15 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
 
         if(jointThreadId > -1)
             UpdateVariableData<T>(jointThreadId, variableId);
+
+        if(internalRecursiveEndCheck > -1) {
+            internalRecursiveEndCheck--;
+
+            if(internalRecursiveEndCheck == 0) {
+                UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
+                encoder.SendVariableManifest(networkObjectId, instId, GetVariableNetworkData());
+            }
+        }
     }
 
     public void HandleThreadRemoval(int threadId) {

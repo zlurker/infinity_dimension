@@ -202,7 +202,9 @@ public class AbilityData : IInputCallback<int> {
 
     public void InputCallback(int i) {
         AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(ClientProgram.clientId);
+        centralPool.SetInternalRecursiveCheck(-1);
         CreateAbility(centralPool);
+        centralPool.SetInternalRecursiveCheck(0);
 
         if(ClientProgram.clientInst) {
             AbilityNodeNetworkData[] data = centralPool.GetVariableNetworkData();

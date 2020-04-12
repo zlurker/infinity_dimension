@@ -13,7 +13,7 @@ public class ServerChannel : NetworkMessageEncoder {
     public override void MessageRecievedCallback() {
 
         int actionType = BitConverter.ToInt32(bytesRecieved, 0);
-        Debug.Log(actionType);
+        //Debug.Log(actionType);
 
         switch((ServerSideMethods)actionType) {
             case ServerSideMethods.CLIENT_IDENTITY:
