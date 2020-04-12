@@ -98,13 +98,16 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public void SetVariable<T>(string varName, T value) {
-        int varId = LoadedData.loadedParamInstances[GetType()].variableAddresses[varName];
+        int varId = GetVariableId(varName);
         GetCentralInst().UpdateVariableValue(nodeThreadId, varId, value);
         GetCentralInst().NodeVariableCallback<T>(nodeThreadId,varId);
     }
 
     public void SetVariable<T>(string varName) {
-        int varId = LoadedData.loadedParamInstances[GetType()].variableAddresses[varName];
-        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, varId);
+        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, GetVariableId(varName));
+    }
+
+    public int GetVariableId(string varName) {
+        return LoadedData.loadedParamInstances[GetType()].variableAddresses[varName];
     }
 }

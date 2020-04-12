@@ -225,6 +225,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
         else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
             string varName = runtimeParameters[nodeId][variableId].field.n;
             int[][] links = runtimeParameters[nodeId][variableId].links;
+
+            Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
             runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
         }
     }
@@ -274,6 +276,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
 
             NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
             int threadIdToUse = threadId;
+            //Debug.LogFormat("Current info: CurrNode{0}, CurrVar{1}, CurrLink{2}, CurrLinkLen{3}",currNode,variableId,i,links[i].Length);
             int nodeId = links[i][0];
             int nodeVariableId = links[i][1];
             int linkType = links[i][2];
@@ -281,7 +284,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
                 //newThread.SetSources(currNode,vSource);
-                Debug.LogFormat("{0} has been spawned by {1}, ischild: {2}", threadIdToUse, threadId, activeThreads.l[threadId] is ChildThread);
+                //Debug.LogFormat("{0} has been spawned by {1}, ischild: {2}", threadIdToUse, threadId, activeThreads.l[threadId] is ChildThread);
 
             } else {
                 //If no creation needed, means its the last.
@@ -298,17 +301,11 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
 
             RuntimeParameters<T> targetParamInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
 
-            Debug.LogFormat("{0}, original. {1}, target", typeof(T), runtimeParameters[nodeId][nodeVariableId].field.t);
-
             if(targetParamInst != null) {
                 switch((LinkMode)linkType) {
                     case LinkMode.NORMAL:
                         targetParamInst.v = originalParamInst.v;
-                        booleanData[nodeId][nodeVariableId] = false;
-
-                        
-                        Debug.LogFormat("Var set by {0},{1}",nodeId,nodeVariableId);
-                       
+                        booleanData[nodeId][nodeVariableId] = false;                      
                         break;
                 }
             }

@@ -18,22 +18,22 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
         foreach(var t1 in linkData[id].lHS) {
             foreach(var t2 in linkData[t1.Item1].lHS) {
-                lM.Add(t2.Item1, t2.Item2, id, 0);
+                lM.Add(t2.Item1, t2.Item2, id, 0,1);
 
-                int[] links = var[t2.Item1][t2.Item2].links[t2.Item3];
+                int[] links = var[t2.Item1][t2.Item2].links[t2.Item4];
 
                 if(links[1] == t1.Item2) 
-                    lM.Remove(t2.Item1, t2.Item2, t2.Item3);
+                    lM.Remove(t2.Item1, t2.Item2, t2.Item4);
             }
 
             // Removes main connection from the list.
-            lM.Remove(t1.Item1, t1.Item2, t1.Item3);
-            lM.Add(id, 2, t1.Item1, t1.Item2);
+            lM.Remove(t1.Item1, t1.Item2, t1.Item4);
+            lM.Add(id, 2, t1.Item1, t1.Item2, t1.Item3);
         }
     }
 
     public override void NodeCallback(int threadId) {
-        Debug.Log("afterset TID: " + threadId);
+        //Debug.Log("afterset TID: " + threadId);
 
         threadMap.Add(threadId, new ThreadMapDataBase());
 
@@ -42,8 +42,8 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
         trdInst.SetNodeData(GetNodeId(), inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
         int threadToUse = inst.AddNewThread(trdInst);
-        Debug.LogFormat("Thread id {0} has been created. Uses left {1}", threadToUse, inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
-        SetVariable<int>("Extended Path");
+        //Debug.LogFormat("Thread id {0} has been created. Uses left {1}", threadToUse, inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
+        inst.NodeVariableCallback<int>(threadToUse,GetVariableId("Extended Path"));
     }
 
     public override void ThreadZeroed(int parentThread) {
