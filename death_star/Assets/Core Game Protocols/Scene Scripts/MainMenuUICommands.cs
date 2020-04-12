@@ -315,8 +315,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     void CreateLinkage(int[] id, int connectionId = -1) {
         if(prevPath.Length > 0) {
 
-            if(connectionId == -1)
-                connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0], prevPath[1], id[0], id[1], 0 });
+            if(connectionId == -1) {
+
+                int linkType = LoadedData.GetVariableType(abilityData.subclasses.l[prevPath[0]].classType, prevPath[1], VariableTypes.SIGNAL_ONLY) ? 1 : 0;
+                connectionId = abilityData.linkAddresses.Add(new int[] { prevPath[0], prevPath[1], id[0], id[1], linkType });
+            }
 
             //Debug.LogFormat("ConnectionID assigned {0}. For {1} and {2}", connectionId, prevPath[0], id[0]);
 
@@ -346,9 +349,13 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         UIDrawer.GetTypeInElement<Button>(lGraphic).onClick.AddListener(() => {
             switch(mMode) {
                 case MouseMode.EDIT_CONN:
-                    abilityData.linkAddresses.l[id][4] = (int)lMode;
-                    UpdateLineColor(id);
-                    mMode = MouseMode.NONE;
+                    int[] linkData = abilityData.linkAddresses.l[id];
+
+                    if(!LoadedData.GetVariableType(abilityData.subclasses.l[linkData[0]].classType, linkData[1], VariableTypes.PERMENANT_TYPE)) {
+                        linkData[4] = (int)lMode;
+                        UpdateLineColor(id);
+                        mMode = MouseMode.NONE;
+                    }
                     break;
 
                 case MouseMode.REMOVE_CONN:

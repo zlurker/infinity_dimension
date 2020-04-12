@@ -11,7 +11,7 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
     protected virtual void Update() {
         int[] coords = GetNodeVariable<int[]>("Internal Collide Handler");
 
-        if (coords != null) {
+        if(coords != null) {
             AbilityCentralThreadPool central = NetworkObjectTracker.inst.ReturnNetworkObject(coords[0]) as AbilityCentralThreadPool;
             AbilityTreeNode inst = globalList.l[central.GetAbilityNodeId()].abiNodes[coords[1]];
 
@@ -22,7 +22,9 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
     public override void NodeCallback(int threadId) {
         base.NodeCallback(threadId);
 
-        sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite File Path")];
+        if(sR.sprite == null)
+            sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite File Path")];
+
         SetVariable<AbilityTreeNode>("Spawn", this);
     }
 
