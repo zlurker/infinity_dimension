@@ -16,7 +16,7 @@ public class ThreadSplitter : NodeModifierBase {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Number of Loops", 1))
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Number of Loops", 1),VariableTypes.SIGNAL_ONLY)
         });
     }
 

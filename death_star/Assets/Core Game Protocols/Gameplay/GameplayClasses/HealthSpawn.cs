@@ -5,9 +5,12 @@ using UnityEngine;
 
 public class HealthSpawn : SpawnerBase {
 
-    void Update () {
+    protected override void Update () {
+
         if(GetNodeVariable<float>("Health") < 0)
             transform.root.gameObject.SetActive(false);
+
+        base.Update();
 	}
 
     public override void NodeCallback(int threadId) {

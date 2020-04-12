@@ -8,6 +8,17 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
     protected SpriteRenderer sR;
     protected Rigidbody2D rB;
 
+    protected virtual void Update() {
+        int[] coords = GetNodeVariable<int[]>("Internal Collide Handler");
+
+        if (coords != null) {
+            AbilityCentralThreadPool central = NetworkObjectTracker.inst.ReturnNetworkObject(coords[0]) as AbilityCentralThreadPool;
+            AbilityTreeNode inst = globalList.l[central.GetAbilityNodeId()].abiNodes[coords[1]];
+
+            SetVariable<AbilityTreeNode>("On Collide", inst);
+        }
+    }
+
     public override void NodeCallback(int threadId) {
         base.NodeCallback(threadId);
 
@@ -18,7 +29,7 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
     private void OnCollisionStay2D(Collision2D collision) {
         string[] objDetails = collision.gameObject.name.Split('/');
         int[] objLoc = new int[] { int.Parse(objDetails[0]), int.Parse(objDetails[1]) };
-        SetVariable("On Collide", objLoc);
+        SetVariable("Internal Collide Handler", objLoc);
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
@@ -26,7 +37,8 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
-            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("On Collide", null),VariableTypes.HOST_ACTIVATED),
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("On Collide", null)),
+            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Internal Collide Handler", null),VariableTypes.HOST_ACTIVATED,VariableTypes.HIDDEN),
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)
         });
     }
