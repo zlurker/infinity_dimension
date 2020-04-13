@@ -25,7 +25,7 @@ public class Timer : MonoBehaviour, ISingleton {
 
     void Update() {
 
-        for(int i = tData.l.Count; i >= 0; i--) {
+        for(int i = tData.l.Count-1; i >= 0; i--) {
             if(tData.l[i] != null)
                 if(tData.l[i].startTime + tData.l[i].duration <= Time.realtimeSinceStartup) {
                     tData.l[i].callback.CallOnTimerEnd();

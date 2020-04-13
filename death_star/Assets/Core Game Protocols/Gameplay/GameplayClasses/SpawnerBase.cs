@@ -9,7 +9,13 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
     protected Rigidbody2D rB;
 
     protected virtual void Update() {
+        int[] objLoc = GetNodeVariable<int[]>("Internal Collide Handler");
 
+        if(objLoc != null) {
+            AbilityCentralThreadPool central = NetworkObjectTracker.inst.ReturnNetworkObject(objLoc[0]) as AbilityCentralThreadPool;
+            AbilityTreeNode inst = globalList.l[central.GetAbilityNodeId()].abiNodes[objLoc[1]];
+            SetVariable<AbilityTreeNode>("On Collide", inst);
+        }
     }
 
     public override void NodeCallback(int threadId) {
@@ -21,24 +27,12 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
         SetVariable<AbilityTreeNode>("Spawn", this);
     }
 
-    public override void VariableChangedCallback(int varId) {
-
-        if (varId == GetVariableId("Internal Collide Handler")) {
-            int[] objLoc = GetNodeVariable<int[]>("Internal Collide Handler");
-            AbilityCentralThreadPool central = NetworkObjectTracker.inst.ReturnNetworkObject(objLoc[0]) as AbilityCentralThreadPool;
-            AbilityTreeNode inst = globalList.l[central.GetAbilityNodeId()].abiNodes[objLoc[1]];            
-            SetVariable<AbilityTreeNode>("On Collide", inst);
-            GetCentralInst().SetInternalRecursiveCheck(0);
-        }
-    }
-
     private void OnCollisionStay2D(Collision2D collision) {
 
         string[] objDetails = collision.gameObject.name.Split('/');
         int[] objLoc = new int[] { int.Parse(objDetails[0]), int.Parse(objDetails[1]) };
 
         // Switches off network data sending so we are able to compile more before sending out.
-        GetCentralInst().SetInternalRecursiveCheck(-1);
         SetVariable("Internal Collide Handler", objLoc);       
     }
 

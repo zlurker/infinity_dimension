@@ -83,7 +83,7 @@ public class NodeThread {
     }
 }
 
-public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
+public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallback {
 
     public static EnhancedList<AbilityCentralThreadPool> globalCentralList = new EnhancedList<AbilityCentralThreadPool>();
 
@@ -113,7 +113,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
     // This thread's ID
     private int centralId;
 
-    private int internalRecursiveEndCheck;
+    private int timerEventId;
+    private bool networkControl;
 
     private List<AbilityNodeNetworkData> networkNodeData;
 
@@ -155,10 +156,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
         return runtimeParameters[node][variable];
     }
 
-    public void SetInternalRecursiveCheck(int count) {
-        internalRecursiveEndCheck = count;
-    }
-
     public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, string vName) {
         int variable = LoadedData.loadedParamInstances[subclassTypes[node]].variableAddresses[vName];
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
@@ -167,6 +164,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
     public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar) {
         activeThreads = new EnhancedList<NodeThread>();
 
+        timerEventId = -1;
         centralId = tId;
         abilityNodes = nId;
         runtimeParameters = rP;
@@ -202,6 +200,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
         return activeThreads.l[threadId];
     }
 
+    public void SetNetworkControl(bool value) {
+        networkControl = value;
+    }
+
     public void AddVariableNetworkData(AbilityNodeNetworkData aNND) {
         networkNodeData.Add(aNND);
     }
@@ -210,6 +212,13 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
         AbilityNodeNetworkData[] data = networkNodeData.ToArray();
         networkNodeData.Clear();
         return data;
+    }
+
+    public void CallOnTimerEnd() {
+        UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
+        Debug.Log("Send data worth " + networkNodeData.Count);
+        encoder.SendVariableManifest(networkObjectId, instId, GetVariableNetworkData());
+        timerEventId = -1;
     }
 
     public void StartThreads() {
@@ -244,23 +253,17 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
             return;
 
         int nodeId = activeThreads.l[threadId].GetCurrentNodeID();
-        bool varChanged = false;
         RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
 
-        if(paramInst != null) {
+        if(paramInst != null)
             paramInst.v = value;
-            varChanged = true;
-        } else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
+        else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
             string varName = runtimeParameters[nodeId][variableId].field.n;
             int[][] links = runtimeParameters[nodeId][variableId].links;
 
             Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
             runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
-            varChanged = true;
         }
-
-        if(varChanged)
-            AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].VariableChangedCallback(variableId);
     }
 
     public void NodeVariableCallback<T>(int threadId, int variableId) {
@@ -277,6 +280,13 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
             case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
                 RuntimeParameters<T> paramInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
                 AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, paramInst.v));
+
+                if(networkControl)
+                    if(timerEventId > -1)
+                        LoadedData.GetSingleton<Timer>().UpdateEventStartTime(timerEventId, Time.realtimeSinceStartup);
+                    else
+                        LoadedData.GetSingleton<Timer>().CreateNewTimerEvent(0.1f, this);
+
                 break;
             case NETWORK_CLIENT_ELIGIBILITY.DENIED:
                 return;
@@ -289,9 +299,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
 
         if(threadId == -1)
             return;
-
-        if(internalRecursiveEndCheck > -1)
-            internalRecursiveEndCheck++;
 
         int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
@@ -363,15 +370,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric {
 
         if(jointThreadId > -1)
             UpdateVariableData<T>(jointThreadId, variableId);
-
-        if(internalRecursiveEndCheck > -1) {
-            internalRecursiveEndCheck--;
-
-            if(internalRecursiveEndCheck == 0) {
-                UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
-                encoder.SendVariableManifest(networkObjectId, instId, GetVariableNetworkData());
-            }
-        }
     }
 
     public void HandleThreadRemoval(int threadId) {
