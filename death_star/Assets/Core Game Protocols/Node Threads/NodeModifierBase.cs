@@ -27,7 +27,7 @@ public class NodeModifierBase : AbilityTreeNode {
             threadMap[parentThread].totalThreadsSpawned--;
 
             if(threadMap[parentThread].totalThreadsSpawned == 0) 
-                ThreadZeroed(parentThread);            
+                ThreadZeroed(parentThread, threadId);            
             
             // Checks if node is already empty with no more threads.
             if(threadMap.Count == 0) {
@@ -37,7 +37,7 @@ public class NodeModifierBase : AbilityTreeNode {
         }
     }
 
-    public virtual void ThreadZeroed(int parentThread) {
+    public virtual void ThreadZeroed(int parentThread, int lastChildThread) {
 
     }
 

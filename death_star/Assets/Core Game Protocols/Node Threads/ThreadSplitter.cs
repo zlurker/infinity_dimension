@@ -27,16 +27,18 @@ public class ThreadSplitter : NodeModifierBase {
     }
 
 
-    public override void ThreadZeroed(int parentThread) {
+    public override void ThreadZeroed(int parentThread, int lastChildThread) {
         (threadMap[parentThread] as SplitterData).numberOfLoops++;
-        GetCentralInst().SetTimerEventID(-1);
-        ProcessThreads(parentThread);        
+
+        if(GetCentralInst().GetActiveThread(lastChildThread).GetJointThread() == -1)
+            GetCentralInst().SetTimerEventID(-1);
+        ProcessThreads(parentThread);
     }
 
     public void ProcessThreads(int threadId) {
 
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-        SplitterData sData = threadMap[threadId] as SplitterData; 
+        SplitterData sData = threadMap[threadId] as SplitterData;
 
         //Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, sData.numberOfLoops, inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
 
@@ -50,6 +52,6 @@ public class ThreadSplitter : NodeModifierBase {
         } else {
             inst.HandleThreadRemoval(threadId);
             threadMap.Remove(threadId);
-        }      
+        }
     }
 }

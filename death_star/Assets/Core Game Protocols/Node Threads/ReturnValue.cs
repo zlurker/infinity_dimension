@@ -46,7 +46,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         inst.NodeVariableCallback<int>(threadToUse,GetVariableId("Extended Path"));
     }
 
-    public override void ThreadZeroed(int parentThread) {
+    public override void ThreadZeroed(int parentThread, int lastChildThread) {
         AbilityCentralThreadPool inst = GetCentralInst();
 
         int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
