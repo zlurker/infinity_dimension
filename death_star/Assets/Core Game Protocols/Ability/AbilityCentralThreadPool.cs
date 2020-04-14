@@ -170,7 +170,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar) {        
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar) {
         centralId = tId;
         abilityNodes = nId;
         runtimeParameters = rP;
@@ -208,10 +208,15 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         networkNodeData.Add(aNND);
 
-        if(timerEventId > -1)
+        Debug.Log("Variable Data added.");
+
+        if(timerEventId > -1) {            
+            Debug.Log("Timer extended.");
             LoadedData.GetSingleton<Timer>().UpdateEventStartTime(timerEventId, Time.realtimeSinceStartup);
-        else
-            LoadedData.GetSingleton<Timer>().CreateNewTimerEvent(0.1f, this);
+        } else {
+            Debug.Log("New timer added.");
+            timerEventId = LoadedData.GetSingleton<Timer>().CreateNewTimerEvent(0.05f, this);
+        }
     }
 
     public AbilityNodeNetworkData[] GetVariableNetworkData() {

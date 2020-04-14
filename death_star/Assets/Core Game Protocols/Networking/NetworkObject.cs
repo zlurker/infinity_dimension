@@ -21,7 +21,6 @@ public class NetworkObjectTracker {
     }
 
     public NetworkObject ReturnNetworkObject(int id) {
-        Debug.Log(id);
         return networkObjects.l[id];
     }
 

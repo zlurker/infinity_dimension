@@ -19,8 +19,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
         public override void UpdateCentral(AbilityCentralThreadPool centralInst) {
             int abilityNodes = centralInst.GetAbilityNodeId();
-            Debug.Log("AN: " + abilityNodes);
-            Debug.Log("A: " + ability);
+
             int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
 
             if(nTID > -1) {
@@ -115,8 +114,6 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 vBytes = fBData.ToArray();
             }
 
-            Debug.Log(argType);
-
             if(argType > -1) {
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].nodeId));
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].varId));
@@ -149,7 +146,8 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             if(targetId != ClientProgram.clientId) {              
                 centralInst = new AbilityCentralThreadPool(targetId);
                 int aId = (pND[0] as PackedNodeData<int>).value;
-                AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(centralInst);
+                NetworkObjectTracker.inst.AddNetworkObject(centralInst);
+                AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(centralInst);               
             } else {
                 NetworkObjectTracker.inst.AddNetworkObject(playerGeneratedAbilities[0]);
                 playerGeneratedAbilities[0].RenameAllNodes();
