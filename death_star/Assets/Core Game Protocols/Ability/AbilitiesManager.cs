@@ -202,15 +202,15 @@ public class AbilityData : IInputCallback<int> {
 
     public void InputCallback(int i) {
         AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(ClientProgram.clientId);
+        centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<int>(-1, -1, abilityId));
         CreateAbility(centralPool);
-        centralPool.SetNetworkControl(true);
+        
+        //if(ClientProgram.clientInst) {
+            //AbilityNodeNetworkData[] data = centralPool.GetVariableNetworkData();
 
-        if(ClientProgram.clientInst) {
-            AbilityNodeNetworkData[] data = centralPool.GetVariableNetworkData();
-
-            AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
-            encoder.SendInputSignal(centralPool, abilityId, data);
-        }
+            //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
+            ///encoder.SendInputSignal(centralPool, abilityId, data);
+        //}
     }
 
     public void CreateAbility(AbilityCentralThreadPool threadInst) {
@@ -223,7 +223,7 @@ public class AbilityData : IInputCallback<int> {
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
         // Rather than create new instance, everything except variables will be taken from here.
-        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables);
+        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables);       
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
@@ -262,7 +262,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
     void Start() {
         int priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
 
-        AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
+        //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
         aData[ClientProgram.clientId].abilties[priCharacterId].InputCallback(0);
         //encoder.SendInputSignal(priCharacterId,null);
         AssignInputKeys();

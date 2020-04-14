@@ -87,7 +87,7 @@ public class LoadClasses : MonoBehaviour {
 
         NetworkMessageEncoder.encoders = new NetworkMessageEncoder[] {
             new ServerChannel(),
-            new AbilityInputEncoder(),
+            //new AbilityInputEncoder(),
             new UpdateAbilityDataEncoder(),
             new PlayerCustomDataTrasmitter(),
             new ImageDependenciesTransfer(),

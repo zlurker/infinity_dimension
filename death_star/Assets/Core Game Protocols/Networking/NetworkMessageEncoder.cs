@@ -5,7 +5,6 @@ using UnityEngine;
 
 public enum NetworkEncoderTypes {
     SERVER_CHANNEL,
-    ABILITY_INPUT,
     UPDATE_ABILITY_DATA,
     CUSTOM_DATA_TRASMIT,
     IMAGE_DATA_TRANSMIT,

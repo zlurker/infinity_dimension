@@ -89,10 +89,20 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     public AbilityCentralThreadPool() {
         playerCasted = 0;
+        InitialiseCentralVariables();
     }
 
     public AbilityCentralThreadPool(int pId) {
         playerCasted = pId;
+        InitialiseCentralVariables();
+    }
+
+    void InitialiseCentralVariables() {
+        networkNodeData = new List<AbilityNodeNetworkData>();
+        activeThreads = new EnhancedList<NodeThread>();
+        timerEventId = -1;
+        networkObjectId = -1;
+        instId = -1;
     }
 
     private Variable[][] runtimeParameters;
@@ -114,7 +124,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     private int centralId;
 
     private int timerEventId;
-    private bool networkControl;
 
     private List<AbilityNodeNetworkData> networkNodeData;
 
@@ -161,10 +170,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar) {
-        activeThreads = new EnhancedList<NodeThread>();
-
-        timerEventId = -1;
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar) {        
         centralId = tId;
         abilityNodes = nId;
         runtimeParameters = rP;
@@ -172,8 +178,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         nodeBranchingData = nBD;
         booleanData = aBD;
         autoManagedVar = amVar;
-
-        networkNodeData = new List<AbilityNodeNetworkData>();
     }
 
     public int GetNodeBranchData(int id) {
@@ -200,12 +204,14 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return activeThreads.l[threadId];
     }
 
-    public void SetNetworkControl(bool value) {
-        networkControl = value;
-    }
-
     public void AddVariableNetworkData(AbilityNodeNetworkData aNND) {
+
         networkNodeData.Add(aNND);
+
+        if(timerEventId > -1)
+            LoadedData.GetSingleton<Timer>().UpdateEventStartTime(timerEventId, Time.realtimeSinceStartup);
+        else
+            LoadedData.GetSingleton<Timer>().CreateNewTimerEvent(0.1f, this);
     }
 
     public AbilityNodeNetworkData[] GetVariableNetworkData() {
@@ -280,13 +286,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
                 RuntimeParameters<T> paramInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
                 AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, paramInst.v));
-
-                if(networkControl)
-                    if(timerEventId > -1)
-                        LoadedData.GetSingleton<Timer>().UpdateEventStartTime(timerEventId, Time.realtimeSinceStartup);
-                    else
-                        LoadedData.GetSingleton<Timer>().CreateNewTimerEvent(0.1f, this);
-
                 break;
             case NETWORK_CLIENT_ELIGIBILITY.DENIED:
                 return;
