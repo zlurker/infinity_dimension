@@ -223,7 +223,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     public void CallOnTimerEnd() {
         UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
         Debug.Log("Send data worth " + networkNodeData.Count);
-        encoder.SendVariableManifest(networkObjectId, instId, GetVariableNetworkData());
+        encoder.SendVariableManifest(this, GetVariableNetworkData());
         timerEventId = -1;
     }
 

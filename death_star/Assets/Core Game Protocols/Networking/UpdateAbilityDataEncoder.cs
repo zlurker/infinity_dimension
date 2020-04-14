@@ -19,6 +19,8 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
         public override void UpdateCentral(AbilityCentralThreadPool centralInst) {
             int abilityNodes = centralInst.GetAbilityNodeId();
+            Debug.Log("AN: " + abilityNodes);
+            Debug.Log("A: " + ability);
             int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
 
             if(nTID > -1) {
@@ -37,9 +39,21 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         }
     }
 
-    public void SendVariableManifest(int central, int instId, AbilityNodeNetworkData[] manifest) {
-        byte[] cData = BitConverter.GetBytes(central);
-        byte[] instData = BitConverter.GetBytes(instId);
+    List<AbilityCentralThreadPool> playerGeneratedAbilities;
+
+    public override void CalibrateEncoder(int id) {
+        playerGeneratedAbilities = new List<AbilityCentralThreadPool>();
+        base.CalibrateEncoder(id);
+    }
+
+    public void SendVariableManifest(AbilityCentralThreadPool inst, AbilityNodeNetworkData[] manifest) {
+
+        if(inst.ReturnNetworkObjectId() == -1) {
+            playerGeneratedAbilities.Add(inst);
+        }
+
+        byte[] cData = BitConverter.GetBytes(inst.ReturnNetworkObjectId());
+        byte[] instData = BitConverter.GetBytes(inst.ReturnInstId());
 
         byte[] manifestData = PrepareVariableManifest(manifest);
 
@@ -129,10 +143,19 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             if(NetworkObjectTracker.inst.CheckIfInstIdMatches(central, instId))
                 centralInst = NetworkObjectTracker.inst.ReturnNetworkObject(central) as AbilityCentralThreadPool;
         } else {
+
             loopStartId = 1;
-            centralInst = new AbilityCentralThreadPool(targetId);
-            int aId = (pND[0] as PackedNodeData<int>).value;
-            AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(centralInst);
+            // Handles creation of new centrals.
+            if(targetId != ClientProgram.clientId) {              
+                centralInst = new AbilityCentralThreadPool(targetId);
+                int aId = (pND[0] as PackedNodeData<int>).value;
+                AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(centralInst);
+            } else {
+                NetworkObjectTracker.inst.AddNetworkObject(playerGeneratedAbilities[0]);
+                playerGeneratedAbilities[0].RenameAllNodes();
+                centralInst = playerGeneratedAbilities[0];
+                playerGeneratedAbilities.RemoveAt(0);
+            }
         }
 
         if (centralInst != null)
