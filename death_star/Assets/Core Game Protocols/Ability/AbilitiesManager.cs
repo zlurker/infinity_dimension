@@ -180,13 +180,14 @@ public class AbilityData : IInputCallback<int> {
             for(int j = 0; j < dataVar[i].Length; j++) {
 
                 bool signal = LoadedData.GetVariableType(dataType[i], j, VariableTypes.SIGNAL_ONLY);
+                bool interchangeable = LoadedData.GetVariableType(dataType[i], j, VariableTypes.INTERCHANGEABLE);
                 AutoPopulationList<List<int[]>> varLinks = new AutoPopulationList<List<int[]>>(1);
 
                 for(int k = 0; k < dataVar[i][j].links.Length; k++) {
                     int[] currLink = dataVar[i][j].links[k];
 
                     // Marks target as true so it will be blocked.
-                    if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t && !signal)
+                    if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t && !signal || interchangeable)
                         boolData.varsBlocked[currLink[0]][currLink[1]] = true;
                 }
 

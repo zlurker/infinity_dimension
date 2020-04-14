@@ -13,7 +13,7 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 	void Update () {
         
         if(allDataRecv) {
-
+            Debug.Log(GetNodeVariable<AbilityTreeNode>("Target"));
             if(GetNodeVariable<float>("Duration") > Time.realtimeSinceStartup - timeDirChanged) {
                 float timeRatio = (Time.realtimeSinceStartup - timeDirChanged)/GetNodeVariable<float>("Duration");
                 GetNodeVariable<AbilityTreeNode>("Target").transform.root.position = dirChangeStart + (normDir * (GetNodeVariable<float>("Total Distance") * timeRatio));

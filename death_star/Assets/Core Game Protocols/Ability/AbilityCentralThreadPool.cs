@@ -342,17 +342,17 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 //activeThreads.l[threadId].SetSources(currNode,vSource);
             }
 
+            activeThreads.l[threadIdToUse].SetNodeData(nodeId, nodeBranchingData[nodeId]);
 
             RuntimeParameters<T> targetParamInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
 
-            if(targetParamInst != null) {
-                switch((LinkMode)linkType) {
-                    case LinkMode.NORMAL:
-                        targetParamInst.v = originalParamInst.v;
-                        booleanData[nodeId][nodeVariableId] = false;
-                        break;
-                }
+            switch((LinkMode)linkType) {
+                case LinkMode.NORMAL:
+                    UpdateVariableValue<T>(threadIdToUse, nodeVariableId, originalParamInst.v);
+                    booleanData[nodeId][nodeVariableId] = false;
+                    break;
             }
+
 
             AbilityTreeNode nextNodeInst = CreateNewNodeIfNull(nodeId);
 
@@ -365,7 +365,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 activeThreads.l[threadIdToUse].JoinThread(existingThread);
             }
 
-            activeThreads.l[threadIdToUse].SetNodeData(nodeId, nodeBranchingData[nodeId]);
+            
             nextNodeInst.NodeCallback(threadIdToUse);
 
             for(int j = 0; j < autoManagedVar[nodeId].Length; j++)
