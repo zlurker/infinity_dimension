@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public interface ITimerCallback {
-    void CallOnTimerEnd();
+    void CallOnTimerEnd(int eventId);
 }
 
 public class TimerData {
@@ -28,7 +28,7 @@ public class Timer : MonoBehaviour, ISingleton {
         for(int i = tData.l.Count-1; i >= 0; i--) {
             if(tData.l[i] != null)
                 if(tData.l[i].startTime + tData.l[i].duration <= Time.realtimeSinceStartup) {
-                    tData.l[i].callback.CallOnTimerEnd();
+                    tData.l[i].callback.CallOnTimerEnd(i);
                     tData.Remove(i);
                 }
         }

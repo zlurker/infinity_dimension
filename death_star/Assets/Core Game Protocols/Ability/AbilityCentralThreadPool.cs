@@ -98,7 +98,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     }
 
     void InitialiseCentralVariables() {
-        networkNodeData = new List<AbilityNodeNetworkData>();
+        networkNodeData = new Dictionary<int, List<AbilityNodeNetworkData>>();
         activeThreads = new EnhancedList<NodeThread>();
         timerEventId = -1;
         networkObjectId = -1;
@@ -125,7 +125,9 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     private int timerEventId;
 
-    private List<AbilityNodeNetworkData> networkNodeData;
+    private Dictionary<int, List<AbilityNodeNetworkData>> networkNodeData;
+
+    //private List<AbilityNodeNetworkData> networkNodeData;
 
     // Current threads active
     private EnhancedList<NodeThread> activeThreads;
@@ -204,32 +206,36 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return activeThreads.l[threadId];
     }
 
+    public void SetTimerEventID(int id) {
+        timerEventId = id;
+    }
+
     public void AddVariableNetworkData(AbilityNodeNetworkData aNND) {
-
-        networkNodeData.Add(aNND);
-
         Debug.Log("Variable Data added.");
 
-        if(timerEventId > -1) {            
+        if(timerEventId > -1) {
             Debug.Log("Timer extended.");
             LoadedData.GetSingleton<Timer>().UpdateEventStartTime(timerEventId, Time.realtimeSinceStartup);
         } else {
             Debug.Log("New timer added.");
             timerEventId = LoadedData.GetSingleton<Timer>().CreateNewTimerEvent(0.05f, this);
+            networkNodeData.Add(timerEventId, new List<AbilityNodeNetworkData>());
         }
+
+        networkNodeData[timerEventId].Add(aNND);
     }
 
-    public AbilityNodeNetworkData[] GetVariableNetworkData() {
-        AbilityNodeNetworkData[] data = networkNodeData.ToArray();
-        networkNodeData.Clear();
-        return data;
-    }
-
-    public void CallOnTimerEnd() {
+    public void CallOnTimerEnd(int eventId) {
         UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
         Debug.Log("Send data worth " + networkNodeData.Count);
-        encoder.SendVariableManifest(this, GetVariableNetworkData());
-        timerEventId = -1;
+
+        AbilityNodeNetworkData[] data = networkNodeData[eventId].ToArray();
+        networkNodeData.Remove(eventId);
+
+        encoder.SendVariableManifest(this, data);
+
+        if(timerEventId == eventId)
+            timerEventId = -1;
     }
 
     public void StartThreads() {

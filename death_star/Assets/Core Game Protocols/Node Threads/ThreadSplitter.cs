@@ -26,9 +26,11 @@ public class ThreadSplitter : NodeModifierBase {
         ProcessThreads(threadId);
     }
 
+
     public override void ThreadZeroed(int parentThread) {
         (threadMap[parentThread] as SplitterData).numberOfLoops++;
-        ProcessThreads(parentThread);
+        GetCentralInst().SetTimerEventID(-1);
+        ProcessThreads(parentThread);        
     }
 
     public void ProcessThreads(int threadId) {
