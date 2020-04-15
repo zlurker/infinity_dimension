@@ -115,6 +115,8 @@ public class InputFieldWrapper : UIWrapperBase {
 [RequireComponent(typeof(ScrollRect))]
 public class ScrollRectWrapper : UIWrapperBase {
 
+    public RectTransform content;
+
     public override void OnSpawn() {
         if(mainScript == null) {
             mainScript = GetComponent<ScrollRect>();
@@ -139,13 +141,16 @@ public class ScrollRectWrapper : UIWrapperBase {
         Image iVP = additionalScripts[1].script as Image;
         ScrollbarWrapper sBW  = additionalScripts[2].script as ScrollbarWrapper;
 
-        RectTransform content = LoadedData.GetSingleton<UIDrawer>().CreateEmptyGameObject().transform as RectTransform;
+        content = LoadedData.GetSingleton<UIDrawer>().CreateEmptyGameObject().transform as RectTransform;
         iVP.gameObject.AddComponent<Mask>();
 
         
         content.SetParent(iVP.transform);
-        iVP.transform.SetParent(sR.transform);
         iM.transform.SetParent(sR.transform);
+        iVP.transform.SetParent(sR.transform);
+        sBW.transform.SetParent(sR.transform);
+
+        //sBW.transform.localPosition = new Vector3(300,0);
 
         sR.viewport = iVP.rectTransform;
         sR.content = content;
@@ -178,10 +183,55 @@ public class ScrollbarWrapper : UIWrapperBase {
         iM.transform.SetParent(sR.transform);
         sArea.SetParent(sR.transform);
         iH.transform.SetParent(sArea);
-        
+
+        (sR.transform as RectTransform).sizeDelta = new Vector2(10, 100);
+        (sArea.transform as RectTransform).sizeDelta = new Vector2(10, 100);
+        (iM.transform as RectTransform).sizeDelta = new Vector2(10, 100);
+        (iH.transform as RectTransform).sizeDelta = new Vector2(10, 10);
+
         sR.targetGraphic = iH;
         sR.handleRect = iH.rectTransform;
 
         //AllignWrapperElements();
+    }
+}
+
+[RequireComponent(typeof(Dropdown))]
+public class DropdownWrapper : UIWrapperBase {
+
+    public override void OnSpawn() {
+        if(mainScript == null) {
+            mainScript = GetComponent<Dropdown>();
+            
+        }
+
+        Dropdown dD = mainScript as Dropdown;
+
+        dD.interactable = true;
+
+        additionalScripts = new SpawnerOutput[] {
+            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)),
+            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper)),
+            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollRectWrapper)),
+            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Toggle)),
+            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper)),
+        };
+
+        Image iM = additionalScripts[0].script as Image;
+        TextWrapper t = additionalScripts[1].script as TextWrapper;
+        ScrollRectWrapper sR = additionalScripts[2].script as ScrollRectWrapper;
+        Toggle tog = additionalScripts[3].script as Toggle;
+        TextWrapper tempT = additionalScripts[4].script as TextWrapper;
+
+        iM.transform.SetParent(dD.transform);
+        t.transform.SetParent(dD.transform);
+        sR.transform.SetParent(dD.transform);
+        tog.transform.SetParent(sR.content.transform);
+        tempT.transform.SetParent(tog.transform);
+
+        dD.targetGraphic = iM;
+        dD.template = sR.transform as RectTransform;
+        dD.captionText = t.mainScript as Text;
+        dD.itemText = tempT.mainScript as Text;
     }
 }
