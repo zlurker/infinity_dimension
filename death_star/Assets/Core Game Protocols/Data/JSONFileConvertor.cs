@@ -67,37 +67,39 @@ public class JSONFileConvertor : MonoBehaviour, IRPGeneric, ISingleton {
 
                     if(LoadedData.loadedParamInstances[convertedFormat[i].classType].variableAddresses.ContainsKey(sFs[i].vN[j])) {
                         varId = LoadedData.loadedParamInstances[convertedFormat[i].classType].variableAddresses[sFs[i].vN[j]];
-                        LoadedData.loadedParamInstances[convertedFormat[i].classType].runtimeParameters[varId].rP.RunGenericBasedOnRP(this, new int[] { i, varId });
-                    }else
+                        LoadedData.loadedParamInstances[convertedFormat[i].classType].runtimeParameters[varId].rP.RunGenericBasedOnRP(this, new int[] { i, j, varId });
+                    } else
                         Debug.Log("Variable has been removed.");
 
-                    if (varId != j) {
+                    if(varId != j) {
                         relinkRequired.Add(Tuple.Create(i, j), varId);
                         Debug.Log(sFs[i].vN[j] + " has been shifted.");
                     }
                 }
 
-                for (int j=0; j < convertedFormat[i].var.Length; j++) 
+                for(int j = 0; j < convertedFormat[i].var.Length; j++)
                     if(convertedFormat[i].var[j] == null)
                         convertedFormat[i].var[j] = new Variable(LoadedData.loadedParamInstances[convertedFormat[i].classType].runtimeParameters[j].rP);
-                
+
             }
 
-            for(int j = 0; j < convertedFormat.Length; j++)
-                for(int k = 0; k < convertedFormat[j].var.Length; k++) {
-                    List<int[]> links = new List<int[]>(convertedFormat[j].var[k].links);
+            for(int i = 0; i < convertedFormat.Length; i++)
+                for(int j = 0; j < convertedFormat[i].var.Length; j++) {
+                    List<int[]> links = new List<int[]>(convertedFormat[i].var[j].links);
 
-                    for(int f = links.Count - 1; f >= 0; f--) {
+                    for(int k = links.Count - 1; k >= 0; k--) {
 
-                        Tuple<int, int> id = Tuple.Create(links[f][0], links[f][1]);
+                        Tuple<int, int> id = Tuple.Create(links[k][0], links[k][1]);
 
                         if(relinkRequired.ContainsKey(id))
                             if(relinkRequired[id] > -1) {
-                                Debug.Log(links[f][1] + " id variable of " + convertedFormat[j].var[k].field.n + " has been moved to " + relinkRequired[id]);
-                                links[f][1] = relinkRequired[id];
+                                Debug.Log(links[k][1] + " id variable of " + convertedFormat[j].var[k].field.n + " has been moved to " + relinkRequired[id]);
+                                links[k][1] = relinkRequired[id];
                             } else
-                                links.RemoveAt(f);
+                                links.RemoveAt(k);
                     }
+
+                    convertedFormat[i].var[j].links = links.ToArray();
                 }
         }
 
@@ -105,11 +107,12 @@ public class JSONFileConvertor : MonoBehaviour, IRPGeneric, ISingleton {
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {
-        int i = ((int[])(object)arg)[0];
-        int j = ((int[])(object)arg)[1];
+        int subclass = ((int[])(object)arg)[0];
+        int oldId = ((int[])(object)arg)[1];
+        int newId = ((int[])(object)arg)[2];
 
-        RuntimeParameters<T> rP = JsonConvert.DeserializeObject<RuntimeParameters<T>>(standardFiles[i].rP[j]);
-        convertedFormat[i].var[j] = new Variable(rP,JsonConvert.DeserializeObject<int[][]>(standardFiles[i].l[j]));       
+        RuntimeParameters<T> rP = JsonConvert.DeserializeObject<RuntimeParameters<T>>(standardFiles[subclass].rP[oldId]);
+        convertedFormat[subclass].var[newId] = new Variable(rP, JsonConvert.DeserializeObject<int[][]>(standardFiles[subclass].l[oldId]));
     }
 
     public void RunOnStart() {

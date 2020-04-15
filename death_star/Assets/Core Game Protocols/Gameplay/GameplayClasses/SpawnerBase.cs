@@ -40,7 +40,6 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
-            //new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("fuck",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("On Collide", null)),
             new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Internal Collide Handler", null),VariableTypes.HOST_ACTIVATED,VariableTypes.HIDDEN),
