@@ -58,6 +58,10 @@ public class Spawner : MonoBehaviour, ISingleton {
         bB = new Type[0];
     }
 
+    public GameObject CreateEmptyGameObject() {
+        return new GameObject("empty", bB);
+    }
+
     /*public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
             new RuntimeParameters<GameObject>("Output Object",null)

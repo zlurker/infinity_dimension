@@ -29,11 +29,13 @@ public class AbilityPageScript : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+        LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollbarWrapper));
+        LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollRectWrapper));
         descriptions = new AutoPopulationList<AbilityDescription>();
         GenerateMenuElements();
         LoadCurrentFiles();
         LoadAbilityManifest();
-        //LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollRect));
+        //
     }
 
     void LoadCurrentFiles() {
