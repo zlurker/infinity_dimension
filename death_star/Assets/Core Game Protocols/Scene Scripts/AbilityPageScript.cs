@@ -29,7 +29,7 @@ public class AbilityPageScript : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper));
+       
         descriptions = new AutoPopulationList<AbilityDescription>();
         GenerateMenuElements();
         LoadCurrentFiles();

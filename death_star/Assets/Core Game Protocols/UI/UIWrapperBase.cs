@@ -240,6 +240,8 @@ public class DropdownWrapper : UIWrapperBase {
         RectTransform dDRT = dD.transform as RectTransform;
         dDRT.sizeDelta = new Vector2(100, 30);
 
+        sR.gameObject.SetActive(false);
+
         dD.targetGraphic = iM;
         dD.template = sR.transform as RectTransform;
         dD.captionText = t.mainScript as Text;

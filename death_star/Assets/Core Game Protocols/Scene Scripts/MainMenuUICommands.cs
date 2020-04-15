@@ -67,6 +67,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
     SpawnerOutput windowSpawner;
 
+    DropdownWrapper dW;
+    int[] inputValues;
+
     MouseMode mMode;
     LinkMode lMode;
     Type selectedType;
@@ -172,6 +175,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         UIDrawer.GetTypeInElement<Button>(saveButton).onClick.AddListener(() => {
 
+            abilityDescription.kC = inputValues[(dW.mainScript as Dropdown).value];
+
             int[] aEle = abilityData.subclasses.ReturnActiveElementIndex();
 
             AbilityDataSubclass[] cAD = abilityData.RelinkSubclass();
@@ -196,6 +201,26 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         UIDrawer.GetTypeInElement<Text>(saveButton).text = "Save JSON";
         saveButton.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.1f));
+
+        dW = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper)).script as DropdownWrapper;
+
+        dW.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.75f, 0.9f));
+        List<Dropdown.OptionData> inputs = new List<Dropdown.OptionData>();
+
+        string[] inputNames = Enum.GetNames(typeof(KeyCode));
+        int inputIndex = 0;
+
+        inputValues = (int[]) Enum.GetValues(typeof(KeyCode));
+
+        for(int i = 0; i < inputNames.Length; i++) {
+            inputs.Add(new Dropdown.OptionData(inputNames[i]));
+
+            if(abilityDescription.kC == inputValues[i])
+                inputIndex = i;
+        }
+
+        (dW.mainScript as Dropdown).AddOptions(inputs);
+        (dW.mainScript as Dropdown).value = inputIndex;
     }
 
     public void SpawnUIFromData() {
