@@ -22,15 +22,15 @@ public class AbilityPageScript : MonoBehaviour {
 
     Dictionary<int, string> abilityManifest;
   
-    AutoPopulationList<AbilityDescription> descriptions;
+    AutoPopulationList<AbilityInfo> aInfo;
     AbilityButtonMode currMode;
 
     string abilityManifestPath;
 
     // Use this for initialization
     void Start() {
-       
-        descriptions = new AutoPopulationList<AbilityDescription>();
+
+        aInfo = new AutoPopulationList<AbilityInfo>();
         GenerateMenuElements();
         LoadCurrentFiles();
         LoadAbilityManifest();
@@ -46,9 +46,9 @@ public class AbilityPageScript : MonoBehaviour {
             int fileInt = int.Parse(files[i].Name);
 
             string data = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadTrigger(new string[] { fileInt.ToString() }, 1);
-            AbilityDescription inst = JsonConvert.DeserializeObject<AbilityDescription>(data);
+            AbilityInfo inst = JsonConvert.DeserializeObject<AbilityInfo>(data);
 
-            descriptions.ModifyElementAt(fileInt, inst);
+            aInfo.ModifyElementAt(fileInt, inst);
 
             GenerateAbilityElement(files[i].Name);
         }
@@ -111,17 +111,17 @@ public class AbilityPageScript : MonoBehaviour {
 
         fST.GenerateNewSubDirectory(new string[] { i.ToString() });
 
-        AbilityDescription inst = new AbilityDescription();
+        AbilityInfo inst = new AbilityInfo();
         fST.GenericSaveTrigger<string>(new string[] { i.ToString() }, 1, JsonConvert.SerializeObject(inst));
 
-        descriptions.ModifyElementAt(i, inst);
+        aInfo.ModifyElementAt(i, inst);
         GenerateAbilityElement(i.ToString());
     }
 
     void GenerateAbilityElement(string index) {
         SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
-        UIDrawer.GetTypeInElement<Text>(abilityButton).text = descriptions.GetElementAt(int.Parse(index)).n;
+        UIDrawer.GetTypeInElement<Text>(abilityButton).text = aInfo.GetElementAt(int.Parse(index)).n;
 
         UIDrawer.GetTypeInElement<Button>(abilityButton).onClick.AddListener(() => {
             selectedAbility = index;

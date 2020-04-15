@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AbilityDescription {
+public class AbilityInfo {
     public string n;
     public string d;
     public int kC;
 
-    public AbilityDescription() {
+    public AbilityInfo() {
         n = "New Ability";
         d = "No Description";
+        kC = 0;
     }
 }

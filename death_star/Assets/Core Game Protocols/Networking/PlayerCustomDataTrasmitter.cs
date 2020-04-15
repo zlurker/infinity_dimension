@@ -74,9 +74,12 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         if(ability == null)
             return;
 
+        AbilityInfo aD = JsonConvert.DeserializeObject<AbilityInfo>(abilityDescription);
+
+
         int currAbility = builders[targetId].Count / datafilesToSend.Length;
         currAbility--;
 
-        AbilitiesManager.aData[targetId].abilties[currAbility] = new AbilityData(ability,currAbility);
+        AbilitiesManager.aData[targetId].abilties[currAbility] = new AbilityData(ability,aD,currAbility);
     }
 }

@@ -78,7 +78,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     //Line Drawing System
     Camera cam;
 
-    AbilityDescription abilityDescription;
+    AbilityInfo abilityDescription;
 
     int[] prevPath;
 
@@ -106,7 +106,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         InputField castedName = UIDrawer.GetTypeInElement<InputField>(name);
 
         string data = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadTrigger(new string[] { AbilityPageScript.selectedAbility }, 1);
-        abilityDescription = JsonConvert.DeserializeObject<AbilityDescription>(data);
+        abilityDescription = JsonConvert.DeserializeObject<AbilityInfo>(data);
         UIDrawer.GetTypeInElement<InputField>(name).text = abilityDescription.n;
 
         castedName.onValueChanged.AddListener((s) => {

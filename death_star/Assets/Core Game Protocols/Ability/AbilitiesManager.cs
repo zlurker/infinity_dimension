@@ -53,20 +53,23 @@ public class LinkModifier {
 }
 
 public class AbilityData : IInputCallback<int> {
+
+    
     // Data that needs to be read/written
     Variable[][] dataVar;
     AbilityBooleanData boolData;
 
     // Data that will purely only be read.
+    public AbilityInfo abilityInfo;
     Type[] dataType;
-    string[] description;
     int[][] rootSubclasses;
     int[] nodeBranchingData;
     int[][] autoManagedVariables;
     int abilityId;
 
-    public AbilityData(AbilityDataSubclass[] data, int aId) {
+    public AbilityData(AbilityDataSubclass[] data, AbilityInfo aD, int aId) {
 
+        abilityInfo = aD;
         // Sorts variable out accordingly.
         dataVar = new Variable[data.Length + 1][];
         dataType = new Type[data.Length + 1];
@@ -271,11 +274,10 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
     public void AssignInputKeys() {
         if(aData.ContainsKey(ClientProgram.clientId)) {
-            int actualKeyLoaded = 0;
             for(int i = 0; i < aData[ClientProgram.clientId].abilties.Length; i++)
                 if(!aData[ClientProgram.clientId].abilityManifest.ContainsValue(i)) {
-                    LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode)(97 + actualKeyLoaded), 0, true);
-                    actualKeyLoaded++;
+                    int keyAssigned = aData[ClientProgram.clientId].abilties[i].abilityInfo.kC;
+                    LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode) keyAssigned, 0, true);
                 }
         }
     }
