@@ -85,7 +85,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         string wData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadTrigger(new string[] { AbilityPageScript.selectedAbility }, 2);
 
         if(cData != "")
-            abilityData = new UIAbilityData(JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(cData)), JsonConvert.DeserializeObject<float[][]>(wData));
+            abilityData = new UIAbilityData(LoadedData.GetSingleton<JSONFileConvertor>().ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(cData)), JsonConvert.DeserializeObject<float[][]>(wData));
         else
             abilityData = new UIAbilityData();
 
@@ -188,7 +188,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
                 windowLocations[i][1] = abilityWindows.l[aEle[i]].transform.position.y;
             }
 
-            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 0, JsonConvert.SerializeObject(JSONFileConvertor.ConvertToStandard(cAD)));
+            FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 0, JsonConvert.SerializeObject(LoadedData.GetSingleton<JSONFileConvertor>().ConvertToStandard(cAD)));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 1, JsonConvert.SerializeObject(abilityDescription));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 2, JsonConvert.SerializeObject(windowLocations));
             FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericSaveTrigger(new string[] { AbilityPageScript.selectedAbility }, 3, JsonConvert.SerializeObject(imgDependencies));

@@ -12,6 +12,8 @@ public class LoadClasses : MonoBehaviour {
         LoadSingletonClasses();
         LoadAbilityNodes();
         LoadNetworkDependencies();
+
+        //AbilityValidator.ValidateAbilities();
     }
 
     void Update() {

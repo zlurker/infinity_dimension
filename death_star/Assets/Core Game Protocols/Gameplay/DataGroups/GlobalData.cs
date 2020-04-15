@@ -36,7 +36,6 @@ public class RuntimeParameters<T> : RuntimeParameters {
         n = name;
         v = value;
         t = typeof(T);
-        vI = VariableTypeIndex.ReturnVariableIndex(t);
     }
 
     public override string GetSerializedObject() {
@@ -70,7 +69,6 @@ public class RuntimeParameters {
 
     public string n;
     public Type t;
-    public int vI;
 
     public virtual string GetSerializedObject() {
         return "";

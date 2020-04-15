@@ -39,7 +39,7 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
     public void SendArtAssets() {
         HashSet<string> assetPaths = new HashSet<string>();
 
-        DirectoryBytesData dirData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(new int[] { 3 });
+        DirectoryBytesData dirData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(3);
 
         for (int i=0; i < dirData.filesData.Length; i++) {
             string jsonFile = Encoding.Default.GetString(dirData.filesData[i][0]);

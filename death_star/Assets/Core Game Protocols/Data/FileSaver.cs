@@ -61,7 +61,7 @@ public class FileSaveTemplate {
         return files;
     }
 
-    public DirectoryBytesData ReturnAllMainFiles(int[] selectedFiles) {
+    public DirectoryBytesData ReturnAllMainFiles(params int[] selectedFiles) {
         //Dictionary<string, byte[][]> dirData = new Dictionary<string, byte[][]>();
         List<byte[][]> compiledList = new List<byte[][]>();
         List<string> dirNames = new List<string>();

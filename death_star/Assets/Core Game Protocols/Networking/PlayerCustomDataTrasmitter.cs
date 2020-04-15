@@ -69,7 +69,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         string abilityNodeData = Encoding.Default.GetString(builders[targetId][latestEntry - 1]);
         string abilityDescription = Encoding.Default.GetString(builders[targetId][latestEntry]);
 
-        AbilityDataSubclass[] ability = JSONFileConvertor.ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData));
+        AbilityDataSubclass[] ability = LoadedData.GetSingleton<JSONFileConvertor>().ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData));
 
         if(ability == null)
             return;
