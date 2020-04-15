@@ -139,22 +139,23 @@ public class ScrollRectWrapper : UIWrapperBase {
 
         // Image used for content ect.
         Image iVP = additionalScripts[1].script as Image;
-        ScrollbarWrapper sBW  = additionalScripts[2].script as ScrollbarWrapper;
+        ScrollbarWrapper sB  = additionalScripts[2].script as ScrollbarWrapper;
 
         content = LoadedData.GetSingleton<UIDrawer>().CreateEmptyGameObject().transform as RectTransform;
         iVP.gameObject.AddComponent<Mask>();
-
-        
+       
         content.SetParent(iVP.transform);
         iM.transform.SetParent(sR.transform);
         iVP.transform.SetParent(sR.transform);
-        sBW.transform.SetParent(sR.transform);
+        sB.transform.SetParent(sR.transform);
 
+        (iVP.transform as RectTransform).sizeDelta = new Vector2(100, 150);
+        sB.transform.localPosition = new Vector2(60, 0);
         //sBW.transform.localPosition = new Vector3(300,0);
 
         sR.viewport = iVP.rectTransform;
         sR.content = content;
-        sR.verticalScrollbar = sBW.mainScript as Scrollbar;
+        sR.verticalScrollbar = sB.mainScript as Scrollbar;
         //AllignWrapperElements();
     }
 }
@@ -184,9 +185,9 @@ public class ScrollbarWrapper : UIWrapperBase {
         sArea.SetParent(sR.transform);
         iH.transform.SetParent(sArea);
 
-        (sR.transform as RectTransform).sizeDelta = new Vector2(10, 100);
-        (sArea.transform as RectTransform).sizeDelta = new Vector2(10, 100);
-        (iM.transform as RectTransform).sizeDelta = new Vector2(10, 100);
+        (sR.transform as RectTransform).sizeDelta = new Vector2(10, 150);
+        (sArea.transform as RectTransform).sizeDelta = new Vector2(10, 150);
+        (iM.transform as RectTransform).sizeDelta = new Vector2(10, 150);
         (iH.transform as RectTransform).sizeDelta = new Vector2(10, 10);
 
         sR.targetGraphic = iH;
@@ -201,8 +202,7 @@ public class DropdownWrapper : UIWrapperBase {
 
     public override void OnSpawn() {
         if(mainScript == null) {
-            mainScript = GetComponent<Dropdown>();
-            
+            mainScript = GetComponent<Dropdown>();            
         }
 
         Dropdown dD = mainScript as Dropdown;
@@ -223,11 +223,22 @@ public class DropdownWrapper : UIWrapperBase {
         Toggle tog = additionalScripts[3].script as Toggle;
         TextWrapper tempT = additionalScripts[4].script as TextWrapper;
 
+        (tog.transform as RectTransform).sizeDelta = new Vector2(100, 20);
+        
         iM.transform.SetParent(dD.transform);
         t.transform.SetParent(dD.transform);
         sR.transform.SetParent(dD.transform);
         tog.transform.SetParent(sR.content.transform);
         tempT.transform.SetParent(tog.transform);
+
+        RectTransform sRRT = sR.transform as RectTransform;
+        sRRT.transform.localPosition = new Vector2(0, -90);
+
+        RectTransform iMRT = iM.transform as RectTransform;
+        iMRT.sizeDelta = new Vector2(100, 30);
+
+        RectTransform dDRT = dD.transform as RectTransform;
+        dDRT.sizeDelta = new Vector2(100, 30);
 
         dD.targetGraphic = iM;
         dD.template = sR.transform as RectTransform;
