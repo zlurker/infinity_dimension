@@ -43,12 +43,18 @@ public class VariableInterfaces: IRPGeneric {
     }
 }
 
-public class SharedVariable : AbilityTreeNode, IOnSpawn {
+public class SharedVariable : AbilityTreeNode {
 
     public static Dictionary<int, Dictionary<string,VariableInterfaces>> sharedVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
+    bool referenceAdded;
 
     public override void NodeCallback(int threadId) {
         base.NodeCallback(threadId);
+
+        if(!referenceAdded) {
+            GetVariableInterface().sVList.Add(this);
+            referenceAdded = true;
+        }
 
         if (CheckIfVarRegionBlocked(GetVariableId("Variable Value"))) 
             for (int i =0; i < GetVariableInterface().sVList.Count; i++) 
@@ -60,12 +66,8 @@ public class SharedVariable : AbilityTreeNode, IOnSpawn {
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Variable Name",""),VariableTypes.AUTO_MANAGED),
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Variable Value",0),VariableTypes.INTERCHANGEABLE)
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Variable Value",0),VariableTypes.INTERCHANGEABLE, VariableTypes.BLOCKED)
         });
-    }
-
-    public void OnSpawn() {
-        GetVariableInterface().sVList.Add(this);
     }
 
     VariableInterfaces GetVariableInterface() {

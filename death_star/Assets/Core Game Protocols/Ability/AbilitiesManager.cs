@@ -194,9 +194,12 @@ public class AbilityData : IInputCallback<int> {
                         boolData.varsBlocked[currLink[0]][currLink[1]] = true;
                 }
 
-                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED)) {
+                if (LoadedData.GetVariableType(dataType[i], j, VariableTypes.BLOCKED))
+                    boolData.varsBlocked[i][j] = true;
+
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED)) 
                     aMVar.Add(j);
-                }
+                
 
                 nodeBranchingData[i] += dataVar[i][j].links.Length;
             }
@@ -229,6 +232,7 @@ public class AbilityData : IInputCallback<int> {
         // Rather than create new instance, everything except variables will be taken from here.
         int clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
+        AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(tId);
         threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables,clusterId);       
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
