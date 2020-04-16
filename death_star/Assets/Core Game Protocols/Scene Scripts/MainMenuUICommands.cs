@@ -212,7 +212,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         string[] inputNames = Enum.GetNames(typeof(KeyCode));
         int inputIndex = 0;
 
-        inputValues = (int[]) Enum.GetValues(typeof(KeyCode));
+        inputValues = (int[])Enum.GetValues(typeof(KeyCode));
 
         for(int i = 0; i < inputNames.Length; i++) {
             inputs.Add(new Dropdown.OptionData(inputNames[i]));
@@ -422,7 +422,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
     SpawnerOutput[] CreateVariableField(int id, int varId) {
         SpawnerOutput elementName = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper));
-        SpawnerOutput element = ReturnElementField(id, varId);
+
+        SpawnerOutput element = LoadedData.loadedNodeInstance[abilityData.subclasses.l[id].classType].ReturnCustomUI(varId, abilityData.subclasses.l[id].var[varId].field);
+
+        if(element == null)
+            element = ReturnElementField(id, varId);
 
         Text eName = UIDrawer.GetTypeInElement<Text>(elementName);
 
