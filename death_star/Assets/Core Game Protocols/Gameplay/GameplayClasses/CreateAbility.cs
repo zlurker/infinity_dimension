@@ -8,18 +8,24 @@ public class CreateAbility : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
         base.NodeCallback(threadId);
+
+        AbilityCentralThreadPool inst = GetCentralInst();
+
+        AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
+        //Debug.Log(GetNodeVariable<string>("Ability Name"));
+        AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA,inst.GetClusterID());
     }
 
     public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
 
         int aN = GetVariableId("Ability Name");
 
-        if (variable == aN) {
+        if(variable == aN) {
             SpawnerOutput aNField = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper));
             Dropdown dW = ((aNField.script as DropdownWrapper).mainScript as Dropdown);
             List<Dropdown.OptionData> dOd = new List<Dropdown.OptionData>();
 
-            foreach (var kPV in AbilityPageScript.abilityInfo) 
+            foreach(var kPV in AbilityPageScript.abilityInfo)
                 dOd.Add(new Dropdown.OptionData(kPV.Value.n));
 
             dW.AddOptions(dOd);

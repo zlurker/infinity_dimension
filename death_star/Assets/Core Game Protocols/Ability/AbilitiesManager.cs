@@ -279,15 +279,12 @@ public sealed class AbilitiesManager : MonoBehaviour {
     }
 
     public void AssignInputKeys() {
-        if(aData.ContainsKey(ClientProgram.clientId)) {
-
-            foreach(var ability in aData[ClientProgram.clientId].abilties) {
+        if(aData.ContainsKey(ClientProgram.clientId)) 
+            foreach(var ability in aData[ClientProgram.clientId].abilties) 
                 if(!aData[ClientProgram.clientId].abilityManifest.ContainsValue(ability.Key)) {
                     int keyAssigned = aData[ClientProgram.clientId].abilties[ability.Key].abilityInfo.kC;
                     LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[ability.Key], 0, (KeyCode)keyAssigned, 0, true);
-                }
-            }
-        }
+                }        
     }
 
     public static PlayerAssetData GetAssetData(int playerid) {
