@@ -23,6 +23,8 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             if(nTID > -1) {
                 centralInst.UpdateVariableValue<T>(nTID, var, value);
                 centralInst.UpdateVariableData<T>(nTID, var);
+
+                
             }
         }
     }
