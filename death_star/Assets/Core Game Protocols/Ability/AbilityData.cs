@@ -64,7 +64,7 @@ public class AbilityDataSubclass {
         var = new Variable[fields.Length];
 
         for(int i = 0; i < var.Length; i++)
-            var[i] = new Variable(fields[i]);
+            var[i] = new Variable(fields[i].ReturnNewRuntimeParamCopy());
 
     }
 

@@ -30,6 +30,7 @@ public class JSONFileConvertor : MonoBehaviour, IRPGeneric, ISingleton {
     public StandardJSONFileFormat[] ConvertToStandard(AbilityDataSubclass[] aDS) {
 
         standardFiles = new StandardJSONFileFormat[aDS.Length];
+        convertedFormat = aDS;
 
         for(int i = 0; i < convertedFormat.Length; i++) {
             standardFiles[i] = new StandardJSONFileFormat(aDS[i].var.Length);
