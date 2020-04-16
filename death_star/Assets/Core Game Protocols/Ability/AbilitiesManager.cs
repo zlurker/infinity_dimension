@@ -227,7 +227,9 @@ public class AbilityData : IInputCallback<int> {
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
         // Rather than create new instance, everything except variables will be taken from here.
-        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables);       
+        int clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
+
+        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables,clusterId);       
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }

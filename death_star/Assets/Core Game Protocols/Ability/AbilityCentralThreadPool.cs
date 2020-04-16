@@ -86,6 +86,7 @@ public class NodeThread {
 public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallback {
 
     public static EnhancedList<AbilityCentralThreadPool> globalCentralList = new EnhancedList<AbilityCentralThreadPool>();
+    public static EnhancedList<List<int>> globalCentralClusterList = new EnhancedList<List<int>>();
 
     public AbilityCentralThreadPool() {
         playerCasted = 0;
@@ -126,6 +127,9 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     private int timerEventId;
 
     private Dictionary<int, List<AbilityNodeNetworkData>> networkNodeData;
+
+    private int centralClusterId;
+    private int clusterPos;
 
     //private List<AbilityNodeNetworkData> networkNodeData;
 
@@ -172,7 +176,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return runtimeParameters[node][variable].field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar) {
+    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId) {
         centralId = tId;
         abilityNodes = nId;
         runtimeParameters = rP;
@@ -180,6 +184,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         nodeBranchingData = nBD;
         booleanData = aBD;
         autoManagedVar = amVar;
+        centralClusterId = cId;
     }
 
     public int GetNodeBranchData(int id) {
@@ -192,6 +197,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     public bool[] GetNodeBoolValues(int id) {
         return booleanData[id];
+    }
+
+    public int GetClusterID() {
+        return centralClusterId;
     }
 
     public int GetPlayerId() {
