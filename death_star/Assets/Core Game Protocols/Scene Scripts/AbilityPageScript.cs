@@ -11,6 +11,8 @@ public enum AbilityManifest {
 
 public class AbilityPageScript : MonoBehaviour {
 
+    public static Dictionary<string, AbilityInfo> abilityInfo;
+
     enum AbilityButtonMode {
         DEFAULT, CHANGE_PRIMARY_CHARACTER
     }
@@ -21,8 +23,7 @@ public class AbilityPageScript : MonoBehaviour {
     SpawnerOutput commandText;
 
     Dictionary<int, string> abilityManifest;
-  
-    AutoPopulationList<AbilityInfo> aInfo;
+   
     AbilityButtonMode currMode;
 
     string abilityManifestPath;
@@ -30,7 +31,9 @@ public class AbilityPageScript : MonoBehaviour {
     // Use this for initialization
     void Start() {
 
-        aInfo = new AutoPopulationList<AbilityInfo>();
+        if(abilityInfo == null)
+            abilityInfo = new Dictionary<string, AbilityInfo>();
+
         GenerateMenuElements();
         LoadCurrentFiles();
         LoadAbilityManifest();
@@ -48,7 +51,8 @@ public class AbilityPageScript : MonoBehaviour {
             string data = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadTrigger(new string[] { fileInt.ToString() }, 1);
             AbilityInfo inst = JsonConvert.DeserializeObject<AbilityInfo>(data);
 
-            aInfo.ModifyElementAt(fileInt, inst);
+            abilityInfo.Add(files[i].Name, inst);
+            //aInfo.ModifyElementAt(fileInt, inst);
 
             GenerateAbilityElement(files[i].Name);
         }
@@ -62,7 +66,7 @@ public class AbilityPageScript : MonoBehaviour {
             string fileContents = File.ReadAllText(abilityManifestPath);
             abilityManifest = JsonConvert.DeserializeObject<Dictionary<int, string>>(fileContents);
         } else
-            abilityManifest = new Dictionary<int, string>();       
+            abilityManifest = new Dictionary<int, string>();
     }
 
     void SaveAbilityManifest() {
@@ -114,14 +118,15 @@ public class AbilityPageScript : MonoBehaviour {
         AbilityInfo inst = new AbilityInfo();
         fST.GenericSaveTrigger<string>(new string[] { i.ToString() }, 1, JsonConvert.SerializeObject(inst));
 
-        aInfo.ModifyElementAt(i, inst);
+        abilityInfo.Add(i.ToString(), inst);
+        //aInfo.ModifyElementAt(i, inst);
         GenerateAbilityElement(i.ToString());
     }
 
     void GenerateAbilityElement(string index) {
         SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
-        UIDrawer.GetTypeInElement<Text>(abilityButton).text = aInfo.GetElementAt(int.Parse(index)).n;
+        UIDrawer.GetTypeInElement<Text>(abilityButton).text = abilityInfo[index].n;
 
         UIDrawer.GetTypeInElement<Button>(abilityButton).onClick.AddListener(() => {
             selectedAbility = index;
@@ -139,7 +144,7 @@ public class AbilityPageScript : MonoBehaviour {
                     SceneTransitionData.LoadScene("AbilityMaker");
                     break;
             }
-            
+
             ChangeButtonMode(AbilityButtonMode.DEFAULT);
         });
 

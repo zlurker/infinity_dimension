@@ -110,4 +110,8 @@ public class AbilityTreeNode : MonoBehaviour {
     public int GetVariableId(string varName) {
         return LoadedData.loadedParamInstances[GetType()].variableAddresses[varName];
     }
+
+    public virtual SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
+        return null;
+    }
 }

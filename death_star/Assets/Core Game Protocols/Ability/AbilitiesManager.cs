@@ -54,7 +54,7 @@ public class LinkModifier {
 
 public class AbilityData : IInputCallback<int> {
 
-    
+
     // Data that needs to be read/written
     Variable[][] dataVar;
     AbilityBooleanData boolData;
@@ -132,7 +132,7 @@ public class AbilityData : IInputCallback<int> {
                     lD[nextNode].rHS.Add(rhslinkTup);
 
                 // Adds links to target lhs.
-                Tuple<int, int, int,int> lhslinkTup = Tuple.Create(nextNode, i, currLink[2], j);
+                Tuple<int, int, int, int> lhslinkTup = Tuple.Create(nextNode, i, currLink[2], j);
 
                 if(!lD[currLink[0]].lHS.Contains(lhslinkTup))
                     lD[currLink[0]].lHS.Add(lhslinkTup);
@@ -194,12 +194,12 @@ public class AbilityData : IInputCallback<int> {
                         boolData.varsBlocked[currLink[0]][currLink[1]] = true;
                 }
 
-                if (LoadedData.GetVariableType(dataType[i], j, VariableTypes.BLOCKED))
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.BLOCKED))
                     boolData.varsBlocked[i][j] = true;
 
-                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED)) 
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED))
                     aMVar.Add(j);
-                
+
 
                 nodeBranchingData[i] += dataVar[i][j].links.Length;
             }
@@ -211,16 +211,16 @@ public class AbilityData : IInputCallback<int> {
         AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(ClientProgram.clientId);
         centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<int>(-1, -1, abilityId));
         CreateAbility(centralPool);
-        
-        //if(ClientProgram.clientInst) {
-            //AbilityNodeNetworkData[] data = centralPool.GetVariableNetworkData();
 
-            //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
-            ///encoder.SendInputSignal(centralPool, abilityId, data);
+        //if(ClientProgram.clientInst) {
+        //AbilityNodeNetworkData[] data = centralPool.GetVariableNetworkData();
+
+        //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
+        ///encoder.SendInputSignal(centralPool, abilityId, data);
         //}
     }
 
-    public void CreateAbility(AbilityCentralThreadPool threadInst) {
+    public void CreateAbility(AbilityCentralThreadPool threadInst, int clusterId = -1) {
 
         int tId = AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
@@ -230,10 +230,11 @@ public class AbilityData : IInputCallback<int> {
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
         // Rather than create new instance, everything except variables will be taken from here.
-        int clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
+        if(clusterId == -1)
+            clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
         AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(tId);
-        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables,clusterId);       
+        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
@@ -283,7 +284,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             for(int i = 0; i < aData[ClientProgram.clientId].abilties.Length; i++)
                 if(!aData[ClientProgram.clientId].abilityManifest.ContainsValue(i)) {
                     int keyAssigned = aData[ClientProgram.clientId].abilties[i].abilityInfo.kC;
-                    LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode) keyAssigned, 0, true);
+                    LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode)keyAssigned, 0, true);
                 }
         }
     }

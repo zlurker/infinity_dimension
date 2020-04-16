@@ -202,6 +202,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         UIDrawer.GetTypeInElement<Text>(saveButton).text = "Save JSON";
         saveButton.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.5f, 0.1f));
 
+
+        // Creates dropdown for input.
         dW = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper)).script as DropdownWrapper;
 
         dW.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.75f, 0.9f));
