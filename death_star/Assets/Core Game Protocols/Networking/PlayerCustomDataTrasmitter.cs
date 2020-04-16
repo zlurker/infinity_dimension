@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
     static int[] datafilesToSend = new int[] { 0, 1};
+    int additionalDataOffset = 1;
     public Dictionary<int, List<byte[]>> builders;
 
     public int expectedFiles;
@@ -25,21 +26,24 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         DirectoryBytesData dData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(datafilesToSend);
 
         HashSet<string> manifestFiles = new HashSet<string>();
-        Dictionary<string, int> remappedFiles = new Dictionary<string, int>();
 
-        expectedFiles += dData.filesData.Length * datafilesToSend.Length;
+        expectedFiles += dData.filesData.Length * GetDataBundleLength();
         SetBytesToSend(BitConverter.GetBytes(dData.filesData.Length));
 
         for(int i = 0; i < dData.filesData.Length; i++) {
 
-            remappedFiles.Add(dData.dirName[i], i);
+            SetBytesToSend(Encoding.Default.GetBytes(dData.dirName[i]));
 
             for(int j = 0; j < dData.filesData[i].Length; j++)
                 SetBytesToSend(dData.filesData[i][j]);
         }
 
         ManifestEncoder mEncoder = encoders[(int)NetworkEncoderTypes.MANIFEST] as ManifestEncoder;
-        mEncoder.SendManifest(remappedFiles);
+        mEncoder.SendManifest();
+    }
+
+    public int GetDataBundleLength() {
+        return datafilesToSend.Length + additionalDataOffset;
     }
 
     public override void MessageRecievedCallback() {
@@ -49,7 +53,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
             int recvSize = BitConverter.ToInt32(bytesRecieved, 0);
             builders.Add(targetId, new List<byte[]>());
 
-            AbilitiesManager.GetAssetData(targetId).abilties = new AbilityData[recvSize];
+            AbilitiesManager.GetAssetData(targetId).abilties = new Dictionary<string, AbilityData>();
             return;
         }
 
@@ -58,7 +62,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         if(targetId == ClientProgram.clientId)
             sentFiles++;
 
-        if(builders[targetId].Count % datafilesToSend.Length == 0)
+        if(builders[targetId].Count % GetDataBundleLength() == 0)
             BuildAbility(targetId);
     }
 
@@ -66,6 +70,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
         int latestEntry = builders[targetId].Count - 1;
 
+        string abilityId = Encoding.Default.GetString(builders[targetId][latestEntry - 2]);
         string abilityNodeData = Encoding.Default.GetString(builders[targetId][latestEntry - 1]);
         string abilityDescription = Encoding.Default.GetString(builders[targetId][latestEntry]);
 
@@ -76,10 +81,6 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
         AbilityInfo aD = JsonConvert.DeserializeObject<AbilityInfo>(abilityDescription);
 
-
-        int currAbility = builders[targetId].Count / datafilesToSend.Length;
-        currAbility--;
-
-        AbilitiesManager.aData[targetId].abilties[currAbility] = new AbilityData(ability,aD,currAbility);
+        AbilitiesManager.aData[targetId].abilties[abilityId] = new AbilityData(ability,aD,abilityId);
     }
 }

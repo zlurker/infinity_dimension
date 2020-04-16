@@ -65,9 +65,9 @@ public class AbilityData : IInputCallback<int> {
     int[][] rootSubclasses;
     int[] nodeBranchingData;
     int[][] autoManagedVariables;
-    int abilityId;
+    string abilityId;
 
-    public AbilityData(AbilityDataSubclass[] data, AbilityInfo aD, int aId) {
+    public AbilityData(AbilityDataSubclass[] data, AbilityInfo aD, string aId) {
 
         abilityInfo = aD;
         // Sorts variable out accordingly.
@@ -209,7 +209,7 @@ public class AbilityData : IInputCallback<int> {
 
     public void InputCallback(int i) {
         AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(ClientProgram.clientId);
-        centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<int>(-1, -1, abilityId));
+        centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<string>(-1, -1, abilityId));
         CreateAbility(centralPool);
 
         //if(ClientProgram.clientInst) {
@@ -256,13 +256,12 @@ public class AbilityData : IInputCallback<int> {
 public sealed class AbilitiesManager : MonoBehaviour {
 
     public class PlayerAssetData {
-        public AbilityData[] abilties;
+        public Dictionary<string, AbilityData> abilties;
         public Dictionary<string, Sprite> assetData;
-        public Dictionary<int, int> abilityManifest;
+        public Dictionary<int, string> abilityManifest;
 
         public PlayerAssetData() {
             assetData = new Dictionary<string, Sprite>();
-            abilityManifest = new Dictionary<int, int>();
         }
     }
 
@@ -271,7 +270,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
     public static Dictionary<int, PlayerAssetData> aData;
 
     void Start() {
-        int priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
+        string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
 
         //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
         aData[ClientProgram.clientId].abilties[priCharacterId].InputCallback(0);
@@ -281,11 +280,13 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
     public void AssignInputKeys() {
         if(aData.ContainsKey(ClientProgram.clientId)) {
-            for(int i = 0; i < aData[ClientProgram.clientId].abilties.Length; i++)
-                if(!aData[ClientProgram.clientId].abilityManifest.ContainsValue(i)) {
-                    int keyAssigned = aData[ClientProgram.clientId].abilties[i].abilityInfo.kC;
-                    LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[i], 0, (KeyCode)keyAssigned, 0, true);
+
+            foreach(var ability in aData[ClientProgram.clientId].abilties) {
+                if(!aData[ClientProgram.clientId].abilityManifest.ContainsValue(ability.Key)) {
+                    int keyAssigned = aData[ClientProgram.clientId].abilties[ability.Key].abilityInfo.kC;
+                    LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[ability.Key], 0, (KeyCode)keyAssigned, 0, true);
                 }
+            }
         }
     }
 

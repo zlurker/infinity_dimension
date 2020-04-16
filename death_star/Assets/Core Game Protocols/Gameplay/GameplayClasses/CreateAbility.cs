@@ -6,6 +6,10 @@ using UnityEngine.UI;
 
 public class CreateAbility : AbilityTreeNode {
 
+    public override void NodeCallback(int threadId) {
+        base.NodeCallback(threadId);
+    }
+
     public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
 
         int aN = GetVariableId("Ability Name");

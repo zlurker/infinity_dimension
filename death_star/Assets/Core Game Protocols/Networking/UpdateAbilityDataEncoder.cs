@@ -4,8 +4,6 @@ using UnityEngine;
 using System;
 using System.Text;
 
-
-
 public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
     public class PackedNodeData<T> : PackedNodeData {
@@ -145,7 +143,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             // Handles creation of new centrals.
             if(targetId != ClientProgram.clientId) {              
                 centralInst = new AbilityCentralThreadPool(targetId);
-                int aId = (pND[0] as PackedNodeData<int>).value;
+                string aId = (pND[0] as PackedNodeData<string>).value;
                 NetworkObjectTracker.inst.AddNetworkObject(centralInst);
                 AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(centralInst);               
             } else {
