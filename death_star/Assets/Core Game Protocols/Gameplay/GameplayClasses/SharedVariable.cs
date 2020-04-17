@@ -90,6 +90,8 @@ public class SharedVariable : AbilityTreeNode {
             SpawnerOutput gVField = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ToggleWrapper));
             Toggle t = ((gVField.script as ToggleWrapper).mainScript as Toggle);
 
+            t.isOn = (rp as RuntimeParameters<bool>).v;
+
             t.onValueChanged.AddListener((value)=>{
                 (rp as RuntimeParameters<bool>).v = value;
             });

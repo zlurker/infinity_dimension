@@ -24,14 +24,24 @@ public class CreateAbility : AbilityTreeNode {
             SpawnerOutput aNField = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper));
             Dropdown dW = ((aNField.script as DropdownWrapper).mainScript as Dropdown);
             List<Dropdown.OptionData> dOd = new List<Dropdown.OptionData>();
+            int selected = 0;
 
-            foreach(var kPV in AbilityPageScript.abilityInfo)
+            foreach(var kPV in AbilityPageScript.abilityInfo) {
                 dOd.Add(new Dropdown.OptionData(kPV.Value.n));
+
+                if (kPV.Key == (rp as RuntimeParameters<string>).v) {
+                    selected = dOd.Count - 1;
+                    Debug.Log("Selected: " + selected);
+                }
+            }
 
             dW.AddOptions(dOd);
 
+            dW.value = selected;
+
             dW.onValueChanged.AddListener((id) => {
                 string[] dirNames = AbilityPageScript.abilityInfo.Keys.ToArray();
+                Debug.Log("DD changed to: " + id + " ," + dirNames[id]);
                 (rp as RuntimeParameters<string>).v = dirNames[id];
             });
 
