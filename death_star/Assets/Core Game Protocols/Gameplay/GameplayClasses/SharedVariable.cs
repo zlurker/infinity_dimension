@@ -82,18 +82,33 @@ public class SharedVariable : AbilityTreeNode {
             GetVariableInterface().Callback(this);
     }
 
+    public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
+        int gV = GetVariableId("Global Variable");
+
+        if (variable == gV) {
+
+        }
+     
+    }
+
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Variable Name",""),VariableTypes.AUTO_MANAGED),
+            new LoadedRuntimeParameters(new RuntimeParameters<bool>("Global Variable",false),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Variable Value",0),VariableTypes.INTERCHANGEABLE, VariableTypes.BLOCKED)
         });
     }
 
     VariableInterfaces GetVariableInterface() {
 
-        int clusterRootId = AbilityCentralThreadPool.globalCentralClusterList.l[GetCentralInst().GetClusterID()][0];
+        int clusterRootId = 0;
+
+        if (GetNodeVariable<bool>("Global Variable")) 
+            clusterRootId = -1;
+        else
+            clusterRootId = AbilityCentralThreadPool.globalCentralClusterList.l[GetCentralInst().GetClusterID()][0];
 
         Debug.Log("ClusterRootId: " + clusterRootId);
 

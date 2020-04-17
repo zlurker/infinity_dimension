@@ -248,3 +248,28 @@ public class DropdownWrapper : UIWrapperBase {
         dD.itemText = tempT.mainScript as Text;
     }
 }
+
+[RequireComponent(typeof(Toggle))]
+public class ToggleWrapper : UIWrapperBase {
+
+    public override void OnSpawn() {
+        if(mainScript == null) 
+            mainScript = GetComponent<Toggle>();
+        
+        additionalScripts = new SpawnerOutput[] {
+            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)),
+            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image))
+        };
+
+        Image iM = additionalScripts[0].script as Image;
+        Image iT = additionalScripts[1].script as Image;
+
+        iM.rectTransform.sizeDelta = new Vector2(0.5f, 0.5f);
+        iT.rectTransform.sizeDelta = new Vector2(0.4f, 0.4f);
+
+        iT.color = Color.black;
+
+        (mainScript as Toggle).targetGraphic = iM;
+        (mainScript as Toggle).graphic = iT;
+    }
+}
