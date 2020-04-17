@@ -26,6 +26,7 @@ public class JSONFileConvertor : MonoBehaviour, IRPGeneric, ISingleton {
 
     StandardJSONFileFormat[] standardFiles;
     AbilityDataSubclass[] convertedFormat;
+    HashSet<Type> excludeType = new HashSet<Type>(new Type[] { typeof(Vector3) });
 
     public StandardJSONFileFormat[] ConvertToStandard(AbilityDataSubclass[] aDS) {
 
@@ -38,7 +39,11 @@ public class JSONFileConvertor : MonoBehaviour, IRPGeneric, ISingleton {
             //convertedFormat[i].wL = aDS[i].wL;
 
             for(int j = 0; j < aDS[i].var.Length; j++) {
-                standardFiles[i].rP[j] = aDS[i].var[j].field.GetSerializedObject();
+                if(!excludeType.Contains(aDS[i].var[j].field.t))
+                    standardFiles[i].rP[j] = aDS[i].var[j].field.GetSerializedObject();
+                else
+                    standardFiles[i].rP[j] = new RuntimeParameters<int>(aDS[i].var[j].field.n, 0).GetSerializedObject();
+
                 standardFiles[i].l[j] = JsonConvert.SerializeObject(aDS[i].var[j].links);
                 standardFiles[i].vN[j] = aDS[i].var[j].field.n;
                 //convertedFormat[i].vT[j] = aDS[i].var[j].field.vI;            
@@ -116,7 +121,7 @@ public class JSONFileConvertor : MonoBehaviour, IRPGeneric, ISingleton {
 
         try {
             rP = JsonConvert.DeserializeObject<RuntimeParameters<T>>(standardFiles[subclass].rP[oldId]);
-        }catch (Exception e) {
+        } catch(Exception e) {
             Debug.Log("Could not convert. Reverting to source.");
         }
 

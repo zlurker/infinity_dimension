@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using UnityEngine.UI;
+using Newtonsoft.Json;
 
 public class LoadClasses : MonoBehaviour {
 
@@ -12,7 +13,6 @@ public class LoadClasses : MonoBehaviour {
         LoadSingletonClasses();
         LoadAbilityNodes();
         LoadNetworkDependencies();
-
         //AbilityValidator.ValidateAbilities();
     }
 
