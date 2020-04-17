@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class VariableInterfaces : IRPGeneric {
 
@@ -86,9 +87,17 @@ public class SharedVariable : AbilityTreeNode {
         int gV = GetVariableId("Global Variable");
 
         if (variable == gV) {
+            SpawnerOutput gVField = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ToggleWrapper));
+            Toggle t = ((gVField.script as ToggleWrapper).mainScript as Toggle);
 
+            t.onValueChanged.AddListener((value)=>{
+                (rp as RuntimeParameters<bool>).v = value;
+            });
+            
+            return gVField;
         }
-     
+
+        return null;     
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

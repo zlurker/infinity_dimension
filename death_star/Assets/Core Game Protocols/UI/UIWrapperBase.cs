@@ -264,12 +264,16 @@ public class ToggleWrapper : UIWrapperBase {
         Image iM = additionalScripts[0].script as Image;
         Image iT = additionalScripts[1].script as Image;
 
-        iM.rectTransform.sizeDelta = new Vector2(0.5f, 0.5f);
-        iT.rectTransform.sizeDelta = new Vector2(0.4f, 0.4f);
+        (mainScript.transform as RectTransform).sizeDelta = new Vector2(30, 30);
+
+        iM.rectTransform.sizeDelta = new Vector2(30, 30);
+        iT.rectTransform.sizeDelta = new Vector2(20, 20);
 
         iT.color = Color.black;
 
         (mainScript as Toggle).targetGraphic = iM;
         (mainScript as Toggle).graphic = iT;
+
+        AllignWrapperElements();
     }
 }
