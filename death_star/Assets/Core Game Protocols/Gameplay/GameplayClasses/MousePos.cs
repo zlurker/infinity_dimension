@@ -8,6 +8,7 @@ public class MousePos : AbilityTreeNode {
 
         if(IsClientPlayerUpdate()) {
             Vector3 currPosInWorld = LoadedData.currSceneCamera.ScreenToWorldPoint(Input.mousePosition);
+            Debug.Log("Passing MousePos");
             SetVariable<Vector3>("Mouse Pos", currPosInWorld);
         }
     }
