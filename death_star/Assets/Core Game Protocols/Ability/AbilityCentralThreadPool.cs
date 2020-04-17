@@ -357,6 +357,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             switch((LinkMode)linkType) {
                 case LinkMode.NORMAL:
+                    //Debug.Log(originalParamInst.v);
                     UpdateVariableValue<T>(threadIdToUse, nodeVariableId, originalParamInst.v);
                     booleanData[nodeId][nodeVariableId] = false;
                     break;

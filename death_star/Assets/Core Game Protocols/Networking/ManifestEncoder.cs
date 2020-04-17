@@ -8,7 +8,7 @@ using System.Text;
 
 public class ManifestEncoder : NetworkMessageEncoder {
 
-    public int expectedDataCount =1;
+    public int expectedDataCount;
     public int sentData;
 
     public void ResetManifestEncoder() {
@@ -28,6 +28,7 @@ public class ManifestEncoder : NetworkMessageEncoder {
         string abilityManifestPath = Path.Combine(FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].fP, "AbilityManifest.json");
 
         if(File.Exists(abilityManifestPath)) {
+            expectedDataCount = 1;
             string fileContents = File.ReadAllText(abilityManifestPath);
             SetBytesToSend(File.ReadAllBytes(abilityManifestPath));
         }        

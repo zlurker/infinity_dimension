@@ -5,10 +5,8 @@ using UnityEngine;
 public class MoveTo : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
-        if(CheckIfVarRegionBlocked(0, 1)) {
-            Debug.Log("Called and working.");
-            GetNodeVariable<AbilityTreeNode>("Target").transform.root.position = new Vector3(GetNodeVariable<Vector3>("Coordinates").x, GetNodeVariable<Vector3>("Coordinates").y, 0);
-        }
+        if(CheckIfVarRegionBlocked(0, 1)) 
+            GetNodeVariable<AbilityTreeNode>("Target").transform.root.position = new Vector3(GetNodeVariable<Vector3>("Coordinates").x, GetNodeVariable<Vector3>("Coordinates").y, 0);       
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

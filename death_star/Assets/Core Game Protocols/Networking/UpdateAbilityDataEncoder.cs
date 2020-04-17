@@ -24,7 +24,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 centralInst.UpdateVariableValue<T>(nTID, var, value);
                 centralInst.UpdateVariableData<T>(nTID, var);
 
-                
+
             }
         }
     }
@@ -114,6 +114,18 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 vBytes = fBData.ToArray();
             }
 
+            if(manifest[i].dataType == typeof(Vector3)) {
+                argType = 5;
+
+                List<byte> fBData = new List<byte>();
+                Vector3 vData = (manifest[i] as AbilityNodeNetworkData<Vector3>).value;
+
+                fBData.AddRange(BitConverter.GetBytes(vData.x));
+                fBData.AddRange(BitConverter.GetBytes(vData.y));
+
+                vBytes = fBData.ToArray();
+            }
+
             if(argType > -1) {
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].nodeId));
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].varId));
@@ -143,11 +155,11 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
             loopStartId = 1;
             // Handles creation of new centrals.
-            if(targetId != ClientProgram.clientId) {              
+            if(targetId != ClientProgram.clientId) {
                 centralInst = new AbilityCentralThreadPool(targetId);
                 string aId = (pND[0] as PackedNodeData<string>).value;
                 NetworkObjectTracker.inst.AddNetworkObject(centralInst);
-                AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(centralInst);               
+                AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(centralInst);
             } else {
                 NetworkObjectTracker.inst.AddNetworkObject(playerGeneratedAbilities[0]);
                 playerGeneratedAbilities[0].RenameAllNodes();
@@ -156,10 +168,10 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             }
         }
 
-        if (centralInst != null)
-            if (loopStartId < pND.Count)
-                for (int i=loopStartId; i < pND.Count; i++) 
-                    pND[i].UpdateCentral(centralInst);       
+        if(centralInst != null)
+            if(loopStartId < pND.Count)
+                for(int i = loopStartId; i < pND.Count; i++)
+                    pND[i].UpdateCentral(centralInst);
     }
 
     public IEnumerable<PackedNodeData> ParseManifest(byte[] bytesRecieved, int offset = 0) {
@@ -206,6 +218,11 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                         fArray[j] = BitConverter.ToSingle(bytesRecieved, i + 16 + (j * 4));
 
                     yield return new PackedNodeData<float[]>(ability, var, fArray);
+                    break;
+
+                case 5: //vector3
+                    Vector3 v = new Vector3(BitConverter.ToSingle(bytesRecieved, i + 16), BitConverter.ToSingle(bytesRecieved, i + 20));
+                    yield return new PackedNodeData<Vector3>(ability, var, v);
                     break;
             }
 
