@@ -112,8 +112,20 @@ public class JSONFileConvertor : MonoBehaviour, IRPGeneric, ISingleton {
         int oldId = ((int[])(object)arg)[1];
         int newId = ((int[])(object)arg)[2];
 
-        RuntimeParameters<T> rP = JsonConvert.DeserializeObject<RuntimeParameters<T>>(standardFiles[subclass].rP[oldId]);
-        convertedFormat[subclass].var[newId] = new Variable(rP, JsonConvert.DeserializeObject<int[][]>(standardFiles[subclass].l[oldId]));
+        RuntimeParameters<T> rP = null;
+
+        try {
+            rP = JsonConvert.DeserializeObject<RuntimeParameters<T>>(standardFiles[subclass].rP[oldId]);
+        }catch (Exception e) {
+            Debug.Log("Could not convert. Reverting to source.");
+        }
+
+        int[][] links = JsonConvert.DeserializeObject<int[][]>(standardFiles[subclass].l[oldId]);
+
+        if(rP != null)
+            convertedFormat[subclass].var[newId] = new Variable(rP, links);
+        else
+            convertedFormat[subclass].var[newId] = new Variable(LoadedData.loadedParamInstances[convertedFormat[subclass].classType].runtimeParameters[newId].rP, links);
     }
 
     public void RunOnStart() {

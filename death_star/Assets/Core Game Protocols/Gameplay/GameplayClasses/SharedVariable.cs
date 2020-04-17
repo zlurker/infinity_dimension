@@ -61,7 +61,6 @@ public class VariableInterfaces : IRPGeneric {
             valueHolder = new InternalValueHolder<T>();
 
         (valueHolder as InternalValueHolder<T>).value = value;
-
     }
 }
 
@@ -121,12 +120,8 @@ public class SharedVariable : AbilityTreeNode {
         else
             clusterRootId = AbilityCentralThreadPool.globalCentralClusterList.l[GetCentralInst().GetClusterID()][0];
 
-        Debug.Log("ClusterRootId: " + clusterRootId);
-
         if(!sharedVariables.ContainsKey(clusterRootId))
             sharedVariables.Add(clusterRootId, new Dictionary<string, VariableInterfaces>());
-
-        Debug.Log("VarName: " + GetNodeVariable<string>("Variable Name"));
 
         if(!sharedVariables[clusterRootId].ContainsKey(GetNodeVariable<string>("Variable Name")))
             sharedVariables[clusterRootId].Add(GetNodeVariable<string>("Variable Name"), new VariableInterfaces());

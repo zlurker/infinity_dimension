@@ -29,8 +29,7 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
         //Debug.Log("Callback from " + threadId);
 
         if(allDataRecv) {
-            float[] vectorHolder = GetNodeVariable<float[]>("Direction From Target");
-            normDir = new Vector3(vectorHolder[0],vectorHolder[1]).normalized;
+            normDir = GetNodeVariable<Vector3>("Direction From Target").normalized;
 
             dirChangeStart = transform.position;
             timeDirChanged = Time.realtimeSinceStartup;            
@@ -41,7 +40,7 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Direction From Target",null)),
+            new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Direction From Target",new Vector3())),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Total Distance",0)),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Duration",1)),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Target",null))

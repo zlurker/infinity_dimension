@@ -7,10 +7,8 @@ public class Coordinates : AbilityTreeNode {
     public override void NodeCallback(int threadId) {
         bool allDataRecv = CheckIfVarRegionBlocked(0, 1);
 
-        if(allDataRecv) {
-            float[] coords = new float[] { GetNodeVariable<float>("X"), GetNodeVariable<float>("Y") };
-            SetVariable("Output Coordinates", coords);
-        }
+        if(allDataRecv) 
+            SetVariable("Output Coordinates", new Vector3(GetNodeVariable<float>("X"), GetNodeVariable<float>("Y")));        
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
@@ -19,7 +17,7 @@ public class Coordinates : AbilityTreeNode {
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("X",0),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Y",0),VariableTypes.AUTO_MANAGED),
-            new LoadedRuntimeParameters(new RuntimeParameters<float[]>("Output Coordinates",null))
+            new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Output Coordinates",new Vector3()))
         });
     }
 }

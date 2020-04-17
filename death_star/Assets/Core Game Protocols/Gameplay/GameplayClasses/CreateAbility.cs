@@ -29,10 +29,8 @@ public class CreateAbility : AbilityTreeNode {
             foreach(var kPV in AbilityPageScript.abilityInfo) {
                 dOd.Add(new Dropdown.OptionData(kPV.Value.n));
 
-                if (kPV.Key == (rp as RuntimeParameters<string>).v) {
+                if (kPV.Key == (rp as RuntimeParameters<string>).v) 
                     selected = dOd.Count - 1;
-                    Debug.Log("Selected: " + selected);
-                }
             }
 
             dW.AddOptions(dOd);
@@ -41,7 +39,6 @@ public class CreateAbility : AbilityTreeNode {
 
             dW.onValueChanged.AddListener((id) => {
                 string[] dirNames = AbilityPageScript.abilityInfo.Keys.ToArray();
-                Debug.Log("DD changed to: " + id + " ," + dirNames[id]);
                 (rp as RuntimeParameters<string>).v = dirNames[id];
             });
 
