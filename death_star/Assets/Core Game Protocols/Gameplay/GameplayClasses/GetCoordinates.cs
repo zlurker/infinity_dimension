@@ -5,7 +5,7 @@ using UnityEngine;
 public class GetCoordinates : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
-        if(CheckIfVarRegionBlocked(0)) {
+        if(CheckIfVarRegionBlocked("Target")) {
             Debug.Log("Passing coords");
             SetVariable<Vector3>("Target's Coordinates", GetNodeVariable<AbilityTreeNode>("Target").transform.root.position);
         }

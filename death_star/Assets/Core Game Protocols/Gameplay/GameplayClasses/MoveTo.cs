@@ -5,8 +5,15 @@ using UnityEngine;
 public class MoveTo : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
-        if(CheckIfVarRegionBlocked(0, 1)) 
-            GetNodeVariable<AbilityTreeNode>("Target").transform.root.position = new Vector3(GetNodeVariable<Vector3>("Coordinates").x, GetNodeVariable<Vector3>("Coordinates").y, 0);       
+        if(CheckIfVarRegionBlocked("Coordinates", "Target")) 
+            GetTargetTransform().position = new Vector3(GetNodeVariable<Vector3>("Coordinates").x, GetNodeVariable<Vector3>("Coordinates").y, 0);       
+    }
+
+    protected Transform GetTargetTransform() {
+        if(GetNodeVariable<bool>("Move all objects in blueprint"))
+            return GetNodeVariable<AbilityTreeNode>("Target").transform.root;
+        else
+            return GetNodeVariable<AbilityTreeNode>("Target").transform;
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

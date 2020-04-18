@@ -75,13 +75,13 @@ public class AbilityTreeNode : MonoBehaviour {
 
     }
 
-    public bool CheckIfVarRegionBlocked(params int[] target) {
+    public bool CheckIfVarRegionBlocked(params string[] target) {
         bool[] nodeBoolValues = AbilityCentralThreadPool.globalCentralList.l[centralThreadId].GetNodeBoolValues(nodeId);
 
-        for(int i = 0; i < target.Length; i++)
-            if(nodeBoolValues[target[i]])
+        for(int i = 0; i < target.Length; i++) 
+            if(nodeBoolValues[GetVariableId(target[i])])
                 return false;
-
+        
         return true;
     }
 

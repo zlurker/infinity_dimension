@@ -78,7 +78,7 @@ public class SharedVariable : AbilityTreeNode {
             referenceAdded = true;
         }
 
-        if(CheckIfVarRegionBlocked(GetVariableId("Variable Value")))
+        if(CheckIfVarRegionBlocked("Variable Value"))
             GetVariableInterface().Callback(this);
     }
 

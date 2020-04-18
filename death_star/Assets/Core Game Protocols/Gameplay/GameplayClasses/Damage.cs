@@ -6,7 +6,7 @@ public class Damage : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
 
-        if(CheckIfVarRegionBlocked(0, 1)) {
+        if(CheckIfVarRegionBlocked("Damage", "Target")) {
             AbilityTreeNode target = GetNodeVariable<AbilityTreeNode>("Target");
 
             //Debug.Log(coords[0]);

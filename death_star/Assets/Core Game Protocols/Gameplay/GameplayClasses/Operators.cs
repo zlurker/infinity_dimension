@@ -36,7 +36,7 @@ public class AddSubtract : AbilityTreeNode {
 
 
     public override void NodeCallback(int threadId) {
-        if(CheckIfVarRegionBlocked(0, 1)) {
+        if(CheckIfVarRegionBlocked("A", "B")) {
 
             float output = 0;
 

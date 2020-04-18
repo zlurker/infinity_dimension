@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
+public class MoveTowardsDirection : MoveTo {
 
     bool allDataRecv;
     Vector3 normDir;
@@ -12,24 +12,25 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
 
 	void Update () {
         
-        if(allDataRecv) {
-            //Debug.Log(GetNodeVariable<AbilityTreeNode>("Target"));
+        if(allDataRecv) 
             if(GetNodeVariable<float>("Duration") > Time.realtimeSinceStartup - timeDirChanged) {
                 float timeRatio = (Time.realtimeSinceStartup - timeDirChanged)/GetNodeVariable<float>("Duration");
-                GetNodeVariable<AbilityTreeNode>("Target").transform.root.position = dirChangeStart + (normDir * (GetNodeVariable<float>("Total Distance") * timeRatio));
-            } else
-                GetNodeVariable<AbilityTreeNode>("Target").transform.root.position = dirChangeStart + (normDir * GetNodeVariable<float>("Total Distance"));
-        }
+
+                if(timeRatio > 1)
+                    timeRatio = 1;
+
+                GetTargetTransform().position = dirChangeStart + (normDir * (GetNodeVariable<float>("Total Distance") * timeRatio));
+            }         
 	}
 
     public override void NodeCallback(int threadId) {
 
-        allDataRecv = CheckIfVarRegionBlocked(0,1,2,3);
+        allDataRecv = CheckIfVarRegionBlocked("Coordinates", "Target", "Total Distance","Duration");
 
         //Debug.Log("Callback from " + threadId);
 
         if(allDataRecv) {
-            normDir = GetNodeVariable<Vector3>("Direction From Target").normalized;
+            normDir = GetNodeVariable<Vector3>("Coordinates").normalized;
 
             dirChangeStart = transform.position;
             timeDirChanged = Time.realtimeSinceStartup;            
@@ -40,14 +41,8 @@ public class MoveTowardsDirection : AbilityTreeNode,IOnSpawn {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Direction From Target",new Vector3())),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Total Distance",0)),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Duration",1)),
-            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Target",null))
         });
-    }
-
-    public void OnSpawn() {
-        allDataRecv = false;
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 public class Coordinates : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
-        bool allDataRecv = CheckIfVarRegionBlocked(0, 1);
+        bool allDataRecv = CheckIfVarRegionBlocked("X", "Y");
 
         if(allDataRecv) 
             SetVariable("Output Coordinates", new Vector3(GetNodeVariable<float>("X"), GetNodeVariable<float>("Y")));        
