@@ -445,42 +445,53 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         RuntimeParameters variable = abilityData.subclasses.l[id].var[varId].field;
 
-        int variableType = VariableTypeIndex.ReturnVariableIndex(variable.t);
-
-        if(variableType > -1)
+        if(variable.t == typeof(string)) {
             element = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(InputFieldWrapper));
 
-        switch(variableType) {
-            case 0:
-                UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<string>).v;
+            UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<string>).v;
 
-                UIDrawer.GetTypeInElement<InputField>(element).onValueChanged.AddListener((s) => {
-                    (abilityData.subclasses.l[id].var[varId].field as RuntimeParameters<string>).v = s;
-                });
-                break;
-
-            case 1:
-                UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<float>).v.ToString();
-
-                UIDrawer.GetTypeInElement<InputField>(element).onValueChanged.AddListener((s) => {
-                    float f = 0;
-
-                    if(float.TryParse(s, out f))
-                        (abilityData.subclasses.l[id].var[varId].field as RuntimeParameters<float>).v = f;
-                });
-                break;
-
-            case 2:
-                UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<int>).v.ToString();
-
-                UIDrawer.GetTypeInElement<InputField>(element).onValueChanged.AddListener((s) => {
-                    int i = 0;
-
-                    if(int.TryParse(s, out i))
-                        (abilityData.subclasses.l[id].var[varId].field as RuntimeParameters<int>).v = i;
-                });
-                break;
+            UIDrawer.GetTypeInElement<InputField>(element).onValueChanged.AddListener((s) => {
+                (abilityData.subclasses.l[id].var[varId].field as RuntimeParameters<string>).v = s;
+            });
         }
+
+        if (variable.t == typeof(int)) {
+            element = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(InputFieldWrapper));
+
+            UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<int>).v.ToString();
+
+            UIDrawer.GetTypeInElement<InputField>(element).onValueChanged.AddListener((s) => {
+                int i = 0;
+
+                if(int.TryParse(s, out i))
+                    (abilityData.subclasses.l[id].var[varId].field as RuntimeParameters<int>).v = i;
+            });
+        }
+
+        if(variable.t == typeof(float)) {
+            element = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(InputFieldWrapper));
+            UIDrawer.GetTypeInElement<InputField>(element).text = (variable as RuntimeParameters<float>).v.ToString();
+
+            UIDrawer.GetTypeInElement<InputField>(element).onValueChanged.AddListener((s) => {
+                float f = 0;
+
+                if(float.TryParse(s, out f))
+                    (abilityData.subclasses.l[id].var[varId].field as RuntimeParameters<float>).v = f;
+            });
+        }
+
+        if(variable.t == typeof(bool)) {
+            element = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ToggleWrapper));
+            Toggle t = ((element.script as ToggleWrapper).mainScript as Toggle);
+            RuntimeParameters<bool> b = variable as RuntimeParameters<bool>;
+
+            t.isOn = b.v;
+
+            t.onValueChanged.AddListener((value) => {
+                b.v = value;
+            });
+        }
+
         return element;
     }
 

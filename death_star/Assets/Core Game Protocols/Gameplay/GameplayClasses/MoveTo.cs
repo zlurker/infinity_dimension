@@ -13,7 +13,9 @@ public class MoveTo : AbilityTreeNode {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
+              
               new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Coordinates",new Vector3()),VariableTypes.AUTO_MANAGED),
+              new LoadedRuntimeParameters(new RuntimeParameters<bool>("Move all objects in blueprint", true),VariableTypes.AUTO_MANAGED),
               new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Target",null),VariableTypes.AUTO_MANAGED)
         });
     }

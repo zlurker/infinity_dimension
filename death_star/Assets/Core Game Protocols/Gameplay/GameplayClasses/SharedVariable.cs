@@ -82,25 +82,6 @@ public class SharedVariable : AbilityTreeNode {
             GetVariableInterface().Callback(this);
     }
 
-    public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
-        int gV = GetVariableId("Global Variable");
-
-        if (variable == gV) {
-            SpawnerOutput gVField = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ToggleWrapper));
-            Toggle t = ((gVField.script as ToggleWrapper).mainScript as Toggle);
-
-            t.isOn = (rp as RuntimeParameters<bool>).v;
-
-            t.onValueChanged.AddListener((value)=>{
-                (rp as RuntimeParameters<bool>).v = value;
-            });
-            
-            return gVField;
-        }
-
-        return null;     
-    }
-
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
