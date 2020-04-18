@@ -24,12 +24,13 @@ public class CreateAbility : AbilityTreeNode {
             SpawnerOutput aNField = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper));
             Dropdown dW = ((aNField.script as DropdownWrapper).mainScript as Dropdown);
             List<Dropdown.OptionData> dOd = new List<Dropdown.OptionData>();
+            RuntimeParameters<string> rpS = rp as RuntimeParameters<string>;
             int selected = 0;
 
             foreach(var kPV in AbilityPageScript.abilityInfo) {
                 dOd.Add(new Dropdown.OptionData(kPV.Value.n));
 
-                if (kPV.Key == (rp as RuntimeParameters<string>).v) 
+                if (kPV.Key == rpS.v) 
                     selected = dOd.Count - 1;
             }
 
@@ -39,7 +40,7 @@ public class CreateAbility : AbilityTreeNode {
 
             dW.onValueChanged.AddListener((id) => {
                 string[] dirNames = AbilityPageScript.abilityInfo.Keys.ToArray();
-                (rp as RuntimeParameters<string>).v = dirNames[id];
+                rpS.v = dirNames[id];
             });
 
             return aNField;
