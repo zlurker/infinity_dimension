@@ -40,6 +40,8 @@ public class AddSubtract : AbilityTreeNode {
 
             float output = 0;
 
+
+
             switch(GetNodeVariable<int>("Operation")) {
                 case 0:
                     output = GetNodeVariable<float>("A") + GetNodeVariable<float>("B");
@@ -57,6 +59,8 @@ public class AddSubtract : AbilityTreeNode {
                     output = GetNodeVariable<float>("A") / GetNodeVariable<float>("B");
                     break;
             }
+
+            Debug.LogFormat("Operation: {0}, A: {1}, B: {2}, Output: {3}", GetNodeVariable<int>("Operation"), GetNodeVariable<float>("A"), GetNodeVariable<float>("B"), output);
 
             SetVariable<float>("Output", output);
         }

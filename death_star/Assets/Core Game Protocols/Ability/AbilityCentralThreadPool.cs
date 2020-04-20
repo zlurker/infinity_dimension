@@ -291,9 +291,12 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     public void UpdateVariableValue<T>(int nodeId, int variableId, T value, bool runValueChanged = true) {
 
         RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
-        T initialValue = paramInst.v;
+        T[] valuePair = new T[2];
 
         if(paramInst != null) {
+            valuePair[0] = paramInst.v;
+            valuePair[1] = value;
+
             paramInst.v = value;
         } else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
             string varName = runtimeParameters[nodeId][variableId].field.n;
@@ -301,6 +304,9 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
             runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
+
+            valuePair[0] = value;
+            valuePair[1] = value;
         } else
             runValueChanged = false;
 
@@ -308,15 +314,20 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         if(runValueChanged) {
             Tuple<int, int> id = Tuple.Create<int, int>(nodeId, variableId);
 
-            if(onChanged.ContainsKey(id)) {
-                foreach(var oC in onChanged)
-                    foreach(var changeCallback in oC.Value) {
-                        int abilityNodes = globalCentralList.l[changeCallback.Item1].abilityNodes;
+            //Debug.Log(nodeId);
+            //Debug.Log(variableId);
 
-                        OnValueChange valChangeNode = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[changeCallback.Item2] as OnValueChange;
-                        valChangeNode.SetVariable<T>("Old Value", initialValue);
-                        valChangeNode.SetVariable<T>("New Value", paramInst.v);
-                    }
+            if(onChanged.ContainsKey(id)) {
+
+                foreach(var changeCallback in onChanged[id]) {
+                    //Debug.Log(changeCallback.Item1);
+                    //Debug.Log(changeCallback.Item2);
+                    int abilityNodes = globalCentralList.l[changeCallback.Item1].abilityNodes;
+
+                    OnValueChange valChangeNode = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[changeCallback.Item2] as OnValueChange;
+                    valChangeNode.SetVariable<T>("Old Value", valuePair[0]);
+                    valChangeNode.SetVariable<T>("New Value", valuePair[1]);
+                }
 
                 onChanged.Remove(id);
             }
