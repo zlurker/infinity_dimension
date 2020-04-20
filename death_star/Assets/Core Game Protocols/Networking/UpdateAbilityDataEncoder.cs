@@ -21,7 +21,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
 
             if(nTID > -1) {
-                centralInst.UpdateVariableValue<T>(nTID, var, value);
+                centralInst.UpdateVariableValue<T>(ability, var, value);
                 centralInst.UpdateVariableData<T>(nTID, var);
 
 

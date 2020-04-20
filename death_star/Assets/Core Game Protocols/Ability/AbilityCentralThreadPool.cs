@@ -128,6 +128,9 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     private Dictionary<int, List<AbilityNodeNetworkData>> networkNodeData;
 
+    private Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> onChanged;
+    private Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> onGet;
+
     private int centralClusterId;
     private int clusterPos;
 
@@ -185,6 +188,18 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         booleanData = aBD;
         autoManagedVar = amVar;
         centralClusterId = cId;
+
+        onChanged = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
+        onGet = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
+    }
+
+    public void AddOnChanged(Tuple<int, int> key, Tuple<int, int> value) {
+
+        if(!onChanged.ContainsKey(key))
+            onChanged.Add(key, new HashSet<Tuple<int, int>>());
+
+        if(!onChanged[key].Contains(value))
+            onChanged[key].Add(value);
     }
 
     public int GetNodeBranchData(int id) {
@@ -273,22 +288,38 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return NETWORK_CLIENT_ELIGIBILITY.LOCAL_HOST;
     }
 
-    public void UpdateVariableValue<T>(int threadId, int variableId, T value) {
+    public void UpdateVariableValue<T>(int nodeId, int variableId, T value, bool runValueChanged = true) {
 
-        if(threadId == -1)
-            return;
-
-        int nodeId = activeThreads.l[threadId].GetCurrentNodeID();
         RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
+        T initialValue = paramInst.v;
 
-        if(paramInst != null)
+        if(paramInst != null) {
             paramInst.v = value;
-        else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
+        } else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
             string varName = runtimeParameters[nodeId][variableId].field.n;
             int[][] links = runtimeParameters[nodeId][variableId].links;
 
             Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
             runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
+        } else
+            runValueChanged = false;
+
+        // Does run value stuff here.
+        if(runValueChanged) {
+            Tuple<int, int> id = Tuple.Create<int, int>(nodeId, variableId);
+
+            if(onChanged.ContainsKey(id)) {
+                foreach(var oC in onChanged)
+                    foreach(var changeCallback in oC.Value) {
+                        int abilityNodes = globalCentralList.l[changeCallback.Item1].abilityNodes;
+
+                        OnValueChange valChangeNode = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[changeCallback.Item2] as OnValueChange;
+                        valChangeNode.SetVariable<T>("Old Value", initialValue);
+                        valChangeNode.SetVariable<T>("New Value", paramInst.v);
+                    }
+
+                onChanged.Remove(id);
+            }
         }
     }
 
@@ -358,7 +389,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             switch((LinkMode)linkType) {
                 case LinkMode.NORMAL:
                     //Debug.Log(originalParamInst.v);
-                    UpdateVariableValue<T>(threadIdToUse, nodeVariableId, originalParamInst.v);
+                    UpdateVariableValue<T>(nodeId, nodeVariableId, originalParamInst.v);
                     booleanData[nodeId][nodeVariableId] = false;
                     break;
             }
@@ -375,7 +406,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 activeThreads.l[threadIdToUse].JoinThread(existingThread);
             }
 
-            
+
             nextNodeInst.NodeCallback(threadIdToUse);
 
             for(int j = 0; j < autoManagedVar[nodeId].Length; j++)

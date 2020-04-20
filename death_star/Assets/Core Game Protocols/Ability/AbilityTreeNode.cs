@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public enum LinkMode {
     NORMAL, SIGNAL
@@ -24,8 +25,16 @@ public class AbilityTreeNode : MonoBehaviour {
     private int nodeId;
     private int centralThreadId;
     private int nodeThreadId;
-
+    private Tuple<int, int> reference;
     private SpawnerOutput sourceObject;
+
+    public Tuple<int,int> GetReference() {
+        return reference;
+    }
+
+    public void SetReference(Tuple<int, int> r) {
+        reference = r;
+    }
 
     public virtual void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
 
@@ -101,7 +110,7 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public void SetVariable<T>(string varName, T value) {
         int varId = GetVariableId(varName);
-        GetCentralInst().UpdateVariableValue(nodeThreadId, varId, value);
+        GetCentralInst().UpdateVariableValue(nodeId, varId, value);
         GetCentralInst().NodeVariableCallback<T>(nodeThreadId,varId);
     }
 
