@@ -9,7 +9,7 @@ public class CreateAbility : AbilityTreeNode {
     public override void NodeCallback(int threadId) {
         base.NodeCallback(threadId);
 
-        AbilityCentralThreadPool inst = GetCentralInst();
+        AbilityCentralThreadPool inst = GetCentralInst(VariableSetMode.LOCAL);
 
         AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
         //Debug.Log(GetNodeVariable<string>("Ability Name"));

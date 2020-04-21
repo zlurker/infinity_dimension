@@ -17,8 +17,8 @@ public class Damage : AbilityTreeNode {
             HealthSpawn inst = target as HealthSpawn;
 
             if(inst != null) {
-                RuntimeParameters<float> hpRp = inst.GetCentralInst().ReturnRuntimeParameter<float>(inst.GetNodeId(), "Health");
-                hpRp.v -= GetNodeVariable<float>("Damage");
+                float currHp = target.GetNodeVariable<float>("Health");
+                inst.SetVariable<float>("Health", currHp - GetNodeVariable<float>("Damage"));
             }
         }
     }

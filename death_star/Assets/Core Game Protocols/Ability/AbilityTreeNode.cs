@@ -113,7 +113,7 @@ public class AbilityTreeNode : MonoBehaviour {
         return true;
     }
 
-    public AbilityCentralThreadPool GetCentralInst(VariableSetMode setMode) {
+    public AbilityCentralThreadPool GetCentralInst(VariableSetMode setMode  ) {
         switch(setMode) {
 
             case VariableSetMode.LOCAL:
@@ -127,11 +127,11 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public T GetNodeVariable<T>(string var) {
-        return GetCentralInst().ReturnRuntimeParameter<T>(GetNodeId(), var).v;
+        return GetCentralInst(VariableSetMode.INSTANCE).ReturnRuntimeParameter<T>(GetNodeId(), var).v;
     }
 
     public bool IsClientPlayerUpdate() {
-        return GetCentralInst().GetPlayerId() == ClientProgram.clientId;
+        return GetCentralInst(VariableSetMode.LOCAL).GetPlayerId() == ClientProgram.clientId;
     }
 
     public void SetVariable<T>(int varId, T value, VariableSetMode setMode = VariableSetMode.INSTANCE) {

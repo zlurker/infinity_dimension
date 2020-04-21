@@ -8,7 +8,7 @@ public class GameTimer : AbilityTreeNode, ITimerCallback, IRPGeneric {
 
     public void CallOnTimerEnd(int eventId) {
         SetVariable<float>("Duration");
-        GetCentralInst().ReturnVariable(GetNodeId(),GetVariableId("Value to Pass")).field.RunGenericBasedOnRP(this, 0);
+        GetCentralInst(VariableSetMode.LOCAL).ReturnVariable(GetNodeId(),GetVariableId("Value to Pass")).field.RunGenericBasedOnRP(this, 0);
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {

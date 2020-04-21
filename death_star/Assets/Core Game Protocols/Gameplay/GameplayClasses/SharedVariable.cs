@@ -40,7 +40,7 @@ public class VariableInterfaces : IRPGeneric {
     }
 
     public void Callback(SharedVariable caller) {
-        AbilityCentralThreadPool inst = caller.GetCentralInst();
+        AbilityCentralThreadPool inst = caller.GetCentralInst(VariableSetMode.LOCAL);
 
 
         inst.ReturnVariable(caller.GetNodeId(), caller.GetVariableId("Variable Value")).field.RunGenericBasedOnRP<SharedVariable>(this, caller);
@@ -49,7 +49,7 @@ public class VariableInterfaces : IRPGeneric {
     public void RunAccordingToGeneric<T, P>(P arg) {
         SharedVariable node = arg as SharedVariable;
 
-        AbilityCentralThreadPool inst = node.GetCentralInst();
+        AbilityCentralThreadPool inst = node.GetCentralInst(VariableSetMode.LOCAL);
         InternalValueHolder<T> vhInst = valueHolder as InternalValueHolder<T>;
         T value = inst.ReturnRuntimeParameter<T>(node.GetNodeId(), node.GetVariableId("Variable Value")).v;
 
@@ -99,7 +99,7 @@ public class SharedVariable : AbilityTreeNode {
         if (GetNodeVariable<bool>("Global Variable")) 
             clusterRootId = -1;
         else
-            clusterRootId = AbilityCentralThreadPool.globalCentralClusterList.l[GetCentralInst().GetClusterID()][0];
+            clusterRootId = AbilityCentralThreadPool.globalCentralClusterList.l[GetCentralInst(VariableSetMode.LOCAL).GetClusterID()][0];
 
         if(!sharedVariables.ContainsKey(clusterRootId))
             sharedVariables.Add(clusterRootId, new Dictionary<string, VariableInterfaces>());

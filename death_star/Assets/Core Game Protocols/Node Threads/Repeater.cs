@@ -30,9 +30,9 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
 
     public void BeginRepeater() {
         NodeThread trdInst = new NodeThread(GetNodeId());
-        trdInst.SetNodeData(GetNodeId(), GetCentralInst().GetNodeBranchData(GetNodeId()));
+        trdInst.SetNodeData(GetNodeId(), GetCentralInst(VariableSetMode.LOCAL).GetNodeBranchData(GetNodeId()));
 
-        int threadToUse = GetCentralInst().AddNewThread(trdInst);
+        int threadToUse = GetCentralInst(VariableSetMode.LOCAL).AddNewThread(trdInst);
         Debug.Log("Launching repeater...");
         Debug.Log(threadToUse);
         SetVariable("Time Interval", 0);
