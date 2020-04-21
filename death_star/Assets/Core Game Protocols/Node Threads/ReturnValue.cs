@@ -33,6 +33,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
     }
 
     public override void NodeCallback(int threadId) {
+        base.NodeCallback(threadId);
         //Debug.Log("afterset TID: " + threadId);
 
         threadMap.Add(threadId, new ThreadMapDataBase());

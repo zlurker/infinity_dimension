@@ -17,22 +17,27 @@ public class MoveTowardsDirection : MoveTo {
                 float timeRatio = (Time.realtimeSinceStartup - timeDirChanged) / GetNodeVariable<float>("Duration");
 
                 GetTargetTransform().position = dirChangeStart + (normDir * (GetNodeVariable<float>("Total Distance") * timeRatio));
-            } else
+            } else 
                 GetTargetTransform().position = dirChangeStart + (normDir * GetNodeVariable<float>("Total Distance"));
+            
 
-            GetTargetTransform().position = new Vector3(GetTargetTransform().position.x, GetTargetTransform().position.y, 0);
+            //Debug.LogFormat("Duration: {0}, Start: {1}", GetNodeVariable<float>("Duration"), Time.realtimeSinceStartup - timeDirChanged);
+            //GetTargetTransform().position = new Vector3(GetTargetTransform().position.x, GetTargetTransform().position.y, 0);
         }
     }
 
     public override void NodeCallback(int threadId) {
+        setTarget = false;
+        base.NodeCallback(threadId);
 
         allDataRecv = CheckIfVarRegionBlocked("Coordinates", "Target", "Total Distance", "Duration");
 
         if(allDataRecv) {
             normDir = GetNodeVariable<Vector3>("Coordinates").normalized;
+            normDir.z = 0;
 
-            dirChangeStart = transform.position;
-            timeDirChanged = Time.realtimeSinceStartup;
+            dirChangeStart = GetTargetTransform().position;
+            timeDirChanged = Time.realtimeSinceStartup;            
         }
     }
 

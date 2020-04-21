@@ -17,6 +17,8 @@ public class GameTimer : AbilityTreeNode, ITimerCallback, IRPGeneric {
     }
 
     public override void NodeCallback(int threadId) {
+        base.NodeCallback(threadId);
+
         if(eventId > -1)
             LoadedData.GetSingleton<Timer>().UpdateEventDuration(eventId, GetNodeVariable<float>("Duration"));
         else

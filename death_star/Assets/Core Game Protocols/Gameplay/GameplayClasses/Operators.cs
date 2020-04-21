@@ -36,11 +36,11 @@ public class AddSubtract : AbilityTreeNode {
 
 
     public override void NodeCallback(int threadId) {
+        base.NodeCallback(threadId);
+
         if(CheckIfVarRegionBlocked("A", "B")) {
 
             float output = 0;
-
-
 
             switch(GetNodeVariable<int>("Operation")) {
                 case 0:

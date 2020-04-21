@@ -5,6 +5,7 @@ using UnityEngine;
 public class Damage : AbilityTreeNode {
 
     public override void NodeCallback(int threadId) {
+        base.NodeCallback(threadId);
 
         if(CheckIfVarRegionBlocked("Damage", "Target")) {
             AbilityTreeNode target = GetNodeVariable<AbilityTreeNode>("Target");

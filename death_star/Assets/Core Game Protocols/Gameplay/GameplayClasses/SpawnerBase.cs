@@ -23,8 +23,6 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
 
         if(sR.sprite == null)
             sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite File Path")];
-
-        SetVariable<AbilityTreeNode>("Spawn", this);
     }
 
     private void OnCollisionStay2D(Collision2D collision) {
@@ -40,7 +38,6 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Spawn",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("On Collide", null)),
             new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Internal Collide Handler", null),VariableTypes.HOST_ACTIVATED,VariableTypes.HIDDEN),
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)

@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class MoveTo : AbilityTreeNode {
 
+    protected bool setTarget = true;
+
     public override void NodeCallback(int threadId) {
+        base.NodeCallback(threadId);
+
+        if (setTarget)
         if(CheckIfVarRegionBlocked("Coordinates", "Target")) 
             GetTargetTransform().position = new Vector3(GetNodeVariable<Vector3>("Coordinates").x, GetNodeVariable<Vector3>("Coordinates").y, 0);       
     }

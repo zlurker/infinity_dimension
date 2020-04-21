@@ -99,7 +99,7 @@ public class JSONFileConvertor : MonoBehaviour, IRPGeneric, ISingleton {
 
                         if(relinkRequired.ContainsKey(id))
                             if(relinkRequired[id] > -1) {
-                                Debug.Log(links[k][1] + " id variable of " + convertedFormat[j].var[k].field.n + " has been moved to " + relinkRequired[id]);
+                                Debug.Log(links[k][1] + " id variable of " + convertedFormat[i].var[j].field.n + " has been moved to " + relinkRequired[id]);
                                 links[k][1] = relinkRequired[id];
                             } else
                                 links.RemoveAt(k);

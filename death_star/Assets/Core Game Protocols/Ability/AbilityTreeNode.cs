@@ -73,11 +73,11 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
-
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node",null)));
     }
 
     public virtual void NodeCallback(int threadId) {
-
+        SetVariable<AbilityTreeNode>("This Node",this);
     }
 
     public virtual void ThreadEndStartCallback(int threadId) {
