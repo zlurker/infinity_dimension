@@ -252,13 +252,13 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     }
 
     public void AddVariableNetworkData(AbilityNodeNetworkData aNND) {
-        Debug.Log("Variable Data added.");
+        //Debug.Log("Variable Data added.");
 
         if(timerEventId > -1) {
-            Debug.Log("Timer extended.");
+            //Debug.Log("Timer extended.");
             LoadedData.GetSingleton<Timer>().UpdateEventStartTime(timerEventId, Time.realtimeSinceStartup);
         } else {
-            Debug.Log("New timer added.");
+            //Debug.Log("New timer added.");
             timerEventId = LoadedData.GetSingleton<Timer>().CreateNewTimerEvent(0.05f, this);
             networkNodeData.Add(timerEventId, new List<AbilityNodeNetworkData>());
         }
@@ -319,7 +319,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             string varName = runtimeParameters[nodeId][variableId].field.n;
             int[][] links = runtimeParameters[nodeId][variableId].links;
 
-            Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
+            //Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
             runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
 
             valuePair[0] = value;
@@ -416,8 +416,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             switch((LinkMode)linkType) {
                 case LinkMode.NORMAL:
                     //Debug.Log(originalParamInst.v);
-                    UpdateVariableValue<T>(nodeId, nodeVariableId, originalParamInst.v);
                     booleanData[nodeId][nodeVariableId] = false;
+                    UpdateVariableValue<T>(nodeId, nodeVariableId, originalParamInst.v);                    
                     break;
             }
 

@@ -47,6 +47,19 @@ public class AbilityBooleanData {
         return clone;
 
     }
+
+    public string OutputValues() {
+        string outputStr = "";
+        for(int i = 0; i < varsBlocked.Length; i++) {
+            outputStr += '[';
+            for(int j = 0; j < varsBlocked[i].Length; j++) {
+                outputStr += varsBlocked[i][j] + " , ";
+            }
+            outputStr += "]\n";
+        }
+
+        return outputStr;
+    }
 }
 
 public class AbilityDataSubclass {

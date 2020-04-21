@@ -86,7 +86,7 @@ public class AbilityData : IInputCallback<int> {
         RetrieveStartNodes();
 
         // Adds the psuedo node after the initial calculation.
-        dataVar[dataVar.Length - 1] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[0].rP, rootSubclasses) };
+        dataVar[dataVar.Length - 1] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[1].rP, rootSubclasses) };
         dataType[dataVar.Length - 1] = typeof(NodeThreadStarter);
         linkData[dataVar.Length - 1] = new LinkData();
 
@@ -190,8 +190,12 @@ public class AbilityData : IInputCallback<int> {
                     int[] currLink = dataVar[i][j].links[k];
 
                     // Marks target as true so it will be blocked.
-                    if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t && !signal || interchangeable)
+                    if((dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t && !signal) || interchangeable) {
                         boolData.varsBlocked[currLink[0]][currLink[1]] = true;
+                        Debug.LogFormat("From Node {0} Variable {1} link {2} name {3}", i, j,k, dataVar[i][j].field.n);
+                        Debug.LogFormat("To Node {0} Variable {1} link {2} signal {3} interchange {4} name {5}", currLink[0], currLink[1], k,signal,interchangeable, dataVar[i][j].field.n);
+                        Debug.Log("This was called true.");
+                    }
                 }
 
                 if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.BLOCKED))
@@ -227,6 +231,8 @@ public class AbilityData : IInputCallback<int> {
         AbilityTreeNode[] a = new AbilityTreeNode[dataVar.Length];
         int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
         Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
+
+        Debug.Log(boolData.OutputValues());
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
         // Rather than create new instance, everything except variables will be taken from here.

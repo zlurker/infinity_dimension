@@ -12,7 +12,6 @@ public class GameTimer : AbilityTreeNode, ITimerCallback, IRPGeneric {
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {
-        Debug.Log("Variable is going to be sent: " + typeof(T));
         SetVariable<T>("Value to Pass");
     }
 

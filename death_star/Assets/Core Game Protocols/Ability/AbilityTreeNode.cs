@@ -77,17 +77,20 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void NodeCallback(int threadId) {
-        AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node",VariableSetMode.LOCAL);
+        AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node", VariableSetMode.LOCAL);
 
         if(refNode != null) {
 
             // Closes this game object as it is just a instance of another object.
             gameObject.SetActive(false);
 
+            Debug.Log(refNode);
+
             Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
 
             // Removes previous instance.
-            GetInstanceCentralInst().RemoveSharedInstance(reference.Item2, id);
+            if(reference != null)
+                GetInstanceCentralInst().RemoveSharedInstance(reference.Item2, id);
 
             // Adds current reference and creates a new instance according to reference.
             reference = refNode.reference;
@@ -96,8 +99,13 @@ public class AbilityTreeNode : MonoBehaviour {
         } else if(reference == null)
             reference = Tuple.Create<int, int>(centralThreadId, nodeId);
 
-        if(CheckIfVarRegionBlocked("This Node"))
-            SetVariable<AbilityTreeNode>("This Node", this);
+        //Debug.Log(CheckIfVarRegionBlocked("This Node") + " " + GetType());
+        //Debug.Log(CheckIfVarRegionBlocked("Health") + " " + GetType());
+
+        if(CheckIfVarRegionBlocked("This Node")) {
+            SetVariable<AbilityTreeNode>("This Node", this,VariableSetMode.LOCAL);
+            GetCentralInst().UpdateVariableValue<AbilityTreeNode>(nodeId, 0, null, false);
+        }
     }
 
     public virtual void ThreadEndStartCallback(int threadId) {
