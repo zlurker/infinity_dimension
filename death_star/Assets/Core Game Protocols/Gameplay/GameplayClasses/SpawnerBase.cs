@@ -30,7 +30,6 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
         string[] objDetails = collision.gameObject.name.Split('/');
         int[] objLoc = new int[] { int.Parse(objDetails[0]), int.Parse(objDetails[1]) };
 
-        // Switches off network data sending so we are able to compile more before sending out.
         SetVariable("Internal Collide Handler", objLoc);       
     }
 

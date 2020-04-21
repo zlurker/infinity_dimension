@@ -38,6 +38,20 @@ public class LoadClasses : MonoBehaviour {
             AbilityTreeNode inst = null;
 
             if(info != null) {
+
+                int linkedType = -1;
+
+                Debug.Log(types[i] + " is linked to the following:");
+
+                for(int j = 0; j < types.Length; j++) 
+                    if(types[i].IsSubclassOf(types[j]) || types[j].IsSubclassOf(types[i])) {
+                        Debug.Log(types[j]);
+                    }
+                
+
+                //if(linkedType == -1)
+                    //linkedType = typeList.Add(types[i]);
+
                 inst = info.Invoke(new object[0]) as AbilityTreeNode;
 
                 LoadedData.loadedNodeInstance.Add(types[i], inst);
@@ -46,8 +60,10 @@ public class LoadClasses : MonoBehaviour {
                 List<LoadedRuntimeParameters> nodeRp = new List<LoadedRuntimeParameters>();
                 inst.GetRuntimeParameters(nodeRp);
 
-                LoadedData.loadedParamInstances.Add(types[i], new LoadedRPWrapper(nodeRp.ToArray()));
+                LoadedData.loadedParamInstances.Add(types[i], new LoadedRPWrapper(nodeRp.ToArray(), linkedType));
             }
+
+
         }
     }
 

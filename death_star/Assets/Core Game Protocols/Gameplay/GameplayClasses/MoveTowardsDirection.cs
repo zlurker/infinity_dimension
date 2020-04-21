@@ -12,18 +12,13 @@ public class MoveTowardsDirection : MoveTo {
 
     void Update() {
 
-        if(allDataRecv) {
+        if(allDataRecv)
             if(GetNodeVariable<float>("Duration") > Time.realtimeSinceStartup - timeDirChanged) {
                 float timeRatio = (Time.realtimeSinceStartup - timeDirChanged) / GetNodeVariable<float>("Duration");
 
                 GetTargetTransform().position = dirChangeStart + (normDir * (GetNodeVariable<float>("Total Distance") * timeRatio));
-            } else 
+            } else
                 GetTargetTransform().position = dirChangeStart + (normDir * GetNodeVariable<float>("Total Distance"));
-            
-
-            //Debug.LogFormat("Duration: {0}, Start: {1}", GetNodeVariable<float>("Duration"), Time.realtimeSinceStartup - timeDirChanged);
-            //GetTargetTransform().position = new Vector3(GetTargetTransform().position.x, GetTargetTransform().position.y, 0);
-        }
     }
 
     public override void NodeCallback(int threadId) {
@@ -37,7 +32,7 @@ public class MoveTowardsDirection : MoveTo {
             normDir.z = 0;
 
             dirChangeStart = GetTargetTransform().position;
-            timeDirChanged = Time.realtimeSinceStartup;            
+            timeDirChanged = Time.realtimeSinceStartup;
         }
     }
 

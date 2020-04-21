@@ -87,7 +87,7 @@ public class LoadedRPWrapper {
     public LoadedRuntimeParameters[] runtimeParameters;
     public Dictionary<string, int> variableAddresses;
 
-    public LoadedRPWrapper(LoadedRuntimeParameters[] rP) {
+    public LoadedRPWrapper(LoadedRuntimeParameters[] rP, int cC) {
         runtimeParameters = rP;
 
         variableAddresses = new Dictionary<string, int>();

@@ -131,6 +131,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     private Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> onChanged;
     private Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> onGet;
 
+    private Dictionary<int, HashSet<Tuple<int, int>>> sharedInstance;
+
     private int centralClusterId;
     private int clusterPos;
 
@@ -191,6 +193,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         onChanged = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
         onGet = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
+        sharedInstance = new Dictionary<int, HashSet<Tuple<int, int>>>();
     }
 
     public void AddOnChanged(Tuple<int, int> key, Tuple<int, int> value) {
@@ -200,6 +203,20 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         if(!onChanged[key].Contains(value))
             onChanged[key].Add(value);
+    }
+
+    public void AddSharedInstance(int key, Tuple<int, int> value) {
+        if(!sharedInstance.ContainsKey(key))
+            sharedInstance.Add(key, new HashSet<Tuple<int, int>>());
+
+        if(!sharedInstance[key].Contains(value))
+            sharedInstance[key].Add(value);
+    }
+
+    public void RemoveSharedInstance(int key, Tuple<int, int> value) {
+        if(sharedInstance.ContainsKey(key))
+            if(sharedInstance[key].Contains(value))
+                sharedInstance[key].Remove(value);
     }
 
     public int GetNodeBranchData(int id) {
@@ -419,6 +436,12 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             nextNodeInst.NodeCallback(threadIdToUse);
 
+            // Updates the other instances.
+            if(sharedInstance.ContainsKey(nodeId))
+                foreach(var inst in sharedInstance[nodeId])
+                    AbilityTreeNode.globalList.l[inst.Item1].abiNodes[inst.Item2].SetVariable<T>(variableId, originalParamInst.v, VariableSetMode.LOCAL);
+
+            // Automatically callback all auto managed nodes.
             for(int j = 0; j < autoManagedVar[nodeId].Length; j++)
                 runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
 
