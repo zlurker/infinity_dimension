@@ -77,20 +77,23 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void NodeCallback(int threadId) {
-        AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node");
+        AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node",VariableSetMode.LOCAL);
 
         if(refNode != null) {
+
+            // Closes this game object as it is just a instance of another object.
+            gameObject.SetActive(false);
+
             Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
 
             // Removes previous instance.
-            GetCentralInst(VariableSetMode.INSTANCE).RemoveSharedInstance(reference.Item2, id);
+            GetInstanceCentralInst().RemoveSharedInstance(reference.Item2, id);
 
             // Adds current reference and creates a new instance according to reference.
             reference = refNode.reference;
-            GetCentralInst(VariableSetMode.INSTANCE).AddSharedInstance(reference.Item2, id);
+            GetInstanceCentralInst().AddSharedInstance(reference.Item2, id);
 
-        } else
-            if(reference == null)
+        } else if(reference == null)
             reference = Tuple.Create<int, int>(centralThreadId, nodeId);
 
         if(CheckIfVarRegionBlocked("This Node"))
@@ -113,46 +116,56 @@ public class AbilityTreeNode : MonoBehaviour {
         return true;
     }
 
-    public AbilityCentralThreadPool GetCentralInst(VariableSetMode setMode  ) {
+    public AbilityCentralThreadPool GetCentralInst() {
+        return AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+    }
+
+    public AbilityCentralThreadPool GetInstanceCentralInst() {
+        return AbilityCentralThreadPool.globalCentralList.l[reference.Item1];
+    }
+
+    public bool IsClientPlayerUpdate() {
+        return GetCentralInst().GetPlayerId() == ClientProgram.clientId;
+    }
+
+
+    // Function used by internal variable getter/setters to get central instance.
+    AbilityCentralThreadPool InternalCentralReturn(VariableSetMode setMode) {
         switch(setMode) {
 
             case VariableSetMode.LOCAL:
-                return AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+                return GetCentralInst();
 
             case VariableSetMode.INSTANCE:
-                return AbilityCentralThreadPool.globalCentralList.l[reference.Item1];
+                return GetInstanceCentralInst();
         }
 
         return null;
     }
 
-    public T GetNodeVariable<T>(string var) {
-        return GetCentralInst(VariableSetMode.INSTANCE).ReturnRuntimeParameter<T>(GetNodeId(), var).v;
-    }
-
-    public bool IsClientPlayerUpdate() {
-        return GetCentralInst(VariableSetMode.LOCAL).GetPlayerId() == ClientProgram.clientId;
+    public T GetNodeVariable<T>(string var, VariableSetMode setMode = VariableSetMode.INSTANCE) {
+        return InternalCentralReturn(setMode).ReturnRuntimeParameter<T>(GetNodeId(), var).v;
     }
 
     public void SetVariable<T>(int varId, T value, VariableSetMode setMode = VariableSetMode.INSTANCE) {
-        GetCentralInst(setMode).UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst(setMode).NodeVariableCallback<T>(nodeThreadId, varId);
+        InternalCentralReturn(setMode).UpdateVariableValue(nodeId, varId, value);
+        InternalCentralReturn(setMode).NodeVariableCallback<T>(nodeThreadId, varId);
     }
 
     public void SetVariable<T>(int threadId, string varName, T value, VariableSetMode setMode = VariableSetMode.INSTANCE) {
         int varId = GetVariableId(varName);
-        GetCentralInst(setMode).UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst(setMode).NodeVariableCallback<T>(threadId, varId);
+        InternalCentralReturn(setMode).UpdateVariableValue(nodeId, varId, value);
+        InternalCentralReturn(setMode).NodeVariableCallback<T>(threadId, varId);
     }
 
     public void SetVariable<T>(string varName, T value, VariableSetMode setMode = VariableSetMode.INSTANCE) {
         int varId = GetVariableId(varName);
-        GetCentralInst(setMode).UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst(setMode).NodeVariableCallback<T>(nodeThreadId, varId);
+        InternalCentralReturn(setMode).UpdateVariableValue(nodeId, varId, value);
+        InternalCentralReturn(setMode).NodeVariableCallback<T>(nodeThreadId, varId);
     }
 
     public void SetVariable<T>(string varName, VariableSetMode setMode = VariableSetMode.INSTANCE) {
-        GetCentralInst(setMode).NodeVariableCallback<T>(nodeThreadId, GetVariableId(varName));
+        InternalCentralReturn(setMode).NodeVariableCallback<T>(nodeThreadId, GetVariableId(varName));
     }
 
     public int GetVariableId(string varName) {

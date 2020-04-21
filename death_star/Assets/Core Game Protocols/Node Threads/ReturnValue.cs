@@ -48,7 +48,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
     }
 
     public override void ThreadZeroed(int parentThread, int lastChildThread) {
-        AbilityCentralThreadPool inst = GetCentralInst(VariableSetMode.LOCAL);
+        AbilityCentralThreadPool inst = GetCentralInst();
 
         int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
 

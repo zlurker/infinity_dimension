@@ -21,8 +21,10 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
     public override void NodeCallback(int threadId) {
         base.NodeCallback(threadId);
 
+        Debug.Log("Called before");
+
         if(sR.sprite == null)
-            sR.sprite = AbilitiesManager.aData[GetCentralInst(VariableSetMode.LOCAL).GetPlayerId()].assetData[GetNodeVariable<string>("Sprite File Path")];
+            sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite File Path")];
     }
 
     private void OnCollisionStay2D(Collision2D collision) {
