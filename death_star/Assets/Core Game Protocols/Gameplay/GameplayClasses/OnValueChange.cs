@@ -16,8 +16,6 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
     public override void NodeCallback(int threadId) {
         base.NodeCallback(threadId);
 
-        Debug.Log("Node was called");
-
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
         int[][] links = centralInst.ReturnVariable(GetNodeId(), "Empty link storage").links;
@@ -31,9 +29,26 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
             else
                 originatorNode = globalList.l[linkTup.Item1].abiNodes[linkTup.Item2];
 
-            Debug.LogFormat("Link added: {0}, Id1: {1}, Id2: {2}", linkTup, GetCentralId(),GetNodeId());
+            //Debug.LogFormat("Link added: {0}, Id1: {1}, Id2: {2}", linkTup, GetCentralId(),GetNodeId());
 
             originatorNode.GetCentralInst().AddOnChanged(linkTup,Tuple.Create<int,int>(GetCentralId(),GetNodeId()));
+        }
+    }
+
+    public void HandleSettingOnChange<T>(T[] valuePair) {
+
+        if (GetNodeThreadId() > -1) {
+            threadMap.Add(GetNodeThreadId(), new ThreadMapDataBase());
+            ChildThread cT = new ChildThread(GetNodeId(), GetNodeThreadId(), this);
+
+            AbilityCentralThreadPool inst = GetCentralInst();
+
+            int totalLinks = inst.ReturnVariable(GetNodeId(), "Old Value").links.Length + inst.ReturnVariable(GetNodeId(), "New Value").links.Length;
+            cT.SetNodeData(GetNodeId(), totalLinks);
+            int threadToUse = inst.AddNewThread(cT);
+
+            SetVariable<T>(threadToUse,"Old Value", valuePair[0]);
+            SetVariable<T>(threadToUse,"New Value", valuePair[1]);
         }
     }
 
@@ -44,6 +59,7 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
         int[][] links = centralInst.ReturnVariable(GetNodeId(), "Empty link storage").links;
+        int[] modifiedReturn = centralInst.ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
 
         for(int i = 0; i < links.Length; i++) {
             Tuple<int, int> linkTup = globalList.l[GetCentralId()].abiNodes[links[i][0]].GetReference();
@@ -54,7 +70,8 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
                 idParams[1] = linkTup.Item2;
             }
 
-            centralInst.ReturnVariable(GetNodeId(), "Modified Value To Return").field.RunGenericBasedOnRP<int[]>(this, idParams);
+            Debug.Log("Running mod method");
+            centralInst.ReturnVariable(modifiedReturn[0],modifiedReturn[1]).field.RunGenericBasedOnRP<int[]>(this, idParams);
         }       
     }
 
@@ -77,7 +94,8 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         int[] varToReturn = GetCentralInst().ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
 
         RuntimeParameters<T> rP = GetCentralInst().ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
-        Debug.Log("Returning modified variable.");
-        //inst.UpdateVariableValue<T>(idParams[1], idParams[2], rP.v,false);
+        Debug.Log("Returning central " + inst);
+        Debug.Log("Returning modified variable  " + rP.v );
+        inst.UpdateVariableValue<T>(idParams[1], idParams[2], rP.v,false);
     }
 }

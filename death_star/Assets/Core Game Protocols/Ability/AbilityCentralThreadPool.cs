@@ -325,8 +325,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                     int abilityNodes = globalCentralList.l[changeCallback.Item1].abilityNodes;
 
                     OnValueChange valChangeNode = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[changeCallback.Item2] as OnValueChange;
-                    valChangeNode.SetVariable<T>("Old Value", valuePair[0]);
-                    valChangeNode.SetVariable<T>("New Value", valuePair[1]);
+                    valChangeNode.HandleSettingOnChange<T>(valuePair);
                 }
 
                 onChanged.Remove(id);

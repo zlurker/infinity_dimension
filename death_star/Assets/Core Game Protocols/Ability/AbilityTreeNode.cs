@@ -108,6 +108,12 @@ public class AbilityTreeNode : MonoBehaviour {
         return GetCentralInst().GetPlayerId() == ClientProgram.clientId;
     }
 
+    public void SetVariable<T>(int threadId,string varName, T value) {
+        int varId = GetVariableId(varName);
+        GetCentralInst().UpdateVariableValue(nodeId, varId, value);
+        GetCentralInst().NodeVariableCallback<T>(threadId, varId);
+    }
+
     public void SetVariable<T>(string varName, T value) {
         int varId = GetVariableId(varName);
         GetCentralInst().UpdateVariableValue(nodeId, varId, value);
