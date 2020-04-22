@@ -372,7 +372,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         UpdateVariableData<T>(threadId, variableId);
     }
 
-    public void UpdateVariableData<T>(int threadId, int variableId) {
+    public void UpdateVariableData<T>(int threadId, int variableId, RuntimeParameters<T> var = null) {
 
         if(threadId == -1)
             return;
@@ -381,7 +381,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         int[][] links = runtimeParameters[currNode][variableId].links;
 
-        RuntimeParameters<T> originalParamInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
+        if(var == null)
+            var = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
 
         for(int i = 0; i < links.Length; i++) {
 
@@ -417,7 +418,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 case LinkMode.NORMAL:
                     //Debug.Log(originalParamInst.v);
                     booleanData[nodeId][nodeVariableId] = false;
-                    UpdateVariableValue<T>(nodeId, nodeVariableId, originalParamInst.v);                    
+                    UpdateVariableValue<T>(nodeId, nodeVariableId, var.v);
                     break;
             }
 

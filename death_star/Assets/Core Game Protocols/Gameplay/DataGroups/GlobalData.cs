@@ -32,6 +32,11 @@ public class RuntimeParameters<T> : RuntimeParameters {
     public RuntimeParameters() {
     }
 
+    public RuntimeParameters(T value) {
+        v = value;
+        t = typeof(T);
+    }
+
     public RuntimeParameters(string name, T value) {
         n = name;
         v = value;

@@ -99,13 +99,10 @@ public class AbilityTreeNode : MonoBehaviour {
         } else if(reference == null)
             reference = Tuple.Create<int, int>(centralThreadId, nodeId);
 
-        //Debug.Log(CheckIfVarRegionBlocked("This Node") + " " + GetType());
-        //Debug.Log(CheckIfVarRegionBlocked("Health") + " " + GetType());
 
-        if(CheckIfVarRegionBlocked("This Node")) {
-            SetVariable<AbilityTreeNode>("This Node", this,VariableSetMode.LOCAL);
-            GetCentralInst().UpdateVariableValue<AbilityTreeNode>(nodeId, 0, null, false);
-        }
+        // Sends out this node as a reference.
+        if(CheckIfVarRegionBlocked("This Node")) 
+            GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
     }
 
     public virtual void ThreadEndStartCallback(int threadId) {
