@@ -163,22 +163,29 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return abilityNodes;
     }
 
+    // Base method to get variables
     public Variable ReturnVariable(int node, int variable) {
-        return runtimeParameters[node][variable];
-    }
 
-    public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, int variable) {
-        return runtimeParameters[node][variable].field as RuntimeParameters<T>;
+        AbilityTreeNode rootNode = GetRootReferenceNode(node);
+
+        if(rootNode != null)
+            return GetRootReferenceCentral(node).ReturnVariable(rootNode.GetNodeId(), variable);
+       
+        return runtimeParameters[node][variable];
     }
 
     public Variable ReturnVariable(int node, string vName) {
         int variable = LoadedData.loadedParamInstances[subclassTypes[node]].variableAddresses[vName];
-        return runtimeParameters[node][variable];
+        return ReturnVariable(node, variable);
     }
 
     public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, string vName) {
         int variable = LoadedData.loadedParamInstances[subclassTypes[node]].variableAddresses[vName];
-        return runtimeParameters[node][variable].field as RuntimeParameters<T>;
+        return ReturnRuntimeParameter<T>(node, variable);
+    }
+
+    public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, int variable) {
+        return ReturnVariable(node,variable).field as RuntimeParameters<T>;
     }
 
     public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId) {
@@ -229,6 +236,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     public bool[] GetNodeBoolValues(int id) {
         return booleanData[id];
+    }
+
+    public void SetNodeBoolValue(bool value, int node, int var) {
+        booleanData[node][var] = value;
     }
 
     public int GetClusterID() {
@@ -287,6 +298,23 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         NodeVariableCallback<int>(threadId, 0);
     }
 
+    public AbilityCentralThreadPool GetRootReferenceCentral(int nodeId) {
+        Tuple<int, int> reference = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].GetReference();
+        return globalCentralList.l[reference.Item1];
+    }
+
+    public AbilityTreeNode GetRootReferenceNode(int nodeId) {
+       
+        Tuple<int, int> reference = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].GetReference();
+
+        // Returns null if this is the root.
+        if(reference.Item1 == centralId && reference.Item2 == nodeId)
+            return null;
+
+        AbilityCentralThreadPool refCentral = globalCentralList.l[reference.Item1];
+        return AbilityTreeNode.globalList.l[refCentral.GetAbilityNodeId()].abiNodes[reference.Item2];
+    }
+
     public NETWORK_CLIENT_ELIGIBILITY CheckEligibility(int nodeId, int variableId) {
 
         if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.CLIENT_ACTIVATED)) {
@@ -306,6 +334,15 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     }
 
     public void UpdateVariableValue<T>(int nodeId, int variableId, T value, bool runValueChanged = true) {
+
+        AbilityTreeNode refNode = GetRootReferenceNode(nodeId);
+        bool instanced = LoadedData.GetVariableType(AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].GetType(), variableId, VariableTypes.NON_INSTANCED);
+
+        // If reference is not empty, redirects it to change that variable instead.
+        if(refNode != null && instanced == false) {
+            GetRootReferenceCentral(nodeId).UpdateVariableValue<T>(refNode.GetNodeId(), variableId, value, runValueChanged);
+            return;
+        }
 
         RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
         T[] valuePair = new T[2];
@@ -329,6 +366,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         // Does run value stuff here.
         if(runValueChanged) {
+            // Needs rework.
             Tuple<int, int> id = Tuple.Create<int, int>(nodeId, variableId);
 
             //Debug.Log(nodeId);
@@ -437,11 +475,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             nextNodeInst.NodeCallback(threadIdToUse);
 
-            // Updates the other instances.
-            if(sharedInstance.ContainsKey(nodeId))
-                foreach(var inst in sharedInstance[nodeId])
-                    AbilityTreeNode.globalList.l[inst.Item1].abiNodes[inst.Item2].SetVariable<T>(variableId, originalParamInst.v, VariableSetMode.LOCAL);
-
             // Automatically callback all auto managed nodes.
             for(int j = 0; j < autoManagedVar[nodeId].Length; j++)
                 runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
@@ -452,6 +485,16 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 HandleThreadRemoval(threadIdToUse);
             }
         }
+
+        // Updates the other instances.
+        if(sharedInstance.ContainsKey(currNode))
+            foreach(var inst in sharedInstance[currNode]) {
+                Debug.LogFormat("Central {0} Node {1} is a instance to be set.", inst.Item1, inst.Item2);
+                AbilityTreeNode selectedNode = AbilityTreeNode.globalList.l[globalCentralList.l[inst.Item1].GetAbilityNodeId()].abiNodes[inst.Item2];
+
+                globalCentralList.l[inst.Item1].UpdateVariableData<T>(selectedNode.GetNodeThreadId(), variableId, var);
+                //AbilityTreeNode.globalList.l[inst.Item1].abiNodes[inst.Item2].SetVariable<T>(variableId, var.v, VariableSetMode.LOCAL);
+            }
 
         if(jointThreadId > -1)
             UpdateVariableData<T>(jointThreadId, variableId);
@@ -516,10 +559,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     public void RunAccordingToGeneric<T, P>(P arg) {
         int[] nodeCBInfo = (int[])(object)arg;
 
-        RuntimeParameters<T> rp = runtimeParameters[nodeCBInfo[0]][nodeCBInfo[1]].field as RuntimeParameters<T>;
-
         AbilityTreeNode inst = CreateNewNodeIfNull(nodeCBInfo[0]);
-
         NodeVariableCallback<T>(inst.GetNodeThreadId(), nodeCBInfo[1]);
     }
 }

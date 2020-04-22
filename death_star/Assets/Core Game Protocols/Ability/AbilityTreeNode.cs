@@ -73,35 +73,41 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node", null)));
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node", null),VariableTypes.NON_INSTANCED));
     }
 
     public virtual void NodeCallback(int threadId) {
-        AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node", VariableSetMode.LOCAL);
+
+        if(reference == null)
+            reference = Tuple.Create<int, int>(centralThreadId, nodeId);
+
+        AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node");
 
         if(refNode != null) {
 
-            // Closes this game object as it is just a instance of another object.
-            gameObject.SetActive(false);
+            // Needs to be replaced.
+            if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
 
-            Debug.Log(refNode);
+                // Closes this game object as it is just a instance of another object.
+                gameObject.SetActive(false);
 
-            Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
+                Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
 
-            // Removes previous instance.
-            if(reference != null)
-                GetInstanceCentralInst().RemoveSharedInstance(reference.Item2, id);
+                // Removes previous instance.
+                if(reference != null)
+                    GetInstanceCentralInst().RemoveSharedInstance(reference.Item2, id);
 
-            // Adds current reference and creates a new instance according to reference.
-            reference = refNode.reference;
-            GetInstanceCentralInst().AddSharedInstance(reference.Item2, id);
+                // Adds current reference and creates a new instance according to reference.
+                reference = refNode.reference;
+                GetInstanceCentralInst().AddSharedInstance(reference.Item2, id);
+            } else {
 
-        } else if(reference == null)
-            reference = Tuple.Create<int, int>(centralThreadId, nodeId);
-
-
-        // Sends out this node as a reference.
-        if(CheckIfVarRegionBlocked("This Node")) 
+                GetCentralInst().SetNodeBoolValue(true, nodeId, 0);
+            }
+        }
+            
+        // Sends out this node as a reference if all details are in order.
+        if(CheckIfVarRegionBlocked("This Node"))
             GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
     }
 
@@ -135,7 +141,7 @@ public class AbilityTreeNode : MonoBehaviour {
 
 
     // Function used by internal variable getter/setters to get central instance.
-    AbilityCentralThreadPool InternalCentralReturn(VariableSetMode setMode) {
+    /*AbilityCentralThreadPool InternalCentralReturn(VariableSetMode setMode) {
         switch(setMode) {
 
             case VariableSetMode.LOCAL:
@@ -148,29 +154,43 @@ public class AbilityTreeNode : MonoBehaviour {
         return null;
     }
 
-    public T GetNodeVariable<T>(string var, VariableSetMode setMode = VariableSetMode.INSTANCE) {
-        return InternalCentralReturn(setMode).ReturnRuntimeParameter<T>(GetNodeId(), var).v;
+    AbilityTreeNode InternalNodeReturn(VariableSetMode setMode){
+        switch(setMode) {
+
+            case VariableSetMode.LOCAL:
+                return this;
+
+            case VariableSetMode.INSTANCE:
+                AbilityTreeNode nodeInst = globalList.l[GetInstanceCentralInst().GetAbilityNodeId()].abiNodes[reference.Item2];
+                return nodeInst;
+        }
+
+        return null;
+    }*/
+
+    public T GetNodeVariable<T>(string var) {
+        return GetCentralInst().ReturnRuntimeParameter<T>(nodeId, var).v;
     }
 
-    public void SetVariable<T>(int varId, T value, VariableSetMode setMode = VariableSetMode.INSTANCE) {
-        InternalCentralReturn(setMode).UpdateVariableValue(nodeId, varId, value);
-        InternalCentralReturn(setMode).NodeVariableCallback<T>(nodeThreadId, varId);
+    public void SetVariable<T>(int varId, T value) {
+        GetCentralInst().UpdateVariableValue(nodeId, varId, value);
+        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, varId);
     }
 
-    public void SetVariable<T>(int threadId, string varName, T value, VariableSetMode setMode = VariableSetMode.INSTANCE) {
+    public void SetVariable<T>(int threadId, string varName, T value) {
         int varId = GetVariableId(varName);
-        InternalCentralReturn(setMode).UpdateVariableValue(nodeId, varId, value);
-        InternalCentralReturn(setMode).NodeVariableCallback<T>(threadId, varId);
+        GetCentralInst().UpdateVariableValue(nodeId, varId, value);
+        GetCentralInst().NodeVariableCallback<T>(threadId, varId);
     }
 
-    public void SetVariable<T>(string varName, T value, VariableSetMode setMode = VariableSetMode.INSTANCE) {
+    public void SetVariable<T>(string varName, T value) {
         int varId = GetVariableId(varName);
-        InternalCentralReturn(setMode).UpdateVariableValue(nodeId, varId, value);
-        InternalCentralReturn(setMode).NodeVariableCallback<T>(nodeThreadId, varId);
+        GetCentralInst().UpdateVariableValue(nodeId, varId, value);
+        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, varId);
     }
 
-    public void SetVariable<T>(string varName, VariableSetMode setMode = VariableSetMode.INSTANCE) {
-        InternalCentralReturn(setMode).NodeVariableCallback<T>(nodeThreadId, GetVariableId(varName));
+    public void SetVariable<T>(string varName) {
+        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, GetVariableId(varName));
     }
 
     public int GetVariableId(string varName) {
