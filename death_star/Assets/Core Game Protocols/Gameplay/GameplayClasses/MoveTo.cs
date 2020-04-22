@@ -6,8 +6,8 @@ public class MoveTo : AbilityTreeNode {
 
     protected bool setTarget = true;
 
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);
+    public override void NodeCallback() {
+        base.NodeCallback();
 
         if (setTarget)
         if(CheckIfVarRegionBlocked("Coordinates", "Target")) 

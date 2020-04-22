@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class GetCoordinates : AbilityTreeNode {
 
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);
+    public override void NodeCallback() {
+        base.NodeCallback();
 
         if(CheckIfVarRegionBlocked("Target")) {
             Debug.Log("Passing coords");

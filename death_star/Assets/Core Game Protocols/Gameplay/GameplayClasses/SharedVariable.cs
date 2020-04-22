@@ -70,8 +70,8 @@ public class SharedVariable : AbilityTreeNode {
     public static Dictionary<int, Dictionary<string, VariableInterfaces>> sharedVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
     bool referenceAdded;
 
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);
+    public override void NodeCallback() {
+        base.NodeCallback();
 
         if(!referenceAdded) {
             GetVariableInterface().AddReference(this);

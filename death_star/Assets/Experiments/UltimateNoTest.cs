@@ -4,12 +4,8 @@ using UnityEngine;
 
 public class UltimateNoTest : AbilityTreeNode {
 
-    private void Update() {
-        Debug.Log(name + " " + GetNodeVariable<float>("Num"));
-    }
-
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);
+    public override void NodeCallback() {
+        base.NodeCallback();
 
         Debug.Log(name + " " + GetNodeVariable<float>("Num"));
     }

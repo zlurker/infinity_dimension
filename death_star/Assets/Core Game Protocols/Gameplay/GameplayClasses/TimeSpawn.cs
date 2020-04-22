@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class TimeSpawn : SpawnerBase, IOnSpawn {
 
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);      
+    public override void NodeCallback() {
+        base.NodeCallback();      
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

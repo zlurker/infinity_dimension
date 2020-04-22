@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class MousePos : AbilityTreeNode {
 
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);
+    public override void NodeCallback() {
+        base.NodeCallback();
 
         if(IsClientPlayerUpdate()) {
             Vector3 currPosInWorld = LoadedData.currSceneCamera.ScreenToWorldPoint(Input.mousePosition);

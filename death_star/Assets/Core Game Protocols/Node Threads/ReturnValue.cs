@@ -32,14 +32,14 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         }
     }
 
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);
+    public override void NodeCallback() {
+        base.NodeCallback();
         //Debug.Log("afterset TID: " + threadId);
 
-        threadMap.Add(threadId, new ThreadMapDataBase());
+        threadMap.Add(GetNodeThreadId(), new ThreadMapDataBase());
 
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-        ChildThread trdInst = new ChildThread(GetNodeId(), threadId, this);
+        ChildThread trdInst = new ChildThread(GetNodeId(), GetNodeThreadId(), this);
 
         trdInst.SetNodeData(GetNodeId(), inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
         int threadToUse = inst.AddNewThread(trdInst);

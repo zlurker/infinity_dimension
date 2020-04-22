@@ -13,8 +13,8 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
             lM.Add(id, 3, t1.Item1, t1.Item2, t1.Item3);
     }
 
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);
+    public override void NodeCallback() {
+        base.NodeCallback();
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
 

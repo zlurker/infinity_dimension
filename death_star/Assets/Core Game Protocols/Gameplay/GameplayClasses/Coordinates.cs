@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Coordinates : AbilityTreeNode {
 
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);
+    public override void NodeCallback() {
+        base.NodeCallback();
 
         bool allDataRecv = CheckIfVarRegionBlocked("X", "Y");
 

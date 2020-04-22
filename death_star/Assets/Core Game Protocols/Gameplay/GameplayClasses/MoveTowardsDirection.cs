@@ -21,9 +21,9 @@ public class MoveTowardsDirection : MoveTo {
                 GetTargetTransform().position = dirChangeStart + (normDir * GetNodeVariable<float>("Total Distance"));
     }
 
-    public override void NodeCallback(int threadId) {
+    public override void NodeCallback() {
         setTarget = false;
-        base.NodeCallback(threadId);
+        base.NodeCallback();
 
         allDataRecv = CheckIfVarRegionBlocked("Coordinates", "Target", "Total Distance", "Duration");
 

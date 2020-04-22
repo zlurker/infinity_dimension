@@ -32,8 +32,8 @@ public class GetCoordinatePoint : AbilityTreeNode {
         return null;
     }
 
-    public override void NodeCallback(int threadId) {
-        base.NodeCallback(threadId);
+    public override void NodeCallback() {
+        base.NodeCallback();
 
         if(CheckIfVarRegionBlocked("Coordinate")) {
             Debug.Log("Point value is: " + GetNodeVariable<Vector3>("Coordinate")[GetNodeVariable<int>("Point")]);
