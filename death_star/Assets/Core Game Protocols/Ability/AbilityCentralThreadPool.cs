@@ -167,10 +167,11 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     public Variable ReturnVariable(int node, int variable) {
 
         AbilityTreeNode rootNode = GetRootReferenceNode(node);
+        bool notInstanced = LoadedData.GetVariableType(subclassTypes[node], variable, VariableTypes.NON_INSTANCED);
 
-        if(rootNode != null)
+        if(rootNode != null && !notInstanced)
             return GetRootReferenceCentral(node).ReturnVariable(rootNode.GetNodeId(), variable);
-       
+
         return runtimeParameters[node][variable];
     }
 
@@ -185,7 +186,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     }
 
     public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, int variable) {
-        return ReturnVariable(node,variable).field as RuntimeParameters<T>;
+        return ReturnVariable(node, variable).field as RuntimeParameters<T>;
     }
 
     public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId) {
@@ -304,11 +305,14 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     }
 
     public AbilityTreeNode GetRootReferenceNode(int nodeId) {
-       
+
+        if(AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId] == null)
+            return null;
+
         Tuple<int, int> reference = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].GetReference();
 
         // Returns null if this is the root.
-        if(reference.Item1 == centralId && reference.Item2 == nodeId)
+        if(reference == null || (reference.Item1 == centralId && reference.Item2 == nodeId))
             return null;
 
         AbilityCentralThreadPool refCentral = globalCentralList.l[reference.Item1];
@@ -336,10 +340,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     public void UpdateVariableValue<T>(int nodeId, int variableId, T value, bool runValueChanged = true) {
 
         AbilityTreeNode refNode = GetRootReferenceNode(nodeId);
-        bool instanced = LoadedData.GetVariableType(AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].GetType(), variableId, VariableTypes.NON_INSTANCED);
+        bool notInstanced = LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.NON_INSTANCED);
 
         // If reference is not empty, redirects it to change that variable instead.
-        if(refNode != null && instanced == false) {
+        if(refNode != null && !notInstanced) {
             GetRootReferenceCentral(nodeId).UpdateVariableValue<T>(refNode.GetNodeId(), variableId, value, runValueChanged);
             return;
         }
