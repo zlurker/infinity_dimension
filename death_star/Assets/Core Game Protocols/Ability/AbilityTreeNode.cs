@@ -74,7 +74,7 @@ public class AbilityTreeNode : MonoBehaviour {
         holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node", null),VariableTypes.NON_INSTANCED));
     }
 
-    public virtual void NodeCallback(int threadId) {
+    public virtual void NodeCallback() {
 
         if(reference == null)
             reference = Tuple.Create<int, int>(centralThreadId, nodeId);

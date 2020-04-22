@@ -166,14 +166,11 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return abilityNodeRoot;
     }
 
-    // Base method to get variables
+    // Base method to get variables.
     public Variable ReturnVariable(int node, int variable) {
 
-        AbilityTreeNode rootNode = GetRootReferenceNode(node);
-        bool notInstanced = LoadedData.GetVariableType(subclassTypes[node], variable, VariableTypes.NON_INSTANCED);
-
-        if(rootNode != null && !notInstanced)
-            return GetRootReferenceCentral(node).ReturnVariable(rootNode.GetNodeId(), variable);
+        if(CheckIfReferenced(node, variable))
+            return GetRootReferenceCentral(node).ReturnVariable(nodes[node].GetReference().Item2, variable);
 
         return runtimeParameters[node][variable];
     }
@@ -185,7 +182,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, string vName) {
         int variable = LoadedData.loadedParamInstances[subclassTypes[node]].variableAddresses[vName];
-        return ReturnRuntimeParameter<T>(node, variable);
+        return ReturnVariable(node, variable).field as RuntimeParameters<T>;
     }
 
     public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, int variable) {
@@ -305,6 +302,20 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         NodeVariableCallback<int>(threadId, 0);
     }
 
+    public bool CheckIfReferenced(int nodeId, int variableId) {
+        if(nodes[nodeId] == null)
+            return false;
+
+        Tuple<int, int> reference = nodes[nodeId].GetReference();
+        bool notInstanced = LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.NON_INSTANCED);
+
+        // Returns null if this is the root.
+        if(notInstanced || reference == null || (reference.Item1 == centralId && reference.Item2 == nodeId))
+            return false;
+
+        return true;
+    }
+
     public AbilityCentralThreadPool GetRootReferenceCentral(int nodeId) {
         Tuple<int, int> reference = nodes[nodeId].GetReference();
         return globalCentralList.l[reference.Item1];
@@ -316,13 +327,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             return null;
 
         Tuple<int, int> reference = nodes[nodeId].GetReference();
-
-        // Returns null if this is the root.
-        if(reference == null || (reference.Item1 == centralId && reference.Item2 == nodeId))
-            return null;
-
-        AbilityCentralThreadPool refCentral = globalCentralList.l[reference.Item1];
-        return refCentral.GetNode(reference.Item2);
+        return globalCentralList.l[reference.Item1].GetNode(reference.Item2);
     }
 
     public NETWORK_CLIENT_ELIGIBILITY CheckEligibility(int nodeId, int variableId) {
@@ -345,12 +350,13 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     public void UpdateVariableValue<T>(int nodeId, int variableId, T value, bool runValueChanged = true) {
 
-        AbilityTreeNode refNode = GetRootReferenceNode(nodeId);
-        bool notInstanced = LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.NON_INSTANCED);
+        bool reference = CheckIfReferenced(nodeId, variableId);
+
 
         // If reference is not empty, redirects it to change that variable instead.
-        if(refNode != null && !notInstanced) {
-            GetRootReferenceCentral(nodeId).UpdateVariableValue<T>(refNode.GetNodeId(), variableId, value, runValueChanged);
+        if(reference) {
+            Tuple<int, int> refLink = nodes[nodeId].GetReference();
+            GetRootReferenceCentral(nodeId).UpdateVariableValue<T>(refLink.Item2, variableId, value, runValueChanged);
             return;
         }
 
@@ -482,7 +488,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             }
 
 
-            nextNodeInst.NodeCallback(threadIdToUse);
+            if(CheckIfReferenced(nodeId, nodeVariableId)) 
+                GetRootReferenceNode(nodeId).NodeCallback();
+             else
+                nextNodeInst.NodeCallback();
 
             // Automatically callback all auto managed nodes.
             for(int j = 0; j < autoManagedVar[nodeId].Length; j++)
