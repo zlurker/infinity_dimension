@@ -13,7 +13,7 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
 
         if(objLoc != null) {
             AbilityCentralThreadPool central = NetworkObjectTracker.inst.ReturnNetworkObject(objLoc[0]) as AbilityCentralThreadPool;
-            AbilityTreeNode inst = globalList.l[central.GetAbilityNodeId()].abiNodes[objLoc[1]];
+            AbilityTreeNode inst = GetCentralInst().GetNode(objLoc[1]);
             SetVariable<AbilityTreeNode>("On Collide", inst);
         }
     }

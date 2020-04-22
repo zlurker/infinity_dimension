@@ -23,8 +23,6 @@ public class AbilityNodeHolder {
 
 public class AbilityTreeNode : MonoBehaviour {
 
-    public static EnhancedList<AbilityNodeHolder> globalList = new EnhancedList<AbilityNodeHolder>();
-
     // Given node ID.
     private int nodeId;
     private int centralThreadId;

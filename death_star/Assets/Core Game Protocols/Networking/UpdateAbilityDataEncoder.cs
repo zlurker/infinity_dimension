@@ -16,9 +16,8 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         }
 
         public override void UpdateCentral(AbilityCentralThreadPool centralInst) {
-            int abilityNodes = centralInst.GetAbilityNodeId();
 
-            int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
+            int nTID = centralInst.GetNode(ability).GetNodeThreadId();
 
             if(nTID > -1) {
                 centralInst.UpdateVariableValue<T>(ability, var, value);

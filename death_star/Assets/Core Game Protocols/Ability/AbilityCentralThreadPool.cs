@@ -108,6 +108,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     private Variable[][] runtimeParameters;
     private Type[] subclassTypes;
+    private Transform abilityNodeRoot;
+    private AbilityTreeNode[] nodes;
 
     private int[] nodeBranchingData;
 
@@ -115,9 +117,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     private bool[][] booleanData;
 
     private int[][] autoManagedVar;
-
-    // Link to ability nodes
-    private int abilityNodes;
 
     private int playerCasted;
 
@@ -159,8 +158,12 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     }
     #endregion
 
-    public int GetAbilityNodeId() {
-        return abilityNodes;
+    public AbilityTreeNode GetNode(int id) {
+        return nodes[id];
+    }
+
+    public Transform GetAbilityRoot() {
+        return abilityNodeRoot;
     }
 
     // Base method to get variables
@@ -189,15 +192,18 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return ReturnVariable(node, variable).field as RuntimeParameters<T>;
     }
 
-    public void SetCentralData(int tId, int nId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId) {
+    public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId) {
+
+        abilityNodeRoot = new GameObject(tId.ToString()).transform;
+
         centralId = tId;
-        abilityNodes = nId;
         runtimeParameters = rP;
         subclassTypes = sT;
         nodeBranchingData = nBD;
         booleanData = aBD;
         autoManagedVar = amVar;
         centralClusterId = cId;
+        nodes = new AbilityTreeNode[rP.Length];
 
         onChanged = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
         onGet = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
@@ -300,23 +306,23 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     }
 
     public AbilityCentralThreadPool GetRootReferenceCentral(int nodeId) {
-        Tuple<int, int> reference = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].GetReference();
+        Tuple<int, int> reference = nodes[nodeId].GetReference();
         return globalCentralList.l[reference.Item1];
     }
 
     public AbilityTreeNode GetRootReferenceNode(int nodeId) {
 
-        if(AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId] == null)
+        if(nodes[nodeId] == null)
             return null;
 
-        Tuple<int, int> reference = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].GetReference();
+        Tuple<int, int> reference = nodes[nodeId].GetReference();
 
         // Returns null if this is the root.
         if(reference == null || (reference.Item1 == centralId && reference.Item2 == nodeId))
             return null;
 
         AbilityCentralThreadPool refCentral = globalCentralList.l[reference.Item1];
-        return AbilityTreeNode.globalList.l[refCentral.GetAbilityNodeId()].abiNodes[reference.Item2];
+        return refCentral.GetNode(reference.Item2);
     }
 
     public NETWORK_CLIENT_ELIGIBILITY CheckEligibility(int nodeId, int variableId) {
@@ -381,9 +387,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 foreach(var changeCallback in onChanged[id]) {
                     //Debug.Log(changeCallback.Item1);
                     //Debug.Log(changeCallback.Item2);
-                    int abilityNodes = globalCentralList.l[changeCallback.Item1].abilityNodes;
 
-                    OnValueChange valChangeNode = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[changeCallback.Item2] as OnValueChange;
+                    OnValueChange valChangeNode = nodes[changeCallback.Item2] as OnValueChange;
                     valChangeNode.HandleSettingOnChange<T>(valuePair);
                 }
 
@@ -494,7 +499,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         if(sharedInstance.ContainsKey(currNode))
             foreach(var inst in sharedInstance[currNode]) {
                 Debug.LogFormat("Central {0} Node {1} is a instance to be set.", inst.Item1, inst.Item2);
-                AbilityTreeNode selectedNode = AbilityTreeNode.globalList.l[globalCentralList.l[inst.Item1].GetAbilityNodeId()].abiNodes[inst.Item2];
+                AbilityTreeNode selectedNode = globalCentralList.l[inst.Item1].GetNode(inst.Item2);
 
                 globalCentralList.l[inst.Item1].UpdateVariableData<T>(selectedNode.GetNodeThreadId(), variableId, var);
                 //AbilityTreeNode.globalList.l[inst.Item1].abiNodes[inst.Item2].SetVariable<T>(variableId, var.v, VariableSetMode.LOCAL);
@@ -523,25 +528,25 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {
 
-        if(!AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId]) {
+        if(!nodes[nodeId]) {
 
             // Tries to convert type into a singleton to see if it exist.
             if(LoadedData.singletonList.ContainsKey(subclassTypes[nodeId]))
-                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId] = LoadedData.singletonList[subclassTypes[nodeId]] as AbilityTreeNode;
+                nodes[nodeId] = LoadedData.singletonList[subclassTypes[nodeId]] as AbilityTreeNode;
 
-            if(AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId] == null) {
+            if(nodes[nodeId] == null) {
                 SpawnerOutput sOInst = LoadedData.GetSingleton<Spawner>().CreateScriptedObject(subclassTypes[nodeId]);
-                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId] = sOInst.script as AbilityTreeNode;
-                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].SetSourceObject(sOInst);
+                nodes[nodeId] = sOInst.script as AbilityTreeNode;
+                nodes[nodeId].SetSourceObject(sOInst);
 
                 // Changes its name
-                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].name = networkObjectId.ToString() + '/' + nodeId.ToString();
+                nodes[nodeId].name = networkObjectId.ToString() + '/' + nodeId.ToString();
 
                 // Adds it to root
-                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId].transform.SetParent(AbilityTreeNode.globalList.l[abilityNodes].abilityNodeRoot);
+                nodes[nodeId].transform.SetParent(abilityNodeRoot);
             }
 
-            AbilityTreeNode inst = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId];
+            AbilityTreeNode inst = nodes[nodeId];
 
             inst.SetNodeThreadId(-1);
             inst.SetNodeId(nodeId);
@@ -549,13 +554,13 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             return inst;
         }
 
-        return AbilityTreeNode.globalList.l[abilityNodes].abiNodes[nodeId];
+        return nodes[nodeId];
     }
 
     public void RenameAllNodes() {
-        for(int i = 0; i < AbilityTreeNode.globalList.l[abilityNodes].abiNodes.Length; i++)
-            if(AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i] != null)
-                AbilityTreeNode.globalList.l[abilityNodes].abiNodes[i].name = networkObjectId.ToString() + '/' + i.ToString();
+        for(int i = 0; i < nodes.Length; i++)
+            if(nodes[i] != null)
+                nodes[i].name = networkObjectId.ToString() + '/' + i.ToString();
     }
 
 

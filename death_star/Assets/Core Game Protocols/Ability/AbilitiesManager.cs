@@ -228,8 +228,7 @@ public class AbilityData : IInputCallback<int> {
 
         int tId = AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
-        AbilityTreeNode[] a = new AbilityTreeNode[dataVar.Length];
-        int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
+        //int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
         Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
 
         Debug.Log(boolData.OutputValues());
@@ -240,7 +239,7 @@ public class AbilityData : IInputCallback<int> {
             clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
         AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(tId);
-        threadInst.SetCentralData(tId, nId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId);
+        threadInst.SetCentralData(tId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }

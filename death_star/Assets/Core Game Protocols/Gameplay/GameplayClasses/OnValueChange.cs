@@ -21,7 +21,7 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         int[][] links = centralInst.ReturnVariable(GetNodeId(), "Empty link storage").links;
 
         for(int i = 0; i < links.Length; i++) {
-            AbilityTreeNode originatorNode = globalList.l[GetCentralId()].abiNodes[links[i][0]];
+            AbilityTreeNode originatorNode = GetCentralInst().GetNode(links[i][0]);
             //Tuple<int,int> linkTup = originatorNode.GetReference();
 
             //originatorNode = globalList.l[linkTup.Item1].abiNodes[linkTup.Item2];
@@ -59,7 +59,7 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         int[] modifiedReturn = centralInst.ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
 
         for(int i = 0; i < links.Length; i++) {
-            Tuple<int, int> linkTup = globalList.l[GetCentralId()].abiNodes[links[i][0]].GetReference();
+            Tuple<int, int> linkTup = GetCentralInst().GetNode(links[i][0]).GetReference();
             int[] idParams = new int[] { GetCentralId(),links[i][0],links[i][1] };
 
             Debug.Log("Running mod method");
