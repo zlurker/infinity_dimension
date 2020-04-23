@@ -69,11 +69,10 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
         inst.GetActiveThread(parentThread).SetPossiblePaths(inst.ReturnVariable(GetNodeId(), "Internal Redirect").links.Length);
 
-        
-
         Debug.LogFormat("Redirecting variable now. Variable is: {0}. Number of Links: {1}.",rP.v ,inst.ReturnVariable(GetNodeId(), "Internal Redirect").links.Length);
+        Debug.Log("currnode:" + inst.GetActiveThread(parentThread).GetCurrentNodeID());
 
 
-        SetVariable("Internal Redirect", rP.v);
+        SetVariable(parentThread,"Internal Redirect", rP.v);
     }
 }
