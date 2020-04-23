@@ -36,30 +36,17 @@ public class NodeThread {
     protected int generatedNodeThreads;
     protected int possiblePaths;
 
-    // To be used if thread overlaps with thread on the same node.
-    int jointThread;
-
     public NodeThread(int sPt) {
 
         startingPt = sPt;
         currNode = -1;
-        jointThread = -1;
     }
 
     public int GetStartingPoint() {
         return startingPt;
     }
 
-    public void JoinThread(int thread) {
-        jointThread = thread;
-    }
-
-    public int GetJointThread() {
-        return jointThread;
-    }
-
     public void SetNodeData(int cN, int pS) {
-        jointThread = -1;
         currNode = cN;
         SetPossiblePaths(pS);
     }
@@ -192,7 +179,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId) {
 
         abilityNodeRoot = new GameObject(tId.ToString()).transform;
-        Debug.Log("Ability created.");
+        //Debug.Log("Ability created.");
 
         centralId = tId;
         runtimeParameters = rP;
@@ -395,8 +382,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 foreach(var changeCallback in onChanged[id]) {
                     //Debug.Log(changeCallback.Item1);
                     //Debug.Log(changeCallback.Item2);
-
-                    OnValueChange valChangeNode = nodes[changeCallback.Item2] as OnValueChange;
+                    Debug.LogFormat("Routing to variable on change central {0}, node {1}", changeCallback.Item1, changeCallback.Item2);
+                    OnValueChange valChangeNode = globalCentralList.l[changeCallback.Item1].GetNode(changeCallback.Item2) as OnValueChange;
                     valChangeNode.HandleSettingOnChange<T>(valuePair);
                 }
 
@@ -428,13 +415,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     }
 
     public void UpdateVariableData<T>(int threadId, int variableId, RuntimeParameters<T> var = null) {
-        Debug.Log("Threadid" + threadId);
 
         if(threadId == -1)
             return;
 
-
-        int jointThreadId = activeThreads.l[threadId].GetJointThread();
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         int[][] links = runtimeParameters[currNode][variableId].links;
 
@@ -442,7 +426,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             var = ReturnRuntimeParameter<T>(currNode, variableId);
         //Debug.LogFormat("Central ID: {0}, Node Id: {1}, Variable ID: {2}, Value {3}", centralId, currNode, variableId, var.v);
 
-        Debug.LogFormat("Thread: {0}, CurrNode to be Set: {1}", threadId, currNode);
+        //Debug.LogFormat("Thread: {0}, CurrNode to be Set: {1}", threadId, currNode);
 
         for(int i = 0; i < links.Length; i++) {
 
@@ -487,12 +471,13 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             int existingThread = nextNodeInst.GetNodeThreadId();
 
-            nextNodeInst.SetNodeThreadId(threadIdToUse);
-
             if(existingThread > -1) {
-                Debug.LogFormat("Thread {0} trying to join existing Thread{1}", threadIdToUse, existingThread);
-                activeThreads.l[threadIdToUse].JoinThread(existingThread);
+                Debug.Log("Remove existing thread: " + existingThread);
+                HandleThreadRemoval(existingThread);
+                //activeThreads.l[threadIdToUse](existingThread);
             }
+
+            nextNodeInst.SetNodeThreadId(threadIdToUse);
 
 
             if(CheckIfReferenced(nodeId, nodeVariableId))
@@ -502,7 +487,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             // Automatically callback all auto managed nodes.
             for(int j = 0; j < autoManagedVar[nodeId].Length; j++)
-                runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
+
+                // Callback those that are not blocked.
+                if(!booleanData[nodeId][autoManagedVar[nodeId][j]])
+                    runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
 
 
             // Checks if node has no more output
@@ -515,8 +503,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
 
 
-        if(jointThreadId > -1)
-            UpdateVariableData<T>(jointThreadId, variableId);
+        //if(jointThreadId > -1)
+        //UpdateVariableData<T>(jointThreadId, variableId);
 
         // All these exist outside of thread removal and handling. Need to move it somewhere else.
 
@@ -524,12 +512,12 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         // Updates the other instances.
         if(sharedInstance.ContainsKey(currNode))
             foreach(var inst in sharedInstance[currNode]) {
-                Debug.LogFormat("Central {0} Node {1} is a instance to be set.", inst.Item1, inst.Item2);
+                //Debug.LogFormat("Central {0} Node {1} is a instance to be set.", inst.Item1, inst.Item2);
                 AbilityCentralThreadPool centralInst = globalCentralList.l[inst.Item1];
 
-                Debug.LogFormat("pregame Central ID: {0}, Node Id: {1}, Variable ID: {2}, Value {3}, Type{4}", inst.Item1, inst.Item2, variableId, var.v, typeof(T));
-                Debug.Log("Thread ID" + centralInst.GetNode(inst.Item2).GetNodeThreadId());
-                //centralInst.UpdateVariableData<T>(centralInst.GetNode(inst.Item2).GetNodeThreadId(), variableId, var);
+                //Debug.LogFormat("pregame Central ID: {0}, Node Id: {1}, Variable ID: {2}, Value {3}, Type{4}", inst.Item1, inst.Item2, variableId, var.v, typeof(T));
+                //Debug.Log("Thread ID" + centralInst.GetNode(inst.Item2).GetNodeThreadId());
+                centralInst.UpdateVariableData<T>(centralInst.GetNode(inst.Item2).GetNodeThreadId(), variableId, var);
             }
 
     }
@@ -548,9 +536,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         if(activeThreads.GetActiveElementsLength() == 0) {
             Debug.Log("All thread operations has ended.");
-
-            for(int i = 0; i < nodes.Length; i++)
-                Debug.Log("NT ID: " + nodes[i].GetNodeThreadId());
         }
     }
 

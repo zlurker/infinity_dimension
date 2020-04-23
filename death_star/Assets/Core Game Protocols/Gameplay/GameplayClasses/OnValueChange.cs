@@ -49,8 +49,8 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         }
     }
 
-    public override void ThreadZeroed(int parentThread, int lastChildThread) {
-        base.ThreadZeroed(parentThread, lastChildThread);
+    public override void ThreadZeroed(int parentThread) {
+        base.ThreadZeroed(parentThread);
         threadMap.Remove(parentThread);
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
@@ -86,8 +86,8 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         int[] varToReturn = GetCentralInst().ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
 
         RuntimeParameters<T> rP = GetCentralInst().ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
-        Debug.Log("Returning central " + inst);
-        Debug.Log("Returning modified variable  " + rP.v );
+        //Debug.Log("Returning central " + inst);
+        Debug.LogFormat("Returning modified variable {0} to id: {1},{2} ", rP.v, idParams[1], idParams[2]);
         inst.UpdateVariableValue<T>(idParams[1], idParams[2], rP.v,false);
     }
 }

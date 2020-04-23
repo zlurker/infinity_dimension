@@ -231,7 +231,7 @@ public class AbilityData : IInputCallback<int> {
         //int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
         Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
 
-        Debug.Log(boolData.OutputValues());
+        //Debug.Log(boolData.OutputValues());
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
         // Rather than create new instance, everything except variables will be taken from here.
