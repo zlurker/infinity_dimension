@@ -192,6 +192,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId) {
 
         abilityNodeRoot = new GameObject(tId.ToString()).transform;
+        Debug.Log("Ability created.");
 
         centralId = tId;
         runtimeParameters = rP;
@@ -351,8 +352,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     public void UpdateVariableValue<T>(int nodeId, int variableId, T value, bool runValueChanged = true) {
 
         bool reference = CheckIfReferenced(nodeId, variableId);
-
-
+        
         // If reference is not empty, redirects it to change that variable instead.
         if(reference) {
             Tuple<int, int> refLink = nodes[nodeId].GetReference();
@@ -439,10 +439,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
 
 
-        if(var == null) {
+        if(var == null) 
             var = ReturnRuntimeParameter<T>(currNode,variableId);
-            Debug.LogFormat("Central ID: {0}, Node Id: {1}, Variable ID: {2}, Value {3}", centralId, currNode, variableId, var.v);
-        }
+            //Debug.LogFormat("Central ID: {0}, Node Id: {1}, Variable ID: {2}, Value {3}", centralId, currNode, variableId, var.v);
+        
 
         for(int i = 0; i < links.Length; i++) {
 
@@ -511,13 +511,14 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             }
         }
 
+        Debug.Log("CurrNode to be Set: " + currNode);
         // Updates the other instances.
         if(sharedInstance.ContainsKey(currNode))
             foreach(var inst in sharedInstance[currNode]) {
                 Debug.LogFormat("Central {0} Node {1} is a instance to be set.", inst.Item1, inst.Item2);
                 AbilityCentralThreadPool centralInst = globalCentralList.l[inst.Item1];
 
-                Debug.LogFormat("pregame Central ID: {0}, Node Id: {1}, Variable ID: {2}, Value {3}", inst.Item1, inst.Item2, variableId, var.v);
+                Debug.LogFormat("pregame Central ID: {0}, Node Id: {1}, Variable ID: {2}, Value {3}, Type{4}", inst.Item1, inst.Item2, variableId, var.v, typeof(T));
                 centralInst.UpdateVariableData<T>(centralInst.GetNode(inst.Item2).GetNodeThreadId(), variableId, var);
             }
 

@@ -28,7 +28,8 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
             // Removes main connection from the list.
             lM.Remove(t1.Item1, t1.Item2, t1.Item4);
-            lM.Add(id, 2, t1.Item1, t1.Item2, t1.Item3);
+            Debug.LogFormat("Added {0}, {1}, {2} to return", t1.Item1, t1.Item2, t1.Item3);
+            lM.Add(id, 3, t1.Item1, t1.Item2, t1.Item3);
         }
     }
 
@@ -58,7 +59,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
 
     public void RunAccordingToGeneric<T, P>(P arg) {
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+        AbilityCentralThreadPool inst = GetCentralInst();
 
         int parentThread = (int)(object)arg;
 
@@ -66,9 +67,13 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
         RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
 
-        Debug.Log("Redirecting variable.");
-
         inst.GetActiveThread(parentThread).SetPossiblePaths(inst.ReturnVariable(GetNodeId(), "Internal Redirect").links.Length);
+
+        
+
+        Debug.LogFormat("Redirecting variable now. Variable is: {0}. Number of Links: {1}.",rP.v ,inst.ReturnVariable(GetNodeId(), "Internal Redirect").links.Length);
+
+
         SetVariable("Internal Redirect", rP.v);
     }
 }

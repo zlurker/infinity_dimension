@@ -98,6 +98,8 @@ public class AbilityTreeNode : MonoBehaviour {
                 // Adds current reference and creates a new instance according to reference.
                 reference = refNode.reference;
                 GetInstanceCentralInst().AddSharedInstance(reference.Item2, id);
+
+                Debug.LogFormat("Reference set. Reference: {0}. This: {1}", reference.Item2, nodeId);
             } else {
 
                 GetCentralInst().SetNodeBoolValue(true, nodeId, 0);
@@ -118,7 +120,7 @@ public class AbilityTreeNode : MonoBehaviour {
 
         for(int i = 0; i < target.Length; i++)
             if(nodeBoolValues[GetVariableId(target[i])]) {
-                Debug.LogWarning(target[i] + " is returning false.");
+                //Debug.LogWarning(target[i] + " is returning false.");
                 return false;
             }
 

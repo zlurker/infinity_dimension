@@ -10,7 +10,7 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         foreach(var t1 in linkData[id].lHS)
 
             // Adds all those who called this node into empty link storage.
-            lM.Add(id, 3, t1.Item1, t1.Item2, t1.Item3);
+            lM.Add(id, 4, t1.Item1, t1.Item2, t1.Item3);
     }
 
     public override void NodeCallback() {

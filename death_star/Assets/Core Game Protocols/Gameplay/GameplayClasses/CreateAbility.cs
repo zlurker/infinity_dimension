@@ -52,6 +52,6 @@ public class CreateAbility : AbilityTreeNode {
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<string>("Ability Name", "")));
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<string>("Ability Name", ""),VariableTypes.HOST_ACTIVATED));
     }
 }
