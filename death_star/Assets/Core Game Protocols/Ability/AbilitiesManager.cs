@@ -182,15 +182,17 @@ public class AbilityData : IInputCallback<int> {
 
             for(int j = 0; j < dataVar[i].Length; j++) {
 
-                bool signal = LoadedData.GetVariableType(dataType[i], j, VariableTypes.SIGNAL_ONLY);
+                
                 bool interchangeable = LoadedData.GetVariableType(dataType[i], j, VariableTypes.INTERCHANGEABLE);
                 AutoPopulationList<List<int[]>> varLinks = new AutoPopulationList<List<int[]>>(1);
 
                 for(int k = 0; k < dataVar[i][j].links.Length; k++) {
                     int[] currLink = dataVar[i][j].links[k];
 
+                    bool signal = currLink[2] == (int)LinkMode.SIGNAL ? true : false;//LoadedData.GetVariableType(dataType[i], j, VariableTypes.SIGNAL_ONLY);
                     // Marks target as true so it will be blocked.
-                    if((dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t && !signal) || interchangeable) {
+                    if (!signal)
+                    if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t || interchangeable) {
                         boolData.varsBlocked[currLink[0]][currLink[1]] = true;
                         Debug.LogFormat("From Node {0} Variable {1} link {2} name {3}", i, j,k, dataVar[i][j].field.n);
                         Debug.LogFormat("To Node {0} Variable {1} link {2} signal {3} interchange {4} name {5}", currLink[0], currLink[1], k,signal,interchangeable, dataVar[i][j].field.n);

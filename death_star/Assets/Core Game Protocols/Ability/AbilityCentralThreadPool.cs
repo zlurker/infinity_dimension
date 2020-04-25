@@ -115,7 +115,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     private Dictionary<int, List<AbilityNodeNetworkData>> networkNodeData;
 
     private Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> onChanged;
-    private Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> onGet;
+    //private Dictionary<int, HashSet<Tuple<int, int>>> onGet;
 
     private Dictionary<int, HashSet<Tuple<int, int>>> sharedInstance;
 
@@ -176,6 +176,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return ReturnVariable(node, variable).field as RuntimeParameters<T>;
     }
 
+    public int ReturnCentralId() {
+        return centralId;
+    }
+
     public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId) {
 
         abilityNodeRoot = new GameObject(tId.ToString()).transform;
@@ -191,7 +195,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         nodes = new AbilityTreeNode[rP.Length];
 
         onChanged = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
-        onGet = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
+        //onGet = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
         sharedInstance = new Dictionary<int, HashSet<Tuple<int, int>>>();
     }
 
