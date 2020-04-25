@@ -37,10 +37,10 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         base.NodeCallback();
         //Debug.Log("afterset TID: " + threadId);
 
-        threadMap.Add(GetNodeThreadId(), new ThreadMapDataBase());
+        threadMap.Add(latestThread, new ThreadMapDataBase());
 
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
-        ChildThread trdInst = new ChildThread(GetNodeId(), GetNodeThreadId(), this);
+        ChildThread trdInst = new ChildThread(GetNodeId(), latestThread, this);
 
         trdInst.SetNodeData(GetNodeId(), inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
         int threadToUse = inst.AddNewThread(trdInst);

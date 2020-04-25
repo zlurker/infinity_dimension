@@ -14,6 +14,18 @@ public class ThreadMapDataBase {
 public class NodeModifierBase : AbilityTreeNode {
 
     protected Dictionary<int, ThreadMapDataBase> threadMap = new Dictionary<int, ThreadMapDataBase>();
+    protected int latestThread;
+    protected bool destroyOverridenThreads;
+
+    public override void NodeCallback() {
+        base.NodeCallback();
+
+        latestThread = GetNodeThreadId();
+
+        // Sets it to be -ve 1 so current thread will not be overrode/deleted.
+        if(!destroyOverridenThreads)
+            SetNodeThreadId(-1);
+    }
 
     public override void ThreadEndStartCallback(int threadId) {
 
@@ -26,9 +38,9 @@ public class NodeModifierBase : AbilityTreeNode {
             int parentThread = (nT as ChildThread).GetOriginalThread();
             threadMap[parentThread].totalThreadsSpawned--;
 
-            if(threadMap[parentThread].totalThreadsSpawned == 0) 
-                ThreadZeroed(parentThread);            
-            
+            if(threadMap[parentThread].totalThreadsSpawned == 0)
+                ThreadZeroed(parentThread);
+
             // Checks if node is already empty with no more threads.
             if(threadMap.Count == 0) {
                 Debug.Log("Threadmap empty. Setting node thread id to -1.");

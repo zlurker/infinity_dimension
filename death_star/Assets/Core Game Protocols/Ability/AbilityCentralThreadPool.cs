@@ -388,7 +388,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                     //Debug.Log(changeCallback.Item2);
                     Debug.LogFormat("Routing to variable on change central {0}, node {1}", changeCallback.Item1, changeCallback.Item2);
                     OnValueChange valChangeNode = globalCentralList.l[changeCallback.Item1].GetNode(changeCallback.Item2) as OnValueChange;
-                    valChangeNode.HandleSettingOnChange<T>(valuePair);
+                    valChangeNode.HandleSettingOnChange<T>(valuePair, new int[] { centralId,nodeId,variableId });
                 }
 
                 onChanged.Remove(id);
@@ -523,7 +523,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 //Debug.Log("Thread ID" + centralInst.GetNode(inst.Item2).GetNodeThreadId());
                 centralInst.UpdateVariableData<T>(centralInst.GetNode(inst.Item2).GetNodeThreadId(), variableId, var);
             }
-
     }
 
     public void HandleThreadRemoval(int threadId) {
@@ -538,9 +537,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         //Debug.LogFormat("{0} threadIdRemoved, 1st Element: {1}", threadId, activeThreads.ReturnActiveElementIndex()[0]);
 
-        if(activeThreads.GetActiveElementsLength() == 0) {
-            Debug.Log("All thread operations has ended.");
-        }
+        if(activeThreads.GetActiveElementsLength() == 0) 
+            Debug.Log("All thread operations has ended.");        
     }
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {

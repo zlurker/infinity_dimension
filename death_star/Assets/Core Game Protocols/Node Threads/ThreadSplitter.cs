@@ -24,8 +24,8 @@ public class ThreadSplitter : NodeModifierBase {
         base.NodeCallback();
 
         Debug.LogFormat("Thread ID {0} has called threadsplitter.", GetNodeThreadId());
-        threadMap.Add(GetNodeThreadId(), new SplitterData());
-        ProcessThreads(GetNodeThreadId());
+        threadMap.Add(latestThread, new SplitterData());
+        ProcessThreads(latestThread);
     }
 
 

@@ -3,7 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+public class OnChangeDataBase: ThreadMapDataBase {
+
+    public int[] centralId;
+
+    public OnChangeDataBase(params int[] cId) {
+        centralId = cId;
+    }
+}
+
 public class OnValueChange : NodeModifierBase, IRPGeneric {
+
+    List<int> unusedKeys = new List<int>();
 
     public override void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
 
@@ -14,6 +25,7 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
     }
 
     public override void NodeCallback() {
+        destroyOverridenThreads = true;
         base.NodeCallback();
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
@@ -22,50 +34,55 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
 
         for(int i = 0; i < links.Length; i++) {
             AbilityTreeNode originatorNode = GetCentralInst().GetNode(links[i][0]);
-            //Tuple<int,int> linkTup = originatorNode.GetReference();
-
-            //originatorNode = globalList.l[linkTup.Item1].abiNodes[linkTup.Item2];
-
-            //Debug.LogFormat("Link added: {0}, Id1: {1}, Id2: {2}", linkTup, GetCentralId(),GetNodeId());
-
-            //AbilityCentralThreadPool rootCentral
 
             GetCentralInst().GetRootReferenceCentral(links[i][0]).AddOnChanged(Tuple.Create<int, int>(originatorNode.GetReference().Item2, links[i][1]), Tuple.Create<int, int>(GetCentralId(), GetNodeId()));
-            //originatorNode.GetInstanceCentralInst().AddOnChanged(originatorNode.GetReference(),Tuple.Create<int,int>(GetCentralId(),GetNodeId()));
         }
     }
 
-    public void HandleSettingOnChange<T>(T[] valuePair) {
+    public void HandleSettingOnChange<T>(T[] valuePair, params int[] centralId) {
 
-        if (GetNodeThreadId() > -1) {
-            threadMap.Add(GetNodeThreadId(), new ThreadMapDataBase());
-            ChildThread cT = new ChildThread(GetNodeId(), GetNodeThreadId(), this);
 
-            AbilityCentralThreadPool inst = GetCentralInst();
+        
 
-            int totalLinks = inst.ReturnVariable(GetNodeId(), "Old Value").links.Length + inst.ReturnVariable(GetNodeId(), "New Value").links.Length;
-            cT.SetNodeData(GetNodeId(), totalLinks);
-            int threadToUse = inst.AddNewThread(cT);
+        // Generate unique key as parents because we do not need any parents in this.
+        int dictKey = threadMap.Count;
 
-            SetVariable<T>(threadToUse,"Old Value", valuePair[0]);
-            SetVariable<T>(threadToUse,"New Value", valuePair[1]);
+        if(unusedKeys.Count > 0) {
+            dictKey = unusedKeys[unusedKeys.Count - 1];
+            unusedKeys.RemoveAt(unusedKeys.Count - 1);
         }
+
+        threadMap.Add(dictKey, new OnChangeDataBase(centralId));
+        ChildThread cT = new ChildThread(GetNodeId(), dictKey, this);
+
+        AbilityCentralThreadPool inst = GetCentralInst();
+
+        int totalLinks = inst.ReturnVariable(GetNodeId(), "Old Value").links.Length + inst.ReturnVariable(GetNodeId(), "New Value").links.Length;
+        cT.SetNodeData(GetNodeId(), totalLinks);
+        int threadToUse = inst.AddNewThread(cT);
+
+        SetVariable<T>(threadToUse, "Old Value", valuePair[0]);
+        SetVariable<T>(threadToUse, "New Value", valuePair[1]);
     }
 
     public override void ThreadZeroed(int parentThread) {
         base.ThreadZeroed(parentThread);
-        threadMap.Remove(parentThread);
+
+        
+        
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
         int[][] links = centralInst.ReturnVariable(GetNodeId(), "Empty link storage").links;
         int[] modifiedReturn = centralInst.ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
 
-        for(int i = 0; i < links.Length; i++) {
-            int[] idParams = new int[] { links[i][0],links[i][1] };
-
-            centralInst.ReturnVariable(modifiedReturn[0],modifiedReturn[1]).field.RunGenericBasedOnRP<int[]>(this, idParams);
-        }       
+        //for(int i = 0; i < links.Length; i++) {
+        OnChangeDataBase oCDB = threadMap[parentThread] as OnChangeDataBase;
+        //int[] idParams = new int[] { links[i][0], links[i][1] };
+            centralInst.ReturnVariable(modifiedReturn[0], modifiedReturn[1]).field.RunGenericBasedOnRP<int[]>(this, oCDB.centralId);
+        //}
+        unusedKeys.Add(parentThread);
+        threadMap.Remove(parentThread);
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
@@ -80,15 +97,15 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {
-        
+
         int[] idParams = (int[])(object)arg;
-        AbilityCentralThreadPool inst = GetCentralInst();
+        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[idParams[0]];
 
-        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
+        int[] varToReturn = GetCentralInst().ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
 
-        RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
+        RuntimeParameters<T> rP = GetCentralInst().ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
         //Debug.Log("Returning central " + inst);
-        Debug.LogFormat("Returning modified variable {0} to id: {1},{2} ", rP.v, idParams[0], idParams[1]);
-        inst.UpdateVariableValue<T>(idParams[0], idParams[1], rP.v,false);
+        Debug.LogFormat("Returning modified variable {0} to id: {1},{2} ", rP.v, idParams[1], idParams[2]);
+        inst.UpdateVariableValue<T>(idParams[1], idParams[2], rP.v, false);
     }
 }
