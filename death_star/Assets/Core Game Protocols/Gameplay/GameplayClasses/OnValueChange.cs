@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class OnChangeDataBase: ThreadMapDataBase {
+public class OnChangeDataBase : ThreadMapDataBase {
 
     public int[] centralId;
 
@@ -14,7 +14,7 @@ public class OnChangeDataBase: ThreadMapDataBase {
 
 public class OnValueChange : NodeModifierBase, IRPGeneric {
 
-    List<int> unusedKeys = new List<int>();
+    List<int> recievedThreads = new List<int>();
 
     public override void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
 
@@ -25,7 +25,6 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
     }
 
     public override void NodeCallback() {
-        destroyOverridenThreads = true;
         base.NodeCallback();
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
@@ -35,21 +34,25 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         for(int i = 0; i < links.Length; i++) {
             AbilityTreeNode originatorNode = GetCentralInst().GetNode(links[i][0]);
 
-            GetCentralInst().GetRootReferenceCentral(links[i][0]).AddOnChanged(Tuple.Create<int, int>(originatorNode.GetReference().Item2, links[i][1]), Tuple.Create<int, int>(GetCentralId(), GetNodeId()));
+            bool added = GetCentralInst().GetRootReferenceCentral(links[i][0]).AddOnChanged(Tuple.Create<int, int>(originatorNode.GetReference().Item2, links[i][1]), Tuple.Create<int, int>(GetCentralId(), GetNodeId()));
+
+            if(added)
+                recievedThreads.Add(latestThread);
+            else
+                GetCentralInst().HandleThreadRemoval(latestThread);
         }
     }
 
     public void HandleSettingOnChange<T>(T[] valuePair, params int[] centralId) {
 
+        int dictKey = -1;
 
-        
-
-        // Generate unique key as parents because we do not need any parents in this.
-        int dictKey = threadMap.Count;
-
-        if(unusedKeys.Count > 0) {
-            dictKey = unusedKeys[unusedKeys.Count - 1];
-            unusedKeys.RemoveAt(unusedKeys.Count - 1);
+        if(recievedThreads.Count > 0) {
+            dictKey = recievedThreads[recievedThreads.Count - 1];
+            recievedThreads.RemoveAt(recievedThreads.Count - 1);
+        } else {
+            Debug.Log("Overpromised! Not enough threads");
+            return;
         }
 
         threadMap.Add(dictKey, new OnChangeDataBase(centralId));
@@ -68,9 +71,6 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
     public override void ThreadZeroed(int parentThread) {
         base.ThreadZeroed(parentThread);
 
-        
-        
-
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
         int[][] links = centralInst.ReturnVariable(GetNodeId(), "Empty link storage").links;
@@ -79,9 +79,10 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         //for(int i = 0; i < links.Length; i++) {
         OnChangeDataBase oCDB = threadMap[parentThread] as OnChangeDataBase;
         //int[] idParams = new int[] { links[i][0], links[i][1] };
-            centralInst.ReturnVariable(modifiedReturn[0], modifiedReturn[1]).field.RunGenericBasedOnRP<int[]>(this, oCDB.centralId);
+        centralInst.ReturnVariable(modifiedReturn[0], modifiedReturn[1]).field.RunGenericBasedOnRP<int[]>(this, oCDB.centralId);
         //}
-        unusedKeys.Add(parentThread);
+
+        GetCentralInst().HandleThreadRemoval(parentThread);
         threadMap.Remove(parentThread);
     }
 

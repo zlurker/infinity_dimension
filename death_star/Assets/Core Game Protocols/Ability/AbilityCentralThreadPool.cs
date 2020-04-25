@@ -199,13 +199,17 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         sharedInstance = new Dictionary<int, HashSet<Tuple<int, int>>>();
     }
 
-    public void AddOnChanged(Tuple<int, int> key, Tuple<int, int> value) {
+    public bool AddOnChanged(Tuple<int, int> key, Tuple<int, int> value) {
 
         if(!onChanged.ContainsKey(key))
             onChanged.Add(key, new HashSet<Tuple<int, int>>());
 
-        if(!onChanged[key].Contains(value))
+        if(!onChanged[key].Contains(value)) {
             onChanged[key].Add(value);
+            return true;
+        }
+
+        return false;
     }
 
     public void AddSharedInstance(int key, Tuple<int, int> value) {
