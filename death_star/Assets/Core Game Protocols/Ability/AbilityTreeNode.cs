@@ -90,14 +90,16 @@ public class AbilityTreeNode : MonoBehaviour {
                 gameObject.SetActive(false);
 
                 Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
+                AbilityCentralThreadPool centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
 
                 // Removes previous instance.
                 if(reference != null)
-                    GetInstanceCentralInst().RemoveSharedInstance(reference.Item2, id);
+                    centralRoot.RemoveSharedInstance(reference.Item2, id);
 
                 // Adds current reference and creates a new instance according to reference.
                 reference = refNode.reference;
-                GetInstanceCentralInst().AddSharedInstance(reference.Item2, id);
+                centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
+                centralRoot.AddSharedInstance(reference.Item2, id);
 
                 Debug.LogFormat("Reference set. Reference: {0}. This: {1}", reference.Item2, nodeId);
             } else {
@@ -131,9 +133,9 @@ public class AbilityTreeNode : MonoBehaviour {
         return AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
     }
 
-    public AbilityCentralThreadPool GetInstanceCentralInst() {
-        return AbilityCentralThreadPool.globalCentralList.l[reference.Item1];
-    }
+    //public AbilityCentralThreadPool GetInstanceCentralInst() {
+        //return AbilityCentralThreadPool.globalCentralList.l[reference.Item1];
+    //}
 
     public bool IsClientPlayerUpdate() {
         return GetCentralInst().GetPlayerId() == ClientProgram.clientId;

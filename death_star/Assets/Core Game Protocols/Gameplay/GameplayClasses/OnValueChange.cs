@@ -28,7 +28,10 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
 
             //Debug.LogFormat("Link added: {0}, Id1: {1}, Id2: {2}", linkTup, GetCentralId(),GetNodeId());
 
-            originatorNode.GetInstanceCentralInst().AddOnChanged(originatorNode.GetReference(),Tuple.Create<int,int>(GetCentralId(),GetNodeId()));
+            //AbilityCentralThreadPool rootCentral
+
+            GetCentralInst().GetRootReferenceCentral(links[i][0]).AddOnChanged(Tuple.Create<int, int>(originatorNode.GetReference().Item2, links[i][1]), Tuple.Create<int, int>(GetCentralId(), GetNodeId()));
+            //originatorNode.GetInstanceCentralInst().AddOnChanged(originatorNode.GetReference(),Tuple.Create<int,int>(GetCentralId(),GetNodeId()));
         }
     }
 
@@ -59,10 +62,8 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         int[] modifiedReturn = centralInst.ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
 
         for(int i = 0; i < links.Length; i++) {
-            Tuple<int, int> linkTup = GetCentralInst().GetNode(links[i][0]).GetReference();
-            int[] idParams = new int[] { GetCentralId(),links[i][0],links[i][1] };
+            int[] idParams = new int[] { links[i][0],links[i][1] };
 
-            Debug.Log("Running mod method");
             centralInst.ReturnVariable(modifiedReturn[0],modifiedReturn[1]).field.RunGenericBasedOnRP<int[]>(this, idParams);
         }       
     }
@@ -81,13 +82,13 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
     public void RunAccordingToGeneric<T, P>(P arg) {
         
         int[] idParams = (int[])(object)arg;
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[idParams[0]];
+        AbilityCentralThreadPool inst = GetCentralInst();
 
-        int[] varToReturn = GetCentralInst().ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
+        int[] varToReturn = inst.ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
 
-        RuntimeParameters<T> rP = GetCentralInst().ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
+        RuntimeParameters<T> rP = inst.ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
         //Debug.Log("Returning central " + inst);
-        Debug.LogFormat("Returning modified variable {0} to id: {1},{2} ", rP.v, idParams[1], idParams[2]);
-        inst.UpdateVariableValue<T>(idParams[1], idParams[2], rP.v,false);
+        Debug.LogFormat("Returning modified variable {0} to id: {1},{2} ", rP.v, idParams[0], idParams[1]);
+        inst.UpdateVariableValue<T>(idParams[0], idParams[1], rP.v,false);
     }
 }
