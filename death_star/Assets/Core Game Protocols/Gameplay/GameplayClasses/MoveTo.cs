@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class MoveTo : AbilityTreeNode {
 
-    protected bool setTarget = true;
+    protected bool overrode;
 
     public override void NodeCallback() {
         base.NodeCallback();
 
-        if (setTarget)
-        if(CheckIfVarRegionBlocked("Coordinates", "Target")) 
-            GetTargetTransform().position = new Vector3(GetNodeVariable<Vector3>("Coordinates").x, GetNodeVariable<Vector3>("Coordinates").y, 0);       
+        if(!overrode)
+            if(CheckIfVarRegionBlocked("Coordinates", "Target"))
+                GetTargetTransform().position = new Vector3(GetNodeVariable<Vector3>("Coordinates").x, GetNodeVariable<Vector3>("Coordinates").y, 0);
     }
 
     protected Transform GetTargetTransform() {
@@ -25,7 +25,7 @@ public class MoveTo : AbilityTreeNode {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
-              
+
               new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Coordinates",new Vector3()),VariableTypes.AUTO_MANAGED),
               new LoadedRuntimeParameters(new RuntimeParameters<bool>("Move all objects in blueprint", true),VariableTypes.AUTO_MANAGED),
               new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Target",null),VariableTypes.AUTO_MANAGED)

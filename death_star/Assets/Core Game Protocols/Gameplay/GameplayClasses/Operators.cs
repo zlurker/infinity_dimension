@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AddSubtract : AbilityTreeNode {
+public class Operators : AbilityTreeNode {
 
     public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
 
@@ -31,7 +31,7 @@ public class AddSubtract : AbilityTreeNode {
             return oField;
         }
 
-        return null;
+        return base.ReturnCustomUI(variable, rp);
     }
 
 

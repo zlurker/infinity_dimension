@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Linq;
+using UnityEngine.UI;
 
 public class LinkData {
 
@@ -21,12 +22,36 @@ public class LinkData {
 
 public class LinkModifier {
 
-    public Dictionary<Tuple<int, int>, HashSet<Tuple<int, int, int>>> add;
     public Dictionary<Tuple<int, int>, HashSet<int>> remove;
+    public Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> redirects;
+    public Dictionary<Tuple<int, int>, HashSet<Tuple<int, int, int>>> add;
 
     public LinkModifier() {
-        add = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int, int>>>();
         remove = new Dictionary<Tuple<int, int>, HashSet<int>>();
+        redirects = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
+        add = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int, int>>>();
+    }
+
+    public void Remove(int a1, int a2, int b1) {
+        Tuple<int, int> turpA = Tuple.Create(a1, a2);
+
+        if(!remove.ContainsKey(turpA))
+            remove.Add(turpA, new HashSet<int>());
+
+        if(!remove[turpA].Contains(b1))
+            remove[turpA].Add(b1);
+    }
+
+    public void Redirect(int a1, int a2, int b1, int b2) {
+        Tuple<int, int> turpA = Tuple.Create(a1, a2);
+
+        if(!redirects.ContainsKey(turpA))
+            redirects.Add(turpA, new HashSet<Tuple<int, int>>());
+
+        Tuple<int, int> turpB = Tuple.Create(b1, b2);
+
+        if(!redirects[turpA].Contains(turpB))
+            redirects[turpA].Add(turpB);
     }
 
     public void Add(int a1, int a2, int b1, int b2, int b3) {
@@ -39,17 +64,7 @@ public class LinkModifier {
 
         if(!add[turpA].Contains(turpB))
             add[turpA].Add(turpB);
-    }
-
-    public void Remove(int a1, int a2, int b1) {
-        Tuple<int, int> turpA = Tuple.Create(a1, a2);
-
-        if(!remove.ContainsKey(turpA))
-            remove.Add(turpA, new HashSet<int>());
-
-        if(!remove[turpA].Contains(b1))
-            remove[turpA].Add(b1);
-    }
+    }    
 }
 
 public class AbilityData : IInputCallback<int> {
@@ -182,7 +197,7 @@ public class AbilityData : IInputCallback<int> {
 
             for(int j = 0; j < dataVar[i].Length; j++) {
 
-                
+
                 bool interchangeable = LoadedData.GetVariableType(dataType[i], j, VariableTypes.INTERCHANGEABLE);
                 AutoPopulationList<List<int[]>> varLinks = new AutoPopulationList<List<int[]>>(1);
 
@@ -191,13 +206,13 @@ public class AbilityData : IInputCallback<int> {
 
                     bool signal = currLink[2] == (int)LinkMode.SIGNAL ? true : false;//LoadedData.GetVariableType(dataType[i], j, VariableTypes.SIGNAL_ONLY);
                     // Marks target as true so it will be blocked.
-                    if (!signal)
-                    if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t || interchangeable) {
-                        boolData.varsBlocked[currLink[0]][currLink[1]] = true;
-                        Debug.LogFormat("From Node {0} Variable {1} link {2} name {3}", i, j,k, dataVar[i][j].field.n);
-                        Debug.LogFormat("To Node {0} Variable {1} link {2} signal {3} interchange {4} name {5}", currLink[0], currLink[1], k,signal,interchangeable, dataVar[i][j].field.n);
-                        Debug.Log("This was called true.");
-                    }
+                    if(!signal)
+                        if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t || interchangeable) {
+                            boolData.varsBlocked[currLink[0]][currLink[1]] = true;
+                            Debug.LogFormat("From Node {0} Variable {1} link {2} name {3}", i, j, k, dataVar[i][j].field.n);
+                            Debug.LogFormat("To Node {0} Variable {1} link {2} signal {3} interchange {4} name {5}", currLink[0], currLink[1], k, signal, interchangeable, dataVar[i][j].field.n);
+                            Debug.Log("This was called true.");
+                        }
                 }
 
                 if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.BLOCKED))
@@ -275,6 +290,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
 
     public static Dictionary<int, PlayerAssetData> aData;
+    public SpawnerOutput abilities;
 
     void Start() {
         string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
@@ -282,16 +298,27 @@ public sealed class AbilitiesManager : MonoBehaviour {
         //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
         aData[ClientProgram.clientId].abilties[priCharacterId].InputCallback(0);
         //encoder.SendInputSignal(priCharacterId,null);
+        abilities = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));
+        (abilities.script as LinearLayout).o = LinearLayout.Orientation.X;
+        abilities.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.1f));
         AssignInputKeys();
     }
 
     public void AssignInputKeys() {
-        if(aData.ContainsKey(ClientProgram.clientId)) 
-            foreach(var ability in aData[ClientProgram.clientId].abilties) 
+        if(aData.ContainsKey(ClientProgram.clientId))
+            foreach(var ability in aData[ClientProgram.clientId].abilties)
                 if(!aData[ClientProgram.clientId].abilityManifest.ContainsValue(ability.Key)) {
                     int keyAssigned = aData[ClientProgram.clientId].abilties[ability.Key].abilityInfo.kC;
                     LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[ability.Key], 0, (KeyCode)keyAssigned, 0, true);
-                }        
+
+                    SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
+                    UIDrawer.GetTypeInElement<Text>(abilityButton).text = aData[ClientProgram.clientId].abilties[ability.Key].abilityInfo.n;
+                    (abilities.script as LinearLayout).Add(abilityButton.script.transform as RectTransform);
+
+                    UIDrawer.GetTypeInElement<Button>(abilityButton).onClick.AddListener(()=>{
+                        aData[ClientProgram.clientId].abilties[ability.Key].InputCallback(0);
+                    });
+                }
     }
 
     public static PlayerAssetData GetAssetData(int playerid) {

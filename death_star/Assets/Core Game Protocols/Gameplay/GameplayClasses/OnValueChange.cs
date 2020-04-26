@@ -18,6 +18,8 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
 
     public override void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
 
+
+        // Might need rewriting. 
         foreach(var t1 in linkData[id].lHS)
 
             // Adds all those who called this node into empty link storage.

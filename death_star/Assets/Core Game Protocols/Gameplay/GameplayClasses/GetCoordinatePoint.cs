@@ -29,7 +29,7 @@ public class GetCoordinatePoint : AbilityTreeNode {
             return pField;
         }
 
-        return null;
+        return base.ReturnCustomUI(variable, rp);
     }
 
     public override void NodeCallback() {

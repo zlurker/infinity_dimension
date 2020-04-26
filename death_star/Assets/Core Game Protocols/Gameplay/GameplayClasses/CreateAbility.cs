@@ -46,7 +46,7 @@ public class CreateAbility : AbilityTreeNode {
             return aNField;
         }
 
-        return null;
+        return base.ReturnCustomUI(variable, rp);
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

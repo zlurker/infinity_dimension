@@ -28,7 +28,9 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
             // Removes main connection from the list.
             lM.Remove(t1.Item1, t1.Item2, t1.Item4);
-            Debug.LogFormat("Added {0}, {1}, {2} to return", t1.Item1, t1.Item2, t1.Item3);
+            //Debug.LogFormat("Added {0}, {1}, {2} to return", t1.Item1, t1.Item2, t1.Item3);
+
+            // Adds it to internal redirect.
             lM.Add(id, 3, t1.Item1, t1.Item2, t1.Item3);
         }
     }
