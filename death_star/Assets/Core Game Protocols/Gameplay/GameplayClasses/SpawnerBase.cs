@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D), typeof(SpriteRenderer))]
-public class SpawnerBase : AbilityTreeNode, IOnSpawn {
+public class SpawnerBase : SpriteSpawner, IOnSpawn {
 
     protected SpriteRenderer sR;
     protected Rigidbody2D rB;
@@ -21,8 +21,8 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
     public override void NodeCallback() {
         base.NodeCallback();
 
-        if(sR.sprite == null)
-            sR.sprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite File Path")];
+        sR.sprite = GetNodeVariable<Sprite>("Sprite");
+           
     }
 
     private void OnCollisionStay2D(Collision2D collision) {
@@ -38,8 +38,8 @@ public class SpawnerBase : AbilityTreeNode, IOnSpawn {
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("On Collide", null)),
-            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Internal Collide Handler", null),VariableTypes.HOST_ACTIVATED,VariableTypes.HIDDEN),
-            new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)
+            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Internal Collide Handler", null),VariableTypes.HOST_ACTIVATED,VariableTypes.HIDDEN)
+            //new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)
         });
     }
 
