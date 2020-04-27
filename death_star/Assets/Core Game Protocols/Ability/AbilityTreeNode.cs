@@ -148,6 +148,11 @@ public class AbilityTreeNode : MonoBehaviour {
         GetCentralInst().NodeVariableCallback<T>(nodeThreadId, varId);
     }
 
+    public void SetVariable<T>(int threadId, string varName) {
+        int varId = GetVariableId(varName);
+        GetCentralInst().NodeVariableCallback<T>(threadId, varId);
+    }
+
     public void SetVariable<T>(int threadId, string varName, T value) {
         int varId = GetVariableId(varName);
         GetCentralInst().UpdateVariableValue(nodeId, varId, value);

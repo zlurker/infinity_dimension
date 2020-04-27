@@ -23,7 +23,7 @@ public enum VariableTypes {
     // Used by variable connections
     PERMENANT_TYPE, SIGNAL_ONLY, 
 
-    IMAGE_DEPENDENCY, AUTO_MANAGED, HIDDEN, INTERCHANGEABLE, BLOCKED, NON_INSTANCED
+    IMAGE_DEPENDENCY, AUTO_MANAGED, HIDDEN, INTERCHANGEABLE, BLOCKED, NON_INSTANCED, NON_LINK
 }
 
 public class RuntimeParameters<T> : RuntimeParameters {

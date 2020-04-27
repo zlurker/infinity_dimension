@@ -60,6 +60,10 @@ public class NodeThread {
         return currNode;
     }
 
+    public int GetPossiblePaths() {
+        return possiblePaths;
+    }
+
     public virtual NodeThread CreateNewThread() {
         generatedNodeThreads++;
 
@@ -436,8 +440,11 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         if(threadId == -1)
             return;
 
+        
+
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         int[][] links = runtimeParameters[currNode][variableId].links;
+        int currPossiblePaths = activeThreads.l[threadId].GetPossiblePaths();
 
         if(var == null)
             var = ReturnRuntimeParameter<T>(currNode, variableId);
@@ -556,7 +563,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 centralInst.UpdateVariableData<T>(centralInst.GetNode(inst.Item2).GetNodeThreadId(), variableId, var);
             }
 
-        if(nodeBranchingData[currNode] == 0) {
+
+        //Debug.LogFormat("Thread: {0}, CurrNode to be Set: {1}", threadId, currNode);
+        Debug.Log("Curr Possible Paths: " + currPossiblePaths);
+        if(currPossiblePaths == 0) {
             Debug.Log("Caused end #0");
             HandleThreadRemoval(threadId);
         }
@@ -567,8 +577,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         //Debug.LogFormat("Thread {0} has ended operations.", threadId);
         // Callback to start node.
 
-        Debug.Log(threadId);
-        Debug.Log(activeThreads.l[threadId].GetCurrentNodeID() + " / " + (nodes.Length-1));
+        //Debug.Log(threadId);
+        //Debug.Log(activeThreads.l[threadId].GetCurrentNodeID() + " / " + (nodes.Length-1));
         CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID()).SetNodeThreadId(-1);
         CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
         

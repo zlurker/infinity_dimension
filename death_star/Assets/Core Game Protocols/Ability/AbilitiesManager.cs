@@ -265,8 +265,8 @@ public class AbilityData : IInputCallback<int> {
                 if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED))
                     aMVar.Add(j);
 
-
-                nodeBranchingData[i] += dataVar[i][j].links.Length;
+                if(!LoadedData.GetVariableType(dataType[i], j, VariableTypes.NON_LINK))
+                    nodeBranchingData[i] += dataVar[i][j].links.Length;
             }
             autoManagedVariables[i] = aMVar.ToArray();
         }

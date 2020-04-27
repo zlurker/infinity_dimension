@@ -26,7 +26,7 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
         cT.SetNodeData(GetNodeId(), totalLinks);
         int threadToUse = inst.AddNewThread(cT);
 
-        SetVariable<int>("Extended Path");
+        SetVariable<int>(threadToUse,"Extended Path");
     }
 
     // Only called by another OnVariableCalled
@@ -42,6 +42,10 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
         //int[][] links = centralInst.ReturnVariable(GetNodeId(), "Empty link storage").links;
+
+        if(centralInst.ReturnVariable(GetNodeId(), "Return from Variable").links.Length == 0)
+            return;
+
         int[] modifiedReturn = centralInst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
 
         //for(int i = 0; i < links.Length; i++) {
@@ -75,7 +79,7 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Extended Path",0)),
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Return from Variable", 0),VariableTypes.PERMENANT_TYPE,VariableTypes.SIGNAL_ONLY)
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Return from Variable", 0),VariableTypes.PERMENANT_TYPE,VariableTypes.SIGNAL_ONLY, VariableTypes.NON_LINK)
         });
     }
 }
