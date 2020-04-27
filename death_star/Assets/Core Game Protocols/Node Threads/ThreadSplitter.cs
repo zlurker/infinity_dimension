@@ -23,7 +23,7 @@ public class ThreadSplitter : NodeModifierBase {
     public override void NodeCallback() {
         base.NodeCallback();
 
-        Debug.LogFormat("Thread ID {0} has called threadsplitter.", GetNodeThreadId());
+        //Debug.LogFormat("Thread ID {0} has called threadsplitter.", GetNodeThreadId());
         threadMap.Add(latestThread, new SplitterData());
         ProcessThreads(latestThread);
     }
@@ -50,7 +50,7 @@ public class ThreadSplitter : NodeModifierBase {
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
             int threadToUse = inst.AddNewThread(trdInst);
-            Debug.LogFormat("Thread id {0} has been created.", threadToUse);
+            //Debug.LogFormat("Thread id {0} has been created.", threadToUse);
             inst.NodeVariableCallback<int>(threadToUse, GetVariableId("Number of Loops"));
         } else {
             inst.HandleThreadRemoval(threadId);

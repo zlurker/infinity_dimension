@@ -65,7 +65,8 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
         RuntimeParameters<T> rP = GetCentralInst().ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
         //Debug.Log("Returning central " + inst);
         //Debug.LogFormat("Returning modified variable {0} to id: {1},{2} ", rP.v, idParams[1], idParams[2]);
-        GetCentralInst().GetNode(oCDB.centralId[0]).SetVariable<T>(oCDB.centralId[1], rP.v);
+        Debug.LogFormat("Returning to {0},{1}", oCDB.centralId[0], oCDB.centralId[1]);
+        //GetCentralInst().GetNode(oCDB.centralId[0]).SetVariable<T>(oCDB.centralId[1], rP.v);
         //GetCentralInst().UpdateVariableValue<T>(oCDB.centralId[0], oCDB.centralId[1], rP.v, false);
     }
 

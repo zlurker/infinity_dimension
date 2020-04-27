@@ -45,7 +45,7 @@ public class MoveTowardsDirection : MoveTo {
                 // Actual
                 case 1:
                     vToN = GetNodeVariable<Vector3>("Coordinates") - GetTargetTransform().transform.position;
-                    Debug.Log(vToN);
+                    //Debug.Log(vToN);
                     break;
             }
 

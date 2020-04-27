@@ -32,7 +32,7 @@ public class NodeModifierBase : AbilityTreeNode {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         NodeThread nT = inst.GetActiveThread(threadId);
 
-        Debug.Log("Thread end called");
+        //Debug.Log("Thread end called");
 
         if(nT is ChildThread) {
             int parentThread = (nT as ChildThread).GetOriginalThread();
@@ -43,7 +43,7 @@ public class NodeModifierBase : AbilityTreeNode {
 
             // Checks if node is already empty with no more threads.
             if(threadMap.Count == 0) {
-                Debug.Log("Threadmap empty. Setting node thread id to -1.");
+                //Debug.Log("Threadmap empty. Setting node thread id to -1.");
                 SetNodeThreadId(-1);
             }
         }

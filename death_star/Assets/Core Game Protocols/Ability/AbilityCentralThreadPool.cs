@@ -196,14 +196,14 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         nodes = new AbilityTreeNode[rP.Length];
 
         onChanged = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
-        
-        
-        onVarCalled = new Dictionary<Tuple<int, int>, HashSet<int>>(oVC);
-        Debug.Log("OVC Count: " + oVC.Count);
 
-        foreach ( var key in onVarCalled.Keys) {
-            Debug.Log(key);
-        }
+
+        onVarCalled = new Dictionary<Tuple<int, int>, HashSet<int>>(oVC);
+        //Debug.Log("OVC Count: " + oVC.Count);
+
+        //foreach(var key in onVarCalled.Keys) {
+        //Debug.Log(key);
+        //}
         //onGet = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
         sharedInstance = new Dictionary<int, HashSet<Tuple<int, int>>>();
     }
@@ -288,7 +288,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     public void CallOnTimerEnd(int eventId) {
         UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
-        Debug.Log("Send data worth " + networkNodeData.Count);
+        //Debug.Log("Send data worth " + networkNodeData.Count);
 
         AbilityNodeNetworkData[] data = networkNodeData[eventId].ToArray();
         networkNodeData.Remove(eventId);
@@ -361,7 +361,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         if(reference) {
             Tuple<int, int> refLink = nodes[nodeId].GetReference();
 
-            Debug.LogFormat("Var set, central {0}, node {1}, var {2}, value {3}", refLink.Item1, refLink.Item2, variableId, value);
+            //Debug.LogFormat("Var set, central {0}, node {1}, var {2}, value {3}", refLink.Item1, refLink.Item2, variableId, value);
             GetRootReferenceCentral(nodeId).UpdateVariableValue<T>(refLink.Item2, variableId, value, runValueChanged);
             return;
         }
@@ -399,7 +399,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 foreach(var changeCallback in onChanged[id]) {
                     //Debug.Log(changeCallback.Item1);
                     //Debug.Log(changeCallback.Item2);
-                    Debug.LogFormat("Routing to variable on change central {0}, node {1}", changeCallback.Item1, changeCallback.Item2);
+                    //Debug.LogFormat("Routing to variable on change central {0}, node {1}", changeCallback.Item1, changeCallback.Item2);
                     OnValueChange valChangeNode = globalCentralList.l[changeCallback.Item1].GetNode(changeCallback.Item2) as OnValueChange;
                     valChangeNode.HandleSettingOnChange<T>(valuePair, new int[] { centralId, nodeId, variableId });
                 }
@@ -454,7 +454,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             if(runOnCalled) {
                 Tuple<int, int> ids = Tuple.Create<int, int>(links[i][0], links[i][1]);
-                Debug.Log("Link ID given: " + ids);
+                //Debug.Log("Link ID given: " + ids);
+                //Debug.Log("Link ID given: " + ids);
 
                 if(onVarCalled.ContainsKey(ids)) {
                     foreach(int oVCNode in onVarCalled[ids]) {
@@ -505,7 +506,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             int existingThread = nextNodeInst.GetNodeThreadId();
 
             if(existingThread > -1) {
-                Debug.Log("Remove existing thread: " + existingThread);
+                //Debug.Log("Remove existing thread: " + existingThread);
                 HandleThreadRemoval(existingThread);
                 //activeThreads.l[threadIdToUse](existingThread);
             }
@@ -528,11 +529,11 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             // Checks if node has no more output
 
-            Debug.Log(nodeBranchingData[nodeId]);
-            if(nodeBranchingData[nodeId] == 0) {
-                nextNodeInst.SetNodeThreadId(-1);
-                HandleThreadRemoval(threadIdToUse);
-            }
+            //Debug.Log(nodeBranchingData[nodeId]);
+            //if(nodeBranchingData[nodeId] == 0) {
+                
+                //HandleThreadRemoval(threadIdToUse);
+            //}
         }
 
 
@@ -554,22 +555,30 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 //Debug.Log("Thread ID" + centralInst.GetNode(inst.Item2).GetNodeThreadId());
                 centralInst.UpdateVariableData<T>(centralInst.GetNode(inst.Item2).GetNodeThreadId(), variableId, var);
             }
+
+        if(nodeBranchingData[currNode] == 0) {
+            Debug.Log("Caused end #0");
+            HandleThreadRemoval(threadId);
+        }
     }
 
     public void HandleThreadRemoval(int threadId) {
 
-        Debug.LogFormat("Thread {0} has ended operations.", threadId);
+        //Debug.LogFormat("Thread {0} has ended operations.", threadId);
         // Callback to start node.
 
+        Debug.Log(threadId);
+        Debug.Log(activeThreads.l[threadId].GetCurrentNodeID() + " / " + (nodes.Length-1));
+        CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID()).SetNodeThreadId(-1);
         CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
-
+        
         // Removes that thread.
         activeThreads.Remove(threadId);
 
         //Debug.LogFormat("{0} threadIdRemoved, 1st Element: {1}", threadId, activeThreads.ReturnActiveElementIndex()[0]);
 
-        if(activeThreads.GetActiveElementsLength() == 0)
-            Debug.Log("All thread operations has ended.");
+        //if(activeThreads.GetActiveElementsLength() == 0)
+        //Debug.Log("All thread operations has ended.");
     }
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {

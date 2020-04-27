@@ -14,7 +14,7 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn {
     public override void NodeCallback() {
         base.NodeCallback();
 
-        Debug.Log("Input working");
+        //Debug.Log("Input working");
 
         if(IsClientPlayerUpdate()) {
             if(!inputSet) 
