@@ -16,14 +16,14 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
 
     List<int> recievedThreads = new List<int>();
 
-    public override void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
+    public override void ConstructionPhase(AbilityData data) {
 
 
         // Might need rewriting. 
-        foreach(var t1 in linkData[id].lHS)
+        //foreach(var t1 in data.GetLinkData(data.GetCurrBuildNode()).lHS)
 
             // Adds all those who called this node into empty link storage.
-            lM.Add(id, 4, t1.Item1, t1.Item2, t1.Item3);
+            //lM.Add(id, 4, t1.Item1, t1.Item2, t1.Item3);
     }
 
     public override void NodeCallback() {
@@ -75,7 +75,7 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
-        int[][] links = centralInst.ReturnVariable(GetNodeId(), "Empty link storage").links;
+        //int[][] links = centralInst.ReturnVariable(GetNodeId(), "Empty link storage").links;
         int[] modifiedReturn = centralInst.ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
 
         //for(int i = 0; i < links.Length; i++) {

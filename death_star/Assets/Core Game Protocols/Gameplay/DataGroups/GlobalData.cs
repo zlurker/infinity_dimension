@@ -112,6 +112,7 @@ public static class LoadedData {
     public static Dictionary<Type, ISingleton> singletonList;
     public static Dictionary<Type, AbilityTreeNode> loadedNodeInstance;
     public static Dictionary<Type, LoadedRPWrapper> loadedParamInstances;
+    public static List<string> userArtAssets;
 
     public static T GetSingleton<T>() {
         return (T)singletonList[typeof(T)];

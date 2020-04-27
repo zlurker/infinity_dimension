@@ -34,7 +34,11 @@ public class AbilityTreeNode : MonoBehaviour {
         return reference;
     }
 
-    public virtual void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
+    /*public virtual void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
+
+    }*/
+
+    public virtual void ConstructionPhase(AbilityData data) {
 
     }
 
@@ -81,7 +85,7 @@ public class AbilityTreeNode : MonoBehaviour {
 
         AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node");
 
-        if(refNode != null) {
+        if(refNode != null) 
 
             // Needs to be replaced.
             if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
@@ -102,11 +106,10 @@ public class AbilityTreeNode : MonoBehaviour {
                 centralRoot.AddSharedInstance(reference.Item2, id);
 
                 Debug.LogFormat("Reference set. Reference: {0}. This: {1}", reference.Item2, nodeId);
-            } else {
-
+            } else 
                 GetCentralInst().SetNodeBoolValue(true, nodeId, 0);
-            }
-        }
+            
+        
             
         // Sends out this node as a reference if all details are in order.
         if(CheckIfVarRegionBlocked("This Node"))
@@ -121,10 +124,9 @@ public class AbilityTreeNode : MonoBehaviour {
         bool[] nodeBoolValues = AbilityCentralThreadPool.globalCentralList.l[centralThreadId].GetNodeBoolValues(nodeId);
 
         for(int i = 0; i < target.Length; i++)
-            if(nodeBoolValues[GetVariableId(target[i])]) {
-                //Debug.LogWarning(target[i] + " is returning false.");
+            if(nodeBoolValues[GetVariableId(target[i])]) 
                 return false;
-            }
+            
 
         return true;
     }
@@ -133,42 +135,9 @@ public class AbilityTreeNode : MonoBehaviour {
         return AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
     }
 
-    //public AbilityCentralThreadPool GetInstanceCentralInst() {
-        //return AbilityCentralThreadPool.globalCentralList.l[reference.Item1];
-    //}
-
     public bool IsClientPlayerUpdate() {
         return GetCentralInst().GetPlayerId() == ClientProgram.clientId;
     }
-
-
-    // Function used by internal variable getter/setters to get central instance.
-    /*AbilityCentralThreadPool InternalCentralReturn(VariableSetMode setMode) {
-        switch(setMode) {
-
-            case VariableSetMode.LOCAL:
-                return GetCentralInst();
-
-            case VariableSetMode.INSTANCE:
-                return GetInstanceCentralInst();
-        }
-
-        return null;
-    }
-
-    AbilityTreeNode InternalNodeReturn(VariableSetMode setMode){
-        switch(setMode) {
-
-            case VariableSetMode.LOCAL:
-                return this;
-
-            case VariableSetMode.INSTANCE:
-                AbilityTreeNode nodeInst = globalList.l[GetInstanceCentralInst().GetAbilityNodeId()].abiNodes[reference.Item2];
-                return nodeInst;
-        }
-
-        return null;
-    }*/
 
     public T GetNodeVariable<T>(string var) {
         return GetCentralInst().ReturnRuntimeParameter<T>(nodeId, var).v;

@@ -14,7 +14,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         });
     }
 
-    public override void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
+   /* public override void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
 
         foreach(var t1 in linkData[id].lHS) {
             foreach(var t2 in linkData[t1.Item1].lHS) {
@@ -33,7 +33,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
             // Adds it to internal redirect.
             lM.Add(id, 3, t1.Item1, t1.Item2, t1.Item3);
         }
-    }
+    }*/
 
     public override void NodeCallback() {
         base.NodeCallback();
@@ -44,10 +44,15 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
         ChildThread trdInst = new ChildThread(GetNodeId(), latestThread, this);
 
-        trdInst.SetNodeData(GetNodeId(), inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
-        int threadToUse = inst.AddNewThread(trdInst);
-        //Debug.LogFormat("Thread id {0} has been created. Uses left {1}", threadToUse, inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
-        inst.NodeVariableCallback<int>(threadToUse,GetVariableId("Extended Path"));
+        int possiblePaths = inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length;
+
+        if(possiblePaths > 0) {
+            trdInst.SetNodeData(GetNodeId(), possiblePaths);
+            int threadToUse = inst.AddNewThread(trdInst);
+            Debug.LogFormat("Thread id {0} has been created. Uses left {1}", threadToUse, inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length);
+            inst.NodeVariableCallback<int>(threadToUse, GetVariableId("Extended Path"));
+        } else
+            ThreadZeroed(latestThread);
     }
 
     public override void ThreadZeroed(int parentThread) {

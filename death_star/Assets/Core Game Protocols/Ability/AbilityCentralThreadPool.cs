@@ -115,6 +115,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     private Dictionary<int, List<AbilityNodeNetworkData>> networkNodeData;
 
     private Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> onChanged;
+    private Dictionary<Tuple<int, int>, HashSet<int>> onVarCalled;
     //private Dictionary<int, HashSet<Tuple<int, int>>> onGet;
 
     private Dictionary<int, HashSet<Tuple<int, int>>> sharedInstance;
@@ -180,7 +181,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         return centralId;
     }
 
-    public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId) {
+    public void SetCentralData(int tId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId, Dictionary<Tuple<int, int>, HashSet<int>> oVC) {
 
         abilityNodeRoot = new GameObject(tId.ToString()).transform;
         //Debug.Log("Ability created.");
@@ -195,6 +196,14 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         nodes = new AbilityTreeNode[rP.Length];
 
         onChanged = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
+        
+        
+        onVarCalled = new Dictionary<Tuple<int, int>, HashSet<int>>(oVC);
+        Debug.Log("OVC Count: " + oVC.Count);
+
+        foreach ( var key in onVarCalled.Keys) {
+            Debug.Log(key);
+        }
         //onGet = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
         sharedInstance = new Dictionary<int, HashSet<Tuple<int, int>>>();
     }
@@ -392,7 +401,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                     //Debug.Log(changeCallback.Item2);
                     Debug.LogFormat("Routing to variable on change central {0}, node {1}", changeCallback.Item1, changeCallback.Item2);
                     OnValueChange valChangeNode = globalCentralList.l[changeCallback.Item1].GetNode(changeCallback.Item2) as OnValueChange;
-                    valChangeNode.HandleSettingOnChange<T>(valuePair, new int[] { centralId,nodeId,variableId });
+                    valChangeNode.HandleSettingOnChange<T>(valuePair, new int[] { centralId, nodeId, variableId });
                 }
 
                 onChanged.Remove(id);
@@ -422,7 +431,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         UpdateVariableData<T>(threadId, variableId);
     }
 
-    public void UpdateVariableData<T>(int threadId, int variableId, RuntimeParameters<T> var = null) {
+    public void UpdateVariableData<T>(int threadId, int variableId, RuntimeParameters<T> var = null, bool runOnCalled = true) {
 
         if(threadId == -1)
             return;
@@ -438,12 +447,28 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         for(int i = 0; i < links.Length; i++) {
 
-            NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
-            int threadIdToUse = threadId;
-            //Debug.LogFormat("Current info: CurrNode{0}, CurrVar{1}, CurrLink{2}, CurrLinkLen{3}",currNode,variableId,i,links[i].Length);
             int nodeId = links[i][0];
             int nodeVariableId = links[i][1];
             int linkType = links[i][2];
+            int threadIdToUse = threadId;
+
+            if(runOnCalled) {
+                Tuple<int, int> ids = Tuple.Create<int, int>(links[i][0], links[i][1]);
+                Debug.Log("Link ID given: " + ids);
+
+                if(onVarCalled.ContainsKey(ids)) {
+                    foreach(int oVCNode in onVarCalled[ids]) {
+                        OnVariableCalled oVCInst = CreateNewNodeIfNull(oVCNode) as OnVariableCalled;
+                        oVCInst.OnVariableCalledCallback<T>(var.v, threadId, nodeId, nodeVariableId);
+                    }
+                    continue;
+                }
+            }
+
+            NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
+
+            //Debug.LogFormat("Current info: CurrNode{0}, CurrVar{1}, CurrLink{2}, CurrLinkLen{3}",currNode,variableId,i,links[i].Length);
+
 
             if(newThread != null) {
                 threadIdToUse = activeThreads.Add(newThread);
@@ -502,6 +527,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
 
             // Checks if node has no more output
+
+            Debug.Log(nodeBranchingData[nodeId]);
             if(nodeBranchingData[nodeId] == 0) {
                 nextNodeInst.SetNodeThreadId(-1);
                 HandleThreadRemoval(threadIdToUse);
@@ -541,8 +568,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         //Debug.LogFormat("{0} threadIdRemoved, 1st Element: {1}", threadId, activeThreads.ReturnActiveElementIndex()[0]);
 
-        if(activeThreads.GetActiveElementsLength() == 0) 
-            Debug.Log("All thread operations has ended.");        
+        if(activeThreads.GetActiveElementsLength() == 0)
+            Debug.Log("All thread operations has ended.");
     }
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {

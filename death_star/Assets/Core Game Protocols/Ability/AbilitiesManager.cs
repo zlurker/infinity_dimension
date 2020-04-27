@@ -64,7 +64,7 @@ public class LinkModifier {
 
         if(!add[turpA].Contains(turpB))
             add[turpA].Add(turpB);
-    }    
+    }
 }
 
 public class AbilityData : IInputCallback<int> {
@@ -76,11 +76,45 @@ public class AbilityData : IInputCallback<int> {
 
     // Data that will purely only be read.
     public AbilityInfo abilityInfo;
+
+    Dictionary<Tuple<int, int>, HashSet<int>> onCalledDict;
     Type[] dataType;
     int[][] rootSubclasses;
     int[] nodeBranchingData;
     int[][] autoManagedVariables;
     string abilityId;
+
+
+    // Used during consturction phase.
+    LinkData[] linkData;
+    LinkModifier lM;
+    int currBuildNode;
+
+    public int GetCurrBuildNode() {
+        return currBuildNode;
+    }
+
+    public LinkData GetLinkData(int id) {
+        return linkData[id];
+    }
+
+    public LinkModifier GetLinkModifier() {
+        return lM;
+    }
+
+    public Variable GetVariable(int node, int variable) {
+        return dataVar[node][variable];
+    }
+
+    public void AddOnCalled(int a1, int a2, int b1) {
+        Tuple<int, int> id = Tuple.Create<int, int>(a1, a2);
+
+        if(!onCalledDict.ContainsKey(id))
+            onCalledDict.Add(id, new HashSet<int>());
+
+        if(!onCalledDict[id].Contains(b1))
+            onCalledDict[id].Add(b1);
+    }
 
     public AbilityData(AbilityDataSubclass[] data, AbilityInfo aD, string aId) {
 
@@ -88,7 +122,8 @@ public class AbilityData : IInputCallback<int> {
         // Sorts variable out accordingly.
         dataVar = new Variable[data.Length + 1][];
         dataType = new Type[data.Length + 1];
-        LinkData[] linkData = new LinkData[data.Length + 1];
+        linkData = new LinkData[data.Length + 1];
+        onCalledDict = new Dictionary<Tuple<int, int>, HashSet<int>>();
 
         for(int i = 0; i < data.Length; i++) {
             dataVar[i] = data[i].var;
@@ -105,9 +140,9 @@ public class AbilityData : IInputCallback<int> {
         dataType[dataVar.Length - 1] = typeof(NodeThreadStarter);
         linkData[dataVar.Length - 1] = new LinkData();
 
-        CreateAbilityLinkMap(dataVar.Length - 1, linkData);
+        CreateAbilityLinkMap(dataVar.Length - 1);
 
-        EditLinks(linkData);
+        EditLinks();
         BeginDepenciesBuild();
     }
 
@@ -134,7 +169,7 @@ public class AbilityData : IInputCallback<int> {
         rootSubclasses = rC.ToArray();
     }
 
-    void CreateAbilityLinkMap(int nextNode, LinkData[] lD) {
+    void CreateAbilityLinkMap(int nextNode) {
 
         for(int i = 0; i < dataVar[nextNode].Length; i++)
             for(int j = 0; j < dataVar[nextNode][i].links.Length; j++) {
@@ -143,32 +178,35 @@ public class AbilityData : IInputCallback<int> {
                 // Adds links to rhs.
                 Tuple<int, int, int, int> rhslinkTup = Tuple.Create(currLink[0], currLink[1], currLink[2], j);
 
-                if(!lD[nextNode].rHS.Contains(rhslinkTup))
-                    lD[nextNode].rHS.Add(rhslinkTup);
+                if(!linkData[nextNode].rHS.Contains(rhslinkTup))
+                    linkData[nextNode].rHS.Add(rhslinkTup);
 
                 // Adds links to target lhs.
                 Tuple<int, int, int, int> lhslinkTup = Tuple.Create(nextNode, i, currLink[2], j);
 
-                if(!lD[currLink[0]].lHS.Contains(lhslinkTup))
-                    lD[currLink[0]].lHS.Add(lhslinkTup);
+                if(!linkData[currLink[0]].lHS.Contains(lhslinkTup))
+                    linkData[currLink[0]].lHS.Add(lhslinkTup);
 
                 // Iterates to target.
-                CreateAbilityLinkMap(currLink[0], lD);
+                CreateAbilityLinkMap(currLink[0]);
             }
     }
 
-    void EditLinks(LinkData[] lD) {
-        LinkModifier lM = new LinkModifier();
+    void EditLinks() {
+        lM = new LinkModifier();
 
-        for(int i = 0; i < dataType.Length; i++)
-            LoadedData.loadedNodeInstance[dataType[i]].LinkEdit(i, lD, lM, dataVar);
+        for(currBuildNode = 0; currBuildNode < dataType.Length; currBuildNode++)
+            LoadedData.loadedNodeInstance[dataType[currBuildNode]].ConstructionPhase(this);
+        //LoadedData.loadedNodeInstance[dataType[i]].LinkEdit(i, lD, lM, dataVar);
 
         foreach(var add in lM.add) {
 
             List<int[]> links = new List<int[]>(dataVar[add.Key.Item1][add.Key.Item2].links);
 
-            foreach(var ele in add.Value)
+            foreach(var ele in add.Value) {
                 links.Add(new int[] { ele.Item1, ele.Item2, ele.Item3 });
+                Debug.LogFormat("Adding to {0},{1}. Content: {2},{3}", add.Key.Item1, add.Key.Item2, ele.Item1, ele.Item2);
+            }
 
             dataVar[add.Key.Item1][add.Key.Item2].links = links.ToArray();
         }
@@ -179,8 +217,11 @@ public class AbilityData : IInputCallback<int> {
 
             List<int[]> links = new List<int[]>(dataVar[rm.Key.Item1][rm.Key.Item2].links);
 
-            for(int i = rmArr.Length - 1; i >= 0; i--)
+            for(int i = rmArr.Length - 1; i >= 0; i--) {
+                Debug.LogFormat("Removing at {0},{1}. Content: {2},{3}", rm.Key.Item1, rm.Key.Item2, links[rmArr[i]][0], links[rmArr[i]][0]);
                 links.RemoveAt(rmArr[i]);
+
+            }
 
             dataVar[rm.Key.Item1][rm.Key.Item2].links = links.ToArray();
         }
@@ -194,24 +235,27 @@ public class AbilityData : IInputCallback<int> {
 
         for(int i = 0; i < dataVar.Length; i++) {
             List<int> aMVar = new List<int>();
+            Debug.Log("Printing for Node: " + i);
 
             for(int j = 0; j < dataVar[i].Length; j++) {
 
-
+                Debug.Log("Printing for Variable: " + j);
                 bool interchangeable = LoadedData.GetVariableType(dataType[i], j, VariableTypes.INTERCHANGEABLE);
                 AutoPopulationList<List<int[]>> varLinks = new AutoPopulationList<List<int[]>>(1);
 
                 for(int k = 0; k < dataVar[i][j].links.Length; k++) {
                     int[] currLink = dataVar[i][j].links[k];
 
+                    Debug.LogFormat("{0},{1}", currLink[0], currLink[1]);
+
                     bool signal = currLink[2] == (int)LinkMode.SIGNAL ? true : false;//LoadedData.GetVariableType(dataType[i], j, VariableTypes.SIGNAL_ONLY);
                     // Marks target as true so it will be blocked.
                     if(!signal)
                         if(dataVar[i][j].field.t == dataVar[currLink[0]][currLink[1]].field.t || interchangeable) {
                             boolData.varsBlocked[currLink[0]][currLink[1]] = true;
-                            Debug.LogFormat("From Node {0} Variable {1} link {2} name {3}", i, j, k, dataVar[i][j].field.n);
-                            Debug.LogFormat("To Node {0} Variable {1} link {2} signal {3} interchange {4} name {5}", currLink[0], currLink[1], k, signal, interchangeable, dataVar[i][j].field.n);
-                            Debug.Log("This was called true.");
+                            //Debug.LogFormat("From Node {0} Variable {1} link {2} name {3}", i, j, k, dataVar[i][j].field.n);
+                            //Debug.LogFormat("To Node {0} Variable {1} link {2} signal {3} interchange {4} name {5}", currLink[0], currLink[1], k, signal, interchangeable, dataVar[i][j].field.n);
+                            //Debug.Log("This was called true.");
                         }
                 }
 
@@ -256,7 +300,7 @@ public class AbilityData : IInputCallback<int> {
             clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
         AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(tId);
-        threadInst.SetCentralData(tId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId);
+        threadInst.SetCentralData(tId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId,onCalledDict);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
@@ -315,7 +359,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
                     UIDrawer.GetTypeInElement<Text>(abilityButton).text = aData[ClientProgram.clientId].abilties[ability.Key].abilityInfo.n;
                     (abilities.script as LinearLayout).Add(abilityButton.script.transform as RectTransform);
 
-                    UIDrawer.GetTypeInElement<Button>(abilityButton).onClick.AddListener(()=>{
+                    UIDrawer.GetTypeInElement<Button>(abilityButton).onClick.AddListener(() => {
                         aData[ClientProgram.clientId].abilties[ability.Key].InputCallback(0);
                     });
                 }
