@@ -565,9 +565,10 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
 
         //Debug.LogFormat("Thread: {0}, CurrNode to be Set: {1}", threadId, currNode);
-        Debug.Log("Curr Possible Paths: " + currPossiblePaths);
+        //Debug.Log("Curr Possible Paths: " + currPossiblePaths);
+
         if(currPossiblePaths == 0) {
-            Debug.Log("Caused end #0");
+            //Debug.Log("Caused end #0");
             HandleThreadRemoval(threadId);
         }
     }

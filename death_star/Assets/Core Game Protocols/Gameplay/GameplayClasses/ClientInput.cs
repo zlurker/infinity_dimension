@@ -8,7 +8,7 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn {
 
     public void InputCallback(int callbackData) {
         inputSet = false;
-        Debug.Log("Input called");
+        //Debug.Log("Input called");
         SetVariable<int>("Input Key");    
     }
 
