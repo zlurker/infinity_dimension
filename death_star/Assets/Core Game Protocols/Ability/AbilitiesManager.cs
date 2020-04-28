@@ -77,7 +77,8 @@ public class AbilityData : IInputCallback<int> {
     // Data that will purely only be read.
     public AbilityInfo abilityInfo;
 
-    Dictionary<Tuple<int, int>, HashSet<int>> onCalledDict;
+    //Dictionary<Tuple<int, int>, HashSet<int>> onCalledDict;
+    Dictionary<Tuple<int, int>, Dictionary<Type, HashSet<int>>> targettedNodes;
     Type[] dataType;
     int[][] rootSubclasses;
     int[] nodeBranchingData;
@@ -106,14 +107,17 @@ public class AbilityData : IInputCallback<int> {
         return dataVar[node][variable];
     }
 
-    public void AddOnCalled(int a1, int a2, int b1) {
+    public void AddTargettedNode(int a1, int a2, Type subCategory,int b1) {
         Tuple<int, int> id = Tuple.Create<int, int>(a1, a2);
 
-        if(!onCalledDict.ContainsKey(id))
-            onCalledDict.Add(id, new HashSet<int>());
+        if(!targettedNodes.ContainsKey(id))
+            targettedNodes.Add(id, new Dictionary<Type, HashSet<int>>());
 
-        if(!onCalledDict[id].Contains(b1))
-            onCalledDict[id].Add(b1);
+        if(!targettedNodes[id].ContainsKey(subCategory))
+            targettedNodes[id].Add(subCategory, new HashSet<int>());
+
+        if(!targettedNodes[id][subCategory].Contains(b1))
+            targettedNodes[id][subCategory].Add(b1);
     }
 
     public AbilityData(AbilityDataSubclass[] data, AbilityInfo aD, string aId) {
@@ -123,7 +127,7 @@ public class AbilityData : IInputCallback<int> {
         dataVar = new Variable[data.Length + 1][];
         dataType = new Type[data.Length + 1];
         linkData = new LinkData[data.Length + 1];
-        onCalledDict = new Dictionary<Tuple<int, int>, HashSet<int>>();
+        targettedNodes = new Dictionary<Tuple<int, int>, Dictionary<Type, HashSet<int>>>();
 
         for(int i = 0; i < data.Length; i++) {
             dataVar[i] = data[i].var;
@@ -300,7 +304,7 @@ public class AbilityData : IInputCallback<int> {
             clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
         AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(tId);
-        threadInst.SetCentralData(tId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId,onCalledDict);
+        threadInst.SetCentralData(tId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId,targettedNodes);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }

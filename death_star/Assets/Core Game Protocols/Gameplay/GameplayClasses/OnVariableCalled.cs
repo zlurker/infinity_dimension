@@ -9,7 +9,7 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
 
         foreach(var t1 in data.GetLinkData(data.GetCurrBuildNode()).lHS)
             if(t1.Item2 == GetVariableId("Extended Path")) {
-                data.AddOnCalled(t1.Item1, t1.Item2, data.GetCurrBuildNode());
+                data.AddTargettedNode(t1.Item1, t1.Item2,GetType(), data.GetCurrBuildNode());
                 Debug.LogFormat("Built: {0},{1}", t1.Item1, t1.Item2);
                 data.GetLinkModifier().Remove(t1.Item1, t1.Item2, t1.Item3);
             }
@@ -32,8 +32,7 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
     // Only called by another OnVariableCalled
     public override void NodeCallback() {
         base.NodeCallback();
-
-
+        
     }
 
     public override void ThreadZeroed(int parentThread) {
