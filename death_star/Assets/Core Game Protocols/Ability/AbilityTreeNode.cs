@@ -84,6 +84,7 @@ public class AbilityTreeNode : MonoBehaviour {
             reference = Tuple.Create<int, int>(centralThreadId, nodeId);
 
         AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node");
+        Debug.Log(refNode);
 
         if(refNode != null) 
 

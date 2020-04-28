@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class OnVariableCalled : NodeModifierBase, IRPGeneric {
 
-    List<int> internalFSTrack = new List<int>();
+    //List<int> internalFSTrack = new List<int>();
 
     public override void ConstructionPhase(AbilityData data) {
         base.ConstructionPhase(data);
@@ -17,25 +17,28 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
             }
     }
 
-    public void OnVariableCalledCallback<T>(T value, int centralId, int nodeId, int varId) {
-        Debug.Log("Called with a value of " + value);
+    public void OnVariableCalledCallback<T>(T value, int nodeId, int varId) {
 
-        int id = threadMap.Count;
+        //int id = threadMap.Count;
 
-        if(internalFSTrack.Count > 0) {
+        /*if(internalFSTrack.Count > 0) {
             id = internalFSTrack[0];
             internalFSTrack.RemoveAt(0);
-        }
-
-        threadMap.Add(id, new OnChangeDataBase(new int[] { centralId, nodeId, varId }));
-        ChildThread cT = new ChildThread(GetNodeId(), id, this);
-
+        }*/
         AbilityCentralThreadPool inst = GetCentralInst();
+        int transferThread = inst.GetNewThread(GetNodeId());
+        threadMap.Add(transferThread, new OnChangeDataBase(new int[] { nodeId, varId }));
+       
+        ChildThread cT = new ChildThread(GetNodeId(),transferThread, this);       
+       
 
+        int threadToUse = inst.AddNewThread(cT);       
         int totalLinks = inst.ReturnVariable(GetNodeId(), "Extended Path").links.Length;
-        cT.SetNodeData(GetNodeId(), totalLinks);
-        int threadToUse = inst.AddNewThread(cT);
 
+        Debug.Log("Given Thread ID:" + threadToUse);
+        cT.SetNodeData(GetNodeId(), totalLinks);
+
+        
         SetVariable<int>(threadToUse, "Extended Path");
     }
 
@@ -65,7 +68,7 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
 
         //GetCentralInst().HandleThreadRemoval(parentThread);
         threadMap.Remove(parentThread);
-        internalFSTrack.Add(parentThread);
+        //internalFSTrack.Add(parentThread);
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {
@@ -84,16 +87,17 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
 
         //GetCentralInst().GetActiveThread(parentThread).SetNodeData(GetNodeId(), 1);
 
-        AbilityCentralThreadPool poolInst = AbilityCentralThreadPool.globalCentralList.l[oCDB.centralId[0]];
+        //AbilityCentralThreadPool poolInst = AbilityCentralThreadPool.globalCentralList.l[oCDB.centralId[0]];
 
         // Manually sets variable and callback original node.
-        poolInst.SetNodeBoolValue(false, oCDB.centralId[1], oCDB.centralId[2]);
-        poolInst.UpdateVariableValue<T>(oCDB.centralId[1], oCDB.centralId[2], rP.v,false);
-        poolInst.GetNode(oCDB.centralId[1]).NodeCallback();
-        
-        //GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Internal Redirect")).links = new int[][] { new int[] { oCDB.centralId[0], oCDB.centralId[1], 0 } };
-        //GetCentralInst().UpdateVariableValue<T>(oCDB.centralId[0], GetVariableId("Internal Redirect"), rP.v);
-        //GetCentralInst().UpdateVariableData<T>(parentThread, GetVariableId("Internal Redirect"), null, false);
+        //poolInst.SetNodeBoolValue(false, oCDB.centralId[1], oCDB.centralId[2]);
+        //poolInst.UpdateVariableValue<T>(oCDB.centralId[1], oCDB.centralId[2], rP.v,false);
+        //poolInst.GetNode(oCDB.centralId[1]).NodeCallback();
+
+        GetCentralInst().GetActiveThread(parentThread).SetNodeData(GetNodeId(),1);
+        GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Internal Redirect")).links = new int[][] { new int[] { oCDB.centralId[0], oCDB.centralId[1], 0 } };
+        GetCentralInst().UpdateVariableValue<T>(GetNodeId(), GetVariableId("Internal Redirect"), rP.v);
+        GetCentralInst().UpdateVariableData<T>(parentThread, GetVariableId("Internal Redirect"), null, false);
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

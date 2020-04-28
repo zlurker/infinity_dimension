@@ -329,6 +329,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         bool notInstanced = LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.NON_INSTANCED);
 
         // Returns null if this is the root.
+
+        //Debug.Log("Ref: " + reference);
         if(notInstanced || reference == null || (reference.Item1 == centralId && reference.Item2 == nodeId))
             return false;
 
@@ -523,7 +525,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             nextNodeInst.SetNodeThreadId(threadIdToUse);
 
-
+            //Debug.Log("Before node callback:" + GetRootReferenceNode(nodeId));
             if(CheckIfReferenced(nodeId, nodeVariableId))
                 GetRootReferenceNode(nodeId).NodeCallback();
             else
@@ -581,15 +583,15 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         if(sharedInstance.ContainsKey(node))
             foreach(var id in sharedInstance[node]) {
-                Tuple<int, int> tNId = Tuple.Create<int, int>(id.Item2, variable);
                 AbilityCentralThreadPool centralInst = globalCentralList.l[id.Item1];
-
+                Tuple<int, int> tNId = Tuple.Create<int, int>(id.Item2, variable);
+                
                 if(centralInst.targettedNodes.ContainsKey(tNId) && centralInst.targettedNodes[tNId].ContainsKey(catergory)) {
                     targetInCatergory += centralInst.targettedNodes[tNId][catergory].Count;
 
                     foreach(int nodeId in centralInst.targettedNodes[tNId][catergory]) {
                         OnVariableCalled nodeInst = globalCentralList.l[id.Item1].GetNode(nodeId) as OnVariableCalled;
-                        nodeInst.OnVariableCalledCallback<T>(value, centralId, node, variable);
+                        nodeInst.OnVariableCalledCallback<T>(value, id.Item2, variable);
                     }
                 }
             }
@@ -602,7 +604,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             foreach(int oVCNode in targettedNodes[sIDS][catergory]) {
                 OnVariableCalled oVCInst = CreateNewNodeIfNull(oVCNode) as OnVariableCalled;
-                oVCInst.OnVariableCalledCallback<T>(value, centralId, node, variable);
+                oVCInst.OnVariableCalledCallback<T>(value, node, variable);
             }
         }
 
