@@ -161,7 +161,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     #endregion
 
     public AbilityTreeNode GetNode(int id) {
-        return nodes[id];
+        return CreateNewNodeIfNull(id);
     }
 
     public Transform GetAbilityRoot() {
@@ -470,17 +470,11 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             int threadIdToUse = threadId;
 
             if(runOnCalled) {
-                Tuple<int, int> ids = Tuple.Create<int, int>(links[i][0], links[i][1]);
-                //Debug.Log("Link ID given: " + ids);
-                //Debug.Log("Link ID given: " + ids);
 
-                if(targettedNodes.ContainsKey(ids)) {
-                    foreach(int oVCNode in targettedNodes[ids][typeof(OnVariableCalled)]) {
-                        OnVariableCalled oVCInst = CreateNewNodeIfNull(oVCNode) as OnVariableCalled;
-                        oVCInst.OnVariableCalledCallback<T>(var.v, threadId, nodeId, nodeVariableId);
-                    }
+                int totalOnCalled = RunTargettedNodes<T>(nodeId, nodeVariableId, typeof(OnVariableCalled), var.v);
+
+                if(totalOnCalled > 0)
                     continue;
-                }
             }
 
             NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
@@ -507,7 +501,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
             activeThreads.l[threadIdToUse].SetNodeData(nodeId, nodeBranchingData[nodeId]);
 
-            RuntimeParameters<T> targetParamInst = runtimeParameters[nodeId][nodeVariableId].field as RuntimeParameters<T>;
 
             switch((LinkMode)linkType) {
                 case LinkMode.NORMAL:
@@ -582,6 +575,40 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             HandleThreadRemoval(threadId);
         }
     }
+
+    public int RunTargettedNodes<T>(int node, int variable, Type catergory, T value) {
+        int targetInCatergory = 0;
+
+        if(sharedInstance.ContainsKey(node))
+            foreach(var id in sharedInstance[node]) {
+                Tuple<int, int> tNId = Tuple.Create<int, int>(id.Item2, variable);
+                AbilityCentralThreadPool centralInst = globalCentralList.l[id.Item1];
+
+                if(centralInst.targettedNodes.ContainsKey(tNId) && centralInst.targettedNodes[tNId].ContainsKey(catergory)) {
+                    targetInCatergory += centralInst.targettedNodes[tNId][catergory].Count;
+
+                    foreach(int nodeId in centralInst.targettedNodes[tNId][catergory]) {
+                        OnVariableCalled nodeInst = globalCentralList.l[id.Item1].GetNode(nodeId) as OnVariableCalled;
+                        nodeInst.OnVariableCalledCallback<T>(value, centralId, node, variable);
+                    }
+                }
+            }
+
+        Tuple<int, int> sIDS = Tuple.Create(node, variable);
+
+        if(targettedNodes.ContainsKey(sIDS) && targettedNodes[sIDS].ContainsKey(catergory)) {
+
+            targetInCatergory += targettedNodes[sIDS][catergory].Count;
+
+            foreach(int oVCNode in targettedNodes[sIDS][catergory]) {
+                OnVariableCalled oVCInst = CreateNewNodeIfNull(oVCNode) as OnVariableCalled;
+                oVCInst.OnVariableCalledCallback<T>(value, centralId, node, variable);
+            }
+        }
+
+        return targetInCatergory;
+    }
+
 
     public void HandleThreadRemoval(int threadId) {
 

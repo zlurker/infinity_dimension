@@ -4,21 +4,31 @@ using UnityEngine;
 
 public class OnVariableCalled : NodeModifierBase, IRPGeneric {
 
+    List<int> internalFSTrack = new List<int>();
+
     public override void ConstructionPhase(AbilityData data) {
         base.ConstructionPhase(data);
 
         foreach(var t1 in data.GetLinkData(data.GetCurrBuildNode()).lHS)
             if(t1.Item2 == GetVariableId("Extended Path")) {
-                data.AddTargettedNode(t1.Item1, t1.Item2,GetType(), data.GetCurrBuildNode());
+                data.AddTargettedNode(t1.Item1, t1.Item2, GetType(), data.GetCurrBuildNode());
                 Debug.LogFormat("Built: {0},{1}", t1.Item1, t1.Item2);
                 data.GetLinkModifier().Remove(t1.Item1, t1.Item2, t1.Item3);
             }
     }
 
-    public void OnVariableCalledCallback<T>(T value, int threadId, params int[] nVInfo) {
+    public void OnVariableCalledCallback<T>(T value, int centralId, int nodeId, int varId) {
         Debug.Log("Called with a value of " + value);
-        threadMap.Add(threadId, new OnChangeDataBase(nVInfo));
-        ChildThread cT = new ChildThread(GetNodeId(), threadId, this);
+
+        int id = threadMap.Count;
+
+        if(internalFSTrack.Count > 0) {
+            id = internalFSTrack[0];
+            internalFSTrack.RemoveAt(0);
+        }
+
+        threadMap.Add(id, new OnChangeDataBase(new int[] { centralId, nodeId, varId }));
+        ChildThread cT = new ChildThread(GetNodeId(), id, this);
 
         AbilityCentralThreadPool inst = GetCentralInst();
 
@@ -32,7 +42,7 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
     // Only called by another OnVariableCalled
     public override void NodeCallback() {
         base.NodeCallback();
-        
+
     }
 
     public override void ThreadZeroed(int parentThread) {
@@ -55,6 +65,7 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
 
         //GetCentralInst().HandleThreadRemoval(parentThread);
         threadMap.Remove(parentThread);
+        internalFSTrack.Add(parentThread);
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {
@@ -71,11 +82,18 @@ public class OnVariableCalled : NodeModifierBase, IRPGeneric {
         Debug.LogFormat("Returning to {0},{1}", oCDB.centralId[0], oCDB.centralId[1]);
         //GetCentralInst().GetNode(oCDB.centralId[0]).SetVariable<T>(oCDB.centralId[1], rP.v);
 
-        GetCentralInst().GetActiveThread(parentThread).SetNodeData(GetNodeId(), 1);
+        //GetCentralInst().GetActiveThread(parentThread).SetNodeData(GetNodeId(), 1);
 
-        GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Internal Redirect")).links = new int[][] { new int[] { oCDB.centralId[0], oCDB.centralId[1], 0 } };
-        GetCentralInst().UpdateVariableValue<T>(GetNodeId(), GetVariableId("Internal Redirect"), rP.v);
-        GetCentralInst().UpdateVariableData<T>(parentThread, GetVariableId("Internal Redirect"),null, false);
+        AbilityCentralThreadPool poolInst = AbilityCentralThreadPool.globalCentralList.l[oCDB.centralId[0]];
+
+        // Manually sets variable and callback original node.
+        poolInst.SetNodeBoolValue(false, oCDB.centralId[1], oCDB.centralId[2]);
+        poolInst.UpdateVariableValue<T>(oCDB.centralId[1], oCDB.centralId[2], rP.v,false);
+        poolInst.GetNode(oCDB.centralId[1]).NodeCallback();
+        
+        //GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Internal Redirect")).links = new int[][] { new int[] { oCDB.centralId[0], oCDB.centralId[1], 0 } };
+        //GetCentralInst().UpdateVariableValue<T>(oCDB.centralId[0], GetVariableId("Internal Redirect"), rP.v);
+        //GetCentralInst().UpdateVariableData<T>(parentThread, GetVariableId("Internal Redirect"), null, false);
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
