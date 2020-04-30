@@ -16,6 +16,8 @@ public class ReturningData : ThreadMapDataBase {
 
 public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
 
+    int links = -1;
+
     public override void ConstructionPhase(AbilityData data) {
         base.ConstructionPhase(data);
 
@@ -28,13 +30,26 @@ public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
     }
 
     // Creates returning data and helps us to create a child thread based on what was given.
-    public virtual int CentralCallback<T>(T value, int nodeId, int varId) {
+    public virtual void CentralCallback<T>(T value, int nodeId, int varId, params string[] vars) {
+
         AbilityCentralThreadPool inst = GetCentralInst();
         int transferThread = inst.GetNewThread(GetNodeId());
         threadMap.Add(transferThread, new ReturningData(nodeId, varId));
 
         ChildThread cT = new ChildThread(GetNodeId(), transferThread, this);
-        return inst.AddNewThread(cT);
+        int threadToUse = inst.AddNewThread(cT);
+
+        if(links == -1) {
+            links = 0;
+
+            for(int i = 0; i < vars.Length; i++)
+                links += inst.ReturnVariable(GetNodeId(), vars[i]).links.Length;
+        }
+
+        cT.SetNodeData(GetNodeId(), links);
+
+        for(int i = 0; i < vars.Length; i++)
+            SetVariable<int>(threadToUse, vars[i]);
     }
 
     public override void ThreadZeroed(int parentThread) {
@@ -59,7 +74,6 @@ public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Extended Path",0)),
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Return from Variable", 0),VariableTypes.PERMENANT_TYPE,VariableTypes.SIGNAL_ONLY, VariableTypes.NON_LINK),
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Internal Redirect",0), VariableTypes.HIDDEN, VariableTypes.INTERCHANGEABLE)
         });

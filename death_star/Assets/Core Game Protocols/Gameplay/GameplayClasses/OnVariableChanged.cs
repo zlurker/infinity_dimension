@@ -3,23 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+public class OnVariableChanged : SpecialisedNodes, IRPGeneric {
 
 
-public class OnValueChange : NodeModifierBase, IRPGeneric {
-
-    List<int> recievedThreads = new List<int>();
-
-    public override void ConstructionPhase(AbilityData data) {
-
-
-        // Might need rewriting. 
-        //foreach(var t1 in data.GetLinkData(data.GetCurrBuildNode()).lHS)
-
-            // Adds all those who called this node into empty link storage.
-            //lM.Add(id, 4, t1.Item1, t1.Item2, t1.Item3);
-    }
-
-    public override void NodeCallback() {
+    /*public override void NodeCallback() {
         base.NodeCallback();
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
@@ -36,9 +23,9 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
             else
                 GetCentralInst().HandleThreadRemoval(latestThread);
         }
-    }
+    }*/
 
-    public void HandleSettingOnChange<T>(T[] valuePair, params int[] centralId) {
+    /*public void HandleSettingOnChange<T>(T[] valuePair, params int[] centralId) {
 
         /*int dictKey = -1;
 
@@ -60,10 +47,20 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         int threadToUse = inst.AddNewThread(cT);
 
         SetVariable<T>(threadToUse, "Old Value", valuePair[0]);
-        SetVariable<T>(threadToUse, "New Value", valuePair[1]);*/
+        SetVariable<T>(threadToUse, "New Value", valuePair[1]);
+    }*/
+
+    public override void CentralCallback<T>(T value, int nodeId, int varId, params string[] vars) {
+        base.CentralCallback(value, nodeId, varId, "Old Value", "New Value");
+
+        /*int totalLinks = inst.ReturnVariable(GetNodeId(), "Old Value").links.Length + inst.ReturnVariable(GetNodeId(), "New Value").links.Length;
+
+        //Debug.Log("Given Thread ID:" + threadToUse);
+        GetCentralInst().GetActiveThread(producedThread).SetNodeData(GetNodeId(), totalLinks);
+        SetVariable<int>(producedThread, "Extended Path");*/
     }
 
-    public override void ThreadZeroed(int parentThread) {
+    /* override void ThreadZeroed(int parentThread) {
         /*base.ThreadZeroed(parentThread);
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
@@ -78,21 +75,19 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         //}
 
         GetCentralInst().HandleThreadRemoval(parentThread);
-        threadMap.Remove(parentThread);*/
-    }
+        threadMap.Remove(parentThread);
+    }*/
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Old Value",0),VariableTypes.INTERCHANGEABLE),
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("New Value",0),VariableTypes.INTERCHANGEABLE),
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Modified Value To Return",0),VariableTypes.INTERCHANGEABLE),
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Empty link storage",0), VariableTypes.HIDDEN)
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("New Value",0),VariableTypes.INTERCHANGEABLE)
         });
     }
 
-    public void RunAccordingToGeneric<T, P>(P arg) {
+    public override void RunAccordingToGeneric<T, P>(P arg) {
 
         int[] idParams = (int[])(object)arg;
         AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[idParams[0]];

@@ -4,18 +4,12 @@ using UnityEngine;
 
 public class OnVariableCalled : SpecialisedNodes {
 
-    public override int CentralCallback<T>(T value, int nodeId, int varId) {
-        int producedThread = base.CentralCallback(value, nodeId, varId);
-       
-        int totalLinks = GetCentralInst().ReturnVariable(GetNodeId(), "Extended Path").links.Length;
+    public override void CentralCallback<T>(T value, int nodeId, int varId, params string[] vars) {
+        base.CentralCallback(value, nodeId, varId, "Extended Path");
 
-        //Debug.Log("Given Thread ID:" + threadToUse);
-        GetCentralInst().GetActiveThread(producedThread).SetNodeData(GetNodeId(), totalLinks);
-        SetVariable<int>(producedThread, "Extended Path");
-        return producedThread;
     }
 
-    
+
 
     public override void RunAccordingToGeneric<T, P>(P arg) {
 
@@ -45,4 +39,13 @@ public class OnVariableCalled : SpecialisedNodes {
         GetCentralInst().UpdateVariableValue<T>(GetNodeId(), GetVariableId("Internal Redirect"), rP.v);
         GetCentralInst().UpdateVariableData<T>(parentThread, GetVariableId("Internal Redirect"), null, false);
     }
+
+    public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
+        base.GetRuntimeParameters(holder);
+
+        holder.AddRange(new LoadedRuntimeParameters[] {
+            new LoadedRuntimeParameters(new RuntimeParameters<int>("Extended Path",0))
+        });
+    }
 }
+

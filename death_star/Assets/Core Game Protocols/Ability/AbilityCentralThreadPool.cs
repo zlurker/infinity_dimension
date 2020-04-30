@@ -122,9 +122,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     private Dictionary<int, List<AbilityNodeNetworkData>> networkNodeData;
 
-    private Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>> onChanged;
-    //private Dictionary<Tuple<int, int>, HashSet<int>> onVarCalled;
-    //private Dictionary<int, HashSet<Tuple<int, int>>> onGet;
 
     private Dictionary<int, HashSet<Tuple<int, int>>> sharedInstance;
 
@@ -212,9 +209,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         centralClusterId = cId;
         nodes = new AbilityTreeNode[rP.Length];
 
-        onChanged = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
-
-
         targettedNodes = new Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>>(oVC);
         //Debug.Log("OVC Count: " + oVC.Count);
 
@@ -224,19 +218,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
         //onGet = new Dictionary<Tuple<int, int>, HashSet<Tuple<int, int>>>();
         sharedInstance = new Dictionary<int, HashSet<Tuple<int, int>>>();
         //quickInstanceTargetRef = new Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<Tuple<int, int>>>>>();
-    }
-
-    public bool AddOnChanged(Tuple<int, int> key, Tuple<int, int> value) {
-
-        if(!onChanged.ContainsKey(key))
-            onChanged.Add(key, new HashSet<Tuple<int, int>>());
-
-        if(!onChanged[key].Contains(value)) {
-            onChanged[key].Add(value);
-            return true;
-        }
-
-        return false;
     }
 
     public void AddSharedInstance(int key, Tuple<int, int> value) {
@@ -447,26 +428,13 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             runValueChanged = false;
 
         // Does run value stuff here.
-        if(runValueChanged) {
-            // Needs rework.
-            Tuple<int, int> id = Tuple.Create<int, int>(nodeId, variableId);
-
-            //Debug.Log(nodeId);
-            //Debug.Log(variableId);
-
-            if(onChanged.ContainsKey(id)) {
-
-                foreach(var changeCallback in onChanged[id]) {
-                    //Debug.Log(changeCallback.Item1);
-                    //Debug.Log(changeCallback.Item2);
-                    //Debug.LogFormat("Routing to variable on change central {0}, node {1}", changeCallback.Item1, changeCallback.Item2);
-                    OnValueChange valChangeNode = globalCentralList.l[changeCallback.Item1].GetNode(changeCallback.Item2) as OnValueChange;
-                    valChangeNode.HandleSettingOnChange<T>(valuePair, new int[] { centralId, nodeId, variableId });
+        if(runValueChanged) 
+            if(sharedInstance.ContainsKey(nodeId))
+                foreach(var id in sharedInstance[nodeId]) {
+                    //OnVariableChanged valChangeNode = globalCentralList.l[id.Item1].GetNode(id.Item2) as OnVariableChanged;
+                    AbilityCentralThreadPool centralInst = globalCentralList.l[id.Item1];
+                    centralInst.RunTargettedNodes<T>(id.Item2, variableId, typeof(OnVariableCalled), value);
                 }
-
-                onChanged.Remove(id);
-            }
-        }
     }
 
     public void NodeVariableCallback<T>(int threadId, int variableId) {
