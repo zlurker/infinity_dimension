@@ -78,7 +78,7 @@ public class AbilityData : IInputCallback<int> {
     public AbilityInfo abilityInfo;
 
     //Dictionary<Tuple<int, int>, HashSet<int>> onCalledDict;
-    Dictionary<Tuple<int, int>, Dictionary<Type, HashSet<int>>> targettedNodes;
+    Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>> targettedNodes;
     Type[] dataType;
     int[][] rootSubclasses;
     int[] nodeBranchingData;
@@ -110,14 +110,17 @@ public class AbilityData : IInputCallback<int> {
     public void AddTargettedNode(int a1, int a2, Type subCategory,int b1) {
         Tuple<int, int> id = Tuple.Create<int, int>(a1, a2);
 
-        if(!targettedNodes.ContainsKey(id))
-            targettedNodes.Add(id, new Dictionary<Type, HashSet<int>>());
+        if(!targettedNodes.ContainsKey(a1))
+            targettedNodes.Add(a1, new Dictionary<Type, Dictionary<int, HashSet<int>>>());
 
-        if(!targettedNodes[id].ContainsKey(subCategory))
-            targettedNodes[id].Add(subCategory, new HashSet<int>());
+        if(!targettedNodes[a1].ContainsKey(subCategory))
+            targettedNodes[a1].Add(subCategory,new Dictionary<int, HashSet<int>>());
 
-        if(!targettedNodes[id][subCategory].Contains(b1))
-            targettedNodes[id][subCategory].Add(b1);
+        if(!targettedNodes[a1][subCategory].ContainsKey(a2))
+            targettedNodes[a1][subCategory].Add(a2, new HashSet<int>());
+
+        if(!targettedNodes[a1][subCategory][a2].Contains(b1))
+            targettedNodes[a1][subCategory][a2].Add(b1);
     }
 
     public AbilityData(AbilityDataSubclass[] data, AbilityInfo aD, string aId) {
@@ -127,7 +130,7 @@ public class AbilityData : IInputCallback<int> {
         dataVar = new Variable[data.Length + 1][];
         dataType = new Type[data.Length + 1];
         linkData = new LinkData[data.Length + 1];
-        targettedNodes = new Dictionary<Tuple<int, int>, Dictionary<Type, HashSet<int>>>();
+        targettedNodes = new Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>>();
 
         for(int i = 0; i < data.Length; i++) {
             dataVar[i] = data[i].var;
