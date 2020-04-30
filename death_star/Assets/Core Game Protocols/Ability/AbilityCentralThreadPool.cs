@@ -518,10 +518,11 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 int totalOnCalled = RunTargettedNodes<T>(nodeId, nodeVariableId, typeof(OnVariableCalled), var.v);
 
                 // Runs other instances OVC too
-                foreach(var id in sharedInstance[nodeId]) {
-                    AbilityCentralThreadPool centralInst = globalCentralList.l[id.Item1];
-                    centralInst.RunTargettedNodes<T>(id.Item2, variableId, typeof(OnVariableCalled), var.v);
-                }
+                if(sharedInstance.ContainsKey(nodeId))
+                    foreach(var id in sharedInstance[nodeId]) {
+                        AbilityCentralThreadPool centralInst = globalCentralList.l[id.Item1];
+                        centralInst.RunTargettedNodes<T>(id.Item2, variableId, typeof(OnVariableCalled), var.v);
+                    }
 
                 if(totalOnCalled > 0)
                     continue;
@@ -629,17 +630,18 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
     public int RunTargettedNodes<T>(int node, int variable, Type category, T value) {
         int targetInCatergory = 0;
 
-        if(targettedNodes[node].ContainsKey(category))
-            foreach(var vCLoop in targettedNodes[node][category]) {
+        if(targettedNodes.ContainsKey(node))
+            if(targettedNodes[node].ContainsKey(category))
+                foreach(var vCLoop in targettedNodes[node][category]) {
 
-                if(variable == vCLoop.Key)
-                    targetInCatergory += vCLoop.Value.Count;
+                    if(variable == vCLoop.Key)
+                        targetInCatergory += vCLoop.Value.Count;
 
-                foreach(int vC in vCLoop.Value) {
-                    OnVariableCalled nodeInst = GetNode(vC) as OnVariableCalled;
-                    nodeInst.OnVariableCalledCallback<T>(value, node, variable);
+                    foreach(int vC in vCLoop.Value) {
+                        OnVariableCalled nodeInst = GetNode(vC) as OnVariableCalled;
+                        nodeInst.CentralCallback<T>(value, node, variable);
+                    }
                 }
-            }
 
         /*if(sharedInstance.ContainsKey(node))
             foreach(var id in sharedInstance[node]) {

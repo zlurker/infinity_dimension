@@ -27,6 +27,7 @@ public class AbilityTreeNode : MonoBehaviour {
     private int nodeId;
     private int centralThreadId;
     private int nodeThreadId;
+    private bool selfRef;
     private Tuple<int, int> reference;
     private SpawnerOutput sourceObject;
 
@@ -75,42 +76,50 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node", null),VariableTypes.NON_INSTANCED));
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node", null), VariableTypes.NON_INSTANCED));
     }
 
     public virtual void NodeCallback() {
 
-        if(reference == null)
+        if(reference == null) {
             reference = Tuple.Create<int, int>(centralThreadId, nodeId);
+            selfRef = true;
+        }
 
         AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node");
 
-        if(refNode != null) 
 
-            // Needs to be replaced.
-            if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
+        if(refNode != null) {
 
-                // Closes this game object as it is just a instance of another object.
-                gameObject.SetActive(false);
+            // Makes sure it doesn't run this code if reference remains the same.
+            if(reference == null || refNode.reference != reference)
+                // Needs to be replaced.
+                if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
 
-                Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
-                AbilityCentralThreadPool centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
+                    // Closes this game object as it is just a instance of another object.
+                    gameObject.SetActive(false);
 
-                // Removes previous instance.
-                if(reference != null)
-                    centralRoot.RemoveSharedInstance(reference.Item2, id);
+                    Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
+                    AbilityCentralThreadPool centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
 
-                // Adds current reference and creates a new instance according to reference.
-                reference = refNode.reference;
-                centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
-                centralRoot.AddSharedInstance(reference.Item2, id);
+                    // Removes previous instance if not self referenced.
+                    if(selfRef) {
+                        centralRoot.RemoveSharedInstance(reference.Item2, id);
+                        selfRef = false;
+                    }
 
-                Debug.LogFormat("Reference set. Reference: {0}. This: {1}", reference.Item2, nodeId);
-            } else 
-                GetCentralInst().SetNodeBoolValue(true, nodeId, 0);
-            
-        
-            
+                    // Adds current reference and creates a new instance according to reference.
+                    reference = refNode.reference;
+                    centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
+                    centralRoot.AddSharedInstance(reference.Item2, id);
+
+                    Debug.LogFormat("Reference set. Reference: {0}. This: {1}", reference.Item2, nodeId);
+                } else
+                    GetCentralInst().SetNodeBoolValue(true, nodeId, 0);
+        }
+
+
+
         // Sends out this node as a reference if all details are in order.
         if(CheckIfVarRegionBlocked("This Node"))
             GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
@@ -124,9 +133,9 @@ public class AbilityTreeNode : MonoBehaviour {
         bool[] nodeBoolValues = AbilityCentralThreadPool.globalCentralList.l[centralThreadId].GetNodeBoolValues(nodeId);
 
         for(int i = 0; i < target.Length; i++)
-            if(nodeBoolValues[GetVariableId(target[i])]) 
+            if(nodeBoolValues[GetVariableId(target[i])])
                 return false;
-            
+
 
         return true;
     }

@@ -3,14 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class OnChangeDataBase : ThreadMapDataBase {
 
-    public int[] centralId;
-
-    public OnChangeDataBase(params int[] cId) {
-        centralId = cId;
-    }
-}
 
 public class OnValueChange : NodeModifierBase, IRPGeneric {
 
@@ -47,7 +40,7 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
 
     public void HandleSettingOnChange<T>(T[] valuePair, params int[] centralId) {
 
-        int dictKey = -1;
+        /*int dictKey = -1;
 
         if(recievedThreads.Count > 0) {
             dictKey = recievedThreads[recievedThreads.Count - 1];
@@ -67,11 +60,11 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         int threadToUse = inst.AddNewThread(cT);
 
         SetVariable<T>(threadToUse, "Old Value", valuePair[0]);
-        SetVariable<T>(threadToUse, "New Value", valuePair[1]);
+        SetVariable<T>(threadToUse, "New Value", valuePair[1]);*/
     }
 
     public override void ThreadZeroed(int parentThread) {
-        base.ThreadZeroed(parentThread);
+        /*base.ThreadZeroed(parentThread);
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
@@ -85,7 +78,7 @@ public class OnValueChange : NodeModifierBase, IRPGeneric {
         //}
 
         GetCentralInst().HandleThreadRemoval(parentThread);
-        threadMap.Remove(parentThread);
+        threadMap.Remove(parentThread);*/
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
