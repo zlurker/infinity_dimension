@@ -557,6 +557,9 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             else
                 nextNodeInst.NodeCallback();
 
+            if (nodeBranchingData[nodeId] <= 0)
+                HandleThreadRemoval(threadIdToUse);
+
             // Automatically callback all auto managed nodes.
             for(int j = 0; j < autoManagedVar[nodeId].Length; j++)
 
@@ -597,11 +600,6 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
         //Debug.LogFormat("Thread: {0}, CurrNode to be Set: {1}", threadId, currNode);
         //Debug.Log("Curr Possible Paths: " + currPossiblePaths);
-
-        if(currPossiblePaths == 0) {            
-            Debug.LogFormat("Called by thread {0} node {1} var {2} type {3}",threadId,currNode,variableId, activeThreads.l[threadId]);
-            HandleThreadRemoval(threadId);
-        }
     }
 
     public int RunTargettedNodes<T>(int node, int variable, Type category, T value) {
