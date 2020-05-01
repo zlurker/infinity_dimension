@@ -20,19 +20,26 @@ public class OnVariableCalled : SpecialisedNodes {
         }
     }
 
-    public override void CentralCallback<T>(T value, int nodeId, int varId, params string[] vars) {
+    public override int CentralCallback<T>(T value, int nodeId, int varId) {
         //Debug.Log("Central Called");
-        base.CentralCallback(value, nodeId, varId, "Extended Path");
+        int childThread = base.CentralCallback(value, nodeId, varId);
+        NodeThread cTInst = GetCentralInst().GetActiveThread(childThread);
+
+        cTInst.SetNodeData(GetNodeId(), GetCentralInst().ReturnVariable(GetNodeId(), "Extended Path").links.Length);
+        SetVariable<int>(childThread, "Extended Path");
+        return childThread;
     }
 
+
+    // Rewrite this with changed if possible. We already retrived vartoreturn before.
     public override void RunAccordingToGeneric<T, P>(P arg) {
         int parentThread = (int)(object)arg;
         ReturningData oCDB = threadMap[parentThread] as ReturningData;
         //AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[idParams[0]];
 
-        int[] varToReturn = GetCentralInst().ReturnVariable(GetNodeId(), "Return from Variable").links[0];
 
-        RuntimeParameters<T> rP = GetCentralInst().ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
+
+        RuntimeParameters<T> rP = returnTargetInst as RuntimeParameters<T>;
         //Debug.Log("Returning central " + inst);
         //Debug.LogFormat("Returning modified variable {0} to id: {1},{2} ", rP.v, idParams[1], idParams[2]);
         //Debug.LogFormat("Returning to {0},{1}", oCDB.node, oCDB.variable);

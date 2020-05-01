@@ -16,12 +16,11 @@ public class ReturningData : ThreadMapDataBase {
 
 public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
 
-    int links = -1;
-
+    protected RuntimeParameters returnTargetInst;
     
 
     // Creates returning data and helps us to create a child thread based on what was given.
-    public virtual void CentralCallback<T>(T value, int nodeId, int varId, params string[] vars) {
+    public virtual int CentralCallback<T>(T value, int nodeId, int varId) {
 
         //Debug.Log("Central base called.");
 
@@ -30,21 +29,7 @@ public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
         threadMap.Add(transferThread, new ReturningData(nodeId, varId));
 
         ChildThread cT = new ChildThread(GetNodeId(), transferThread, this);
-        int threadToUse = inst.AddNewThread(cT);
-
-        if(links == -1) {
-            links = 0;
-
-            for(int i = 0; i < vars.Length; i++)
-                links += inst.ReturnVariable(GetNodeId(), vars[i]).links.Length;
-        }
-
-        //Debug.Log(links);
-
-        cT.SetNodeData(GetNodeId(), links);
-
-        for(int i = 0; i < vars.Length; i++)
-            SetVariable<int>(threadToUse, vars[i]);
+        return inst.AddNewThread(cT);       
     }
 
     public override void ThreadZeroed(int parentThread) {
@@ -52,15 +37,16 @@ public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
-        //Debug.Log("Ret variable");
 
         if(centralInst.ReturnVariable(GetNodeId(), "Return from Variable").links.Length == 0)
             return;
-
-        
+      
         int[] modifiedReturn = centralInst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
+        Variable varInst = centralInst.ReturnVariable(modifiedReturn[0], modifiedReturn[1]);
 
-        centralInst.ReturnVariable(modifiedReturn[0], modifiedReturn[1]).field.RunGenericBasedOnRP<int>(this, parentThread);
+        returnTargetInst = varInst.field;
+        Debug.Log("Thread zeroed already.");
+        varInst.field.RunGenericBasedOnRP<int>(this, parentThread);
         threadMap.Remove(parentThread);
     }
 

@@ -39,6 +39,7 @@ public class NodeModifierBase : AbilityTreeNode {
 
             //Debug.Log("parentthread: " + parentThread);
             threadMap[parentThread].totalThreadsSpawned--;
+            Debug.Log("Removing threads: " + threadMap[parentThread].totalThreadsSpawned);
 
             if(threadMap[parentThread].totalThreadsSpawned == 0)
                 ThreadZeroed(parentThread);
@@ -57,5 +58,6 @@ public class NodeModifierBase : AbilityTreeNode {
 
     public void AddThread(int oT) {
         threadMap[oT].totalThreadsSpawned++;
+        Debug.Log("Adding threads: " + threadMap[oT].totalThreadsSpawned);
     }
 }

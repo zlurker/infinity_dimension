@@ -50,14 +50,35 @@ public class OnVariableChanged : SpecialisedNodes, IRPGeneric {
         SetVariable<T>(threadToUse, "New Value", valuePair[1]);
     }*/
 
-    public override void CentralCallback<T>(T value, int nodeId, int varId, params string[] vars) {
-        base.CentralCallback(value, nodeId, varId, "Old Value", "New Value");
+    public override void ConstructionPhase(AbilityData data) {
+        base.ConstructionPhase(data);
 
-        /*int totalLinks = inst.ReturnVariable(GetNodeId(), "Old Value").links.Length + inst.ReturnVariable(GetNodeId(), "New Value").links.Length;
+        Debug.Log("Construction phase called. LHS Links: " + data.GetLinkData(data.GetCurrBuildNode()).lHS.Count);
+        foreach(var t1 in data.GetLinkData(data.GetCurrBuildNode()).lHS) {
 
-        //Debug.Log("Given Thread ID:" + threadToUse);
-        GetCentralInst().GetActiveThread(producedThread).SetNodeData(GetNodeId(), totalLinks);
-        SetVariable<int>(producedThread, "Extended Path");*/
+            //Debug.LogFormat("Connected var id: {0}. Curr var needed: {1}. Curr node: {2}", data.GetVariable(t1.Item1, t1.Item2).links[t1.Item3][1], GetVariableId("Extended Path"), data.GetCurrBuildNode());
+
+            if(data.GetVariable(t1.Item1, t1.Item2).links[t1.Item3][1] == GetVariableId("Old Value") || data.GetVariable(t1.Item1, t1.Item2).links[t1.Item3][1] == GetVariableId("New Value")) {
+                data.AddTargettedNode(t1.Item1, t1.Item2, GetType(), data.GetCurrBuildNode());
+                Debug.LogFormat("Built {0}: {1},{2}", GetType(), t1.Item1, t1.Item2);
+                data.GetLinkModifier().Remove(t1.Item1, t1.Item2, t1.Item3);
+            }
+        }
+    }
+
+    public override int CentralCallback<T>(T value, int nodeId, int varId) {
+        
+
+        int childThread = base.CentralCallback(value, nodeId, varId);
+        NodeThread cTInst = GetCentralInst().GetActiveThread(childThread);
+
+        int totalLinks = GetCentralInst().ReturnVariable(GetNodeId(), "Old Value").links.Length + GetCentralInst().ReturnVariable(GetNodeId(), "New Value").links.Length;
+        Debug.Log(totalLinks);
+        cTInst.SetNodeData(GetNodeId(), totalLinks);
+
+        SetVariable<T>(childThread, "Old Value", GetCentralInst().ReturnRuntimeParameter<T>(nodeId,varId).v);
+        SetVariable<T>(childThread, "New Value", value);
+        return childThread;
     }
 
     /* override void ThreadZeroed(int parentThread) {
@@ -89,14 +110,14 @@ public class OnVariableChanged : SpecialisedNodes, IRPGeneric {
 
     public override void RunAccordingToGeneric<T, P>(P arg) {
 
-        int[] idParams = (int[])(object)arg;
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[idParams[0]];
+        int parentThread = (int)(object)arg;
+        ReturningData oCDB = threadMap[parentThread] as ReturningData;
+        //AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[oCDB.];
 
-        int[] varToReturn = GetCentralInst().ReturnVariable(GetNodeId(), "Modified Value To Return").links[0];
-
-        RuntimeParameters<T> rP = GetCentralInst().ReturnRuntimeParameter<T>(varToReturn[0], varToReturn[1]);
+        RuntimeParameters<T> rP = returnTargetInst as RuntimeParameters<T>;
         //Debug.Log("Returning central " + inst);
-        Debug.LogFormat("Returning modified variable {0} to id: {1},{2} ", rP.v, idParams[1], idParams[2]);
-        inst.UpdateVariableValue<T>(idParams[1], idParams[2], rP.v, false);
+        Debug.LogFormat("Returning modified variable {0} ", rP.v);
+  
+        GetCentralInst().UpdateVariableValue<T>(oCDB.node, oCDB.variable, rP.v, false);
     }
 }
