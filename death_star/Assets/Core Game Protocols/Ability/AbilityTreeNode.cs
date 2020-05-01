@@ -113,7 +113,7 @@ public class AbilityTreeNode : MonoBehaviour {
                     centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
                     centralRoot.AddSharedInstance(reference.Item2, id);
 
-                    Debug.LogFormat("Reference set. Reference: {0}. This: {1}", reference.Item2, nodeId);
+                    //Debug.LogFormat("Reference set. Reference: {0}. This: {1}", reference.Item2, nodeId);
                 } else
                     GetCentralInst().SetNodeBoolValue(true, nodeId, 0);
         }

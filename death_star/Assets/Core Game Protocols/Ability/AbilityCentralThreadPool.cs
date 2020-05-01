@@ -428,12 +428,12 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
             runValueChanged = false;
 
         // Does run value stuff here.
-        if(runValueChanged) 
+        if(runValueChanged)
             if(sharedInstance.ContainsKey(nodeId))
                 foreach(var id in sharedInstance[nodeId]) {
                     //OnVariableChanged valChangeNode = globalCentralList.l[id.Item1].GetNode(id.Item2) as OnVariableChanged;
                     AbilityCentralThreadPool centralInst = globalCentralList.l[id.Item1];
-                    centralInst.RunTargettedNodes<T>(id.Item2, variableId, typeof(OnVariableCalled), value);
+                    centralInst.RunTargettedNodes<T>(id.Item2, variableId, typeof(OnVariableChanged), value);
                 }
     }
 
@@ -489,7 +489,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
                 if(sharedInstance.ContainsKey(nodeId))
                     foreach(var id in sharedInstance[nodeId]) {
                         AbilityCentralThreadPool centralInst = globalCentralList.l[id.Item1];
-                        centralInst.RunTargettedNodes<T>(id.Item2, variableId, typeof(OnVariableCalled), var.v);
+                        totalOnCalled += centralInst.RunTargettedNodes<T>(id.Item2, variableId, typeof(OnVariableCalled), var.v);
                     }
 
                 if(totalOnCalled > 0)
@@ -582,7 +582,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
                 //Debug.LogFormat("pregame Central ID: {0}, Node Id: {1}, Variable ID: {2}, Value {3}, Type{4}", inst.Item1, inst.Item2, variableId, var.v, typeof(T));
                 //Debug.Log("Thread ID" + centralInst.GetNode(inst.Item2).GetNodeThreadId());
-                centralInst.UpdateVariableData<T>(centralInst.GetNode(inst.Item2).GetNodeThreadId(), variableId, var);
+                centralInst.UpdateVariableData<T>(centralInst.GetNode(inst.Item2).GetNodeThreadId(), variableId, var, runOnCalled);
             }
 
 
@@ -597,6 +597,8 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     public int RunTargettedNodes<T>(int node, int variable, Type category, T value) {
         int targetInCatergory = 0;
+
+        //Debug.Log("RTN called");
 
         if(targettedNodes.ContainsKey(node))
             if(targettedNodes[node].ContainsKey(category))

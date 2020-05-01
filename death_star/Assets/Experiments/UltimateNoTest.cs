@@ -5,13 +5,13 @@ using UnityEngine;
 public class UltimateNoTest : AbilityTreeNode {
 
     private void Update() {
-        //Debug.Log(name + " " + GetNodeVariable<float>("Num"));
+        Debug.Log(name + " " + GetNodeVariable<float>("Num"));
     }
 
     public override void NodeCallback() {
         base.NodeCallback();
 
-        Debug.Log(name + " " + GetNodeVariable<float>("Num"));
+        //Debug.Log(name + " " + GetNodeVariable<float>("Num"));
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

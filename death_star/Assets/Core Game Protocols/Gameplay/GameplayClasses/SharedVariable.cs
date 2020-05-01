@@ -5,15 +5,11 @@ using UnityEngine.UI;
 
 public class VariableInterfaces : IRPGeneric {
 
-    public enum CallbackType {
-        GROUP, SELF
-    }
-
     public class InternalValueHolder<T> : InternalValueHolder {
         public T value;
 
         public override void ForceSetValue(SharedVariable target) {
-            Debug.Log("Variable has been forceset.");
+            //Debug.Log("Variable has been forceset.");
             target.SetVariable<T>("Variable Value", value);
         }
     }
@@ -42,7 +38,6 @@ public class VariableInterfaces : IRPGeneric {
     public void Callback(SharedVariable caller) {
         AbilityCentralThreadPool inst = caller.GetCentralInst();
 
-
         inst.ReturnVariable(caller.GetNodeId(), caller.GetVariableId("Variable Value")).field.RunGenericBasedOnRP<SharedVariable>(this, caller);
     }
 
@@ -55,7 +50,6 @@ public class VariableInterfaces : IRPGeneric {
 
         for(int i = 0; i < sVList.Count; i++)
             sVList[i].SetVariable<T>("Variable Value", value);
-
 
         if(vhInst == null)
             valueHolder = new InternalValueHolder<T>();
@@ -110,4 +104,3 @@ public class SharedVariable : AbilityTreeNode {
         return sharedVariables[clusterRootId][GetNodeVariable<string>("Variable Name")];
     }
 }
-

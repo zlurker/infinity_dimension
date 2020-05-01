@@ -37,7 +37,7 @@ public class NodeModifierBase : AbilityTreeNode {
         if(nT is ChildThread) {
             int parentThread = (nT as ChildThread).GetOriginalThread();
 
-            Debug.Log("parentthread: " + parentThread);
+            //Debug.Log("parentthread: " + parentThread);
             threadMap[parentThread].totalThreadsSpawned--;
 
             if(threadMap[parentThread].totalThreadsSpawned == 0)
