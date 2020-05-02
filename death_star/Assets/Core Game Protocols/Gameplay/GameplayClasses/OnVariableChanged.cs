@@ -66,18 +66,18 @@ public class OnVariableChanged : SpecialisedNodes, IRPGeneric {
         }
     }
 
-    public override int CentralCallback<T>(T value, int nodeId, int varId) {
+    public override int CentralCallback<T>(T value, int nodeId, int varId,int links) {
         
 
-        int childThread = base.CentralCallback(value, nodeId, varId);
-        NodeThread cTInst = GetCentralInst().GetActiveThread(childThread);
+        int childThread = base.CentralCallback(value, nodeId, varId, GetCentralInst().ReturnVariable(GetNodeId(), "Old Value").links.Length + GetCentralInst().ReturnVariable(GetNodeId(), "New Value").links.Length);
 
-        int totalLinks = GetCentralInst().ReturnVariable(GetNodeId(), "Old Value").links.Length + GetCentralInst().ReturnVariable(GetNodeId(), "New Value").links.Length;
-        Debug.Log(totalLinks);
-        cTInst.SetNodeData(GetNodeId(), totalLinks);
+        if(childThread >= 0) {
+            NodeThread cTInst = GetCentralInst().GetActiveThread(childThread);
 
-        SetVariable<T>(childThread, "Old Value", GetCentralInst().ReturnRuntimeParameter<T>(nodeId,varId).v);
-        SetVariable<T>(childThread, "New Value", value);
+            SetVariable<T>(childThread, "Old Value", GetCentralInst().ReturnRuntimeParameter<T>(nodeId, varId).v);
+            SetVariable<T>(childThread, "New Value", value);
+        }
+
         return childThread;
     }
 

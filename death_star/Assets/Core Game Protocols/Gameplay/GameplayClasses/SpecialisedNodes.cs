@@ -17,10 +17,10 @@ public class ReturningData : ThreadMapDataBase {
 public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
 
     protected RuntimeParameters returnTargetInst;
-    
+
 
     // Creates returning data and helps us to create a child thread based on what was given.
-    public virtual int CentralCallback<T>(T value, int nodeId, int varId) {
+    public virtual int CentralCallback<T>(T value, int nodeId, int varId, int links = 0) {
 
         //Debug.Log("Central base called.");
 
@@ -28,8 +28,14 @@ public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
         int transferThread = inst.GetNewThread(GetNodeId());
         threadMap.Add(transferThread, new ReturningData(nodeId, varId));
 
-        ChildThread cT = new ChildThread(GetNodeId(), transferThread, this);
-        return inst.AddNewThread(cT);       
+        if(links > 0) {
+            ChildThread cT = new ChildThread(GetNodeId(), transferThread, this);
+            cT.SetNodeData(GetNodeId(), links);
+            return inst.AddNewThread(cT);
+        } else
+            ThreadZeroed(transferThread);
+
+        return -1;
     }
 
     public override void ThreadZeroed(int parentThread) {
@@ -37,15 +43,13 @@ public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
-
         if(centralInst.ReturnVariable(GetNodeId(), "Return from Variable").links.Length == 0)
             return;
-      
+
         int[] modifiedReturn = centralInst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
         Variable varInst = centralInst.ReturnVariable(modifiedReturn[0], modifiedReturn[1]);
 
         returnTargetInst = varInst.field;
-        Debug.Log("Thread zeroed already.");
         varInst.field.RunGenericBasedOnRP<int>(this, parentThread);
         threadMap.Remove(parentThread);
     }

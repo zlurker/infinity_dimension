@@ -20,13 +20,21 @@ public class OnVariableCalled : SpecialisedNodes {
         }
     }
 
-    public override int CentralCallback<T>(T value, int nodeId, int varId) {
-        //Debug.Log("Central Called");
-        int childThread = base.CentralCallback(value, nodeId, varId);
-        NodeThread cTInst = GetCentralInst().GetActiveThread(childThread);
+    public override void NodeCallback() {
+        base.NodeCallback();
 
-        cTInst.SetNodeData(GetNodeId(), GetCentralInst().ReturnVariable(GetNodeId(), "Extended Path").links.Length);
-        SetVariable<int>(childThread, "Extended Path");
+
+    }
+
+    public override int CentralCallback<T>(T value, int nodeId, int varId, int links) {
+        //Debug.Log("Central Called");
+        int childThread = base.CentralCallback(value, nodeId, varId, GetCentralInst().ReturnVariable(GetNodeId(), "Extended Path").links.Length);
+
+        if(childThread >= 0) {
+            NodeThread cTInst = GetCentralInst().GetActiveThread(childThread);
+            SetVariable<int>(childThread, "Extended Path");
+        }
+
         return childThread;
     }
 

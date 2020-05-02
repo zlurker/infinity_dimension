@@ -100,7 +100,7 @@ public class AbilityPageScript : MonoBehaviour {
         setNewPrimary.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.9f, 0.8f));
 
         lL = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));
-        lL.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.15f, 0.75f));
+        lL.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.1f, 0.75f));
     }
 
     void CreateAbility() {

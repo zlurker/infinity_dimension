@@ -61,6 +61,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     public AutoPopulationList<LineData> lineData;
 
     public SpawnerOutput mainClassSelection;
+    public SpawnerOutput classSelectionScrollRect;
 
     public Font font;
     Text instance;
@@ -134,7 +135,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         }
 
-        mainClassSelection.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
+        
+        classSelectionScrollRect = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollRectWrapper));
+        mainClassSelection.script.transform.SetParent((classSelectionScrollRect.script as ScrollRectWrapper).content);
+        classSelectionScrollRect.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
+
         windowSpawner = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image));
         windowSpawner.script.gameObject.SetActive(false);
 

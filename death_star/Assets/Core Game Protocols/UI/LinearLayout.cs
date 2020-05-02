@@ -19,32 +19,45 @@ public class LinearLayout : MonoBehaviour, IOnSpawn
         multiplier = new Vector2(1, -1);
         objects = new List<RectTransform>();
         (transform as RectTransform).sizeDelta = new Vector2(0, 0);
+        (transform as RectTransform).pivot = new Vector2(0, 1);
+
+        
     } 
 
     public void Add(RectTransform target) {
         objects.Add(target);
         target.SetParent(transform);
+
+        
+        int altIndex = (int)o == 1 ? 0 : 1;
+        sizeConstrain[altIndex] = sizeConstrain[altIndex] < target.sizeDelta[altIndex] ? target.sizeDelta[altIndex] : sizeConstrain[altIndex];
+        sizeConstrain[(int)o] += target.sizeDelta[(int)o];
+
+        //SlotItemIn(target);
+        Debug.LogFormat("Actual {0}, Alternate {1}", (int)o, altIndex);
+        Debug.LogFormat("Size Constraint: {0}, Target SD: {1}, SC SD: {2}",sizeConstrain, target.sizeDelta[altIndex], sizeConstrain[altIndex]);
         RecalculateBounds();
     }
 
     void RecalculateBounds() {
-        sizeConstrain = new Vector3();
+        (transform as RectTransform).sizeDelta = sizeConstrain;
+        sizeConstrain[(int)o] = 0;
 
         for(int i = 0; i < objects.Count; i++)
             SlotItemIn(objects[i]);
-
-        (transform as RectTransform).sizeDelta = sizeConstrain;
     }
 
     void SlotItemIn(RectTransform target)
-    {
-        int altIndex = (int)o == 1 ? 0 : 1;
+    {       
         Vector3 lengthAddition = new Vector3();
 
         lengthAddition[(int)o] = sizeConstrain[(int)o] * multiplier[(int)o];
-        sizeConstrain[altIndex] = sizeConstrain[altIndex] < target.sizeDelta[altIndex] ? target.sizeDelta[altIndex] : sizeConstrain[altIndex];
+        
         Vector3 finalPos = new Vector3();
-        finalPos[(int)o] = lengthAddition[(int)o] + (target.pivot[(int)0] * target.sizeDelta[(int)o]);
+        int altIndex = (int)o == 1 ? 0 : 1;
+
+        finalPos[altIndex] = target.pivot[altIndex] * target.sizeDelta[altIndex] * multiplier[altIndex];
+        finalPos[(int)o] = lengthAddition[(int)o] + (target.pivot[(int)o] * target.sizeDelta[(int)o] * multiplier[(int)o]);
         target.localPosition = finalPos;
 
         /* Adds the targeted object's targeted dimension into the sizeconstrain

@@ -119,7 +119,7 @@ public class AbilityTreeNode : MonoBehaviour {
         }
 
 
-        Debug.Log("Thread may end first because of this.");
+        //Debug.Log("Thread may end first because of this.");
 
         // Sends out this node as a reference if all details are in order.
         if(CheckIfVarRegionBlocked("This Node"))
