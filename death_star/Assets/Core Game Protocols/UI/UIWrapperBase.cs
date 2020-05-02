@@ -143,7 +143,8 @@ public class ScrollRectWrapper : UIWrapperBase {
 
         content = LoadedData.GetSingleton<UIDrawer>().CreateEmptyGameObject().transform as RectTransform;
         iVP.gameObject.AddComponent<Mask>();
-       
+
+        content.pivot = new Vector3(0.5f, 1);
         content.SetParent(iVP.transform);
         iM.transform.SetParent(sR.transform);
         iVP.transform.SetParent(sR.transform);
@@ -162,6 +163,8 @@ public class ScrollRectWrapper : UIWrapperBase {
 
 [RequireComponent(typeof(Scrollbar))]
 public class ScrollbarWrapper : UIWrapperBase {
+
+
 
     public override void OnSpawn() {
         if(mainScript == null) {

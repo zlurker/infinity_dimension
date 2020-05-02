@@ -137,8 +137,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         
         classSelectionScrollRect = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollRectWrapper));
-        mainClassSelection.script.transform.SetParent((classSelectionScrollRect.script as ScrollRectWrapper).content);
+        (classSelectionScrollRect.script as ScrollRectWrapper).content.sizeDelta = (mainClassSelection.script.transform as RectTransform).sizeDelta;
         classSelectionScrollRect.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
+
+        mainClassSelection.script.transform.SetParent((classSelectionScrollRect.script as ScrollRectWrapper).content);
+        mainClassSelection.script.transform.localPosition =  new Vector2(-(mainClassSelection.script.transform as RectTransform).sizeDelta.x / 2,0);        
+        
 
         windowSpawner = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image));
         windowSpawner.script.gameObject.SetActive(false);

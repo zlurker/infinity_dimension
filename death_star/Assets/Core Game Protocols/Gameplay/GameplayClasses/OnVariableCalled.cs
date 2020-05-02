@@ -22,8 +22,6 @@ public class OnVariableCalled : SpecialisedNodes {
 
     public override void NodeCallback() {
         base.NodeCallback();
-
-
     }
 
     public override int CentralCallback<T>(T value, int nodeId, int varId, int links) {
