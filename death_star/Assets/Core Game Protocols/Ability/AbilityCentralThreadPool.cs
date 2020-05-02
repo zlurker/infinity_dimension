@@ -291,7 +291,7 @@ public class AbilityCentralThreadPool : NetworkObject, IRPGeneric, ITimerCallbac
 
     public void CallOnTimerEnd(int eventId) {
         UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
-        //Debug.Log("Send data worth " + networkNodeData.Count);
+        Debug.Log("Sending data");
 
         AbilityNodeNetworkData[] data = networkNodeData[eventId].ToArray();
         networkNodeData.Remove(eventId);
