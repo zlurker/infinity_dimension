@@ -601,12 +601,6 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         return nodes[nodeId];
     }
 
-    public void RenameAllNodes() {
-        for(int i = 0; i < nodes.Length; i++)
-            if(nodes[i] != null)
-                nodes[i].name = castingPlayer.ToString() + '/' + centralId.ToString() + '/' + i.ToString();
-    }
-
 
     // This should be ran with curr node rather than thread.
     public void RunAccordingToGeneric<T, P>(P arg) {

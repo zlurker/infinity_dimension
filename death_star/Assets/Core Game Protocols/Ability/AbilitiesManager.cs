@@ -298,9 +298,9 @@ public class AbilityData : IInputCallback<int> {
     public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1, int clusterId = -1) {
 
         if(givenPopulatedId > -1)
-            AbilitiesManager.aData[ClientProgram.clientId].playerSpawnedCentrals.ModifyElementAt(givenPopulatedId, threadInst);
+            AbilitiesManager.aData[pId].playerSpawnedCentrals.ModifyElementAt(givenPopulatedId, threadInst);
         else
-            givenPopulatedId = AbilitiesManager.aData[ClientProgram.clientId].InsertSpawnedIntoFreeSpace(threadInst);//AbilityCentralThreadPool.globalCentralList.Add(threadInst);
+            givenPopulatedId = AbilitiesManager.aData[pId].InsertSpawnedIntoFreeSpace(threadInst);//AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
         //int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
         Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
@@ -313,7 +313,7 @@ public class AbilityData : IInputCallback<int> {
             clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
         AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(givenPopulatedId);
-        threadInst.SetCentralData(ClientProgram.clientId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId, targettedNodes);
+        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId, targettedNodes);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
