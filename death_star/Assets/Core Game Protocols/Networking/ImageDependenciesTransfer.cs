@@ -23,9 +23,10 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
         if(!currPath.ContainsKey(targetId))
             currPath.Add(targetId, "");
 
-        if(currPath[targetId] == "")
+        if(currPath[targetId] == "") {
             currPath[targetId] = Encoding.Default.GetString(bytesRecieved);
-        else {
+            Debug.Log("Path Size: " + bytesRecieved.Length);
+        } else {
             Texture2D generatedTex = new Texture2D(1, 1);
             generatedTex.LoadImage(bytesRecieved);
             Sprite sprInst = Sprite.Create(generatedTex, new Rect(0, 0, generatedTex.width, generatedTex.height), new Vector2(0.5f, 0.5f));
@@ -46,7 +47,7 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
 
         DirectoryBytesData dirData = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].ReturnAllMainFiles(3);
 
-        for(int i = 0; i < dirData.filesData.Length; i++) {
+        for (int i=0; i < dirData.filesData.Length; i++) {
             string jsonFile = Encoding.Default.GetString(dirData.filesData[i][0]);
             string[] imagePaths = JsonConvert.DeserializeObject<string[]>(jsonFile);
 

@@ -40,7 +40,7 @@ public class ThreadSplitter : NodeModifierBase {
 
     public void ProcessThreads(int threadId) {
 
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+        AbilityCentralThreadPool inst = GetCentralInst();
         SplitterData sData = threadMap[threadId] as SplitterData;
 
         //Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, sData.numberOfLoops, inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);

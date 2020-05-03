@@ -102,8 +102,6 @@ public class LoadClasses : MonoBehaviour {
     void LoadNetworkDependencies() {
         // Creates a new instance, it will handle everything else in constructor.
         // to be replaced with igameplaystatic
-        NetworkObjectTracker.inst = new NetworkObjectTracker();
-
         NetworkMessageEncoder.encoders = new NetworkMessageEncoder[] {
             new ServerChannel(),
             //new AbilityInputEncoder(),

@@ -25,13 +25,15 @@ public class AbilityTreeNode : MonoBehaviour {
 
     // Given node ID.
     private int nodeId;
+
+    private int castingPlayerId;
     private int centralThreadId;
     private int nodeThreadId;
     private bool selfRef;
-    private Tuple<int, int> reference;
+    private Tuple<int, int, int> reference;
     private SpawnerOutput sourceObject;
 
-    public Tuple<int, int> GetReference() {
+    public Tuple<int, int, int> GetReference() {
         return reference;
     }
 
@@ -59,11 +61,16 @@ public class AbilityTreeNode : MonoBehaviour {
         nodeId = id;
     }
 
+    public int GetCastingPlayerId() {
+        return castingPlayerId;
+    }
+
     public int GetCentralId() {
         return centralThreadId;
     }
 
-    public void SetCentralId(int id) {
+    public void SetCentralId(int cP, int id) {
+        castingPlayerId = cP;
         centralThreadId = id;
     }
 
@@ -82,7 +89,7 @@ public class AbilityTreeNode : MonoBehaviour {
     public virtual void NodeCallback() {
 
         if(reference == null) {
-            reference = Tuple.Create<int, int>(centralThreadId, nodeId);
+            reference = Tuple.Create<int, int, int>(castingPlayerId, centralThreadId, nodeId);
             selfRef = true;
         }
 
@@ -99,19 +106,19 @@ public class AbilityTreeNode : MonoBehaviour {
                     // Closes this game object as it is just a instance of another object.
                     gameObject.SetActive(false);
 
-                    Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
+                    //Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
                     AbilityCentralThreadPool centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
 
                     // Removes previous instance if not self referenced.
                     if(selfRef) {
-                        centralRoot.RemoveSharedInstance(reference.Item2, id);
+                        centralRoot.RemoveSharedInstance(reference.Item2, reference);
                         selfRef = false;
                     }
 
                     // Adds current reference and creates a new instance according to reference.
                     reference = refNode.reference;
                     centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
-                    centralRoot.AddSharedInstance(reference.Item2, id);
+                    centralRoot.AddSharedInstance(reference.Item2, Tuple.Create(castingPlayerId, centralThreadId, nodeId));
 
                     //Debug.LogFormat("Reference set. Reference: {0}. This: {1}", reference.Item2, nodeId);
                 } else
@@ -125,7 +132,7 @@ public class AbilityTreeNode : MonoBehaviour {
         if(CheckIfVarRegionBlocked("This Node"))
             GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
 
-       
+
     }
 
     public virtual void ThreadEndStartCallback(int threadId) {
@@ -133,7 +140,7 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public bool CheckIfVarRegionBlocked(params string[] target) {
-        bool[] nodeBoolValues = AbilityCentralThreadPool.globalCentralList.l[centralThreadId].GetNodeBoolValues(nodeId);
+        bool[] nodeBoolValues = GetCentralInst().GetNodeBoolValues(nodeId);
 
         for(int i = 0; i < target.Length; i++)
             if(nodeBoolValues[GetVariableId(target[i])])
@@ -144,7 +151,7 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public AbilityCentralThreadPool GetCentralInst() {
-        return AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+        return AbilitiesManager.aData[castingPlayerId].playerSpawnedCentrals.GetElementAt(centralThreadId);
     }
 
     public bool IsClientPlayerUpdate() {

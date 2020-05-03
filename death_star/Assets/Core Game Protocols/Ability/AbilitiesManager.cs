@@ -294,7 +294,7 @@ public class AbilityData : IInputCallback<int> {
 
     public void CreateAbility(AbilityCentralThreadPool threadInst, int clusterId = -1) {
 
-        int tId = AbilityCentralThreadPool.globalCentralList.Add(threadInst);
+        int tId = AbilitiesManager.aData[ClientProgram.clientId].playerSpawnedCentrals.Add(threadInst);//AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
         //int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
         Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
@@ -307,7 +307,7 @@ public class AbilityData : IInputCallback<int> {
             clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
         AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(tId);
-        threadInst.SetCentralData(tId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId,targettedNodes);
+        threadInst.SetCentralData(ClientProgram.clientId,tId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId,targettedNodes);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
@@ -332,9 +332,11 @@ public sealed class AbilitiesManager : MonoBehaviour {
         public Dictionary<string, AbilityData> abilties;
         public Dictionary<string, Sprite> assetData;
         public Dictionary<int, string> abilityManifest;
+        public AutoPopulationList<AbilityCentralThreadPool> playerSpawnedCentrals;
 
         public PlayerAssetData() {
             assetData = new Dictionary<string, Sprite>();
+            playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();           
         }
     }
 

@@ -1,28 +1,29 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 //A enhanced list that will keep track of free spaces while not changing indexes of current existing elements
 public class EnhancedList<T> {
 
     public List<T> l; //list
-    Stack<int> iNS; //internalNumberingSystem
+    protected HashSet<int> iNS; //internalNumberingSystem
 
     public EnhancedList() {
         l = new List<T>();
-        iNS = new Stack<int>();
+        iNS = new HashSet<int>();
     }
 
     public EnhancedList(T[] presetElements) {
         l = new List<T>(presetElements);
-        iNS = new Stack<int>();
+        iNS = new HashSet<int>();
     }
 
     public int Add(T element) {
         int index = -1;
 
         if(iNS.Count > 0) {
-            index = iNS.Pop();
+            index = iNS.First<int>();
             l[index] = element;
         } else {
             index = l.Count;
@@ -36,7 +37,7 @@ public class EnhancedList<T> {
         l[index] = default(T);
 
         if(!iNS.Contains(index))
-            iNS.Push(index);
+            iNS.Add(index);
     }
 
     public int GetActiveElementsLength() {

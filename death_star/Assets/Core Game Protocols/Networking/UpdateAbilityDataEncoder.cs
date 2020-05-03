@@ -37,10 +37,10 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         }
     }
 
-    List<AbilityCentralThreadPool> playerGeneratedAbilities;
+    //List<AbilityCentralThreadPool> playerGeneratedAbilities;
 
     public override void CalibrateEncoder(int id) {
-        playerGeneratedAbilities = new List<AbilityCentralThreadPool>();
+        //playerGeneratedAbilities = new List<AbilityCentralThreadPool>();
         base.CalibrateEncoder(id);
     }
 

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,7 +33,7 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
             // Adds it to internal redirect.
             lM.Add(id, 3, t1.Item1, t1.Item2, t1.Item3);
         }
-    }*/
+    }
 
     public override void NodeCallback() {
         base.NodeCallback();
@@ -82,4 +82,4 @@ public class ReturnValue : NodeModifierBase, IRPGeneric {
 
         SetVariable(parentThread,"Internal Redirect", rP.v);
     }
-}
+}*/

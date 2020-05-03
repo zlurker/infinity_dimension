@@ -29,7 +29,7 @@ public class NodeModifierBase : AbilityTreeNode {
 
     public override void ThreadEndStartCallback(int threadId) {
 
-        AbilityCentralThreadPool inst = AbilityCentralThreadPool.globalCentralList.l[GetCentralId()];
+        AbilityCentralThreadPool inst =GetCentralInst();
         NodeThread nT = inst.GetActiveThread(threadId);
 
         //Debug.Log("Thread end called");
