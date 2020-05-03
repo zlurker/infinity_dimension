@@ -194,6 +194,9 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         return ReturnVariable(node, variable).field as RuntimeParameters<T>;
     }
 
+    public int ReturnPlayerCasted() {
+        return castingPlayer;
+    }
     public int ReturnCentralId() {
         return centralId;
     }

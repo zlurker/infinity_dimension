@@ -81,6 +81,6 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
         AbilityInfo aD = JsonConvert.DeserializeObject<AbilityInfo>(abilityDescription);
 
-        AbilitiesManager.aData[targetId].abilties[abilityId] = new AbilityData(ability,aD,abilityId);
+        AbilitiesManager.aData[targetId].abilties[abilityId] = new AbilityData(ability,aD,targetId,abilityId);
     }
 }

@@ -22,8 +22,6 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             if(nTID > -1) {
                 centralInst.UpdateVariableValue<T>(ability, var, value);
                 centralInst.UpdateVariableData<T>(nTID, var);
-
-
             }
         }
     }
@@ -46,19 +44,15 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
     public void SendVariableManifest(AbilityCentralThreadPool inst, AbilityNodeNetworkData[] manifest) {
 
-        if(inst.ReturnNetworkObjectId() == -1) {
-            playerGeneratedAbilities.Add(inst);
-        }
-
-        byte[] cData = BitConverter.GetBytes(inst.ReturnNetworkObjectId());
-        byte[] instData = BitConverter.GetBytes(inst.ReturnInstId());
+        byte[] playerCasted = BitConverter.GetBytes(inst.ReturnPlayerCasted());
+        byte[] centralId = BitConverter.GetBytes(inst.ReturnCentralId());
 
         byte[] manifestData = PrepareVariableManifest(manifest);
 
         bytesToSend = new byte[8 + manifestData.Length];
 
-        Buffer.BlockCopy(cData, 0, bytesToSend, 0, 4);
-        Buffer.BlockCopy(instData, 0, bytesToSend, 4, 4);
+        Buffer.BlockCopy(playerCasted, 0, bytesToSend, 0, 4);
+        Buffer.BlockCopy(centralId, 0, bytesToSend, 4, 4);
         Buffer.BlockCopy(manifestData, 0, bytesToSend, 8, manifestData.Length);
         SendEncodedMessages();
     }
@@ -138,16 +132,25 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
     }
 
     public override void MessageRecievedCallback() {
-        int central = BitConverter.ToInt32(bytesRecieved, 0);
-        int instId = BitConverter.ToInt32(bytesRecieved, 4);
+        int playerCasted = BitConverter.ToInt32(bytesRecieved, 0);
+        int centralId = BitConverter.ToInt32(bytesRecieved, 4);
         List<PackedNodeData> pND = new List<PackedNodeData>();
-        AbilityCentralThreadPool centralInst = null;
+        AbilityCentralThreadPool centralInst = AbilitiesManager.aData[playerCasted].playerSpawnedCentrals.GetElementAt(centralId);
         int loopStartId = 0;
 
         foreach(PackedNodeData parsedData in ParseManifest(bytesRecieved, 8))
             pND.Add(parsedData);
 
-        if(central > -1) {
+        if(centralInst == null) {
+            centralInst = new AbilityCentralThreadPool(targetId);
+
+            int pId = (pND[0] as PackedNodeData<int>).value;
+            string aId = (pND[1] as PackedNodeData<string>).value;
+            AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst,playerCasted,centralId);
+        }
+
+
+        /*if(central > -1) {
             if(NetworkObjectTracker.inst.CheckIfInstIdMatches(central, instId))
                 centralInst = NetworkObjectTracker.inst.ReturnNetworkObject(central) as AbilityCentralThreadPool;
         } else {
@@ -156,7 +159,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             // Handles creation of new centrals.
             if(targetId != ClientProgram.clientId) {
                 centralInst = new AbilityCentralThreadPool(targetId);
-                string aId = (pND[0] as PackedNodeData<string>).value;
+                
                 NetworkObjectTracker.inst.AddNetworkObject(centralInst);
                 AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(centralInst);
             } else {
@@ -165,12 +168,12 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 centralInst = playerGeneratedAbilities[0];
                 playerGeneratedAbilities.RemoveAt(0);
             }
-        }
+        }*/
 
-        if(centralInst != null)
-            if(loopStartId < pND.Count)
-                for(int i = loopStartId; i < pND.Count; i++)
-                    pND[i].UpdateCentral(centralInst);
+        //if(centralInst != null)
+        if(loopStartId < pND.Count)
+            for(int i = loopStartId; i < pND.Count; i++)
+                pND[i].UpdateCentral(centralInst);
     }
 
     public IEnumerable<PackedNodeData> ParseManifest(byte[] bytesRecieved, int offset = 0) {

@@ -13,7 +13,7 @@ public class CreateAbility : AbilityTreeNode {
 
         AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
         //Debug.Log(GetNodeVariable<string>("Ability Name"));
-        AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA,inst.GetClusterID());
+        AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, ClientProgram.clientId, -1, inst.GetClusterID());
     }
 
     public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
@@ -30,7 +30,7 @@ public class CreateAbility : AbilityTreeNode {
             foreach(var kPV in AbilityPageScript.abilityInfo) {
                 dOd.Add(new Dropdown.OptionData(kPV.Value.n));
 
-                if (kPV.Key == rpS.v) 
+                if(kPV.Key == rpS.v)
                     selected = dOd.Count - 1;
             }
 
@@ -52,6 +52,6 @@ public class CreateAbility : AbilityTreeNode {
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<string>("Ability Name", ""),VariableTypes.HOST_ACTIVATED));
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<string>("Ability Name", ""), VariableTypes.HOST_ACTIVATED));
     }
 }

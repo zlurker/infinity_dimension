@@ -83,6 +83,7 @@ public class AbilityData : IInputCallback<int> {
     int[][] rootSubclasses;
     int[] nodeBranchingData;
     int[][] autoManagedVariables;
+    int playerId;
     string abilityId;
 
 
@@ -107,14 +108,14 @@ public class AbilityData : IInputCallback<int> {
         return dataVar[node][variable];
     }
 
-    public void AddTargettedNode(int a1, int a2, Type subCategory,int b1) {
+    public void AddTargettedNode(int a1, int a2, Type subCategory, int b1) {
         Tuple<int, int> id = Tuple.Create<int, int>(a1, a2);
 
         if(!targettedNodes.ContainsKey(a1))
             targettedNodes.Add(a1, new Dictionary<Type, Dictionary<int, HashSet<int>>>());
 
         if(!targettedNodes[a1].ContainsKey(subCategory))
-            targettedNodes[a1].Add(subCategory,new Dictionary<int, HashSet<int>>());
+            targettedNodes[a1].Add(subCategory, new Dictionary<int, HashSet<int>>());
 
         if(!targettedNodes[a1][subCategory].ContainsKey(a2))
             targettedNodes[a1][subCategory].Add(a2, new HashSet<int>());
@@ -123,7 +124,7 @@ public class AbilityData : IInputCallback<int> {
             targettedNodes[a1][subCategory][a2].Add(b1);
     }
 
-    public AbilityData(AbilityDataSubclass[] data, AbilityInfo aD, string aId) {
+    public AbilityData(AbilityDataSubclass[] data, AbilityInfo aD, int pId, string aId) {
 
         abilityInfo = aD;
         // Sorts variable out accordingly.
@@ -138,6 +139,7 @@ public class AbilityData : IInputCallback<int> {
             linkData[i] = new LinkData();
         }
 
+        playerId = pId;
         abilityId = aId;
 
         RetrieveStartNodes();
@@ -281,8 +283,9 @@ public class AbilityData : IInputCallback<int> {
 
     public void InputCallback(int i) {
         AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(ClientProgram.clientId);
+        centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<int>(-1, -1, playerId));
         centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<string>(-1, -1, abilityId));
-        CreateAbility(centralPool);
+        CreateAbility(centralPool,ClientProgram.clientId);
 
         //if(ClientProgram.clientInst) {
         //AbilityNodeNetworkData[] data = centralPool.GetVariableNetworkData();
@@ -292,9 +295,12 @@ public class AbilityData : IInputCallback<int> {
         //}
     }
 
-    public void CreateAbility(AbilityCentralThreadPool threadInst, int clusterId = -1) {
+    public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1, int clusterId = -1) {
 
-        int tId = AbilitiesManager.aData[ClientProgram.clientId].playerSpawnedCentrals.Add(threadInst);//AbilityCentralThreadPool.globalCentralList.Add(threadInst);
+        if(givenPopulatedId > -1)
+            AbilitiesManager.aData[ClientProgram.clientId].playerSpawnedCentrals.ModifyElementAt(givenPopulatedId, threadInst);
+        else
+            givenPopulatedId = AbilitiesManager.aData[ClientProgram.clientId].playerSpawnedCentrals.Add(threadInst);//AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
         //int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
         Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
@@ -306,8 +312,8 @@ public class AbilityData : IInputCallback<int> {
         if(clusterId == -1)
             clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
-        AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(tId);
-        threadInst.SetCentralData(ClientProgram.clientId,tId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId,targettedNodes);
+        AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(givenPopulatedId);
+        threadInst.SetCentralData(ClientProgram.clientId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId, targettedNodes);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
@@ -336,7 +342,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
         public PlayerAssetData() {
             assetData = new Dictionary<string, Sprite>();
-            playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();           
+            playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
         }
     }
 
