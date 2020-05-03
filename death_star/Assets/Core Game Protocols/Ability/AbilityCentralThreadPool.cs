@@ -422,13 +422,14 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         if(threadId == -1)
             return;
 
+        Debug.Log("Node thread ID: " + threadId);
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         NETWORK_CLIENT_ELIGIBILITY nCE = CheckEligibility(currNode, variableId);
 
-        //Debug.Log(nCE);
-
+       
         switch(nCE) {
             case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
+                //Debug.Log("Curr Node sent out: " + currNode);
                 RuntimeParameters<T> paramInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
                 AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, paramInst.v));
                 break;
@@ -567,6 +568,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {
 
+        //Debug.Log(nodeId);
         if(!nodes[nodeId]) {
 
             // Tries to convert type into a singleton to see if it exist.
@@ -579,7 +581,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
                 nodes[nodeId].SetSourceObject(sOInst);
 
                 // Changes its name
-                nodes[nodeId].name = castingPlayer.ToString() + '/' + centralId.ToString() + '/' + '/' + nodeId.ToString();
+                nodes[nodeId].name = castingPlayer.ToString() + '/' + centralId.ToString() + '/' + nodeId.ToString();
 
                 // Adds it to root
                 nodes[nodeId].transform.SetParent(abilityNodeRoot);

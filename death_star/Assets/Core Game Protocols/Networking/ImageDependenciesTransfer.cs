@@ -25,14 +25,14 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
 
         if(currPath[targetId] == "") {
             currPath[targetId] = Encoding.Default.GetString(bytesRecieved);
-            Debug.Log("Path Size: " + bytesRecieved.Length);
+            //Debug.Log("Path Size: " + bytesRecieved.Length);
         } else {
             Texture2D generatedTex = new Texture2D(1, 1);
             generatedTex.LoadImage(bytesRecieved);
             Sprite sprInst = Sprite.Create(generatedTex, new Rect(0, 0, generatedTex.width, generatedTex.height), new Vector2(0.5f, 0.5f));
 
-            Debug.LogFormat("Target: {0}. Curr Path: {1}.", targetId, currPath);
-            Debug.LogFormat("Client: ID{0}. Sprite Size: {1}", ClientProgram.clientId, bytesRecieved.Length);
+            //Debug.LogFormat("Target: {0}. Curr Path: {1}.", targetId, currPath);
+            //Debug.LogFormat("Client: ID{0}. Sprite Size: {1}", ClientProgram.clientId, bytesRecieved.Length);
             AbilitiesManager.GetAssetData(targetId).assetData.Add(currPath[targetId], sprInst);
 
             if(targetId == ClientProgram.clientId)

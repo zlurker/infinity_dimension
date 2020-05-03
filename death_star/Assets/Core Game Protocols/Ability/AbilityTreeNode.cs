@@ -151,6 +151,8 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public AbilityCentralThreadPool GetCentralInst() {
+        //Debug.Log("CPID: " +castingPlayerId);
+        //Debug.Log("CTID: " + centralThreadId);
         return AbilitiesManager.aData[castingPlayerId].playerSpawnedCentrals.GetElementAt(centralThreadId);
     }
 

@@ -21,38 +21,51 @@ public class TimerData {
 
 public class Timer : MonoBehaviour, ISingleton {
 
-    EnhancedList<TimerData> tData;
+    Dictionary<int, TimerData> tData;
+    int currTimerCreated;
 
     void Update() {
 
-        for(int i = tData.l.Count-1; i >= 0; i--) {
-            if(tData.l[i] != null)
-                if(tData.l[i].startTime + tData.l[i].duration <= Time.realtimeSinceStartup) {
-                    tData.l[i].callback.CallOnTimerEnd(i);
-                    tData.Remove(i);
-                }
-        }
+        List<int> delTimers = new List<int>();
+
+        // Need to modify this to only accept those with 
+        foreach(var timeData in tData)
+            if(timeData.Value.startTime + timeData.Value.duration <= Time.realtimeSinceStartup) {
+                timeData.Value.callback.CallOnTimerEnd(timeData.Key);
+                delTimers.Add(timeData.Key);
+                //tData.Remove(timeData.Key);
+            }
+
+        for(int i = 0; i < delTimers.Count; i++)
+            tData.Remove(delTimers[i]);
+
     }
 
     public int CreateNewTimerEvent(float d, ITimerCallback cb) {
-        return tData.Add(new TimerData(Time.realtimeSinceStartup, d, cb));
+
+        tData.Add(currTimerCreated, new TimerData(Time.realtimeSinceStartup, d, cb));
+        currTimerCreated++;
+        return currTimerCreated - 1;
     }
 
     public int CreateNewTimerEvent(float sT, float d, ITimerCallback cb) {
-        return tData.Add(new TimerData(sT, d, cb));
+        tData.Add(currTimerCreated, new TimerData(sT, d, cb));
+        currTimerCreated++;
+        return currTimerCreated -1;
     }
 
     public void UpdateEventStartTime(int eventId, float sT) {
-        Debug.LogFormat("Event {0}'s start time has been changed to {1}. End timing is now {2}",eventId,sT,sT + tData.l[eventId].duration);
-        tData.l[eventId].startTime = sT;
+        Debug.LogFormat("Event {0}'s start time has been changed to {1}. End timing is now {2}", eventId, sT, sT + tData[eventId].duration);
+        tData[eventId].startTime = sT;
     }
 
     public void UpdateEventDuration(int eventId, float d) {
-        tData.l[eventId].duration = d;
+        tData[eventId].duration = d;
     }
 
     public void RunOnCreated() {
-        tData = new EnhancedList<TimerData>();
+        tData = new Dictionary<int, TimerData>();
+        currTimerCreated = 0;
     }
 
     public void RunOnStart() {

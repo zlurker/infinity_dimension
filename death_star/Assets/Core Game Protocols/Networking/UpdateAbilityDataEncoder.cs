@@ -16,13 +16,17 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         }
 
         public override void UpdateCentral(AbilityCentralThreadPool centralInst) {
+            if(ability > -1) {
+                int nTID = centralInst.GetNode(ability).GetNodeThreadId();
+                Debug.Log("Node thread ID: " +nTID);
 
-            int nTID = centralInst.GetNode(ability).GetNodeThreadId();
-
-            if(nTID > -1) {
-                centralInst.UpdateVariableValue<T>(ability, var, value);
-                centralInst.UpdateVariableData<T>(nTID, var);
+                if(nTID > -1) {
+                    centralInst.UpdateVariableValue<T>(ability, var, value);
+                    centralInst.UpdateVariableData<T>(nTID, var);
+                }
             }
+
+
         }
     }
 
@@ -136,7 +140,6 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         int centralId = BitConverter.ToInt32(bytesRecieved, 4);
         List<PackedNodeData> pND = new List<PackedNodeData>();
         AbilityCentralThreadPool centralInst = AbilitiesManager.aData[playerCasted].playerSpawnedCentrals.GetElementAt(centralId);
-        int loopStartId = 0;
 
         foreach(PackedNodeData parsedData in ParseManifest(bytesRecieved, 8))
             pND.Add(parsedData);
@@ -146,7 +149,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
             int pId = (pND[0] as PackedNodeData<int>).value;
             string aId = (pND[1] as PackedNodeData<string>).value;
-            AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst,playerCasted,centralId);
+            AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, playerCasted, centralId);
         }
 
 
@@ -170,10 +173,9 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             }
         }*/
 
-        //if(centralInst != null)
-        if(loopStartId < pND.Count)
-            for(int i = loopStartId; i < pND.Count; i++)
-                pND[i].UpdateCentral(centralInst);
+        for(int i = 0; i < pND.Count; i++)
+            pND[i].UpdateCentral(centralInst);
+
     }
 
     public IEnumerable<PackedNodeData> ParseManifest(byte[] bytesRecieved, int offset = 0) {
