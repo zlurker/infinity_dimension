@@ -50,13 +50,14 @@ public class ThreadSplitter : NodeModifierBase {
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
             int threadToUse = inst.AddNewThread(trdInst);
-            Debug.LogFormat("Thread {0} is starting a new journey.",threadToUse);
+            Debug.LogFormat("Thread {0} is starting a new journey.", threadToUse);
             //Debug.LogFormat("Thread id {0} has been created.", threadToUse);
             inst.NodeVariableCallback<int>(threadToUse, GetVariableId("Number of Loops"));
         } else {
+            Debug.LogFormat("Thread {0} was rmed.", threadId);
             inst.HandleThreadRemoval(threadId);
             threadMap.Remove(threadId);
-            
+
         }
     }
 }

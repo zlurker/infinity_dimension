@@ -422,8 +422,6 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         if(threadId == -1)
             return;
 
-        Debug.LogFormat("NodeThread NCB ID: {0}", threadId);
-
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         NETWORK_CLIENT_ELIGIBILITY nCE = CheckEligibility(currNode, variableId);
 
@@ -446,12 +444,6 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         if(threadId == -1)
             return;
 
-        Debug.LogFormat("NodeThread UVD ID: {0}, casterId {1}, centralId {2}, threads {3}", threadId,castingPlayer, centralId,activeThreads.l.Count);
-
-        for(int i = 0; i < activeThreads.l.Count; i++)
-            Debug.LogFormat("{0} {1}", i, activeThreads.l[i]);
-
-        Debug.Log(activeThreads.l[threadId]);
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         int[][] links = runtimeParameters[currNode][variableId].links;
         int currPossiblePaths = activeThreads.l[threadId].GetPossiblePaths();
@@ -566,17 +558,15 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
     public void HandleThreadRemoval(int threadId) {
 
-        int cNode = activeThreads.l[threadId].GetCurrentNodeID();
-        int sPoint = activeThreads.l[threadId].GetStartingPoint();
+        //int cNode = activeThreads.l[threadId].GetCurrentNodeID();
+        //int sPoint = activeThreads.l[threadId].GetStartingPoint();
+        Debug.LogFormat("Thread {0} ending at {1}",threadId, CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID()).GetType());
+        CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID()).SetNodeThreadId(-1);
+        CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
 
+        
         activeThreads.Remove(threadId);
-        Debug.Log("Thread removed: " + threadId);
-     
-        CreateNewNodeIfNull(cNode).SetNodeThreadId(-1);
-        CreateNewNodeIfNull(sPoint).ThreadEndStartCallback(threadId);
-        
-        // Removes that thread.
-        
+        Debug.LogFormat("Thread {0} has been removed.", threadId);
     }
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {

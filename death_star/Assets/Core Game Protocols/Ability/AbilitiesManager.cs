@@ -300,7 +300,7 @@ public class AbilityData : IInputCallback<int> {
         if(givenPopulatedId > -1)
             AbilitiesManager.aData[ClientProgram.clientId].playerSpawnedCentrals.ModifyElementAt(givenPopulatedId, threadInst);
         else
-            givenPopulatedId = AbilitiesManager.aData[ClientProgram.clientId].playerSpawnedCentrals.Add(threadInst);//AbilityCentralThreadPool.globalCentralList.Add(threadInst);
+            givenPopulatedId = AbilitiesManager.aData[ClientProgram.clientId].InsertSpawnedIntoFreeSpace(threadInst);//AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
         //int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
         Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
@@ -340,9 +340,30 @@ public sealed class AbilitiesManager : MonoBehaviour {
         public Dictionary<int, string> abilityManifest;
         public AutoPopulationList<AbilityCentralThreadPool> playerSpawnedCentrals;
 
+        private List<int> internalFreeSpaceTracker;
+
         public PlayerAssetData() {
             assetData = new Dictionary<string, Sprite>();
             playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
+            internalFreeSpaceTracker = new List<int>();
+        }
+
+        public void RemoveSpawn(int index) {
+            playerSpawnedCentrals.ModifyElementAt(index, null);
+            internalFreeSpaceTracker.Add(index);
+        }
+
+        public int InsertSpawnedIntoFreeSpace(AbilityCentralThreadPool inst) {
+            int index = 0;
+
+            if(internalFreeSpaceTracker.Count > 0) {
+                index = internalFreeSpaceTracker[0];
+                internalFreeSpaceTracker.RemoveAt(0);
+            } else
+                index = playerSpawnedCentrals.l.Count;
+
+            playerSpawnedCentrals.ModifyElementAt(index, inst);
+            return index;
         }
     }
 
