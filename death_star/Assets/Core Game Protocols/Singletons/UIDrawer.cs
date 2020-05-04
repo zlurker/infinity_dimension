@@ -8,6 +8,7 @@ using System.Reflection;
 public class UIDrawer : Spawner, ISingleton {
     public static Canvas t; //target
     public static Dictionary<Type, int> butInpIds;
+    public static Dictionary<Type, Dictionary<string, int>> uiWrapperDir;
 
     public override SpawnerOutput CreateScriptedObject(Type type) {
         SpawnerOutput inst = base.CreateScriptedObject(type);
@@ -28,7 +29,7 @@ public class UIDrawer : Spawner, ISingleton {
         return c;
     }
 
-    public static T GetTypeInElement<T>(SpawnerOutput t) {
+    /*public static T GetTypeInElement<T>(SpawnerOutput t) {
 
         if(t.script is T)
             return (T)(object)t.script;
@@ -41,17 +42,50 @@ public class UIDrawer : Spawner, ISingleton {
                 return (T)(object)target.mainScript;
 
             if(target.mainScript is Button || target.mainScript is InputField) {
-                MonoBehaviour inst = target.additionalScripts[butInpIds[typeof(T)]].script; 
+                MonoBehaviour inst = target.additionalScripts[butInpIds[typeof(T)]].script;
 
-                if (inst is UIWrapperBase) 
-                    return (T)(object)(inst as UIWrapperBase).mainScript;             
+                if(inst is UIWrapperBase)
+                    return (T)(object)(inst as UIWrapperBase).mainScript;
 
                 return (T)(object)target.additionalScripts[butInpIds[typeof(T)]].script;
             }
         }
-        
+
         return (T)(object)null;
     }
+
+    public static T GetTypeInWrapper<T>(SpawnerOutput t, string cN) {
+
+        UIWrapperBase target = t.script as UIWrapperBase;
+
+        if(target != null) {
+            if(cN == "")
+                return (T)(object)target.mainScript;
+
+            if(!uiWrapperDir.ContainsKey(target.GetType())) {
+                Dictionary<string, int> uiDir = new Dictionary<string, int>();
+
+                target.PopulateScriptDirectory(uiDir);
+                uiWrapperDir.Add(target.GetType(), uiDir);
+            }
+
+            return (T)(object)target.additionalScripts[uiWrapperDir[target.GetType()][cN]];
+        }
+
+        /*if(target != null) {
+
+            if(target.mainScript is Button || target.mainScript is InputField) {
+                MonoBehaviour inst = target.additionalScripts[butInpIds[typeof(T)]].script;
+
+                if(inst is UIWrapperBase)
+                    return (T)(object)(inst as UIWrapperBase).mainScript;
+
+                return (T)(object)target.additionalScripts[butInpIds[typeof(T)]].script;
+            }
+        }
+
+        return (T)(object)null;
+    }*/
 
     public static void ChangeUISize(SpawnerOutput t, Vector2 size) {
 
@@ -66,6 +100,7 @@ public class UIDrawer : Spawner, ISingleton {
 
     public new void RunOnStart() {
         t = FindObjectOfType<Canvas>();
+        uiWrapperDir = new Dictionary<Type, Dictionary<string, int>>();
     }
 
     public new void RunOnCreated() {
