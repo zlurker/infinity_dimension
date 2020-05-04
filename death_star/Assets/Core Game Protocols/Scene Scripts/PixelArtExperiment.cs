@@ -38,11 +38,11 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         CalibrateEditor();
 
         SpawnerOutput sO = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-        UIDrawer.GetTypeInElement<Button>(sO).onClick.AddListener(SavePNG);
-        UIDrawer.GetTypeInElement<Text>(sO).text = "Save Art";
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(sO).onClick.AddListener(SavePNG);
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(sO,"Text").text = "Save Art";
 
         SpawnerOutput nO = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(InputFieldWrapper));
-        UIDrawer.GetTypeInElement<InputField>(nO).onValueChanged.AddListener((s) => {
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<InputField>(nO).onValueChanged.AddListener((s) => {
             name = s;
         });
 
@@ -89,7 +89,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
             for (int j =0; j < colorData.GetLength(1); j++) 
                 if (colorData[i,j].a > 0) {
                     SpawnerOutput inst = CreatePixel();
-                    UIDrawer.GetTypeInElement<Image>(inst).color = colorData[i, j];
+                    LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Image>(inst).color = colorData[i, j];
                     inst.script.transform.localPosition = new Vector2(scaleFactor *i,scaleFactor*j) + pixelOffset;
                     imageData[i, j] = inst;
                 }          
@@ -154,7 +154,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     SpawnerOutput CreatePixel() {
         SpawnerOutput inst = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image));
-        UIDrawer.GetTypeInElement<Image>(inst).rectTransform.sizeDelta = lw;
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Image>(inst).rectTransform.sizeDelta = lw;
         inst.script.transform.parent = transform;
 
         return inst;

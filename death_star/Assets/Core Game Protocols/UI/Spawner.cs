@@ -62,10 +62,6 @@ public class Spawner : MonoBehaviour, ISingleton {
         return new GameObject("empty", bB);
     }
 
-    public static T SpawnerOutputConvert<T>(SpawnerOutput target) {
-        return (T)(object)target.script;
-    }
-
     /*public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {
             new RuntimeParameters<GameObject>("Output Object",null)

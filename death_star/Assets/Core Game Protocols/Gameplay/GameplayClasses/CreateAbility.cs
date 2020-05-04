@@ -22,7 +22,7 @@ public class CreateAbility : AbilityTreeNode {
 
         if(variable == aN) {
             SpawnerOutput aNField = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper));
-            Dropdown dW = ((aNField.script as DropdownWrapper).mainScript as Dropdown);
+            Dropdown dW = LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Dropdown>(aNField);
             List<Dropdown.OptionData> dOd = new List<Dropdown.OptionData>();
             RuntimeParameters<string> rpS = rp as RuntimeParameters<string>;
             int selected = 0;

@@ -11,7 +11,7 @@ public class Operators : AbilityTreeNode {
 
         if(o == variable) {
             SpawnerOutput oField = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper));
-            Dropdown dW = ((oField.script as DropdownWrapper).mainScript as Dropdown);
+            Dropdown dW = LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Dropdown>(oField);
             List<Dropdown.OptionData> dOd = new List<Dropdown.OptionData>();
             RuntimeParameters<int> rpI = rp as RuntimeParameters<int>;
 

@@ -11,7 +11,7 @@ public class GetCoordinatePoint : AbilityTreeNode {
 
         if (p == variable) {
             SpawnerOutput pField = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper));
-            Dropdown dW = ((pField.script as DropdownWrapper).mainScript as Dropdown);
+            Dropdown dW = LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Dropdown>(pField);
             List<Dropdown.OptionData> dOd = new List<Dropdown.OptionData>();
             RuntimeParameters<int> rpI = rp as RuntimeParameters<int>;
 

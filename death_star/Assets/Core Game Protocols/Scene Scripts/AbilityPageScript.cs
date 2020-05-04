@@ -76,26 +76,26 @@ public class AbilityPageScript : MonoBehaviour {
 
     void GenerateMenuElements() {
         SpawnerOutput topText = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper));
-        Spawner.SpawnerOutputConvert<Text>(topText).text = "Abilities";
-        UIDrawer.GetTypeInElement<Text>(topText).color = Color.white;
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(topText).text = "Abilities";
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(topText).color = Color.white;
 
         topText.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.5f, 0.9f));
 
         commandText = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper));
-        UIDrawer.GetTypeInElement<Text>(commandText).text = "";
-        UIDrawer.GetTypeInElement<Text>(commandText).color = Color.white;
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(commandText).text = "";
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(commandText).color = Color.white;
 
         commandText.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.5f, 0.75f));
 
         SpawnerOutput addAbility = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-        UIDrawer.GetTypeInElement<Button>(addAbility).onClick.AddListener(() => { CreateAbility(); });
-        UIDrawer.GetTypeInElement<Text>(addAbility).text = "Create Ability";
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(addAbility).onClick.AddListener(() => { CreateAbility(); });
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(addAbility,"Text").text = "Create Ability";
 
         addAbility.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.15f, 0.1f));
 
         SpawnerOutput setNewPrimary = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-        UIDrawer.GetTypeInElement<Button>(setNewPrimary).onClick.AddListener(() => { ChangeButtonMode(AbilityButtonMode.CHANGE_PRIMARY_CHARACTER); });
-        UIDrawer.GetTypeInElement<Text>(setNewPrimary).text = "Set new primary";
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(setNewPrimary).onClick.AddListener(() => { ChangeButtonMode(AbilityButtonMode.CHANGE_PRIMARY_CHARACTER); });
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(setNewPrimary,"Text").text = "Set new primary";
 
         setNewPrimary.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.9f, 0.8f));
 
@@ -126,9 +126,9 @@ public class AbilityPageScript : MonoBehaviour {
     void GenerateAbilityElement(string index) {
         SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
-        UIDrawer.GetTypeInElement<Text>(abilityButton).text = abilityInfo[index].n;
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(abilityButton,"Text").text = abilityInfo[index].n;
 
-        UIDrawer.GetTypeInElement<Button>(abilityButton).onClick.AddListener(() => {
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(abilityButton).onClick.AddListener(() => {
             selectedAbility = index;
 
             switch(currMode) {
@@ -149,7 +149,7 @@ public class AbilityPageScript : MonoBehaviour {
         });
 
         //UIDrawer.ChangeUISize(abilityButton, new Vector2(200, 30));
-        UIDrawer.GetTypeInElement<LinearLayout>(lL).Add(abilityButton.script.transform as RectTransform);
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<LinearLayout>(lL).Add(abilityButton.script.transform as RectTransform);
     }
 
     void ChangeButtonMode(AbilityButtonMode mode) {
@@ -157,10 +157,10 @@ public class AbilityPageScript : MonoBehaviour {
 
         switch(currMode) {
             case AbilityButtonMode.CHANGE_PRIMARY_CHARACTER:
-                UIDrawer.GetTypeInElement<Text>(commandText).text = "Select ability to be new primary character.";
+                LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(commandText).text = "Select ability to be new primary character.";
                 break;
             default:
-                UIDrawer.GetTypeInElement<Text>(commandText).text = "";
+                LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(commandText).text = "";
                 break;
         }
     }

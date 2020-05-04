@@ -57,8 +57,8 @@ public class UIDrawer : Spawner, ISingleton {
     // Used to iterate internally.
     T InternalRecursiveGetType<T>(UIWrapperBase target, int currLoop = 0, params string[] cN) {
 
-        if(cN[currLoop] == "")
-            return (T)(object)target.scriptsData[0];
+        if(cN.Length ==0 || cN[currLoop] == "")
+            return (T)(object)target.scriptsData[0].script;
 
         if(!uiWrapperDir.ContainsKey(target.GetType())) {
             Dictionary<string, int> wrapperDir = new Dictionary<string, int>();
@@ -67,17 +67,18 @@ public class UIDrawer : Spawner, ISingleton {
             uiWrapperDir.Add(target.GetType(), wrapperDir);
         }
 
-        //
-
-        if(currLoop >= cN.Length)
+        if(currLoop + 1 >= cN.Length)
             return (T)(object)target.scriptsData[uiWrapperDir[target.GetType()][cN[currLoop]]].script;
         else {
             UIWrapperBase nextTarget = target.scriptsData[uiWrapperDir[target.GetType()][cN[currLoop]]].script as UIWrapperBase;
 
             if(nextTarget != null)
                 return InternalRecursiveGetType<T>(nextTarget, currLoop++, cN);
+            else
+                Debug.LogError("Wrong component name given to nested loop. It does not contain a nest component.");
         }
 
+        
         return default(T);
     }
 
