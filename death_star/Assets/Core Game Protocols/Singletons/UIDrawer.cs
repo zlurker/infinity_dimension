@@ -7,7 +7,7 @@ using System.Reflection;
 
 public class UIDrawer : Spawner, ISingleton {
     public static Canvas t; //target
-    public static Dictionary<Type, int> butInpIds;
+    //public static Dictionary<Type, int> butInpIds;
     public static Dictionary<Type, Dictionary<string, int>> uiWrapperDir;
 
     public override SpawnerOutput CreateScriptedObject(Type type) {
@@ -52,65 +52,69 @@ public class UIDrawer : Spawner, ISingleton {
         }
 
         return (T)(object)null;
-    }
-
-    public static T GetTypeInWrapper<T>(SpawnerOutput t, string cN) {
-
-        UIWrapperBase target = t.script as UIWrapperBase;
-
-        if(target != null) {
-            if(cN == "")
-                return (T)(object)target.mainScript;
-
-            if(!uiWrapperDir.ContainsKey(target.GetType())) {
-                Dictionary<string, int> uiDir = new Dictionary<string, int>();
-
-                target.PopulateScriptDirectory(uiDir);
-                uiWrapperDir.Add(target.GetType(), uiDir);
-            }
-
-            return (T)(object)target.additionalScripts[uiWrapperDir[target.GetType()][cN]];
-        }
-
-        /*if(target != null) {
-
-            if(target.mainScript is Button || target.mainScript is InputField) {
-                MonoBehaviour inst = target.additionalScripts[butInpIds[typeof(T)]].script;
-
-                if(inst is UIWrapperBase)
-                    return (T)(object)(inst as UIWrapperBase).mainScript;
-
-                return (T)(object)target.additionalScripts[butInpIds[typeof(T)]].script;
-            }
-        }
-
-        return (T)(object)null;
     }*/
 
-    public static void ChangeUISize(SpawnerOutput t, Vector2 size) {
+    // Used to iterate internally.
+    T InternalRecursiveGetType<T>(UIWrapperBase target, int currLoop = 0, params string[] cN) {
 
-        (t.script.transform as RectTransform).sizeDelta = size;
+        if(target == null)
+            return null;
+
+        if(cN[currLoop] == "")
+            return (target.scriptsData[0] as AdditionalScriptData<T>).data;
+
+        if(!uiWrapperDir.ContainsKey(target.GetType())) {
+            Dictionary<string, int> wrapperDir = new Dictionary<string, int>();
+
+            target.PopulateScriptDirectory(wrapperDir);
+            uiWrapperDir.Add(target.GetType(), wrapperDir);
+        }
+
+        //UIWrapperBase nextTarget = (target.scriptsData[uiWrapperDir[target.GetType()][cN[currLoop]]] as AdditionalScriptData<UIWrapperBase>).data;
+
+        if(currLoop >= cN.Length)
+            return (target.scriptsData[uiWrapperDir[target.GetType()][cN[currLoop]]] as AdditionalScriptData<T>).data;
+        else
+            return InternalRecursiveGetType<T>((target.scriptsData[uiWrapperDir[target.GetType()][cN[currLoop]]] as AdditionalScriptData<UIWrapperBase>).data, currLoop++, cN);
+    }
+
+    public T GetTypeInElement<T>(SpawnerOutput t, params string[] cN) {
+
+
+
+        /*if(cN == "")
+            if(t.script is T)
+                return (T)(object)t.script;*/
 
         UIWrapperBase target = t.script as UIWrapperBase;
-
-        if(target != null)
-            for(int i = 0; i < target.additionalScripts.Length; i++)
-                (target.additionalScripts[i].script.transform as RectTransform).sizeDelta = size;
+        return InternalRecursiveGetType<T>(target, 0, cN);
     }
 
-    public new void RunOnStart() {
-        t = FindObjectOfType<Canvas>();
-        uiWrapperDir = new Dictionary<Type, Dictionary<string, int>>();
-    }
+public static void ChangeUISize(Transform t, Vector2 size) {
 
-    public new void RunOnCreated() {
-        bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
+    (t.script.transform as RectTransform).sizeDelta = size;
 
-        // Runs data population for UIWrappers.
-        butInpIds = new Dictionary<Type, int>();
-        butInpIds.Add(typeof(Image), 0);
-        butInpIds.Add(typeof(Text), 1);
-    }
+    UIWrapperBase target = t.script as UIWrapperBase;
+
+    if(target != null)
+        for(int i = 0; i < target.scriptsData.Length; i++)
+            (target.additionalScripts[i].script.transform as RectTransform).sizeDelta = size;
+}
+
+public new void RunOnStart() {
+    t = FindObjectOfType<Canvas>();
+
+}
+
+public new void RunOnCreated() {
+    bB = new Type[] { typeof(RectTransform), typeof(CanvasRenderer) };
+
+    // Runs data population for UIWrappers.
+    uiWrapperDir = new Dictionary<Type, Dictionary<string, int>>();
+    /*butInpIds = new Dictionary<Type, int>();
+    butInpIds.Add(typeof(Image), 0);
+    butInpIds.Add(typeof(Text), 1);*/
+}
 
     /*public override RuntimeParameters[] GetRuntimeParameters() {
         return new RuntimeParameters[] {

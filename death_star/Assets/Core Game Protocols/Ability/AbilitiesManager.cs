@@ -392,10 +392,10 @@ public sealed class AbilitiesManager : MonoBehaviour {
                     LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[ability.Key], 0, (KeyCode)keyAssigned, 0, true);
 
                     SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-                    UIDrawer.GetTypeInElement<Text>(abilityButton).text = aData[ClientProgram.clientId].abilties[ability.Key].abilityInfo.n;
+                    Spawner.SpawnerOutputConvert<ButtonWrapper>(abilityButton).text.text = aData[ClientProgram.clientId].abilties[ability.Key].abilityInfo.n;
                     (abilities.script as LinearLayout).Add(abilityButton.script.transform as RectTransform);
 
-                    UIDrawer.GetTypeInElement<Button>(abilityButton).onClick.AddListener(() => {
+                    Spawner.SpawnerOutputConvert<ButtonWrapper>(abilityButton).button.onClick.AddListener(() => {
                         aData[ClientProgram.clientId].abilties[ability.Key].InputCallback(0);
                     });
                 }

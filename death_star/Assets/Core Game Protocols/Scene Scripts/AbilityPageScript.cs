@@ -76,7 +76,7 @@ public class AbilityPageScript : MonoBehaviour {
 
     void GenerateMenuElements() {
         SpawnerOutput topText = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper));
-        UIDrawer.GetTypeInElement<Text>(topText).text = "Abilities";
+        Spawner.SpawnerOutputConvert<Text>(topText).text = "Abilities";
         UIDrawer.GetTypeInElement<Text>(topText).color = Color.white;
 
         topText.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.5f, 0.9f));

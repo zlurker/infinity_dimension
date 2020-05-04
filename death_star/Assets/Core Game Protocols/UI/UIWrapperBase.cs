@@ -4,13 +4,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
+public class AdditionalScriptData {
+    public string name;
+    public MonoBehaviour script;
+
+    public AdditionalScriptData(string n, MonoBehaviour s) {
+        name = n;
+        script = s;
+    }
+}
 
 public class UIWrapperBase : MonoBehaviour, IOnSpawn {
 
     // Main script in this. 
-    public MonoBehaviour mainScript;
+    //public MonoBehaviour mainScript;
     // Additional support scripts.
-    public SpawnerOutput[] additionalScripts;
+    public AdditionalScriptData[] scriptsData;
 
     public virtual void OnSpawn() {
 
@@ -24,10 +33,10 @@ public class UIWrapperBase : MonoBehaviour, IOnSpawn {
             }
     }*/
 
-    /*public void PopulateScriptDirectory(Dictionary<string,int> targetDict) {
-        for(int i = 0; i < additionalScripts.Length; i++)
-            targetDict.Add(additionalScripts[i].scriptName,i); 
-    }*/
+    public void PopulateScriptDirectory(Dictionary<string,int> targetDict) {
+        for(int i = 0; i < scriptsData.Length; i++)
+            targetDict.Add(scriptsData[i].name,i); 
+    }
 }
 
 [RequireComponent(typeof(Text))]
@@ -36,10 +45,8 @@ public class TextWrapper : UIWrapperBase {
     public Text text;
 
     public override void OnSpawn() {
-        if(mainScript == null)
-            mainScript = GetComponent<Text>();
-
-        text = mainScript as Text;
+        if(text == null)
+            text = GetComponent<Text>();
 
         text.text = "DEFAULTWORDS";
         text.font = Resources.Load("jd-bold") as Font;
@@ -48,6 +55,10 @@ public class TextWrapper : UIWrapperBase {
         text.alignment = TextAnchor.MiddleCenter;
         text.color = Color.black;
         (text.transform as RectTransform).sizeDelta = new Vector2(100, 20);
+
+        scriptsData = new AdditionalScriptData[] {
+            new AdditionalScriptData("Text",text)
+        };
     }
 }
 
@@ -60,20 +71,13 @@ public class ButtonWrapper : UIWrapperBase {
 
     public override void OnSpawn() {
 
-        if(mainScript == null)
-            mainScript = GetComponent<Button>();
-
-        button = mainScript as Button;
+        if(button == null)
+            button = GetComponent<Button>();
 
         button.onClick.RemoveAllListeners();
 
-        additionalScripts = new SpawnerOutput[] {
-                 LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)),
-                LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper))
-            };
-
-        image = additionalScripts[0].script as Image;
-        text = (additionalScripts[1].script as TextWrapper).mainScript as Text;
+        image = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
+        text = (LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper)).script as TextWrapper).scriptsData[0].script as Text;
 
         button.targetGraphic = image;
 
@@ -86,6 +90,12 @@ public class ButtonWrapper : UIWrapperBase {
         image.transform.SetParent(transform);
         text.transform.SetParent(transform);
         //AllignWrapperElements();
+
+        scriptsData = new AdditionalScriptData[] {
+            new AdditionalScriptData("Button",button),
+            new AdditionalScriptData("Image",image),
+            new AdditionalScriptData("Text",text)
+        };
     }
 }
 
@@ -98,22 +108,15 @@ public class InputFieldWrapper : UIWrapperBase {
 
     public override void OnSpawn() {
 
-        if(mainScript == null)
-            mainScript = GetComponent<InputField>();
-
-        inputField = mainScript as InputField;
+        if(inputField == null)
+            inputField = GetComponent<InputField>();
 
         inputField.textComponent = null;
         inputField.text = "";
         inputField.onEndEdit.RemoveAllListeners();
 
-        additionalScripts = new SpawnerOutput[] {
-               LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)),
-               LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper))
-            };
-
-        image = additionalScripts[0].script as Image;
-        text = (additionalScripts[1].script as TextWrapper).mainScript as Text;
+        image = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
+        text = (LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper)).script as TextWrapper).scriptsData[0].script as Text;
 
         inputField.gameObject.SetActive(true);
 
@@ -130,6 +133,12 @@ public class InputFieldWrapper : UIWrapperBase {
         image.transform.SetParent(transform);
         text.transform.SetParent(transform);
         //AllignWrapperElements();
+
+        scriptsData = new AdditionalScriptData[] {
+            new AdditionalScriptData("InputField",inputField),
+            new AdditionalScriptData("Image",image),
+            new AdditionalScriptData("Text",text)
+        };
     }
 }
 
@@ -140,37 +149,29 @@ public class ScrollRectWrapper : UIWrapperBase {
     public Image mainImage;
     public Image contentImage;
     public ScrollbarWrapper scrollBar;
-    public RectTransform content;
+    public UIMule content;
 
     public override void OnSpawn() {
-        if(mainScript == null) {
-            mainScript = GetComponent<ScrollRect>();
-        }
-
-        scrollRect = mainScript as ScrollRect;
+        if(scrollRect == null) 
+            scrollRect = GetComponent<ScrollRect>();
 
         scrollRect.horizontal = false;
         scrollRect.vertical = true;
         scrollRect.movementType = ScrollRect.MovementType.Elastic;
 
-        additionalScripts = new SpawnerOutput[] {
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)),
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)),
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollbarWrapper))
-        };
 
         // Main image.
-        mainImage = additionalScripts[0].script as Image;
+        mainImage = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
 
         // Image used for content ect.
-        contentImage = additionalScripts[1].script as Image;
-        scrollBar = additionalScripts[2].script as ScrollbarWrapper;
+        contentImage = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
+        scrollBar = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollbarWrapper)).script as ScrollbarWrapper;
 
-        content = LoadedData.GetSingleton<UIDrawer>().CreateEmptyGameObject().transform as RectTransform;
+        content = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(UIMule)).script as UIMule;
         contentImage.gameObject.AddComponent<Mask>();
 
-        content.pivot = new Vector3(0.5f, 1);
-        content.SetParent(contentImage.transform);
+        content.GetRectTransform(). pivot = new Vector3(0.5f, 1);
+        content.GetRectTransform().SetParent(contentImage.transform);
         mainImage.transform.SetParent(scrollRect.transform);
         contentImage.transform.SetParent(scrollRect.transform);
         scrollBar.transform.SetParent(scrollRect.transform);
@@ -180,9 +181,17 @@ public class ScrollRectWrapper : UIWrapperBase {
         //sBW.transform.localPosition = new Vector3(300,0);
 
         scrollRect.viewport = contentImage.rectTransform;
-        scrollRect.content = content;
-        scrollRect.verticalScrollbar = scrollBar.mainScript as Scrollbar;
+        scrollRect.content = content.GetRectTransform();
+        scrollRect.verticalScrollbar = scrollBar.scriptsData[0].script as Scrollbar;
         //AllignWrapperElements();
+
+        scriptsData = new AdditionalScriptData[] {
+            new AdditionalScriptData("ScrollRect",scrollRect),
+            new AdditionalScriptData("MainImage",mainImage),
+            new AdditionalScriptData("ContentImage",contentImage),
+            new AdditionalScriptData("Scrollbar",scrollBar),
+            new AdditionalScriptData("Content",content)
+        };
     }
 }
 
@@ -192,29 +201,21 @@ public class ScrollbarWrapper : UIWrapperBase {
     public Scrollbar scrollBar;
     public Image imageMain;
     public Image imageHandler;
-    public RectTransform scrollArea;
+    public UIMule scrollArea;
 
     public override void OnSpawn() {
-        if(mainScript == null) {
-            mainScript = GetComponent<Scrollbar>();
-        }
-
-        scrollBar = mainScript as Scrollbar;
-
+        if(scrollBar == null) 
+            scrollBar = GetComponent<Scrollbar>();
+        
         scrollBar.direction = Scrollbar.Direction.BottomToTop;
 
-        additionalScripts = new SpawnerOutput[] {
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)),
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image))
-        };
-
-        imageMain = additionalScripts[0].script as Image;
-        imageHandler = additionalScripts[1].script as Image;
-        scrollArea = LoadedData.GetSingleton<UIDrawer>().CreateEmptyGameObject().transform as RectTransform;
+        imageMain = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
+        imageHandler = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
+        scrollArea = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(UIMule)).script as UIMule;
 
         imageMain.transform.SetParent(scrollBar.transform);
-        scrollArea.SetParent(scrollBar.transform);
-        imageHandler.transform.SetParent(scrollArea);
+        scrollArea.GetRectTransform().SetParent(scrollBar.transform);
+        imageHandler.transform.SetParent(scrollArea.GetRectTransform());
 
         (scrollBar.transform as RectTransform).sizeDelta = new Vector2(10, 150);
         (scrollArea.transform as RectTransform).sizeDelta = new Vector2(10, 150);
@@ -224,7 +225,12 @@ public class ScrollbarWrapper : UIWrapperBase {
         scrollBar.targetGraphic = imageHandler;
         scrollBar.handleRect = imageHandler.rectTransform;
 
-        //AllignWrapperElements();
+        scriptsData = new AdditionalScriptData[] {
+            new AdditionalScriptData("Scrollbar",scrollBar),
+            new AdditionalScriptData("MainImage",imageMain),
+            new AdditionalScriptData("HandlerImage",imageHandler),
+            new AdditionalScriptData("ScrollArea",scrollArea)
+        };
     }
 }
 
@@ -233,33 +239,22 @@ public class DropdownWrapper : UIWrapperBase {
 
     public Dropdown dropdown;
     public Image imageMain;
-    public TextWrapper text;
+    public Text text;
     public ScrollRectWrapper scrollRect;
     public Toggle toggle;
-    public TextWrapper tempText;
+    public Text tempText;
 
     public override void OnSpawn() {
-        if(mainScript == null) {
-            mainScript = GetComponent<Dropdown>();
-        }
-
-        dropdown = mainScript as Dropdown;
+        if(dropdown == null) 
+            dropdown = GetComponent<Dropdown>();
 
         dropdown.interactable = true;
 
-        additionalScripts = new SpawnerOutput[] {
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)),
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper)),
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollRectWrapper)),
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Toggle)),
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper)),
-        };
-
-        imageMain = additionalScripts[0].script as Image;
-        text = additionalScripts[1].script as TextWrapper;
-        scrollRect = additionalScripts[2].script as ScrollRectWrapper;
-        toggle = additionalScripts[3].script as Toggle;
-        tempText = additionalScripts[4].script as TextWrapper;
+        imageMain = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
+        text = (LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper)).script as TextWrapper).text;
+        scrollRect = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollRectWrapper)).script as ScrollRectWrapper;
+        toggle = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Toggle)).script as Toggle;
+        tempText = (LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper)).script as TextWrapper).text;
 
         (toggle.transform as RectTransform).sizeDelta = new Vector2(100, 20);
 
@@ -282,8 +277,17 @@ public class DropdownWrapper : UIWrapperBase {
 
         dropdown.targetGraphic = imageMain;
         dropdown.template = scrollRect.transform as RectTransform;
-        dropdown.captionText = text.mainScript as Text;
-        dropdown.itemText = tempText.mainScript as Text;
+        dropdown.captionText = text;
+        dropdown.itemText = tempText;
+
+        scriptsData = new AdditionalScriptData[] {
+            new AdditionalScriptData("Dropdown",dropdown),
+            new AdditionalScriptData("MainImage",imageMain),
+            new AdditionalScriptData("MainText",text),
+            new AdditionalScriptData("ScrollRect",scrollRect),
+            new AdditionalScriptData("Toggle",toggle),
+            new AdditionalScriptData("TempText",tempText),
+        };
     }
 }
 
@@ -295,20 +299,13 @@ public class ToggleWrapper : UIWrapperBase {
     public Image imageToggle;
 
     public override void OnSpawn() {
-        if(mainScript == null)
-            mainScript = GetComponent<Toggle>();
+        if(toggle == null)
+            toggle = GetComponent<Toggle>();
 
-        toggle = mainScript as Toggle;
+        imageMain = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
+        imageToggle = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
 
-        additionalScripts = new SpawnerOutput[] {
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)),
-            LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image))
-        };
-
-        imageMain = additionalScripts[0].script as Image;
-        imageToggle = additionalScripts[1].script as Image;
-
-        (mainScript.transform as RectTransform).sizeDelta = new Vector2(30, 30);
+        (toggle.transform as RectTransform).sizeDelta = new Vector2(30, 30);
 
         imageMain.rectTransform.sizeDelta = new Vector2(30, 30);
         imageToggle.rectTransform.sizeDelta = new Vector2(20, 20);
@@ -318,6 +315,11 @@ public class ToggleWrapper : UIWrapperBase {
         toggle.targetGraphic = imageMain;
         toggle.graphic = imageToggle;
 
+        scriptsData = new AdditionalScriptData[] {
+            new AdditionalScriptData("Toggle",toggle),
+            new AdditionalScriptData("ImageMain",imageMain),
+            new AdditionalScriptData("ImageToggle",imageToggle)
+        };
         //AllignWrapperElements();
     }
 }
