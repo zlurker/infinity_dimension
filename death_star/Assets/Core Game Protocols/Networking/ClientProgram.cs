@@ -55,7 +55,9 @@ public class ClientProgram : MonoBehaviour {
         byte[] recData = new byte[recieved];
         Buffer.BlockCopy(_recieveBuffer, 0, recData, 0, recieved);
 
-        incoming.AddRange(recData);
+        lock(incoming)
+            incoming.AddRange(recData);
+
         clientSock.BeginReceive(_recieveBuffer, 0, _recieveBuffer.Length, SocketFlags.None, new AsyncCallback(OnRecieve), null);
     }
 
@@ -77,21 +79,27 @@ public class ClientProgram : MonoBehaviour {
     }
 
     public void ParseCommands() {
-        if(incoming.Count > 4) {
 
-            if(currMsgLength == -1)
-                currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
+        lock(incoming)
+            if(incoming.Count > 4) {
 
-            if(incoming.Count >= currMsgLength) {
+                if(currMsgLength == -1)
+                    lock(incoming)
+                        currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
 
-                if(currMsgLength > 4)
-                    NetworkMessageEncoder.SortEncodedMessages(incoming.GetRange(4, currMsgLength - 4).ToArray());
+                lock(incoming)
+                    if(incoming.Count >= currMsgLength) {
 
-                incoming.RemoveRange(0, currMsgLength);
-                currMsgLength = -1;
-                ParseCommands();
+                        if(currMsgLength > 4)
+                            lock(incoming)
+                                NetworkMessageEncoder.SortEncodedMessages(incoming.GetRange(4, currMsgLength - 4).ToArray());
+
+                        lock(incoming)
+                            incoming.RemoveRange(0, currMsgLength);
+                        currMsgLength = -1;
+                        ParseCommands();
+                    }
             }
-        }
     }
 
     public void AddNetworkMessage(byte[] message) {

@@ -30,6 +30,8 @@ public class MoveTowardsDirection : MoveTo {
         overrode = true;
         base.NodeCallback();
 
+        Debug.Log("Movement called.");
+
         allDataRecv = CheckIfVarRegionBlocked("Coordinates", "Target", "Total Distance", "Duration");
 
         if(allDataRecv) {

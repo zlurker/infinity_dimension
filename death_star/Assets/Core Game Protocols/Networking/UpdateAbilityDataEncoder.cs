@@ -16,16 +16,18 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         }
 
         public override void UpdateCentral(AbilityCentralThreadPool centralInst) {
+
+            Debug.Log("Input recieved!!!");
+
             if(ability > -1) {
                 int nTID = centralInst.GetNode(ability).GetNodeThreadId();
 
                 if(nTID > -1) {
+                    Debug.Log("Input integrated.");
                     centralInst.UpdateVariableValue<T>(ability, var, value);
                     centralInst.UpdateVariableData<T>(nTID, var);
                 }
             }
-
-
         }
     }
 
@@ -47,14 +49,14 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
     public void SendVariableManifest(AbilityCentralThreadPool inst, AbilityNodeNetworkData[] manifest) {
 
-        byte[] playerCasted = BitConverter.GetBytes(inst.ReturnPlayerCasted());
+        byte[] playerId = BitConverter.GetBytes(inst.GetPlayerId());
         byte[] centralId = BitConverter.GetBytes(inst.ReturnCentralId());
 
         byte[] manifestData = PrepareVariableManifest(manifest);
 
         bytesToSend = new byte[8 + manifestData.Length];
 
-        Buffer.BlockCopy(playerCasted, 0, bytesToSend, 0, 4);
+        Buffer.BlockCopy(playerId, 0, bytesToSend, 0, 4);
         Buffer.BlockCopy(centralId, 0, bytesToSend, 4, 4);
         Buffer.BlockCopy(manifestData, 0, bytesToSend, 8, manifestData.Length);
         SendEncodedMessages();
@@ -135,20 +137,24 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
     }
 
     public override void MessageRecievedCallback() {
-        int playerCasted = BitConverter.ToInt32(bytesRecieved, 0);
+
+        if(targetId == ClientProgram.clientId)
+            return;
+
+        int playerId = BitConverter.ToInt32(bytesRecieved, 0);
         int centralId = BitConverter.ToInt32(bytesRecieved, 4);
         List<PackedNodeData> pND = new List<PackedNodeData>();
-        AbilityCentralThreadPool centralInst = AbilitiesManager.aData[playerCasted].playerSpawnedCentrals.GetElementAt(centralId);
+        AbilityCentralThreadPool centralInst = AbilitiesManager.aData[targetId].playerSpawnedCentrals.GetElementAt(centralId);
 
         foreach(PackedNodeData parsedData in ParseManifest(bytesRecieved, 8))
             pND.Add(parsedData);
 
         if(centralInst == null) {
-            centralInst = new AbilityCentralThreadPool(targetId);
+            centralInst = new AbilityCentralThreadPool(playerId);
 
             int pId = (pND[0] as PackedNodeData<int>).value;
             string aId = (pND[1] as PackedNodeData<string>).value;
-            AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, playerCasted, centralId);
+            AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, targetId, centralId);
         }
 
 
