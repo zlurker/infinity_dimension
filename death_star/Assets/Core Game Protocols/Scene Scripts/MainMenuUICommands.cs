@@ -135,9 +135,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         }
 
-
         classSelectionScrollRect = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ScrollRectWrapper));
-        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<UIMule>(classSelectionScrollRect, "Content").GetRectTransform().sizeDelta = (mainClassSelection.script.transform as RectTransform).sizeDelta;
+        (classSelectionScrollRect.script as ScrollRectWrapper).ChangeScrollRectSize(new Vector2(100, 600));
+
+
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<UIMule>(classSelectionScrollRect, "Content").GetRectTransform().sizeDelta = (mainClassSelection.script.transform as RectTransform).sizeDelta;        
         classSelectionScrollRect.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
 
         mainClassSelection.script.transform.SetParent(LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<UIMule>(classSelectionScrollRect, "Content").transform);

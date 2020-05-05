@@ -63,7 +63,8 @@ public class ClientProgram : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        ParseCommands();
+        lock(incoming)
+            ParseCommands();
 
         // Keep alive if client is host.
         if(clientId == hostId)
@@ -80,26 +81,21 @@ public class ClientProgram : MonoBehaviour {
 
     public void ParseCommands() {
 
-        lock(incoming)
-            if(incoming.Count > 4) {
+        if(incoming.Count > 4) {
 
-                if(currMsgLength == -1)
-                    lock(incoming)
-                        currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
+            if(currMsgLength == -1)
+                currMsgLength = BitConverter.ToInt32(incoming.ToArray(), 0);
 
-                lock(incoming)
-                    if(incoming.Count >= currMsgLength) {
+            if(incoming.Count >= currMsgLength) {
 
-                        if(currMsgLength > 4)
-                            lock(incoming)
-                                NetworkMessageEncoder.SortEncodedMessages(incoming.GetRange(4, currMsgLength - 4).ToArray());
+                if(currMsgLength > 4)
+                    NetworkMessageEncoder.SortEncodedMessages(incoming.GetRange(4, currMsgLength - 4).ToArray());
 
-                        lock(incoming)
-                            incoming.RemoveRange(0, currMsgLength);
-                        currMsgLength = -1;
-                        ParseCommands();
-                    }
+                incoming.RemoveRange(0, currMsgLength);
+                currMsgLength = -1;
+                ParseCommands();
             }
+        }
     }
 
     public void AddNetworkMessage(byte[] message) {

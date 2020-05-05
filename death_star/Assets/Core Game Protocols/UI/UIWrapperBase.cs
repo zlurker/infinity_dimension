@@ -193,6 +193,14 @@ public class ScrollRectWrapper : UIWrapperBase {
             new AdditionalScriptData("Content",content)
         };
     }
+
+    public void ChangeScrollRectSize(Vector2 dimensions) {
+        scrollBar.ChangeScrollbarSize(new Vector2(10, dimensions.y));
+
+        (scrollRect.transform as RectTransform).sizeDelta = dimensions;
+        (mainImage.transform as RectTransform).sizeDelta = dimensions;
+        (contentImage.transform as RectTransform).sizeDelta = dimensions;
+    }
 }
 
 [RequireComponent(typeof(Scrollbar))]
@@ -231,6 +239,12 @@ public class ScrollbarWrapper : UIWrapperBase {
             new AdditionalScriptData("HandlerImage",imageHandler),
             new AdditionalScriptData("ScrollArea",scrollArea)
         };
+    }
+
+    public void ChangeScrollbarSize(Vector2 dimensions) {
+        (scrollBar.transform as RectTransform).sizeDelta = dimensions;
+        (imageMain.transform as RectTransform).sizeDelta = dimensions;
+        (scrollArea.transform as RectTransform).sizeDelta = dimensions;
     }
 }
 
@@ -314,6 +328,9 @@ public class ToggleWrapper : UIWrapperBase {
 
         toggle.targetGraphic = imageMain;
         toggle.graphic = imageToggle;
+
+        imageMain.transform.SetParent(toggle.transform);
+        imageToggle.transform.SetParent(toggle.transform);
 
         scriptsData = new AdditionalScriptData[] {
             new AdditionalScriptData("Toggle",toggle),
