@@ -17,13 +17,13 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
         public override void UpdateCentral(AbilityCentralThreadPool centralInst) {
 
-            Debug.Log("Input recieved!!!");
+            //Debug.Log("Input recieved!!!");
 
             if(ability > -1) {
                 int nTID = centralInst.GetNode(ability).GetNodeThreadId();
 
                 if(nTID > -1) {
-                    Debug.Log("Input integrated.");
+                    //Debug.Log("Input integrated.");
                     centralInst.UpdateVariableValue<T>(ability, var, value);
                     centralInst.UpdateVariableData<T>(nTID, var);
                 }

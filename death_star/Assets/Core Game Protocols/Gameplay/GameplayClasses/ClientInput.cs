@@ -14,7 +14,8 @@ public class ClientInput : NodeModifierBase, IInputCallback<int>, IOnSpawn {
         if(curr < max)
             if(GetNodeThreadId() > -1) {
 
-                Debug.Log(GetNodeThreadId());
+                Debug.Log("Current threadID: "+ GetNodeThreadId());
+
                 threadMap.Add(GetNodeThreadId(), new ThreadMapDataBase());
 
                 for(int i = curr; i < max; i++) {
@@ -57,6 +58,7 @@ public class ClientInput : NodeModifierBase, IInputCallback<int>, IOnSpawn {
 
         if (tMDB.totalThreadsSpawned == 0) {
             threadMap.Remove(GetNodeThreadId());
+            Debug.LogFormat("{0} removed from ThreadMap.", GetNodeThreadId());
             GetCentralInst().HandleThreadRemoval(GetNodeThreadId());
         }
 

@@ -5,34 +5,13 @@ using UnityEngine.UI;
 
 public class MoveTowardsDirection : MoveTo {
 
-    bool allDataRecv;
-    Vector3 normDir;
-
-    float timeDirChanged;
-    Vector3 dirChangeStart;
-
-    void Update() {
-
-        if(allDataRecv) {
-            if(GetNodeVariable<float>("Duration") > Time.realtimeSinceStartup - timeDirChanged) {
-                float timeRatio = (Time.realtimeSinceStartup - timeDirChanged) / GetNodeVariable<float>("Duration");
-
-                GetTargetTransform().position = dirChangeStart + (normDir * (GetNodeVariable<float>("Total Distance") * timeRatio));
-            } else
-                GetTargetTransform().position = dirChangeStart + (normDir * GetNodeVariable<float>("Total Distance"));
-
-            SetVariable<Vector3>("Current Target Position", GetTargetTransform().position);
-        }
-
-    }
-
     public override void NodeCallback() {
         overrode = true;
         base.NodeCallback();
 
         Debug.Log("Movement called.");
 
-        allDataRecv = CheckIfVarRegionBlocked("Coordinates", "Target", "Total Distance", "Duration");
+        bool allDataRecv = CheckIfVarRegionBlocked("Coordinates", "Target", "Total Distance");
 
         if(allDataRecv) {
             Vector3 vToN = new Vector3();
@@ -51,11 +30,14 @@ public class MoveTowardsDirection : MoveTo {
                     break;
             }
 
-            normDir = vToN.normalized;
+            Vector3 normDir = vToN.normalized;
             normDir.z = 0;
 
-            dirChangeStart = GetTargetTransform().position;
-            timeDirChanged = Time.realtimeSinceStartup;
+            GetTargetTransform().position += (normDir * GetNodeVariable<float>("Total Distance"));
+            SetVariable<Vector3>("Current Target Position", GetTargetTransform().position);
+
+            //dirChangeStart = GetTargetTransform().position;
+            //timeDirChanged = Time.realtimeSinceStartup;
         }
     }
 
@@ -91,7 +73,7 @@ public class MoveTowardsDirection : MoveTo {
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Total Distance",0),VariableTypes.AUTO_MANAGED),
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Duration",1),VariableTypes.AUTO_MANAGED),
+            //new LoadedRuntimeParameters(new RuntimeParameters<float>("Duration",1),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Coordinate Type",0),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Current Target Position",new Vector3()))
         });

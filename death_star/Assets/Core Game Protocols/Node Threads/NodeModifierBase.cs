@@ -58,6 +58,7 @@ public class NodeModifierBase : AbilityTreeNode {
     }
 
     public void AddThread(int oT) {
+        Debug.Log("Attemps to add thread to " + oT);
         threadMap[oT].totalThreadsSpawned++;
     }
 }
