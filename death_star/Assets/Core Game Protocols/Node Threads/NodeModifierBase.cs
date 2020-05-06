@@ -15,6 +15,8 @@ public class NodeModifierBase : AbilityTreeNode {
 
     protected Dictionary<int, ThreadMapDataBase> threadMap = new Dictionary<int, ThreadMapDataBase>();
     protected int latestThread;
+
+    // Would cause null error if the thread doesn't exist anymore while referred back after TESC.
     protected bool destroyOverridenThreads;
 
     public override void NodeCallback() {
@@ -22,7 +24,7 @@ public class NodeModifierBase : AbilityTreeNode {
 
         latestThread = GetNodeThreadId();
 
-        // Sets it to be -ve 1 so current thread will not be overrode/deleted.
+        // Sets it to be -ve 1 so current thread will not be deleted.
         if(!destroyOverridenThreads)
             SetNodeThreadId(-1);
     }
@@ -44,10 +46,10 @@ public class NodeModifierBase : AbilityTreeNode {
                 ThreadZeroed(parentThread);
 
             // Checks if node is already empty with no more threads.
-            if(threadMap.Count == 0) {
+            /*if(threadMap.Count == 0) {
                 //Debug.Log("Threadmap empty. Setting node thread id to -1.");
                 SetNodeThreadId(-1);
-            }
+            }*/
         }
     }
 

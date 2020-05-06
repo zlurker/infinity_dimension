@@ -2,17 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn {
+public class ClientInput : NodeModifierBase, IInputCallback<int>, IOnSpawn {
 
     bool inputSet;
 
     private void Update() {
-        if (GetNodeVariable<int>("Max") > GetNodeVariable<int>("Curr")) {
-            
-            SetVariable<int>("Curr", GetNodeVariable<int>("Curr") + 1);
-            SetVariable<int>("Input Key");
-            Debug.LogFormat("Curr: {0}, Max: {1}", GetNodeVariable<int>("Curr"), GetNodeVariable<int>("Max"));
-        }
+
+        int curr = GetNodeVariable<int>("Curr");
+        int max = GetNodeVariable<int>("Max");
+
+        if(curr < max)
+            if(GetNodeThreadId() > -1) {
+
+                Debug.Log(GetNodeThreadId());
+                threadMap.Add(GetNodeThreadId(), new ThreadMapDataBase());
+
+                for(int i = curr; i < max; i++) {
+                    ChildThread threadInst = new ChildThread(GetNodeId(), GetNodeThreadId(), this);
+                    threadInst.SetNodeData(GetNodeId(), GetCentralInst().GetNodeBranchData(GetNodeId()));
+
+                    int threadToUse = GetCentralInst().AddNewThread(threadInst);
+                    SetVariable<int>(threadToUse, "Input Key", GetNodeVariable<int>("Input Key"));
+                    Debug.LogFormat("Curr: {0}, Max: {1}", i, max);
+                }
+
+                SetVariable<int>("Curr", max);                
+            }
     }
 
     public void InputCallback(int callbackData) {
@@ -23,14 +38,28 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn {
     }
 
     public override void NodeCallback() {
+        destroyOverridenThreads = true;
         base.NodeCallback();
 
         if(IsClientPlayerUpdate()) {
-            if(!inputSet) 
+            if(!inputSet)
                 LoadedData.GetSingleton<PlayerInput>().AddNewInput<int>(this, 0, (KeyCode)GetNodeVariable<int>("Input Key"), 1);
-            
+
             inputSet = true;
         }
+    }
+
+
+    public override void ThreadZeroed(int parentThread) {
+        base.ThreadZeroed(parentThread);
+
+        ThreadMapDataBase tMDB = threadMap[parentThread];
+
+        if (tMDB.totalThreadsSpawned == 0) {
+            threadMap.Remove(GetNodeThreadId());
+            GetCentralInst().HandleThreadRemoval(GetNodeThreadId());
+        }
+
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
