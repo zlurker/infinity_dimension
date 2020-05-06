@@ -2,6 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class ThreadDuplicatorTracker: ThreadMapDataBase {
+    public int threadsDuplicated;
+
+    public ThreadDuplicatorTracker(int totalThreadsDuplicated) {
+        threadsDuplicated = totalThreadsDuplicated;
+    }
+}
+
 public class ClientInput : NodeModifierBase, IInputCallback<int>, IOnSpawn {
 
     bool inputSet;
@@ -15,16 +23,18 @@ public class ClientInput : NodeModifierBase, IInputCallback<int>, IOnSpawn {
             if(GetNodeThreadId() > -1) {
 
                 Debug.Log("Current threadID: "+ GetNodeThreadId());
+                int currThreadId = GetNodeThreadId();
 
-                threadMap.Add(GetNodeThreadId(), new ThreadMapDataBase());
+                threadMap.Add(currThreadId, new ThreadDuplicatorTracker(max-curr));
 
                 for(int i = curr; i < max; i++) {
-                    ChildThread threadInst = new ChildThread(GetNodeId(), GetNodeThreadId(), this);
+                    //Debug.LogFormat("Curr: {0}, Max: {1}", i, max);
+                    ChildThread threadInst = new ChildThread(GetNodeId(),currThreadId, this);
                     threadInst.SetNodeData(GetNodeId(), GetCentralInst().GetNodeBranchData(GetNodeId()));
 
                     int threadToUse = GetCentralInst().AddNewThread(threadInst);
                     SetVariable<int>(threadToUse, "Input Key", GetNodeVariable<int>("Input Key"));
-                    Debug.LogFormat("Curr: {0}, Max: {1}", i, max);
+                    
                 }
 
                 SetVariable<int>("Curr", max);                
@@ -54,9 +64,10 @@ public class ClientInput : NodeModifierBase, IInputCallback<int>, IOnSpawn {
     public override void ThreadZeroed(int parentThread) {
         base.ThreadZeroed(parentThread);
 
-        ThreadMapDataBase tMDB = threadMap[parentThread];
+        ThreadDuplicatorTracker tMDB = threadMap[parentThread] as ThreadDuplicatorTracker;
+        tMDB.threadsDuplicated--;
 
-        if (tMDB.totalThreadsSpawned == 0) {
+        if (tMDB.threadsDuplicated == 0) {
             threadMap.Remove(GetNodeThreadId());
             Debug.LogFormat("{0} removed from ThreadMap.", GetNodeThreadId());
             GetCentralInst().HandleThreadRemoval(GetNodeThreadId());
