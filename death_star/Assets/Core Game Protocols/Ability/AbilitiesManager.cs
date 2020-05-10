@@ -10,7 +10,8 @@ using UnityEngine.UI;
 
 public interface INodeNetworkPoint {
 
-    byte[] ProcessNetworkData(AbilityNodeNetworkData dataPacket);
+    void ModifyDataPacket(AbilityNodeNetworkData dataPacket);
+    void ProcessDataPacket<T>(AbilityNodeNetworkData<T> dataPacket);
 }
 
 public class LinkData {

@@ -11,12 +11,26 @@ public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
 
     public T value;
 
+    public AbilityNodeNetworkData(int nId, int vId, T v, byte[] aD) {
+        nodeId = nId;
+        varId = vId;
+        value = v;
+        additionalData = aD;
+
+        dataType = typeof(T);
+    }
+
     public AbilityNodeNetworkData(int nId, int vId, T v) {
         nodeId = nId;
         varId = vId;
         value = v;
 
         dataType = typeof(T);
+    }
+
+    public override void ApplyDataToNode(AbilityCentralThreadPool central) {
+        INodeNetworkPoint nwPt = central.GetNode(central.GetNetworkPoint(nodeId)) as INodeNetworkPoint;
+        nwPt.ProcessDataPacket(this);
     }
 }
 
@@ -25,6 +39,10 @@ public class AbilityNodeNetworkData {
     public int varId;
     public byte[] additionalData;
     public Type dataType;
+
+    public virtual void ApplyDataToNode(AbilityCentralThreadPool central) {
+
+    }
 }
 
 public class NodeThread {
@@ -166,6 +184,11 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
     #endregion
     */
 
+    public int GetNetworkPoint(int nodeId) {
+        return progenitorData[nodeId];
+    }
+       
+
     public AbilityTreeNode GetNode(int id) {
         return CreateNewNodeIfNull(id);
     }
@@ -297,8 +320,6 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
             networkNodeData.Add(timerEventId, new List<AbilityNodeNetworkData>());
         }
 
-        INodeNetworkPoint nwPointInst =  nodes[progenitorData[aNND.nodeId]] as INodeNetworkPoint;
-        nwPointInst.ProcessNetworkData(aNND);
         networkNodeData[timerEventId].Add(aNND);
     }
 
@@ -436,8 +457,13 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
             case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
                 //Debug.Log("Curr Node sent out: " + currNode);
                 RuntimeParameters<T> paramInst = runtimeParameters[currNode][variableId].field as RuntimeParameters<T>;
-                AddVariableNetworkData(new AbilityNodeNetworkData<T>(currNode, variableId, paramInst.v));
+
+                AbilityNodeNetworkData dataPacket =new AbilityNodeNetworkData<T>(currNode, variableId, paramInst.v);
+                INodeNetworkPoint nwPointInst = nodes[progenitorData[currNode]] as INodeNetworkPoint;
+                nwPointInst.ModifyDataPacket(dataPacket);
+                AddVariableNetworkData(dataPacket);
                 break;
+
             case NETWORK_CLIENT_ELIGIBILITY.DENIED:
                 return;
         }

@@ -6,7 +6,7 @@ using System.Text;
 
 public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
-    public class PackedNodeData<T> : PackedNodeData {
+    /*public class PackedNodeData<T> : PackedNodeData {
         public T value;
 
         public PackedNodeData(int a, int v, T val) {
@@ -38,7 +38,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         public virtual void UpdateCentral(AbilityCentralThreadPool centralInst) {
 
         }
-    }
+    }*/
 
     //List<AbilityCentralThreadPool> playerGeneratedAbilities;
 
@@ -130,6 +130,12 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 byteData.AddRange(BitConverter.GetBytes(argType));
                 byteData.AddRange(BitConverter.GetBytes(vBytes.Length));
                 byteData.AddRange(vBytes);
+
+                if(manifest[i].additionalData != null) {
+                    byteData.AddRange(BitConverter.GetBytes(manifest[i].additionalData.Length));
+                    byteData.AddRange(manifest[i].additionalData);
+                } else
+                    byteData.AddRange(BitConverter.GetBytes(0));
             }
         }
 
@@ -143,47 +149,30 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
         int playerId = BitConverter.ToInt32(bytesRecieved, 0);
         int centralId = BitConverter.ToInt32(bytesRecieved, 4);
-        List<PackedNodeData> pND = new List<PackedNodeData>();
+        List<AbilityNodeNetworkData> pND = new List<AbilityNodeNetworkData>();
         AbilityCentralThreadPool centralInst = AbilitiesManager.aData[targetId].playerSpawnedCentrals.GetElementAt(centralId);
 
-        foreach(PackedNodeData parsedData in ParseManifest(bytesRecieved, 8))
-            pND.Add(parsedData);
+        foreach(AbilityNodeNetworkData parsedData in ParseManifest(bytesRecieved, 8)) {
 
-        if(centralInst == null) {
-            centralInst = new AbilityCentralThreadPool(playerId);
+            if(centralInst == null) {
+                pND.Add(parsedData);
 
-            int pId = (pND[0] as PackedNodeData<int>).value;
-            string aId = (pND[1] as PackedNodeData<string>).value;
-            AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, targetId, centralId);
-        }
+                if(pND.Count == 2) {
+                    centralInst = new AbilityCentralThreadPool(playerId);
 
+                    int pId = (pND[0] as AbilityNodeNetworkData<int>).value;
+                    string aId = (pND[1] as AbilityNodeNetworkData<string>).value;
+                    AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, targetId, centralId);
+                }
 
-        /*if(central > -1) {
-            if(NetworkObjectTracker.inst.CheckIfInstIdMatches(central, instId))
-                centralInst = NetworkObjectTracker.inst.ReturnNetworkObject(central) as AbilityCentralThreadPool;
-        } else {
-
-            loopStartId = 1;
-            // Handles creation of new centrals.
-            if(targetId != ClientProgram.clientId) {
-                centralInst = new AbilityCentralThreadPool(targetId);
-                
-                NetworkObjectTracker.inst.AddNetworkObject(centralInst);
-                AbilitiesManager.aData[targetId].abilties[aId].CreateAbility(centralInst);
-            } else {
-                NetworkObjectTracker.inst.AddNetworkObject(playerGeneratedAbilities[0]);
-                playerGeneratedAbilities[0].RenameAllNodes();
-                centralInst = playerGeneratedAbilities[0];
-                playerGeneratedAbilities.RemoveAt(0);
+                continue;
             }
-        }*/
 
-        for(int i = 0; i < pND.Count; i++)
-            pND[i].UpdateCentral(centralInst);
-
+            parsedData.ApplyDataToNode(centralInst);
+        }
     }
 
-    public IEnumerable<PackedNodeData> ParseManifest(byte[] bytesRecieved, int offset = 0) {
+    public IEnumerable<AbilityNodeNetworkData> ParseManifest(byte[] bytesRecieved, int offset = 0) {
 
         int i = offset;
 
@@ -193,22 +182,27 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             int var = BitConverter.ToInt32(bytesRecieved, i + 4);
             int argType = BitConverter.ToInt32(bytesRecieved, i + 8);
             int valueLen = BitConverter.ToInt32(bytesRecieved, i + 12);
+            int addDataLen = BitConverter.ToInt32(bytesRecieved, i + 16 + valueLen);
+            byte[] addData = new byte[addDataLen];
+
+            if(addDataLen > 0)
+                Buffer.BlockCopy(bytesRecieved, i + 20 + valueLen, addData, 0, addDataLen);
 
             switch(argType) {
 
                 case 0: //int                    
                     int iData = BitConverter.ToInt32(bytesRecieved, i + 16);
-                    yield return new PackedNodeData<int>(ability, var, iData);
+                    yield return new AbilityNodeNetworkData<int>(ability, var, iData,addData);
                     break;
 
                 case 1: //float                    
                     float fData = BitConverter.ToSingle(bytesRecieved, i + 16);
-                    yield return new PackedNodeData<float>(ability, var, fData);
+                    yield return new AbilityNodeNetworkData<float>(ability, var, fData, addData);
                     break;
 
                 case 2: //string
                     string sData = Encoding.Default.GetString(bytesRecieved, i + 16, valueLen);
-                    yield return new PackedNodeData<string>(ability, var, sData);
+                    yield return new AbilityNodeNetworkData<string>(ability, var, sData, addData);
                     break;
 
                 case 3: //int[]
@@ -217,7 +211,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                     for(int j = 0; j < iArray.Length; j++)
                         iArray[j] = BitConverter.ToInt32(bytesRecieved, i + 16 + (j * 4));
 
-                    yield return new PackedNodeData<int[]>(ability, var, iArray);
+                    yield return new AbilityNodeNetworkData<int[]>(ability, var, iArray, addData);
                     break;
 
                 case 4: //float[]
@@ -226,102 +220,16 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                     for(int j = 0; j < fArray.Length; j++)
                         fArray[j] = BitConverter.ToSingle(bytesRecieved, i + 16 + (j * 4));
 
-                    yield return new PackedNodeData<float[]>(ability, var, fArray);
+                    yield return new AbilityNodeNetworkData<float[]>(ability, var, fArray, addData);
                     break;
 
                 case 5: //vector3
                     Vector3 v = new Vector3(BitConverter.ToSingle(bytesRecieved, i + 16), BitConverter.ToSingle(bytesRecieved, i + 20));
-                    yield return new PackedNodeData<Vector3>(ability, var, v);
+                    yield return new AbilityNodeNetworkData<Vector3>(ability, var, v, addData);
                     break;
             }
 
-            i += 16 + valueLen;
+            i += 20 + valueLen + addDataLen;
         }
     }
-
-
-
-    /*public override void MessageRecievedCallback() {
-        int central = BitConverter.ToInt32(bytesRecieved, 0);
-        int instId = BitConverter.ToInt32(bytesRecieved, 4);
-
-        // Checks if inst id given was updated.
-        if(NetworkObjectTracker.inst.CheckIfInstIdMatches(central, instId)) {
-
-            int ability = BitConverter.ToInt32(bytesRecieved, 8);
-            int var = BitConverter.ToInt32(bytesRecieved, 12);
-            int argType = BitConverter.ToInt32(bytesRecieved, 16);
-            VariableTypes vtype = (VariableTypes)BitConverter.ToInt32(bytesRecieved, 20);
-
-            AbilityCentralThreadPool centralInst = NetworkObjectTracker.inst.ReturnNetworkObject(central) as AbilityCentralThreadPool;
-            int abilityNodes = centralInst.GetAbilityNodeId();
-            int nTID = AbilityTreeNode.globalList.l[abilityNodes].abiNodes[ability].GetNodeThreadId();
-
-            if(nTID > -1)
-                switch(argType) {
-
-                    case 0: //int                    
-                        int iData = BitConverter.ToInt32(bytesRecieved, 24);
-                        centralInst.NodeVariableCallback<int>(nTID, var, iData, vtype);
-                        break;
-
-                    case 1: //float                    
-                        float fData = BitConverter.ToSingle(bytesRecieved, 24);
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<float>(nTID, var, fData, vtype);
-                        break;
-
-                    case 2: //string
-                        string sData = Encoding.Default.GetString(bytesRecieved, 24, bytesRecieved.Length - 24);
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<string>(nTID, var, sData, vtype);
-                        break;
-
-                    case 3: //int[]
-                        int[] iArray = ProcessArrayable<int>();
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<int[]>(nTID, var, iArray);
-                        break;
-
-                    case 4: //float[]
-                        float[] fArray = ProcessArrayable<float>();
-                        Debug.Log("Working");
-                        AbilityCentralThreadPool.globalCentralList.l[central].NodeVariableCallback<float[]>(nTID, var, fArray);
-                        break;
-                }
-        }
-
-        Debug.Log("(Update)Time end" + Time.realtimeSinceStartup);
-    }
-
-    public static T[] ProcessArrayable<T>() {
-
-        int bytesPerElement = 0;
-        int argType = -1;
-
-        if(typeof(T) == typeof(int)) {
-            bytesPerElement = 4;
-            argType = 0;
-        }
-
-        if(typeof(T) == typeof(float)) {
-            bytesPerElement = 4;
-            argType = 1;
-        }
-
-        if(argType > -1) {
-            T[] cArray = new T[(bytesRecieved.Length - 28) / bytesPerElement];
-
-            for(int i = 0; i < cArray.Length; i++) {
-                switch(argType) {
-                    case 0:
-                        cArray[i] = (T)(object)BitConverter.ToInt32(bytesRecieved, 28 + (i * bytesPerElement));
-                        break;
-                    case 1:
-                        cArray[i] = (T)(object)BitConverter.ToSingle(bytesRecieved, 28 + (i * bytesPerElement));
-                        break;
-                }
-            }
-
-            return cArray;
-        }
-        return null;
-    }*/
 }
