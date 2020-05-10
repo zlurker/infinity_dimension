@@ -10,7 +10,7 @@ public class SplitterData : ThreadMapDataBase {
     }
 }
 
-public class ThreadSplitter : NodeModifierBase {
+public class ThreadSplitter : NodeModifierLooper {
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
@@ -25,7 +25,7 @@ public class ThreadSplitter : NodeModifierBase {
 
         //Debug.LogFormat("Thread ID {0} has called threadsplitter.", GetNodeThreadId());
         threadMap.Add(latestThread, new SplitterData());
-        ProcessThreads(latestThread);
+        PreProcessThread(latestThread);
     }
 
 
@@ -35,7 +35,22 @@ public class ThreadSplitter : NodeModifierBase {
         //if(GetCentralInst().GetActiveThread(lastChildThread).GetJointThread() == -1)
         GetCentralInst().SetTimerEventID(-1);
         //Debug.Log("Loop has ended.");
-        ProcessThreads(parentThread);
+
+        if(pendingData.Count == 0)
+            PreProcessThread(parentThread);
+    }
+
+    public void PreProcessThread(int threadId) {
+
+        if(pendingData.Count > 0) {
+            foreach (var values in pendingData) {
+                for (int i=0; i < values.Value.Count; i++) 
+                    values.Value[i].ApplyDataToTargetVariable(GetCentralInst());                
+            }
+
+            ProcessThreads(threadId);
+        }else
+            ProcessThreads(threadId);
     }
 
     public void ProcessThreads(int threadId) {

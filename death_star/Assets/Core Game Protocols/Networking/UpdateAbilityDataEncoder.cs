@@ -168,7 +168,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 continue;
             }
 
-            parsedData.ApplyDataToNode(centralInst);
+            parsedData.CallbackNetworkPoint(centralInst);
         }
     }
 

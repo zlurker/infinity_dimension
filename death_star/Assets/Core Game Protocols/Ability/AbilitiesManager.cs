@@ -84,7 +84,7 @@ public class AbilityData : IInputCallback<int> {
     public AbilityInfo abilityInfo;
 
     //Dictionary<Tuple<int, int>, HashSet<int>> onCalledDict;
-    Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>> targettedNodes;
+    Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>> targettedNodes;
     Type[] dataType;
 
     int[] nodeProgenitor;
@@ -120,11 +120,11 @@ public class AbilityData : IInputCallback<int> {
         nodeProgenitor[node] = progenitor;
     }
 
-    public void AddTargettedNode(int a1, int a2, Type subCategory, int b1) {
+    public void AddTargettedNode(int a1, int a2, ON_VARIABLE_CATERGORY subCategory, int b1) {
         Tuple<int, int> id = Tuple.Create<int, int>(a1, a2);
 
         if(!targettedNodes.ContainsKey(a1))
-            targettedNodes.Add(a1, new Dictionary<Type, Dictionary<int, HashSet<int>>>());
+            targettedNodes.Add(a1, new Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>());
 
         if(!targettedNodes[a1].ContainsKey(subCategory))
             targettedNodes[a1].Add(subCategory, new Dictionary<int, HashSet<int>>());
@@ -144,7 +144,7 @@ public class AbilityData : IInputCallback<int> {
         dataType = new Type[data.Length + 1];
         linkData = new LinkData[data.Length + 1];
         nodeProgenitor = new int[data.Length + 1];
-        targettedNodes = new Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>>();
+        targettedNodes = new Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>>();
 
         for(int i = 0; i < data.Length; i++) {
             dataVar[i] = data[i].var;

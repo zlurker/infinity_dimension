@@ -13,7 +13,7 @@ public class OnVariableCalled : SpecialisedNodes {
             Debug.LogFormat("Connected var id: {0}. Curr var needed: {1}. Curr node: {2}", data.GetVariable(t1.Item1, t1.Item2).links[t1.Item3][1], GetVariableId("Extended Path"), data.GetCurrBuildNode());
 
             if(data.GetVariable(t1.Item1, t1.Item2).links[t1.Item3][1] == GetVariableId("Extended Path")) {
-                data.AddTargettedNode(t1.Item1, t1.Item2, GetType(), data.GetCurrBuildNode());
+                data.AddTargettedNode(t1.Item1, t1.Item2, ON_VARIABLE_CATERGORY.ON_CALLED, data.GetCurrBuildNode());
                 Debug.LogFormat("Built {0}: {1},{2}", GetType(), t1.Item1, t1.Item2);
                 data.GetLinkModifier().Remove(t1.Item1, t1.Item2, t1.Item3);
             }

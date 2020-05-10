@@ -2,53 +2,48 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ThreadDuplicatorTracker: ThreadMapDataBase {
+/*public class ThreadDuplicatorTracker: ThreadMapDataBase {
     public int threadsDuplicated;
 
     public ThreadDuplicatorTracker(int totalThreadsDuplicated) {
         threadsDuplicated = totalThreadsDuplicated;
     }
-}
+}*/
 
-public class ClientInput : NodeModifierBase, IInputCallback<int>, IOnSpawn {
+public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVariableInterface {
 
     bool inputSet;
 
-    private void Update() {
+    public override void ConstructionPhase(AbilityData data) {
+        base.ConstructionPhase(data);
 
-        int curr = GetNodeVariable<int>("Curr");
-        int max = GetNodeVariable<int>("Max");
+        Debug.Log("Construction phase called. LHS Links: " + data.GetLinkData(data.GetCurrBuildNode()).lHS.Count);
+        data.AddTargettedNode(data.GetCurrBuildNode(), GetVariableId("Internal Input Track"), ON_VARIABLE_CATERGORY.ON_CHANGED, data.GetCurrBuildNode());
+    }
 
-        if(curr < max)
-            if(GetNodeThreadId() > -1) {
+    public int CentralCallback<T>(T value, int nodeId, int varId, int links) {
 
-                int currThreadId = GetNodeThreadId();
+        SetVariable<bool>("Internal Input Track", (bool)(object)value);
 
-                threadMap.Add(currThreadId, new ThreadDuplicatorTracker(max-curr));
+        if(GetNodeThreadId() > -1)
+            if((bool)(object)value)
+                TriggerInput();
 
-                for(int i = curr; i < max; i++) {
-                    ChildThread threadInst = new ChildThread(GetNodeId(),currThreadId, this);
-                    threadInst.SetNodeData(GetNodeId(), GetCentralInst().GetNodeBranchData(GetNodeId()));
-
-                    int threadToUse = GetCentralInst().AddNewThread(threadInst);
-                    SetVariable<int>(threadToUse, "Input Key", GetNodeVariable<int>("Input Key"));
-                    
-                }
-
-                SetVariable<int>("Curr", max);                
-            }
+        return 0;
     }
 
     public void InputCallback(int callbackData) {
         inputSet = false;
         //Debug.Log("Input called");
-        SetVariable<int>("Max", GetNodeVariable<int>("Max") + 1);
+        SetVariable<bool>("Internal Input Track", true);
         //SetVariable<int>("Input Key");    
     }
 
     public override void NodeCallback() {
-        destroyOverridenThreads = true;
         base.NodeCallback();
+
+        if(GetNodeVariable<bool>("Internal Input Track"))
+            TriggerInput();
 
         if(IsClientPlayerUpdate()) {
             if(!inputSet)
@@ -58,19 +53,9 @@ public class ClientInput : NodeModifierBase, IInputCallback<int>, IOnSpawn {
         }
     }
 
-
-    public override void ThreadZeroed(int parentThread) {
-        base.ThreadZeroed(parentThread);
-
-        ThreadDuplicatorTracker tMDB = threadMap[parentThread] as ThreadDuplicatorTracker;
-        tMDB.threadsDuplicated--;
-
-        if (tMDB.threadsDuplicated == 0) {
-            threadMap.Remove(GetNodeThreadId());
-            //Debug.LogFormat("{0} removed from ThreadMap.", GetNodeThreadId());
-            GetCentralInst().HandleThreadRemoval(GetNodeThreadId());
-        }
-
+    void TriggerInput() {
+        SetVariable<bool>("Internal Input Track", false);
+        SetVariable<int>("Input Key");
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
@@ -78,12 +63,15 @@ public class ClientInput : NodeModifierBase, IInputCallback<int>, IOnSpawn {
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Input Key", 0), VariableTypes.SIGNAL_ONLY),
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Curr", 0), VariableTypes.HIDDEN),
-            new LoadedRuntimeParameters(new RuntimeParameters<int>("Max", 0), VariableTypes.CLIENT_ACTIVATED,VariableTypes.HIDDEN)
+             new LoadedRuntimeParameters(new RuntimeParameters<bool>("Internal Input Track", false), VariableTypes.HIDDEN, VariableTypes.CLIENT_ACTIVATED)
+            //new LoadedRuntimeParameters(new RuntimeParameters<int>("Curr", 0), VariableTypes.HIDDEN),
+            //new LoadedRuntimeParameters(new RuntimeParameters<int>("Max", 0), VariableTypes.CLIENT_ACTIVATED,VariableTypes.HIDDEN)
         });
     }
 
     public void OnSpawn() {
         inputSet = false;
     }
+
+
 }

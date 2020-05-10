@@ -14,7 +14,11 @@ public class ReturningData : ThreadMapDataBase {
     }
 }
 
-public class SpecialisedNodes : NodeModifierBase, IRPGeneric {
+public interface IOnVariableInterface {
+    int CentralCallback<T>(T value, int nodeId, int varId, int links);
+}
+
+public class SpecialisedNodes : NodeModifierBase, IOnVariableInterface, IRPGeneric {
 
     protected RuntimeParameters returnTargetInst;
 
