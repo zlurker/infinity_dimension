@@ -9,8 +9,6 @@ public class MoveTowardsDirection : MoveTo {
         overrode = true;
         base.NodeCallback();
 
-        Debug.Log("Movement called.");
-
         bool allDataRecv = CheckIfVarRegionBlocked("Coordinates", "Target", "Total Distance");
 
         if(allDataRecv) {

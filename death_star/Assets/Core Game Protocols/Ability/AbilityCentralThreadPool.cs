@@ -23,6 +23,7 @@ public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
 public class AbilityNodeNetworkData {
     public int nodeId;
     public int varId;
+    public byte[] additionalData;
     public Type dataType;
 }
 
@@ -113,6 +114,8 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
     private int[][] autoManagedVar;
 
+    private int[] progenitorData;
+
     private int playerId;
 
     private int castingPlayer;
@@ -201,7 +204,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         return centralId;
     }
 
-    public void SetCentralData(int cP, int tId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId, Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>> oVC) {
+    public void SetCentralData(int cP, int tId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, int cId, Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>> oVC, int[] pD) {
 
         abilityNodeRoot = new GameObject(tId.ToString()).transform;
         //Debug.Log("Ability created.");
@@ -215,6 +218,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         autoManagedVar = amVar;
         centralClusterId = cId;
         nodes = new AbilityTreeNode[rP.Length];
+        progenitorData = pD;
 
         targettedNodes = new Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>>(oVC);
         //Debug.Log("OVC Count: " + oVC.Count);
@@ -293,12 +297,14 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
             networkNodeData.Add(timerEventId, new List<AbilityNodeNetworkData>());
         }
 
+        INodeNetworkPoint nwPointInst =  nodes[progenitorData[aNND.nodeId]] as INodeNetworkPoint;
+        nwPointInst.ProcessNetworkData(aNND);
         networkNodeData[timerEventId].Add(aNND);
     }
 
     public void CallOnTimerEnd(int eventId) {
         UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
-        Debug.Log("Sending data");
+        //Debug.Log("Sending data");
 
         AbilityNodeNetworkData[] data = networkNodeData[eventId].ToArray();
         networkNodeData.Remove(eventId);
@@ -506,7 +512,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
                 HandleThreadRemoval(existingThread);
             //activeThreads.l[threadIdToUse](existingThread);
 
-            Debug.Log("Thread travelling to: " + nextNodeInst.GetType());
+            //Debug.Log("Thread travelling to: " + nextNodeInst.GetType());
             nextNodeInst.SetNodeThreadId(threadIdToUse);
 
             //Debug.Log("Before node callback:" + GetRootReferenceNode(nodeId));
@@ -562,7 +568,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
         //int cNode = activeThreads.l[threadId].GetCurrentNodeID();
         //int sPoint = activeThreads.l[threadId].GetStartingPoint();
-        Debug.LogFormat("Thread {0} ending at {1}", threadId, CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID()).GetType());
+        //Debug.LogFormat("Thread {0} ending at {1}", threadId, CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID()).GetType());
 
         AbilityTreeNode threadNode = CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID());
 
@@ -573,7 +579,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
 
         activeThreads.Remove(threadId);
-        Debug.LogFormat("Thread {0} has been removed.", threadId);
+        //Debug.LogFormat("Thread {0} has been removed.", threadId);
     }
 
     public AbilityTreeNode CreateNewNodeIfNull(int nodeId) {

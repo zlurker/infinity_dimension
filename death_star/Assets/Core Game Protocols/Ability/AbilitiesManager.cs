@@ -8,6 +8,11 @@ using System.Text;
 using System.Linq;
 using UnityEngine.UI;
 
+public interface INodeNetworkPoint {
+
+    byte[] ProcessNetworkData(AbilityNodeNetworkData dataPacket);
+}
+
 public class LinkData {
 
     // < NodeConnected, VariableConnected, LinkType, LinkID  >
@@ -80,6 +85,8 @@ public class AbilityData : IInputCallback<int> {
     //Dictionary<Tuple<int, int>, HashSet<int>> onCalledDict;
     Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>> targettedNodes;
     Type[] dataType;
+
+    int[] nodeProgenitor;
     int[][] rootSubclasses;
     int[] nodeBranchingData;
     int[][] autoManagedVariables;
@@ -108,6 +115,10 @@ public class AbilityData : IInputCallback<int> {
         return dataVar[node][variable];
     }
 
+    public void SetNodeProgenitor(int node, int progenitor) {
+        nodeProgenitor[node] = progenitor;
+    }
+
     public void AddTargettedNode(int a1, int a2, Type subCategory, int b1) {
         Tuple<int, int> id = Tuple.Create<int, int>(a1, a2);
 
@@ -131,6 +142,7 @@ public class AbilityData : IInputCallback<int> {
         dataVar = new Variable[data.Length + 1][];
         dataType = new Type[data.Length + 1];
         linkData = new LinkData[data.Length + 1];
+        nodeProgenitor = new int[data.Length + 1];
         targettedNodes = new Dictionary<int, Dictionary<Type, Dictionary<int, HashSet<int>>>>();
 
         for(int i = 0; i < data.Length; i++) {
@@ -145,11 +157,12 @@ public class AbilityData : IInputCallback<int> {
         RetrieveStartNodes();
 
         // Adds the psuedo node after the initial calculation.
-        dataVar[dataVar.Length - 1] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[1].rP, rootSubclasses) };
-        dataType[dataVar.Length - 1] = typeof(NodeThreadStarter);
-        linkData[dataVar.Length - 1] = new LinkData();
+        int startNode = dataVar.Length - 1;
+        dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[1].rP, rootSubclasses) };
+        dataType[startNode] = typeof(NodeThreadStarter);
+        linkData[startNode] = new LinkData();
 
-        CreateAbilityLinkMap(dataVar.Length - 1);
+        RunNodeFlow(startNode, startNode);
 
         EditLinks();
         BeginDepenciesBuild();
@@ -178,7 +191,12 @@ public class AbilityData : IInputCallback<int> {
         rootSubclasses = rC.ToArray();
     }
 
-    void CreateAbilityLinkMap(int nextNode) {
+    void RunNodeFlow(int nextNode,int progenitor) {
+
+        if(LoadedData.loadedNodeInstance[dataType[nextNode]] is INodeNetworkPoint)
+            progenitor = nextNode;
+
+        nodeProgenitor[nextNode] = progenitor;
 
         for(int i = 0; i < dataVar[nextNode].Length; i++)
             for(int j = 0; j < dataVar[nextNode][i].links.Length; j++) {
@@ -197,7 +215,7 @@ public class AbilityData : IInputCallback<int> {
                     linkData[currLink[0]].lHS.Add(lhslinkTup);
 
                 // Iterates to target.
-                CreateAbilityLinkMap(currLink[0]);
+                RunNodeFlow(currLink[0],progenitor);
             }
     }
 
@@ -235,6 +253,8 @@ public class AbilityData : IInputCallback<int> {
             dataVar[rm.Key.Item1][rm.Key.Item2].links = links.ToArray();
         }
     }
+
+    
 
     void BeginDepenciesBuild() {
 
@@ -313,7 +333,7 @@ public class AbilityData : IInputCallback<int> {
             clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
         AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(givenPopulatedId);
-        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId, targettedNodes);
+        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId, targettedNodes,nodeProgenitor);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }

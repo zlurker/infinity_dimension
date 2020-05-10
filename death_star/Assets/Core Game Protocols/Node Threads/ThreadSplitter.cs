@@ -34,7 +34,7 @@ public class ThreadSplitter : NodeModifierBase {
 
         //if(GetCentralInst().GetActiveThread(lastChildThread).GetJointThread() == -1)
         GetCentralInst().SetTimerEventID(-1);
-        Debug.Log("Loop has ended.");
+        //Debug.Log("Loop has ended.");
         ProcessThreads(parentThread);
     }
 
@@ -50,7 +50,7 @@ public class ThreadSplitter : NodeModifierBase {
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
             int threadToUse = inst.AddNewThread(trdInst);
-            Debug.LogFormat("Thread {0} is starting a new journey.", threadToUse);
+            //Debug.LogFormat("Thread {0} is starting a new journey.", threadToUse);
             //Debug.LogFormat("Thread id {0} has been created.", threadToUse);
             inst.NodeVariableCallback<int>(threadToUse, GetVariableId("Number of Loops"));
         } else {
