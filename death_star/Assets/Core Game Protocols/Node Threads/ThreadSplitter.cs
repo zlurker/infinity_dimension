@@ -12,6 +12,9 @@ public class SplitterData : ThreadMapDataBase {
 
 public class ThreadSplitter : NodeModifierLooper {
 
+    int expediteThreadsSpawned;
+    int expediteThreads;
+
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
@@ -36,20 +39,33 @@ public class ThreadSplitter : NodeModifierLooper {
         GetCentralInst().SetTimerEventID(-1);
         //Debug.Log("Loop has ended.");
 
-        if(pendingData.Count == 0)
+        if(expediteThreads >= expediteThreadsSpawned)
             PreProcessThread(parentThread);
     }
 
     public void PreProcessThread(int threadId) {
 
         if(pendingData.Count > 0) {
-            foreach (var values in pendingData) {
-                for (int i=0; i < values.Value.Count; i++) 
-                    values.Value[i].ApplyDataToTargetVariable(GetCentralInst());                
+            List<int> pendingDataApplied = new List<int>();
+            expediteThreads = pendingData.Count;
+
+            foreach(var values in pendingData) {
+                for(int i = 0; i < values.Value.Count; i++)
+                    values.Value[i].ApplyDataToTargetVariable(GetCentralInst());
+
+                ProcessThreads(threadId);
+                pendingDataApplied.Add(values.Key);
+                expediteThreadsSpawned++;
             }
 
-            ProcessThreads(threadId);
-        }else
+            // Only removes those that has been processed.
+            for(int i = 0; i < pendingDataApplied.Count; i++)
+                pendingData.Remove(pendingDataApplied[i]);
+
+            // If new item was added during processing, it will not be removed. Hence, we will now apply all the other pending data.
+            if(pendingData.Count > 0)
+                PreProcessThread(threadId);
+        } else
             ProcessThreads(threadId);
     }
 

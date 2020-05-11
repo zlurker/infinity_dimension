@@ -55,7 +55,7 @@ public class Timer : MonoBehaviour, ISingleton {
     }
 
     public void UpdateEventStartTime(int eventId, float sT) {
-        Debug.LogFormat("Event {0}'s start time has been changed to {1}. End timing is now {2}", eventId, sT, sT + tData[eventId].duration);
+        //Debug.LogFormat("Event {0}'s start time has been changed to {1}. End timing is now {2}", eventId, sT, sT + tData[eventId].duration);
         tData[eventId].startTime = sT;
     }
 

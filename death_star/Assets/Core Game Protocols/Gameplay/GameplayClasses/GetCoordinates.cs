@@ -8,7 +8,7 @@ public class GetCoordinates : AbilityTreeNode {
         base.NodeCallback();
 
         if(CheckIfVarRegionBlocked("Target")) {
-            Debug.Log("Passing coords");
+            //Debug.Log("Passing coords");
             SetVariable<Vector3>("Target's Coordinates", GetNodeVariable<AbilityTreeNode>("Target").transform.root.position);
         }
     }

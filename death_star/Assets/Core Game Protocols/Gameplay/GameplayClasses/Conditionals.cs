@@ -42,7 +42,7 @@ public class Conditionals : AbilityTreeNode {
             //Debug.LogFormat("Operation: {0}, A: {1}, B: {2}, Output: {3}", GetNodeVariable<int>("Operation"), GetNodeVariable<float>("A"), GetNodeVariable<float>("B"), output);
 
             if(conditionFulfilled) {
-                Debug.Log("Condition fulfilled");
+                //Debug.Log("Condition fulfilled");
                 SetVariable<int>("On Condition Fulfilled", 0);
             }
         }

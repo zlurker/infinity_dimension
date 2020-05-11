@@ -68,10 +68,12 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             return new byte[0];
 
         List<byte> byteData = new List<byte>();
-        int argType = -1;
-        byte[] vBytes = new byte[0];
+        
 
         for(int i = 0; i < manifest.Length; i++) {
+
+            int argType = -1;
+            byte[] vBytes = new byte[0];
 
             if(manifest[i].dataType == typeof(int)) {
                 argType = 0;
@@ -124,6 +126,11 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                 vBytes = fBData.ToArray();
             }
 
+            if(manifest[i].dataType == typeof(bool)) {
+                argType = 6;
+                vBytes = BitConverter.GetBytes((manifest[i] as AbilityNodeNetworkData<bool>).value);
+            }
+
             if(argType > -1) {
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].nodeId));
                 byteData.AddRange(BitConverter.GetBytes(manifest[i].varId));
@@ -152,6 +159,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         List<AbilityNodeNetworkData> pND = new List<AbilityNodeNetworkData>();
         AbilityCentralThreadPool centralInst = AbilitiesManager.aData[targetId].playerSpawnedCentrals.GetElementAt(centralId);
 
+        Debug.Log(centralInst);
         foreach(AbilityNodeNetworkData parsedData in ParseManifest(bytesRecieved, 8)) {
 
             if(centralInst == null) {
@@ -165,9 +173,11 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                     AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, targetId, centralId);
                 }
 
+                Debug.Log("Continued");
                 continue;
             }
 
+            Debug.Log("Data recieved!");
             parsedData.CallbackNetworkPoint(centralInst);
         }
     }
@@ -175,6 +185,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
     public IEnumerable<AbilityNodeNetworkData> ParseManifest(byte[] bytesRecieved, int offset = 0) {
 
         int i = offset;
+        Debug.Log(bytesRecieved.Length);
 
         while(i < bytesRecieved.Length) {
 
@@ -227,8 +238,14 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                     Vector3 v = new Vector3(BitConverter.ToSingle(bytesRecieved, i + 16), BitConverter.ToSingle(bytesRecieved, i + 20));
                     yield return new AbilityNodeNetworkData<Vector3>(ability, var, v, addData);
                     break;
+
+                case 6: //bool                    
+                    bool bData = BitConverter.ToBoolean(bytesRecieved, i + 16);
+                    yield return new AbilityNodeNetworkData<bool>(ability, var, bData, addData);
+                    break;
             }
 
+            //Debug.Log(i);
             i += 20 + valueLen + addDataLen;
         }
     }

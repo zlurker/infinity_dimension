@@ -3,9 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GenericNetworkDataWrapper{
-
-}
 
 public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
 
@@ -19,6 +16,7 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
     public void ProcessDataPacket<T>(AbilityNodeNetworkData<T> dataPacket) {
         int givenLoop = BitConverter.ToInt32(dataPacket.additionalData, 0);
 
+        //Debug.Log("NML Recieved!");
         // If its the same as curr loop, then apply value and not save the data anymore.
         if(givenLoop == currLoop) {
             GetCentralInst().UpdateVariableValue<T>(dataPacket.nodeId, dataPacket.varId, dataPacket.value);
