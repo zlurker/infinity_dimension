@@ -38,7 +38,7 @@ public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
     }
 
     public override void ApplyDataToTargetVariable(AbilityCentralThreadPool central) {
-        central.UpdateVariableValue<T>(nodeId, varId, value);
+        central.UpdateVariableValue<T>(nodeId, varId, value,false);
     }
 }
 
@@ -435,7 +435,6 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         // Does run value stuff here.
         if(runValueChanged) {
 
-            Debug.Log("checking runoncalled");
             int totalOnCalled = RunTargettedNodes<T>(nodeId, variableId, ON_VARIABLE_CATERGORY.ON_CHANGED, value);
 
             if(sharedInstance.ContainsKey(nodeId))

@@ -12,9 +12,6 @@ public class SplitterData : ThreadMapDataBase {
 
 public class ThreadSplitter : NodeModifierLooper {
 
-    int expediteThreadsSpawned;
-    int expediteThreads;
-
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
@@ -28,32 +25,32 @@ public class ThreadSplitter : NodeModifierLooper {
 
         //Debug.LogFormat("Thread ID {0} has called threadsplitter.", GetNodeThreadId());
         threadMap.Add(latestThread, new SplitterData());
-        PreProcessThread(latestThread);
+        ProcessThreads(latestThread);
     }
 
 
     public override void ThreadZeroed(int parentThread) {
         (threadMap[parentThread] as SplitterData).numberOfLoops++;
 
-        Debug.Log("Thread End!");
+        //Debug.Log("Thread End!");
         //if(GetCentralInst().GetActiveThread(lastChildThread).GetJointThread() == -1)
         currLoop++;
-        GetCentralInst().SetTimerEventID(-1);       
-        //Debug.Log("Loop has ended.");
-
-        if(expediteThreads >= expediteThreadsSpawned)
-            PreProcessThread(parentThread);
+        GetCentralInst().SetTimerEventID(-1);
+        ProcessThreads(parentThread);
     }
 
-    public void PreProcessThread(int threadId) {
+    /*public void PreProcessThread(int threadId) {
+
+        
+
+        ProcessThreads()
 
         if(pendingData.Count > 0) {
             List<int> pendingDataApplied = new List<int>();
             expediteThreads = pendingData.Count;
 
             foreach(var values in pendingData) {
-                for(int i = 0; i < values.Value.Count; i++)
-                    values.Value[i].ApplyDataToTargetVariable(GetCentralInst());
+                
 
                 ProcessThreads(threadId);
                 pendingDataApplied.Add(values.Key);
@@ -69,9 +66,18 @@ public class ThreadSplitter : NodeModifierLooper {
                 PreProcessThread(threadId);
         } else
             ProcessThreads(threadId);
-    }
+    }*/
 
     public void ProcessThreads(int threadId) {
+
+        if(pendingData.ContainsKey(currLoop)) {
+            for(int i = 0; i < pendingData[currLoop].Count; i++) {
+                pendingData[currLoop][i].ApplyDataToTargetVariable(GetCentralInst());
+                //Debug.Log("Data applied!");
+            }
+
+            pendingData.Remove(currLoop);
+        }
 
         AbilityCentralThreadPool inst = GetCentralInst();
         SplitterData sData = threadMap[threadId] as SplitterData;

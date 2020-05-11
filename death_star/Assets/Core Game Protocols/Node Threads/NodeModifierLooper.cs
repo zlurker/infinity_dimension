@@ -16,13 +16,13 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
     public void ProcessDataPacket<T>(AbilityNodeNetworkData<T> dataPacket) {
         int givenLoop = BitConverter.ToInt32(dataPacket.additionalData, 0);
 
-        Debug.LogFormat("{0},{1}", givenLoop, currLoop);
+        //Debug.LogFormat("{0},{1}", givenLoop, currLoop);
 
         // If its the same as curr loop, then apply value and not save the data anymore.
         if(givenLoop == currLoop) {
-            GetCentralInst().UpdateVariableValue<T>(dataPacket.nodeId, dataPacket.varId, dataPacket.value,false,true);
+            GetCentralInst().UpdateVariableValue<T>(dataPacket.nodeId, dataPacket.varId, dataPacket.value,false);
 
-            Debug.LogFormat("TNode {0}, Value {1}",GetCentralInst().GetNode(dataPacket.nodeId), dataPacket.value);
+//Debug.LogFormat("TNode {0}, Value {1}",GetCentralInst().GetNode(dataPacket.nodeId), dataPacket.value);
 
             int nTID = GetCentralInst().GetNode(dataPacket.nodeId).GetNodeThreadId();
             if(nTID > -1)
