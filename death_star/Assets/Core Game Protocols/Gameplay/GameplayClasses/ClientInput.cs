@@ -17,8 +17,8 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
     public override void ConstructionPhase(AbilityData data) {
         base.ConstructionPhase(data);
 
-       //Debug.Log("Construction phase called. LHS Links: " + data.GetLinkData(data.GetCurrBuildNode()).lHS.Count);
-       data.AddTargettedNode(data.GetCurrBuildNode(), GetVariableId("Internal Input Track"), ON_VARIABLE_CATERGORY.ON_CHANGED, data.GetCurrBuildNode());
+        //Debug.Log("Construction phase called. LHS Links: " + data.GetLinkData(data.GetCurrBuildNode()).lHS.Count);
+        data.AddTargettedNode(data.GetCurrBuildNode(), GetVariableId("Internal Input Track"), ON_VARIABLE_CATERGORY.ON_CHANGED, data.GetCurrBuildNode());
     }
 
     public int CentralCallback<T>(T value, int nodeId, int varId, int links) {
@@ -56,7 +56,7 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
     void TriggerInput() {
 
         // Unsets input triggered.
-        GetCentralInst().UpdateVariableValue<bool>(GetNodeId(), GetVariableId("Internal Input Track"), false, false);
+        GetCentralInst().UpdateVariableValue<bool>(GetNodeId(), GetVariableId("Internal Input Track"), false, false, false);
         SetVariable<int>("Input Key");
     }
 

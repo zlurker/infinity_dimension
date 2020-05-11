@@ -10,7 +10,6 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
     protected Dictionary<int, List<AbilityNodeNetworkData>> pendingData = new Dictionary<int, List<AbilityNodeNetworkData>>();
 
     public void ModifyDataPacket(AbilityNodeNetworkData dataPacket) {
-        Debug.Log(currLoop);
         dataPacket.additionalData = BitConverter.GetBytes(currLoop);
     }
 
@@ -21,7 +20,9 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
 
         // If its the same as curr loop, then apply value and not save the data anymore.
         if(givenLoop == currLoop) {
-            GetCentralInst().UpdateVariableValue<T>(dataPacket.nodeId, dataPacket.varId, dataPacket.value);
+            GetCentralInst().UpdateVariableValue<T>(dataPacket.nodeId, dataPacket.varId, dataPacket.value,false,true);
+
+            Debug.LogFormat("TNode {0}, Value {1}",GetCentralInst().GetNode(dataPacket.nodeId), dataPacket.value);
 
             int nTID = GetCentralInst().GetNode(dataPacket.nodeId).GetNodeThreadId();
             if(nTID > -1)

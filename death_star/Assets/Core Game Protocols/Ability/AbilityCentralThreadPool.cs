@@ -403,7 +403,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         return NETWORK_CLIENT_ELIGIBILITY.LOCAL_HOST;
     }
 
-    public void UpdateVariableValue<T>(int nodeId, int variableId, T value, bool runValueChanged = true) {
+    public void UpdateVariableValue<T>(int nodeId, int variableId, T value, bool runNetworkCode = true, bool runValueChanged = true) {
 
         bool reference = CheckIfReferenced(nodeId, variableId);
 
@@ -416,26 +416,26 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
             return;
         }
 
-        NETWORK_CLIENT_ELIGIBILITY nCE = CheckEligibility(nodeId, variableId);
+        if(runNetworkCode) {
+            NETWORK_CLIENT_ELIGIBILITY nCE = CheckEligibility(nodeId, variableId);
 
-        switch(nCE) {
-            case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
-                //Debug.Log("Curr Node sent out: " + currNode);
-                RuntimeParameters<T> nwParam = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
+            switch(nCE) {
+                case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
+                    AbilityNodeNetworkData dataPacket = new AbilityNodeNetworkData<T>(nodeId, variableId, value);
+                    INodeNetworkPoint nwPointInst = nodes[progenitorData[nodeId]] as INodeNetworkPoint;
+                    nwPointInst.ModifyDataPacket(dataPacket);
+                    AddVariableNetworkData(dataPacket);
+                    break;
 
-                AbilityNodeNetworkData dataPacket = new AbilityNodeNetworkData<T>(nodeId, variableId, nwParam.v);
-                INodeNetworkPoint nwPointInst = nodes[progenitorData[nodeId]] as INodeNetworkPoint;
-                nwPointInst.ModifyDataPacket(dataPacket);
-                AddVariableNetworkData(dataPacket);
-                break;
-
-            case NETWORK_CLIENT_ELIGIBILITY.DENIED:
-                return;
+                case NETWORK_CLIENT_ELIGIBILITY.DENIED:
+                    return;
+            }
         }
 
         // Does run value stuff here.
         if(runValueChanged) {
 
+            Debug.Log("checking runoncalled");
             int totalOnCalled = RunTargettedNodes<T>(nodeId, variableId, ON_VARIABLE_CATERGORY.ON_CHANGED, value);
 
             if(sharedInstance.ContainsKey(nodeId))
@@ -494,12 +494,16 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
     public void UpdateVariableData<T>(int threadId, int variableId, RuntimeParameters<T> var = null, bool runOnCalled = true) {
 
+        if(threadId == -1)
+            return;
+
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
+
+        if(CheckEligibility(currNode, variableId) == NETWORK_CLIENT_ELIGIBILITY.DENIED)
+            return;
+
         int[][] links = runtimeParameters[currNode][variableId].links;
         int currPossiblePaths = activeThreads.l[threadId].GetPossiblePaths();
-
-        if(threadId == -1 || CheckEligibility(currNode, variableId) == NETWORK_CLIENT_ELIGIBILITY.DENIED)
-            return;
 
         if(var == null)
             var = ReturnRuntimeParameter<T>(currNode, variableId);
