@@ -198,7 +198,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
     public int GetNetworkPoint(int nodeId) {
         return progenitorData[nodeId];
     }
-       
+
 
     public AbilityTreeNode GetNode(int id) {
         return CreateNewNodeIfNull(id);
@@ -352,7 +352,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         int threadId = GetNewThread(lastNodeId);
 
         activeThreads.l[threadId].SetNodeData(lastNodeId, nodeBranchingData[lastNodeId]);
-        NodeVariableCallback<int>(threadId, 0);
+        UpdateVariableData<int>(threadId, 0);
     }
 
     public bool CheckIfReferenced(int nodeId, int variableId) {
@@ -416,6 +416,23 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
             return;
         }
 
+        NETWORK_CLIENT_ELIGIBILITY nCE = CheckEligibility(nodeId, variableId);
+
+        switch(nCE) {
+            case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
+                //Debug.Log("Curr Node sent out: " + currNode);
+                RuntimeParameters<T> nwParam = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
+
+                AbilityNodeNetworkData dataPacket = new AbilityNodeNetworkData<T>(nodeId, variableId, nwParam.v);
+                INodeNetworkPoint nwPointInst = nodes[progenitorData[nodeId]] as INodeNetworkPoint;
+                nwPointInst.ModifyDataPacket(dataPacket);
+                AddVariableNetworkData(dataPacket);
+                break;
+
+            case NETWORK_CLIENT_ELIGIBILITY.DENIED:
+                return;
+        }
+
         // Does run value stuff here.
         if(runValueChanged) {
 
@@ -434,12 +451,8 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         }
 
         RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
-        T[] valuePair = new T[2];
 
         if(paramInst != null) {
-            valuePair[0] = paramInst.v;
-            valuePair[1] = value;
-
             paramInst.v = value;
         } else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
             string varName = runtimeParameters[nodeId][variableId].field.n;
@@ -447,15 +460,12 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
             //Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
             runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
-
-            valuePair[0] = value;
-            valuePair[1] = value;
         }
 
 
     }
 
-    public void NodeVariableCallback<T>(int threadId, int variableId) {
+    /*public void NodeVariableCallback<T>(int threadId, int variableId) {
 
         if(threadId == -1)
             return;
@@ -480,16 +490,16 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         }
 
         UpdateVariableData<T>(threadId, variableId);
-    }
+    }*/
 
     public void UpdateVariableData<T>(int threadId, int variableId, RuntimeParameters<T> var = null, bool runOnCalled = true) {
-
-        if(threadId == -1)
-            return;
 
         int currNode = activeThreads.l[threadId].GetCurrentNodeID();
         int[][] links = runtimeParameters[currNode][variableId].links;
         int currPossiblePaths = activeThreads.l[threadId].GetPossiblePaths();
+
+        if(threadId == -1 || CheckEligibility(currNode, variableId) == NETWORK_CLIENT_ELIGIBILITY.DENIED)
+            return;
 
         if(var == null)
             var = ReturnRuntimeParameter<T>(currNode, variableId);
@@ -593,7 +603,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
                     foreach(int vC in vCLoop.Value) {
                         IOnVariableInterface nodeInst = GetNode(vC) as IOnVariableInterface;
-                        nodeInst.CentralCallback<T>(value, node, variable,0);
+                        nodeInst.CentralCallback<T>(value, node, variable, 0);
                     }
                 }
 
@@ -657,6 +667,6 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         int[] nodeCBInfo = (int[])(object)arg;
 
         AbilityTreeNode inst = CreateNewNodeIfNull(nodeCBInfo[0]);
-        NodeVariableCallback<T>(inst.GetNodeThreadId(), nodeCBInfo[1]);
+        UpdateVariableData<T>(inst.GetNodeThreadId(), nodeCBInfo[1]);
     }
 }

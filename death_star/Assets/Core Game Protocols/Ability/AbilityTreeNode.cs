@@ -166,28 +166,28 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public void SetVariable<T>(int varId, T value) {
         GetCentralInst().UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, varId);
+        GetCentralInst().UpdateVariableData<T>(nodeThreadId, varId);
     }
 
     public void SetVariable<T>(int threadId, string varName) {
         int varId = GetVariableId(varName);
-        GetCentralInst().NodeVariableCallback<T>(threadId, varId);
+        GetCentralInst().UpdateVariableData<T>(threadId, varId);
     }
 
     public void SetVariable<T>(int threadId, string varName, T value) {
         int varId = GetVariableId(varName);
         GetCentralInst().UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst().NodeVariableCallback<T>(threadId, varId);
+        GetCentralInst().UpdateVariableData<T>(threadId, varId);
     }
 
     public void SetVariable<T>(string varName, T value) {
         int varId = GetVariableId(varName);
         GetCentralInst().UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, varId);
+        GetCentralInst().UpdateVariableData<T>(nodeThreadId, varId);
     }
 
     public void SetVariable<T>(string varName) {
-        GetCentralInst().NodeVariableCallback<T>(nodeThreadId, GetVariableId(varName));
+        GetCentralInst().UpdateVariableData<T>(nodeThreadId, GetVariableId(varName));
     }
 
     public int GetVariableId(string varName) {

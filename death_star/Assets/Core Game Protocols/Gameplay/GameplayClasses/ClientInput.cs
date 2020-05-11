@@ -24,7 +24,7 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
     public int CentralCallback<T>(T value, int nodeId, int varId, int links) {
 
         //SetVariable<bool>("Internal Input Track", (bool)(object)value);
-
+        Debug.Log("Central Callback!");
         if(GetNodeThreadId() > -1)
             if((bool)(object)value)
                 TriggerInput();
@@ -34,7 +34,7 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
 
     public void InputCallback(int callbackData) {
         inputSet = false;
-        //Debug.Log("Input called");
+        Debug.Log("Input called");
         SetVariable<bool>("Internal Input Track", true);
         //SetVariable<int>("Input Key");    
     }

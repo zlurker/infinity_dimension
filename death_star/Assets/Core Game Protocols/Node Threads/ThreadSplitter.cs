@@ -35,8 +35,10 @@ public class ThreadSplitter : NodeModifierLooper {
     public override void ThreadZeroed(int parentThread) {
         (threadMap[parentThread] as SplitterData).numberOfLoops++;
 
+        Debug.Log("Thread End!");
         //if(GetCentralInst().GetActiveThread(lastChildThread).GetJointThread() == -1)
-        GetCentralInst().SetTimerEventID(-1);
+        currLoop++;
+        GetCentralInst().SetTimerEventID(-1);       
         //Debug.Log("Loop has ended.");
 
         if(expediteThreads >= expediteThreadsSpawned)
@@ -83,7 +85,7 @@ public class ThreadSplitter : NodeModifierLooper {
             int threadToUse = inst.AddNewThread(trdInst);
             //Debug.LogFormat("Thread {0} is starting a new journey.", threadToUse);
             //Debug.LogFormat("Thread id {0} has been created.", threadToUse);
-            inst.NodeVariableCallback<int>(threadToUse, GetVariableId("Number of Loops"));
+            SetVariable<int>(threadToUse, "Number of Loops");
         } else {
             Debug.LogFormat("Thread {0} was rmed.", threadId);
             inst.HandleThreadRemoval(threadId);

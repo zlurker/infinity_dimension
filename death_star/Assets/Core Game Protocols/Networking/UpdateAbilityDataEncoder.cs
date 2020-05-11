@@ -159,7 +159,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         List<AbilityNodeNetworkData> pND = new List<AbilityNodeNetworkData>();
         AbilityCentralThreadPool centralInst = AbilitiesManager.aData[targetId].playerSpawnedCentrals.GetElementAt(centralId);
 
-        Debug.Log(centralInst);
+        //Debug.Log(centralInst);
         foreach(AbilityNodeNetworkData parsedData in ParseManifest(bytesRecieved, 8)) {
 
             if(centralInst == null) {
@@ -173,11 +173,11 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                     AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, targetId, centralId);
                 }
 
-                Debug.Log("Continued");
+                //Debug.Log("Continued");
                 continue;
             }
 
-            Debug.Log("Data recieved!");
+            //Debug.Log("Data recieved!");
             parsedData.CallbackNetworkPoint(centralInst);
         }
     }
@@ -185,7 +185,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
     public IEnumerable<AbilityNodeNetworkData> ParseManifest(byte[] bytesRecieved, int offset = 0) {
 
         int i = offset;
-        Debug.Log(bytesRecieved.Length);
+        //Debug.Log(bytesRecieved.Length);
 
         while(i < bytesRecieved.Length) {
 
