@@ -552,7 +552,9 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         //Debug.Log("RTN called");
 
         if(targettedNodes.ContainsKey(node))
-            if(targettedNodes[node].ContainsKey(category))
+            if(targettedNodes[node].ContainsKey(category)) {
+                Debug.Log("Contains category.");
+
                 foreach(var vCLoop in targettedNodes[node][category]) {
 
                     if(variable == vCLoop.Key)
@@ -563,6 +565,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
                         nodeInst.CentralCallback<T>(value, node, variable, 0);
                     }
                 }
+            }
 
         return targetInCatergory;
     }

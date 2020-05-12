@@ -159,8 +159,8 @@ public class AbilityData : IInputCallback<int> {
 
         // Adds the psuedo node after the initial calculation.
         int startNode = dataVar.Length - 1;
-        dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[1].rP, rootSubclasses) };
-        dataType[startNode] = typeof(NodeThreadStarter);
+        dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(ThreadSplitter)].runtimeParameters[1].rP, rootSubclasses) };
+        dataType[startNode] = typeof(ThreadSplitter);
         linkData[startNode] = new LinkData();
 
         RunNodeFlow(startNode, startNode);

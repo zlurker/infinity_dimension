@@ -29,15 +29,14 @@ public class NodeModifierBase : AbilityTreeNode {
             SetNodeThreadId(-1);
     }
 
-    public override void ThreadEndStartCallback(int threadId) {
+    public virtual void ThreadEndStartCallback(int threadId) {
 
         AbilityCentralThreadPool inst = GetCentralInst();
         NodeThread nT = inst.GetActiveThread(threadId);
 
         //Debug.Log("Thread end called");
 
-
-        int parentThread = nT.GetOriginalThread();
+        int parentThread = nT.GetGivenId();
 
         if(parentThread > -1) {
             threadMap[parentThread].totalThreadsSpawned--;

@@ -131,12 +131,6 @@ public class AbilityTreeNode : MonoBehaviour {
         // Sends out this node as a reference if all details are in order.
         if(CheckIfVarRegionBlocked("This Node"))
             GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
-
-
-    }
-
-    public virtual void ThreadEndStartCallback(int threadId) {
-
     }
 
     public bool CheckIfVarRegionBlocked(params string[] target) {

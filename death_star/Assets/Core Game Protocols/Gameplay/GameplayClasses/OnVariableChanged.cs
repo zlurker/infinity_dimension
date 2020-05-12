@@ -69,7 +69,8 @@ public class OnVariableChanged : SpecialisedNodes, IRPGeneric {
     }
 
     public override int CentralCallback<T>(T value, int nodeId, int varId,int links) {
-        
+
+        Debug.Log("Central called!");
 
         int childThread = base.CentralCallback(value, nodeId, varId, GetCentralInst().ReturnVariable(GetNodeId(), "Old Value").links.Length + GetCentralInst().ReturnVariable(GetNodeId(), "New Value").links.Length);
 
