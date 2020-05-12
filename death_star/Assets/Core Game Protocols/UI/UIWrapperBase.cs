@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System;
 
 public class AdditionalScriptData {
@@ -33,9 +34,9 @@ public class UIWrapperBase : MonoBehaviour, IOnSpawn {
             }
     }*/
 
-    public void PopulateScriptDirectory(Dictionary<string,int> targetDict) {
+    public void PopulateScriptDirectory(Dictionary<string, int> targetDict) {
         for(int i = 0; i < scriptsData.Length; i++)
-            targetDict.Add(scriptsData[i].name,i); 
+            targetDict.Add(scriptsData[i].name, i);
     }
 }
 
@@ -97,6 +98,12 @@ public class ButtonWrapper : UIWrapperBase {
             new AdditionalScriptData("Text",text)
         };
     }
+
+    public void ChangeButtonSize(Vector2 size) {
+        (button.transform as RectTransform).sizeDelta = size;
+        (image.transform as RectTransform).sizeDelta = size;
+        (text.transform as RectTransform).sizeDelta = size;
+    }
 }
 
 [RequireComponent(typeof(InputField))]
@@ -152,7 +159,7 @@ public class ScrollRectWrapper : UIWrapperBase {
     public UIMule content;
 
     public override void OnSpawn() {
-        if(scrollRect == null) 
+        if(scrollRect == null)
             scrollRect = GetComponent<ScrollRect>();
 
         scrollRect.horizontal = false;
@@ -170,7 +177,7 @@ public class ScrollRectWrapper : UIWrapperBase {
         content = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(UIMule)).script as UIMule;
         contentImage.gameObject.AddComponent<Mask>();
 
-        content.GetRectTransform(). pivot = new Vector3(0.5f, 1);
+        content.GetRectTransform().pivot = new Vector3(0.5f, 1);
         content.GetRectTransform().SetParent(contentImage.transform);
         mainImage.transform.SetParent(scrollRect.transform);
         contentImage.transform.SetParent(scrollRect.transform);
@@ -212,9 +219,9 @@ public class ScrollbarWrapper : UIWrapperBase {
     public UIMule scrollArea;
 
     public override void OnSpawn() {
-        if(scrollBar == null) 
+        if(scrollBar == null)
             scrollBar = GetComponent<Scrollbar>();
-        
+
         scrollBar.direction = Scrollbar.Direction.BottomToTop;
 
         imageMain = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(Image)).script as Image;
@@ -259,7 +266,7 @@ public class DropdownWrapper : UIWrapperBase {
     public Text tempText;
 
     public override void OnSpawn() {
-        if(dropdown == null) 
+        if(dropdown == null)
             dropdown = GetComponent<Dropdown>();
 
         dropdown.interactable = true;
@@ -338,5 +345,75 @@ public class ToggleWrapper : UIWrapperBase {
             new AdditionalScriptData("ImageToggle",imageToggle)
         };
         //AllignWrapperElements();
+    }
+}
+
+[RequireComponent(typeof(Image))]
+public class WindowsWrapper : UIWrapperBase, IPointerDownHandler, IDragHandler {
+
+    public Image windowsGraphic;
+    public ButtonWrapper deleteButton;
+    public UIMule content;
+
+    Vector2 pointInObject;
+    Vector3 trackedPos;
+
+    Vector2 windowsSize;
+    float windowsHeaderHeight;
+
+    public override void OnSpawn() {
+        if(windowsGraphic == null)
+            windowsGraphic = GetComponent<Image>();
+
+        deleteButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper)).script as ButtonWrapper;
+        content = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(UIMule)).script as UIMule;
+
+        deleteButton.ChangeButtonSize(new Vector2(15, 15));
+        deleteButton.image.color = Color.red;
+        deleteButton.text.text = "";
+        windowsGraphic.color = new Color(1, 1, 1, 0.5f);
+
+        ChangeWindowsHeaderSize(45);
+        ChangeWindowsContentSize(new Vector2(100, 100));
+
+        deleteButton.transform.SetParent(transform);
+        content.transform.SetParent(transform);
+        content.GetRectTransform().sizeDelta = new Vector2();
+
+        deleteButton.button.onClick.RemoveAllListeners();
+        deleteButton.button.onClick.AddListener(() => { gameObject.SetActive(false); });
+
+        scriptsData = new AdditionalScriptData[] {
+            new AdditionalScriptData("Windows",windowsGraphic),
+            new AdditionalScriptData("DeleteButton",deleteButton),
+            new AdditionalScriptData("Content",content)
+        };
+
+        transform.SetAsLastSibling();
+    }
+
+    public void ChangeWindowsHeaderSize(float height) {
+        windowsHeaderHeight = height;
+    }
+
+    public void ChangeWindowsContentSize(Vector2 size) {
+        (windowsGraphic.transform as RectTransform).sizeDelta = new Vector2(size.x, size.y + windowsHeaderHeight);
+       
+        deleteButton.transform.position = UIDrawer.UINormalisedPosition(windowsGraphic.transform as RectTransform, new Vector2(0.95f, 1f)) - new Vector3(0,windowsHeaderHeight/2);
+        content.transform.position = UIDrawer.UINormalisedPosition(windowsGraphic.transform as RectTransform, new Vector2(0f, 1f)) - new Vector3(0,windowsHeaderHeight);
+
+        windowsSize = size;
+    }
+
+    public virtual void OnPointerDown(PointerEventData eventData) {
+        transform.SetAsLastSibling();
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(transform as RectTransform, eventData.position, eventData.pressEventCamera, out pointInObject);
+    }
+
+    public virtual void OnDrag(PointerEventData eventData) {
+        Vector2 currMousePos;
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.root as RectTransform, eventData.position, eventData.pressEventCamera, out currMousePos);
+        transform.localPosition = currMousePos - pointInObject;
     }
 }

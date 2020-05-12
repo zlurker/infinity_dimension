@@ -19,7 +19,7 @@ public interface ILineHandler {
     void UpdateLines(int[] id);
 }
 
-public class EditableWindow : WindowsScript {
+public class EditableWindow : WindowsWrapper {
 
     //Main linear layout.
     public LinearLayout lL;
@@ -27,25 +27,17 @@ public class EditableWindow : WindowsScript {
     //Variable linear layout.
     public SpawnerOutput[] variables;
 
-    public SpawnerOutput windowsDeleter;
     public List<int> linesRelated;
     public ILineHandler link;
 
-    public void InitialiseWindow() {
+    public override void OnSpawn() {
+        base.OnSpawn();
+
         lL = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout)).script as LinearLayout;
-        windowsDeleter = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
         linesRelated = new List<int>();
 
-        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Image>(windowsDeleter, "Image").color = Color.red;
-        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(windowsDeleter, "Text").text = "";
-
-        windowsDeleter.script.transform.SetParent(transform);
-        lL.transform.SetParent(transform);
-
-        windowsDeleter.script.transform.position = UIDrawer.UINormalisedPosition(transform as RectTransform, new Vector2(0.85f, 0.5f));
-        lL.transform.position = UIDrawer.UINormalisedPosition(transform as RectTransform, new Vector2(0f, 0.1f));
-
-        UIDrawer.ChangeUISize(windowsDeleter, new Vector2(20, 20));
+        lL.transform.SetParent(content.transform);
+        lL.transform.localPosition = new Vector3();
     }
 
     public override void OnDrag(PointerEventData eventData) {
@@ -139,7 +131,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         (classSelectionScrollRect.script as ScrollRectWrapper).ChangeScrollRectSize(new Vector2(100, 600));
 
 
-        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<UIMule>(classSelectionScrollRect, "Content").GetRectTransform().sizeDelta = (mainClassSelection.script.transform as RectTransform).sizeDelta;        
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<UIMule>(classSelectionScrollRect, "Content").GetRectTransform().sizeDelta = (mainClassSelection.script.transform as RectTransform).sizeDelta;
         classSelectionScrollRect.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
 
         mainClassSelection.script.transform.SetParent(LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<UIMule>(classSelectionScrollRect, "Content").transform);
@@ -289,11 +281,10 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     public void CreateWindow(int id, Vector3 location) {
 
         EditableWindow editWindow = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(EditableWindow)).script as EditableWindow;
-        editWindow.InitialiseWindow();
         editWindow.link = this;
 
         //Runs deletion delegate.
-        Button del = LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(editWindow.windowsDeleter);
+        Button del = editWindow.deleteButton.button;
 
         del.onClick.AddListener(() => {
             //Handles UI deletion.
@@ -313,6 +304,8 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         //Initialises variable linear layouts.
         editWindow.variables = new SpawnerOutput[abilityData.subclasses.l[id].var.Length];
+
+        Vector2 varGraphicsDimensions = new Vector2(0, 0);
 
         for(int i = 0; i < abilityData.subclasses.l[id].var.Length; i++) {
 
@@ -337,10 +330,17 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
             LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<LinearLayout>(align).Add(set.script.transform as RectTransform);
 
-            (align.script.transform as RectTransform).sizeDelta = (align.script.transform as RectTransform).sizeDelta;
+            //(align.script.transform as RectTransform).sizeDelta = (align.script.transform as RectTransform).sizeDelta;
             editWindow.lL.Add(align.script.transform as RectTransform);
             editWindow.variables[i] = align;
+
+            varGraphicsDimensions.y += (align.script.transform as RectTransform).sizeDelta.y;
+
+            if((align.script.transform as RectTransform).sizeDelta.x > varGraphicsDimensions.x)
+                varGraphicsDimensions.x = (align.script.transform as RectTransform).sizeDelta.x;
         }
+
+        editWindow.ChangeWindowsContentSize(varGraphicsDimensions);
     }
 
     SpawnerOutput CreateVariableButtons(ActionType aT, int[] id) {
@@ -565,7 +565,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             if(lineData.l[id[i]].l != null) {
                 lineData.l[id[i]].l.script.transform.position = lineData.l[id[i]].s.position;
                 Vector2 d = lineData.l[id[i]].e.position - lineData.l[id[i]].s.position;
-                LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Image>(lineData.l[id[i]].l,"Image").rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
+                LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Image>(lineData.l[id[i]].l, "Image").rectTransform.sizeDelta = new Vector2(10f, d.magnitude);
                 lineData.l[id[i]].l.script.transform.rotation = Quaternion.Euler(new Vector3(0, 0, Math.CalculateAngle(d)));
             }
     }

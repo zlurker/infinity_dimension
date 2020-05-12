@@ -359,6 +359,8 @@ public sealed class AbilitiesManager : MonoBehaviour {
         public Dictionary<string, Sprite> assetData;
         public Dictionary<int, string> abilityManifest;
         public AutoPopulationList<AbilityCentralThreadPool> playerSpawnedCentrals;
+        public Dictionary<int, Dictionary<string, VariableInterfaces>> globalVariables;
+
 
         private List<int> internalFreeSpaceTracker;
 
@@ -366,6 +368,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             assetData = new Dictionary<string, Sprite>();
             playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
             internalFreeSpaceTracker = new List<int>();
+            globalVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
         }
 
         public void RemoveSpawn(int index) {

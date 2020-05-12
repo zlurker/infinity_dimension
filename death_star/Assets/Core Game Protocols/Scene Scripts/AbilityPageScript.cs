@@ -34,6 +34,7 @@ public class AbilityPageScript : MonoBehaviour {
         if(abilityInfo == null)
             abilityInfo = new Dictionary<string, AbilityInfo>();
 
+        LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(WindowsWrapper));
         GenerateMenuElements();
         LoadCurrentFiles();
         LoadAbilityManifest();

@@ -61,7 +61,6 @@ public class VariableInterfaces : IRPGeneric {
 
 public class SharedVariable : AbilityTreeNode {
 
-    public static Dictionary<int, Dictionary<string, VariableInterfaces>> sharedVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
     bool referenceAdded;
 
     public override void NodeCallback() {
@@ -95,12 +94,12 @@ public class SharedVariable : AbilityTreeNode {
         else
             clusterRootId = AbilityCentralThreadPool.globalCentralClusterList.l[GetCentralInst().GetClusterID()][0];
 
-        if(!sharedVariables.ContainsKey(clusterRootId))
-            sharedVariables.Add(clusterRootId, new Dictionary<string, VariableInterfaces>());
+        if(!AbilitiesManager.aData[GetCentralInst().GetPlayerId()].globalVariables.ContainsKey(clusterRootId))
+            AbilitiesManager.aData[GetCentralInst().GetPlayerId()].globalVariables.Add(clusterRootId, new Dictionary<string, VariableInterfaces>());
 
-        if(!sharedVariables[clusterRootId].ContainsKey(GetNodeVariable<string>("Variable Name")))
-            sharedVariables[clusterRootId].Add(GetNodeVariable<string>("Variable Name"), new VariableInterfaces());
+        if(!AbilitiesManager.aData[GetCentralInst().GetPlayerId()].globalVariables[clusterRootId].ContainsKey(GetNodeVariable<string>("Variable Name")))
+            AbilitiesManager.aData[GetCentralInst().GetPlayerId()].globalVariables[clusterRootId].Add(GetNodeVariable<string>("Variable Name"), new VariableInterfaces());
 
-        return sharedVariables[clusterRootId][GetNodeVariable<string>("Variable Name")];
+        return AbilitiesManager.aData[GetCentralInst().GetPlayerId()].globalVariables[clusterRootId][GetNodeVariable<string>("Variable Name")];
     }
 }
