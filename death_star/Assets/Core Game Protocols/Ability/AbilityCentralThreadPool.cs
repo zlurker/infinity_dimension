@@ -56,9 +56,51 @@ public class AbilityNodeNetworkData {
     }
 }
 
-public class NodeInstanceData {
+public class NodeThread {
 
+    int currNode;
+
+    // To be used for creation of new threads when it branches out.
+    // generatedNodeTheads/possiblePaths.       
+    protected int generatedNodeThreads;
+    protected int possiblePaths;
+
+    public NodeThread() {
+        currNode = -1;
+    }
+
+    public void SetNodeData(int cN, int pS) {
+        currNode = cN;
+        SetPossiblePaths(pS);
+    }
+
+    public void SetPossiblePaths(int pS) {
+        generatedNodeThreads = 0;
+        possiblePaths = pS;
+    }
+
+    public int GetCurrentNodeID() {
+        return currNode;
+    }
+
+    public int GetPossiblePaths() {
+        return possiblePaths;
+    }
+
+    public virtual NodeThread CreateNewThread() {
+        generatedNodeThreads++;
+
+        if(possiblePaths > generatedNodeThreads)
+            return new NodeThread();
+
+        return null;
+    }
+
+    public virtual void OnThreadEnd() {
+
+    }
 }
+
 
 public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
@@ -239,8 +281,8 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         return nodeBranchingData[id];
     }
 
-    public int GetNewThread(int originalThread, NodeModifierBase sN) {
-        return activeThreads.Add(new NodeThread(originalThread, sN));
+    public int GetNewThread() {
+        return activeThreads.Add(new NodeThread());
     }
 
     public bool[] GetNodeBoolValues(int id) {
@@ -303,10 +345,10 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         int lastNodeId = runtimeParameters.Length - 1;
 
         // Direct node callback. It will auto handle creation of new threads ect.
-        int threadId = GetNewThread(-1,null);
+        int threadId = GetNewThread();
 
         activeThreads.l[threadId].SetNodeData(lastNodeId, nodeBranchingData[lastNodeId]);
-        UpdateVariableData<int>(threadId, 0);
+        CreateNewNodeIfNull(lastNodeId).NodeCallback();
     }
 
     public bool CheckIfReferenced(int nodeId, int variableId) {
@@ -552,7 +594,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         //Debug.Log("RTN called");
 
         if(targettedNodes.ContainsKey(node))
-            if(targettedNodes[node].ContainsKey(category)) 
+            if(targettedNodes[node].ContainsKey(category))
                 foreach(var vCLoop in targettedNodes[node][category]) {
 
                     if(variable == vCLoop.Key)
@@ -563,7 +605,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
                         nodeInst.CentralCallback<T>(value, node, variable, 0);
                     }
                 }
-            
+
 
         return targetInCatergory;
     }
@@ -583,8 +625,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         if(threadNode.GetNodeThreadId() == threadId)
             threadNode.SetNodeThreadId(-1);
 
-        if(activeThreads.l[threadId].GetStartingPoint() != null)
-            activeThreads.l[threadId].GetStartingPoint().ThreadEndStartCallback(threadId);
+        activeThreads.l[threadId].OnThreadEnd();
         //CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
 
         activeThreads.Remove(threadId);

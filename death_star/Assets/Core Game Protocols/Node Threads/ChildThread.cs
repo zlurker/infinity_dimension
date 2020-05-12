@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NodeThread {
+/*public class NodeThread {
 
     int givenId;
     NodeModifierBase nMB;
@@ -56,4 +56,4 @@ public class NodeThread {
 
         return null;
     }
-}
+}*/

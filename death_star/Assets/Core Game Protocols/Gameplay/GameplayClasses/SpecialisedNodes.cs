@@ -29,11 +29,11 @@ public class SpecialisedNodes : NodeModifierBase, IOnVariableInterface, IRPGener
         //Debug.Log("Central base called.");
 
         AbilityCentralThreadPool inst = GetCentralInst();
-        int transferThread = inst.GetNewThread(-1,null);
+        int transferThread = inst.GetNewThread();
         threadMap.Add(transferThread, new ReturningData(nodeId, varId));
 
         if(links > 0) {
-            NodeThread cT = new NodeThread(transferThread, this);
+            NodeModifierBaseThread cT = new NodeModifierBaseThread(transferThread, this);
             cT.SetNodeData(GetNodeId(), links);
             return inst.AddNewThread(cT);
         } else

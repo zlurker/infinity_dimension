@@ -157,14 +157,13 @@ public class AbilityData : IInputCallback<int> {
 
         RetrieveStartNodes();
 
-        // Adds the psuedo node after the initial calculation.
+        // Needs to be rectified to add in the This node.
         int startNode = dataVar.Length - 1;
-        dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(ThreadSplitter)].runtimeParameters[1].rP, rootSubclasses) };
+        dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(ThreadSplitter)].runtimeParameters[0].rP), new Variable(LoadedData.loadedParamInstances[typeof(ThreadSplitter)].runtimeParameters[1].rP, rootSubclasses) };
         dataType[startNode] = typeof(ThreadSplitter);
         linkData[startNode] = new LinkData();
 
         RunNodeFlow(startNode, startNode);
-
         EditLinks();
         BeginDepenciesBuild();
     }

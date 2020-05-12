@@ -11,6 +11,35 @@ public class ThreadMapDataBase {
     }
 }
 
+public class NodeModifierBaseThread: NodeThread {
+    int givenId;
+    NodeModifierBase nodeModifierBase;
+
+    public NodeModifierBaseThread(int gId, NodeModifierBase nMB) {
+        givenId = gId;
+        nodeModifierBase = nMB;
+
+        nodeModifierBase.AddThread(givenId);
+    }
+
+    public int GetGivenId() {
+        return givenId;
+    }
+
+    public override NodeThread CreateNewThread() {
+        generatedNodeThreads++;
+
+        if(possiblePaths > generatedNodeThreads)
+            return new NodeModifierBaseThread(givenId, nodeModifierBase);
+
+        return null;
+    }
+
+    public override void OnThreadEnd() {
+        nodeModifierBase.ThreadEndStartCallback(this);
+    }
+}
+
 public class NodeModifierBase : AbilityTreeNode {
 
     protected Dictionary<int, ThreadMapDataBase> threadMap = new Dictionary<int, ThreadMapDataBase>();
@@ -29,14 +58,13 @@ public class NodeModifierBase : AbilityTreeNode {
             SetNodeThreadId(-1);
     }
 
-    public virtual void ThreadEndStartCallback(int threadId) {
+    public virtual void ThreadEndStartCallback(NodeModifierBaseThread endedThread) {
 
         AbilityCentralThreadPool inst = GetCentralInst();
-        NodeThread nT = inst.GetActiveThread(threadId);
 
         //Debug.Log("Thread end called");
 
-        int parentThread = nT.GetGivenId();
+        int parentThread = endedThread.GetGivenId();
 
         if(parentThread > -1) {
             threadMap[parentThread].totalThreadsSpawned--;
