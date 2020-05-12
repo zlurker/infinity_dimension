@@ -26,7 +26,7 @@ public class SpecialisedNodes : NodeModifierBase, IOnVariableInterface, IRPGener
     // Creates returning data and helps us to create a child thread based on what was given.
     public virtual int CentralCallback<T>(T value, int nodeId, int varId, int links = 0) {
 
-        Debug.Log("Central base called.");
+        //Debug.Log("Central base called.");
 
         AbilityCentralThreadPool inst = GetCentralInst();
         int transferThread = inst.GetNewThread(-1,null);

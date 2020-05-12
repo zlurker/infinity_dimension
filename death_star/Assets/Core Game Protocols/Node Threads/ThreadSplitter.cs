@@ -53,7 +53,7 @@ public class ThreadSplitter : NodeModifierLooper {
             //Debug.LogFormat("Thread id {0} has been created.", threadToUse);
             SetVariable<int>(threadToUse, "Number of Loops");
         } else {
-            Debug.LogFormat("Thread {0} was rmed.", threadId);
+            //Debug.LogFormat("Thread {0} was rmed.", threadId);
             inst.HandleThreadRemoval(threadId);
             threadMap.Remove(threadId);
         }
