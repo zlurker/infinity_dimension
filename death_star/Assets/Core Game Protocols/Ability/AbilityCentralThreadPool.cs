@@ -38,7 +38,7 @@ public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
     }
 
     public override void ApplyDataToTargetVariable(AbilityCentralThreadPool central) {
-        central.UpdateVariableValue<T>(nodeId, varId, value,false);
+        central.UpdateVariableValue<T>(nodeId, varId, value, false);
     }
 }
 
@@ -53,54 +53,6 @@ public class AbilityNodeNetworkData {
     }
 
     public virtual void ApplyDataToTargetVariable(AbilityCentralThreadPool central) {
-    }
-}
-
-public class NodeThread {
-
-    int currNode;
-    int startingPt;
-
-    // To be used for creation of new threads when it branches out.
-    // generatedNodeTheads/possiblePaths.       
-    protected int generatedNodeThreads;
-    protected int possiblePaths;
-
-    public NodeThread(int sPt) {
-
-        startingPt = sPt;
-        currNode = -1;
-    }
-
-    public int GetStartingPoint() {
-        return startingPt;
-    }
-
-    public void SetNodeData(int cN, int pS) {
-        currNode = cN;
-        SetPossiblePaths(pS);
-    }
-
-    public void SetPossiblePaths(int pS) {
-        generatedNodeThreads = 0;
-        possiblePaths = pS;
-    }
-
-    public int GetCurrentNodeID() {
-        return currNode;
-    }
-
-    public int GetPossiblePaths() {
-        return possiblePaths;
-    }
-
-    public virtual NodeThread CreateNewThread() {
-        generatedNodeThreads++;
-
-        if(possiblePaths > generatedNodeThreads)
-            return new NodeThread(startingPt);
-
-        return null;
     }
 }
 
@@ -287,8 +239,8 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         return nodeBranchingData[id];
     }
 
-    public int GetNewThread(int startNode) {
-        return activeThreads.Add(new NodeThread(startNode));
+    public int GetNewThread(int originalThread, NodeModifierBase sN) {
+        return activeThreads.Add(new NodeThread(originalThread, sN));
     }
 
     public bool[] GetNodeBoolValues(int id) {
@@ -349,7 +301,9 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
     public void StartThreads() {
         int lastNodeId = runtimeParameters.Length - 1;
-        int threadId = GetNewThread(lastNodeId);
+
+        // Direct node callback. It will auto handle creation of new threads ect.
+        int threadId = GetNewThread(-1,null);
 
         activeThreads.l[threadId].SetNodeData(lastNodeId, nodeBranchingData[lastNodeId]);
         UpdateVariableData<int>(threadId, 0);
@@ -619,6 +573,8 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         //int cNode = activeThreads.l[threadId].GetCurrentNodeID();
         //int sPoint = activeThreads.l[threadId].GetStartingPoint();
         //Debug.LogFormat("Thread {0} ending at {1}", threadId, CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID()).GetType());
+        if(threadId == -1)
+            return;
 
         AbilityTreeNode threadNode = CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID());
 
@@ -626,7 +582,9 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         if(threadNode.GetNodeThreadId() == threadId)
             threadNode.SetNodeThreadId(-1);
 
-        CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
+        if(activeThreads.l[threadId].GetStartingPoint() != null)
+            activeThreads.l[threadId].GetStartingPoint().ThreadEndStartCallback(threadId);
+        //CreateNewNodeIfNull(activeThreads.l[threadId].GetStartingPoint()).ThreadEndStartCallback(threadId);
 
         activeThreads.Remove(threadId);
         //Debug.LogFormat("Thread {0} has been removed.", threadId);

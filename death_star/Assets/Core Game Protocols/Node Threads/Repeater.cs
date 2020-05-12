@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Repeater : AbilityTreeNode, IOnSpawn {
+public class Repeater : NodeModifierLooper, IOnSpawn {
 
     float startTime = -1;
 
@@ -11,8 +11,10 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
             float diff = Time.realtimeSinceStartup - startTime;
             int diffMultiplier = Mathf.FloorToInt(diff / GetNodeVariable<float>("Time Interval"));
 
-            for(int i = 0; i < diffMultiplier; i++)
+            for(int i = 0; i < diffMultiplier; i++) {
+                currLoop++;
                 BeginRepeater();
+            }
 
             if(diffMultiplier > 0)
                 startTime = Time.realtimeSinceStartup;
@@ -20,22 +22,28 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
 	}
 
     public override void NodeCallback() {
+        destroyOverridenThreads = true;
+
         base.NodeCallback();
 
         if(startTime == -1) {
             startTime = Time.realtimeSinceStartup;
-            BeginRepeater();
+            BeginRepeater(); 
         }        
     }
 
     public void BeginRepeater() {
-        NodeThread trdInst = new NodeThread(GetNodeId());
+
+        ApplyPendingDataToVariable(currLoop);
+
+        NodeThread trdInst = new NodeThread(latestThread,this);
         trdInst.SetNodeData(GetNodeId(), GetCentralInst().GetNodeBranchData(GetNodeId()));
 
         int threadToUse = GetCentralInst().AddNewThread(trdInst);
         Debug.Log("Launching repeater...");
-        Debug.Log(threadToUse);
-        SetVariable("Time Interval", 0);
+
+        SetVariable<float>(threadToUse,"Time Interval");
+        
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

@@ -2,28 +2,58 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChildThread : NodeThread {
+public class NodeThread {
 
-    int originalThread;
+    int givenId;
     NodeModifierBase nMB;
 
-    public ChildThread(int sPt, int oT, NodeModifierBase sN) : base(sPt) {
-        originalThread = oT;
+    int currNode;
+
+    // To be used for creation of new threads when it branches out.
+    // generatedNodeTheads/possiblePaths.       
+    protected int generatedNodeThreads;
+    protected int possiblePaths;
+
+    public NodeThread(int oT, NodeModifierBase sN) {
+        givenId = oT;
         nMB = sN;
 
-        nMB.AddThread(originalThread);
+        if(nMB != null)
+            nMB.AddThread(givenId);
     }
 
-    public override NodeThread CreateNewThread() {
+    public NodeModifierBase GetStartingPoint() {
+        return nMB;
+    }
+
+    public void SetNodeData(int cN, int pS) {
+        currNode = cN;
+        SetPossiblePaths(pS);
+    }
+
+    public void SetPossiblePaths(int pS) {
+        generatedNodeThreads = 0;
+        possiblePaths = pS;
+    }
+
+    public int GetCurrentNodeID() {
+        return currNode;
+    }
+
+    public int GetPossiblePaths() {
+        return possiblePaths;
+    }
+
+    public int GetGivenId() {
+        return givenId;
+    }
+
+    public NodeThread CreateNewThread() {
         generatedNodeThreads++;
 
         if(possiblePaths > generatedNodeThreads)
-            return new ChildThread(GetStartingPoint(), originalThread, nMB);
+            return new NodeThread(givenId, nMB);
 
         return null;
-    }
-
-    public int GetOriginalThread() {
-        return originalThread;
     }
 }

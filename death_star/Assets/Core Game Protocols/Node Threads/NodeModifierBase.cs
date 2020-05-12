@@ -31,25 +31,19 @@ public class NodeModifierBase : AbilityTreeNode {
 
     public override void ThreadEndStartCallback(int threadId) {
 
-        AbilityCentralThreadPool inst =GetCentralInst();
+        AbilityCentralThreadPool inst = GetCentralInst();
         NodeThread nT = inst.GetActiveThread(threadId);
 
         //Debug.Log("Thread end called");
 
-        if(nT is ChildThread) {
-            int parentThread = (nT as ChildThread).GetOriginalThread();
 
-            //Debug.Log("parentthread: " + parentThread);
+        int parentThread = nT.GetOriginalThread();
+
+        if(parentThread > -1) {
             threadMap[parentThread].totalThreadsSpawned--;
 
             if(threadMap[parentThread].totalThreadsSpawned == 0)
                 ThreadZeroed(parentThread);
-
-            // Checks if node is already empty with no more threads.
-            /*if(threadMap.Count == 0) {
-                //Debug.Log("Threadmap empty. Setting node thread id to -1.");
-                SetNodeThreadId(-1);
-            }*/
         }
     }
 
@@ -58,6 +52,7 @@ public class NodeModifierBase : AbilityTreeNode {
     }
 
     public void AddThread(int oT) {
-        threadMap[oT].totalThreadsSpawned++;
+        if(oT > -1)
+            threadMap[oT].totalThreadsSpawned++;
     }
 }

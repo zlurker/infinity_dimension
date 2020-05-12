@@ -37,4 +37,13 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
         // To be added for later use.
         pendingData[givenLoop].Add(dataPacket);
     }
+
+    public void ApplyPendingDataToVariable(int iterationId) {
+        if(pendingData.ContainsKey(iterationId)) {
+            for(int i = 0; i < pendingData[iterationId].Count; i++) 
+                pendingData[iterationId][i].ApplyDataToTargetVariable(GetCentralInst());
+
+            pendingData.Remove(iterationId);
+        }
+    }
 }

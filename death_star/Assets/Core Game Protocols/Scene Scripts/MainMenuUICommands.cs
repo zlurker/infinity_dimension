@@ -186,8 +186,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(saveButton).onClick.AddListener(() => {
 
-            abilityDescription.kC = inputValues[dW.dropdown.value];
-
             int[] aEle = abilityData.subclasses.ReturnActiveElementIndex();
 
             AbilityDataSubclass[] cAD = abilityData.RelinkSubclass();
@@ -234,6 +232,26 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         dW.dropdown.AddOptions(inputs);
         dW.dropdown.value = inputIndex;
+
+        dW.dropdown.onValueChanged.AddListener((v) => {
+            abilityDescription.kC = inputValues[v];
+        });
+
+        // Creates dropdown for startnode.
+        DropdownWrapper sNDW = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper)).script as DropdownWrapper;
+
+        sNDW.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.65f, 0.9f));
+        List<Dropdown.OptionData> sNDWinputs = new List<Dropdown.OptionData>();
+
+        sNDWinputs.Add(new Dropdown.OptionData("ThreadSplitter"));
+        sNDWinputs.Add(new Dropdown.OptionData("Repeater"));
+        sNDW.dropdown.AddOptions(sNDWinputs);
+
+        sNDW.dropdown.value = abilityDescription.sNT;
+
+        sNDW.dropdown.onValueChanged.AddListener((v) => {
+            abilityDescription.sNT = v;
+        });
     }
 
     public void SpawnUIFromData() {
