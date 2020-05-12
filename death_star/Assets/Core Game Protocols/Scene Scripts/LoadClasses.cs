@@ -12,7 +12,7 @@ public class LoadClasses : MonoBehaviour {
 
     void Start() {
         LoadSingletonClasses();
-        LoadAbilityNodes();        
+        LoadAbilityNodes();
         LoadNetworkDependencies();
         //AbilityValidator.ValidateAbilities();
     }
@@ -26,13 +26,16 @@ public class LoadClasses : MonoBehaviour {
 
         LoadedData.loadedNodeInstance = new Dictionary<Type, AbilityTreeNode>();
         LoadedData.loadedParamInstances = new Dictionary<Type, LoadedRPWrapper>();
+        LoadedData.loadedBuiltInheritances = new Dictionary<Type, HashSet<Type>>();
 
         Type[] types = new Type[0];
-        Type t = typeof(AbilityTreeNode);
+        Type rootSubclass = typeof(AbilityTreeNode);
 
         types = AppDomain.CurrentDomain.GetAssemblies()
                         .SelectMany(s => s.GetTypes())
-                        .Where(p => p.IsSubclassOf(t)).ToArray();
+                        .Where(p => p.IsSubclassOf(rootSubclass)).ToArray();
+
+
 
         for(int i = 0; i < types.Length; i++) {
             ConstructorInfo info = types[i].GetConstructor(new Type[0]);
@@ -40,18 +43,9 @@ public class LoadClasses : MonoBehaviour {
 
             if(info != null) {
 
-                int linkedType = -1;
-
-                Debug.Log(types[i] + " is linked to the following:");
-
-                for(int j = 0; j < types.Length; j++) 
-                    if(types[i].IsSubclassOf(types[j]) || types[j].IsSubclassOf(types[i])) {
-                        Debug.Log(types[j]);
-                    }
-                
-
-                //if(linkedType == -1)
-                    //linkedType = typeList.Add(types[i]);
+                // Builds inheritance.
+                IEnumerable<Type> subclasseses = types.Where(t => t.IsSubclassOf(types[i]));
+                LoadedData.loadedBuiltInheritances.Add(types[i], new HashSet<Type>(subclasseses));
 
                 inst = info.Invoke(new object[0]) as AbilityTreeNode;
 
@@ -61,7 +55,7 @@ public class LoadClasses : MonoBehaviour {
                 List<LoadedRuntimeParameters> nodeRp = new List<LoadedRuntimeParameters>();
                 inst.GetRuntimeParameters(nodeRp);
 
-                LoadedData.loadedParamInstances.Add(types[i], new LoadedRPWrapper(nodeRp.ToArray(), linkedType));
+                LoadedData.loadedParamInstances.Add(types[i], new LoadedRPWrapper(nodeRp.ToArray()));
             }
 
 

@@ -244,7 +244,16 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         sNDW.dropdown.onValueChanged.AddListener((v) => {
             abilityDescription.sNT = v;
         });
+
+        foreach(Type type in LoadedData.loadedBuiltInheritances[typeof(NodeModifierLooper)]) {
+            Debug.Log("Type to load: " + type);
+        }
     }
+
+    public void CreateWindowForAdditionalOptions() {
+
+    }
+
 
     public void SpawnUIFromData() {
 

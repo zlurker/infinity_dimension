@@ -92,7 +92,7 @@ public class LoadedRPWrapper {
     public LoadedRuntimeParameters[] runtimeParameters;
     public Dictionary<string, int> variableAddresses;
 
-    public LoadedRPWrapper(LoadedRuntimeParameters[] rP, int cC) {
+    public LoadedRPWrapper(LoadedRuntimeParameters[] rP) {
         runtimeParameters = rP;
 
         variableAddresses = new Dictionary<string, int>();
@@ -112,6 +112,7 @@ public static class LoadedData {
     public static Dictionary<Type, ISingleton> singletonList;
     public static Dictionary<Type, AbilityTreeNode> loadedNodeInstance;
     public static Dictionary<Type, LoadedRPWrapper> loadedParamInstances;
+    public static Dictionary<Type, HashSet<Type>> loadedBuiltInheritances;
     public static List<string> userArtAssets;
 
     public static T GetSingleton<T>() {
