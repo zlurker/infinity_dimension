@@ -354,12 +354,14 @@ public class WindowsWrapper : UIWrapperBase, IPointerDownHandler, IDragHandler {
     public Image windowsGraphic;
     public ButtonWrapper deleteButton;
     public UIMule content;
+    public Text windowsText;
 
     Vector2 pointInObject;
     Vector3 trackedPos;
 
     Vector2 windowsSize;
-    float windowsHeaderHeight;
+    // X - Top, Y - Bottom, Z - Left, W - Right
+    Vector4 contentOffset;
 
     public override void OnSpawn() {
         if(windowsGraphic == null)
@@ -367,17 +369,19 @@ public class WindowsWrapper : UIWrapperBase, IPointerDownHandler, IDragHandler {
 
         deleteButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper)).script as ButtonWrapper;
         content = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(UIMule)).script as UIMule;
+        windowsText = (LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(TextWrapper)).script as TextWrapper).text;
 
         deleteButton.ChangeButtonSize(new Vector2(15, 15));
         deleteButton.image.color = Color.red;
         deleteButton.text.text = "";
         windowsGraphic.color = new Color(1, 1, 1, 0.5f);
 
-        ChangeWindowsHeaderSize(45);
+        ChangeWindowsHeaderSize(new Vector4(25,6,6,6));
         ChangeWindowsContentSize(new Vector2(100, 100));
 
         deleteButton.transform.SetParent(transform);
         content.transform.SetParent(transform);
+        windowsText.transform.SetParent(transform);
         content.GetRectTransform().sizeDelta = new Vector2();
 
         deleteButton.button.onClick.RemoveAllListeners();
@@ -386,22 +390,25 @@ public class WindowsWrapper : UIWrapperBase, IPointerDownHandler, IDragHandler {
         scriptsData = new AdditionalScriptData[] {
             new AdditionalScriptData("Windows",windowsGraphic),
             new AdditionalScriptData("DeleteButton",deleteButton),
-            new AdditionalScriptData("Content",content)
+            new AdditionalScriptData("Content",content),
+            new AdditionalScriptData("WindowsText",windowsText)
         };
 
         transform.SetAsLastSibling();
     }
 
-    public void ChangeWindowsHeaderSize(float height) {
-        windowsHeaderHeight = height;
+    public void ChangeWindowsHeaderSize(Vector4 offset) {
+        contentOffset = offset;
     }
 
     public void ChangeWindowsContentSize(Vector2 size) {
-        (windowsGraphic.transform as RectTransform).sizeDelta = new Vector2(size.x, size.y + windowsHeaderHeight);
+        (windowsGraphic.transform as RectTransform).sizeDelta = new Vector2(size.x + contentOffset.z + contentOffset.w, size.y + contentOffset.x + contentOffset.y);
        
-        deleteButton.transform.position = UIDrawer.UINormalisedPosition(windowsGraphic.transform as RectTransform, new Vector2(0.95f, 1f)) - new Vector3(0,windowsHeaderHeight/2);
-        content.transform.position = UIDrawer.UINormalisedPosition(windowsGraphic.transform as RectTransform, new Vector2(0f, 1f)) - new Vector3(0,windowsHeaderHeight);
-
+        deleteButton.transform.position = UIDrawer.UINormalisedPosition(windowsGraphic.transform as RectTransform, new Vector2(0.95f, 1f)) - new Vector3(0, contentOffset.x / 2);
+        windowsText.transform.position = UIDrawer.UINormalisedPosition(windowsGraphic.transform as RectTransform, new Vector2(0.5f, 1f)) - new Vector3(0, contentOffset.x / 2);
+        (windowsText.transform as RectTransform).sizeDelta = new Vector2(size.x - contentOffset.z - contentOffset.w, contentOffset.x * 0.9f);
+        content.transform.position = UIDrawer.UINormalisedPosition(windowsGraphic.transform as RectTransform, new Vector2(0f, 1f)) - new Vector3(-contentOffset.z, contentOffset.x);
+        
         windowsSize = size;
     }
 

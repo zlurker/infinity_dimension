@@ -51,6 +51,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
     public UIAbilityData abilityData;
     public AutoPopulationList<EditableWindow> abilityWindows;
     public AutoPopulationList<LineData> lineData;
+    public WindowsWrapper additionalOptions;
 
     public SpawnerOutput mainClassSelection;
     public SpawnerOutput classSelectionScrollRect;
@@ -245,13 +246,38 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             abilityDescription.sNT = v;
         });
 
-        foreach(Type type in LoadedData.loadedBuiltInheritances[typeof(NodeModifierLooper)]) {
-            Debug.Log("Type to load: " + type);
-        }
+        
+
+        ButtonWrapper addOptionsButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper)).script as ButtonWrapper;
+        addOptionsButton.button.onClick.AddListener(() => CreateWindowForAdditionalOptions());
+
+        addOptionsButton.text.text = "Additional Options";
+        addOptionsButton.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f,0.1f));
     }
 
     public void CreateWindowForAdditionalOptions() {
+        if(additionalOptions == null) {
+            additionalOptions = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(WindowsWrapper)).script as WindowsWrapper;
+            additionalOptions.ChangeWindowsContentSize(new Vector2(400, 500));
+            additionalOptions.windowsText.text = "Additional Options";
 
+            LinearLayout mainAddOptionsLL = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout)).script as LinearLayout;
+            mainAddOptionsLL.transform.SetParent(additionalOptions.content.transform);
+            mainAddOptionsLL.transform.localPosition = new Vector3();
+
+            Type[] sNTypes = LoadedData.loadedBuiltInheritances[typeof(NodeModifierLooper)].ToArray();
+
+            DropdownWrapper startNodeOptions = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper)).script as DropdownWrapper;
+            mainAddOptionsLL.Add(startNodeOptions.transform as RectTransform);
+
+            List<Dropdown.OptionData> startNodeInputs = new List<Dropdown.OptionData>();
+
+            for(int i = 0; i < sNTypes.Length; i++)
+                startNodeInputs.Add(new Dropdown.OptionData(sNTypes[i].Name));
+
+            startNodeOptions.dropdown.AddOptions(startNodeInputs);
+        } else
+            additionalOptions.gameObject.SetActive(true);
     }
 
 
@@ -350,6 +376,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         }
 
         editWindow.ChangeWindowsContentSize(varGraphicsDimensions);
+        editWindow.windowsText.text = abilityData.subclasses.l[id].classType.Name;
     }
 
     SpawnerOutput CreateVariableButtons(ActionType aT, int[] id) {
