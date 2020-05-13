@@ -16,17 +16,15 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric {
     public override void NodeCallback() {
 
         int[] nodeId = AbilitiesManager.GetAssetData(GetCastingPlayerId()).globalVariables[GetNodeVariable<string>("Variable Name")];
-        Debug.Log(nodeId[0] + " " + nodeId[1]);
 
-        if (reference != null) {
-
+        if(!(nodeId[0] == GetCentralInst().ReturnPlayerCasted() && 0 == GetCentralId() && nodeId[1] == GetNodeId())) {
+            Debug.Log(name + " has been instanced.");
+            AbilityTreeNode globalVarSource = AbilitiesManager.GetAssetData(nodeId[0]).playerSpawnedCentrals.l[0].GetNode(nodeId[1]);
+            InstanceThisNode(globalVarSource);
         }
-        SetVariable<AbilityTreeNode>("This Node", AbilitiesManager.GetAssetData(nodeId[0]).playerSpawnedCentrals.l[0].GetNode(nodeId[1]));
 
-        //base.NodeCallback();
-
-        if (CheckIfVarRegionBlocked("Variable Value")) 
-            GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Variable Value")).field.RunGenericBasedOnRP<int>(this, 0);       
+        if(CheckIfVarRegionBlocked("Variable Value"))
+            GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Variable Value")).field.RunGenericBasedOnRP<int>(this, 0);
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {

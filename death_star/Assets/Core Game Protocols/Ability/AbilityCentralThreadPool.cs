@@ -270,8 +270,13 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         if(!instancedNodes.ContainsKey(nodeId))
             instancedNodes.Add(nodeId, null);
 
-        if(!instancedNodes[nodeId].Equals(refNode)) {
+        bool updateNodes = true;
 
+        if(instancedNodes[nodeId] != null)
+            if(instancedNodes[nodeId].Equals(refNode))
+                updateNodes = false;
+
+        if(updateNodes) {
             AbilityCentralThreadPool centralRoot;
 
             // Removes old link
@@ -372,7 +377,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
     public void StartThreads() {
 
-        Debug.Log("Threads started!");
+        //Debug.Log("Threads started!");
 
         int lastNodeId = runtimeParameters.Length - 1;
 
@@ -389,13 +394,17 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
         bool notInstanced = LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.NON_INSTANCED);
 
-        if(notInstanced || instancedNodes[nodeId] == null)
+        if(notInstanced || !instancedNodes.ContainsKey(nodeId) || instancedNodes[nodeId] == null)
             return false;
 
         return true;
     }
 
     public AbilityCentralThreadPool GetRootReferenceCentral(int nodeId) {
+
+        if(!instancedNodes.ContainsKey(nodeId))
+            return this;
+
         Tuple<int, int, int> reference = instancedNodes[nodeId];
 
         if(reference != null)
@@ -408,6 +417,9 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
         if(nodes[nodeId] == null)
             return null;
+
+        if(!instancedNodes.ContainsKey(nodeId))
+            return GetRootReferenceCentral(nodeId).GetNode(nodeId);
 
         Tuple<int, int, int> reference = instancedNodes[nodeId];
 

@@ -88,8 +88,7 @@ public class AbilityTreeNode : MonoBehaviour {
         if(refNode != null) 
             InstanceThisNode(refNode);
             //if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
-        if(CheckIfVarRegionBlocked("This Node"))
-            GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
+        
     }
 
     public void InstanceThisNode(AbilityTreeNode parent) {
@@ -106,7 +105,10 @@ public class AbilityTreeNode : MonoBehaviour {
             refNode = Tuple.Create<int, int, int>(parent.GetCentralInst().ReturnPlayerCasted(),parent.GetCentralId(),parent.GetNodeId());
 
         // Instances node on our side
-        GetCentralInst().InstanceNode(nodeId, refNode);        
+        GetCentralInst().InstanceNode(nodeId, refNode);
+
+        if(CheckIfVarRegionBlocked("This Node"))
+            GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
     }
 
     public bool CheckIfVarRegionBlocked(params string[] target) {
