@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D), typeof(SpriteRenderer))]
-public class SpawnerBase : SpriteSpawner, IOnSpawn {
+[RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D))]
+public class SpawnerBase : SpriteSpawner {
 
-    protected SpriteRenderer sR;
+    
     protected Rigidbody2D rB;
 
     protected virtual void Update() {
@@ -17,12 +17,6 @@ public class SpawnerBase : SpriteSpawner, IOnSpawn {
             //AbilityTreeNode inst = GetCentralInst().GetNode(objLoc[1]);
             SetVariable<AbilityTreeNode>("On Collide", inst);
         }
-    }
-
-    public override void NodeCallback() {
-        base.NodeCallback();
-        sR.sprite = GetNodeVariable<Sprite>("Sprite");
-           
     }
 
     private void OnCollisionStay2D(Collision2D collision) {
@@ -43,9 +37,8 @@ public class SpawnerBase : SpriteSpawner, IOnSpawn {
         });
     }
 
-    public void OnSpawn() {
-        if(sR == null)
-            sR = GetComponent<SpriteRenderer>();
+    public override void OnSpawn() {
+        base.OnSpawn();
 
         if(rB == null) {
             rB = GetComponent<Rigidbody2D>();

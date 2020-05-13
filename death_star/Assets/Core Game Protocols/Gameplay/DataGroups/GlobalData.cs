@@ -138,6 +138,7 @@ public static class LoadedData {
     }
 
     public static bool GetVariableType(Type t, int var, VariableTypes vTypes) {
+
         LoadedRuntimeParameters lRP = loadedParamInstances[t].runtimeParameters[var];
 
         if(lRP.vT != null)

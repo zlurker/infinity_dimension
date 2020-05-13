@@ -14,6 +14,7 @@ public class CreateAbility : AbilityTreeNode {
         AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
         //Debug.Log(GetNodeVariable<string>("Ability Name"));
         AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, ClientProgram.clientId, -1, inst.GetClusterID());
+        SetVariable<string>("Ability Name");
     }
 
     public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {

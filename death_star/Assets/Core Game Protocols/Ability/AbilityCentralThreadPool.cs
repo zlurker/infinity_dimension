@@ -206,7 +206,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
     public Variable ReturnVariable(int node, int variable) {
 
         if(CheckIfReferenced(node, variable))
-            return GetRootReferenceCentral(node).ReturnVariable(nodes[node].GetReference().Item2, variable);
+            return GetRootReferenceCentral(node).ReturnVariable(nodes[node].GetReference().Item3, variable);
 
         return runtimeParameters[node][variable];
     }
@@ -408,7 +408,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
             Tuple<int, int, int> refLink = nodes[nodeId].GetReference();
 
             //Debug.LogFormat("Var set, central {0}, node {1}, var {2}, value {3}", refLink.Item1, refLink.Item2, variableId, value);
-            GetRootReferenceCentral(nodeId).UpdateVariableValue<T>(refLink.Item2, variableId, value, runValueChanged);
+            GetRootReferenceCentral(nodeId).UpdateVariableValue<T>(refLink.Item3, variableId, value, runValueChanged);
             return;
         }
 

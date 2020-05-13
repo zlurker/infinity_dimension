@@ -115,6 +115,8 @@ public class AbilityTreeNode : MonoBehaviour {
                         selfRef = false;
                     }
 
+                    Debug.Log("Refnode name: " + refNode);
+                    Debug.Log("Refnode Reference" + refNode.reference);
                     // Adds current reference and creates a new instance according to reference.
                     reference = refNode.reference;
                     centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);

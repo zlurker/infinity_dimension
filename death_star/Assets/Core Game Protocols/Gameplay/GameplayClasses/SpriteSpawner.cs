@@ -5,11 +5,20 @@ using UnityEngine.UI;
 using System.IO;
 using System.Linq;
 
-public class SpriteSpawner : AbilityTreeNode {
+[RequireComponent(typeof(SpriteRenderer))]
+public class SpriteSpawner : AbilityTreeNode, IOnSpawn {
+
+    protected SpriteRenderer sR;
 
     public override void NodeCallback() {
         base.NodeCallback();
-        SetVariable<Sprite>("Sprite", AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite Name")]);
+
+        Debug.Log(name + ", " + GetCentralInst().ReturnVariable(GetNodeId(),GetVariableId("Sprite Name")).field.n);
+        Debug.Log("Node ID: " + GetNodeId());
+        
+        Sprite givenSprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite Name")];
+        sR.sprite = givenSprite;
+        SetVariable<Sprite>("Sprite", givenSprite);
     }
 
     public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
@@ -51,5 +60,10 @@ public class SpriteSpawner : AbilityTreeNode {
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite Name",""), VariableTypes.AUTO_MANAGED,VariableTypes.IMAGE_DEPENDENCY),
             new LoadedRuntimeParameters(new RuntimeParameters<Sprite>("Sprite",null))
         });
+    }
+
+    public virtual void OnSpawn() {
+        if(sR == null)
+            sR = GetComponent<SpriteRenderer>();
     }
 }
