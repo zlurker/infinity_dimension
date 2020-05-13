@@ -311,17 +311,15 @@ public class AbilityData : IInputCallback<int> {
 
     public void InputCallback(int i) {
         AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(ClientProgram.clientId);
-        centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<int>(-1, -1, playerId));
-        centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<string>(-1, -1, abilityId));
+        SignalCentralCreation(centralPool);
         CreateAbility(centralPool, ClientProgram.clientId);
-
-        //if(ClientProgram.clientInst) {
-        //AbilityNodeNetworkData[] data = centralPool.GetVariableNetworkData();
-
-        //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
-        ///encoder.SendInputSignal(centralPool, abilityId, data);
-        //}
     }
+
+    public void SignalCentralCreation(AbilityCentralThreadPool central) {
+        central.AddVariableNetworkData(new AbilityNodeNetworkData<int>(-1, -1, playerId));
+        central.AddVariableNetworkData(new AbilityNodeNetworkData<string>(-1, -1, abilityId));
+    }
+
 
     public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1, int clusterId = -1) {
 
@@ -403,18 +401,18 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
         public void BuildGlobalVariables() {
             AbilityDataSubclass[] globalVariableNodes = new AbilityDataSubclass[globalVariables.Count];
-            int i = 0;
+            string[] keys = globalVariables.Keys.ToArray();
+            
 
-            foreach(var variable in globalVariables) {
-
-                int[] instanceAddress = new int[3];
+            for (int i=0; i < keys.Length; i++) {
+                int[] instanceAddress = new int[2];
                 globalVariableNodes[i] = new AbilityDataSubclass(typeof(GlobalVariables));
-                (globalVariableNodes[i].var[LoadedData.loadedParamInstances[typeof(GlobalVariables)].variableAddresses["Variable Name"]].field as RuntimeParameters<string>).v = variable.Key;
+                (globalVariableNodes[i].var[LoadedData.loadedParamInstances[typeof(GlobalVariables)].variableAddresses["Variable Name"]].field as RuntimeParameters<string>).v = keys[i];
 
-                Debug.Log((globalVariableNodes[i].var[LoadedData.loadedParamInstances[typeof(GlobalVariables)].variableAddresses["Variable Name"]].field as RuntimeParameters<string>).v);
                 instanceAddress[0] = playerId;
-                instanceAddress[2] = i;
-                i++;
+                instanceAddress[1] = i;
+
+                globalVariables[keys[i]] = instanceAddress;
             }
 
             AbilityData globalVarInst = new AbilityData(globalVariableNodes, new AbilityInfo(), playerId, "");
@@ -433,10 +431,9 @@ public sealed class AbilitiesManager : MonoBehaviour {
     public SpawnerOutput abilities;
 
     void Start() {
-        //playerLoadedIntoScene = true;
-        string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
-
         aData[ClientProgram.clientId].abilties[""].InputCallback(0);
+
+        string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
         aData[ClientProgram.clientId].abilties[priCharacterId].InputCallback(0);
 
         abilities = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));

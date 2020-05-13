@@ -30,12 +30,7 @@ public class AbilityTreeNode : MonoBehaviour {
     private int centralThreadId;
     private int nodeThreadId;
     private bool selfRef;
-    private Tuple<int, int, int> reference;
     private SpawnerOutput sourceObject;
-
-    public Tuple<int, int, int> GetReference() {
-        return reference;
-    }
 
     /*public virtual void LinkEdit(int id, LinkData[] linkData, LinkModifier lM, Variable[][] var) {
 
@@ -88,51 +83,30 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public virtual void NodeCallback() {
 
-        if(reference == null) {
-            reference = Tuple.Create<int, int, int>(castingPlayerId, centralThreadId, nodeId);
-            selfRef = true;
-        }
-
         AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node");
 
-
-        if(refNode != null) {
-
-            // Makes sure it doesn't run this code if reference remains the same.
-            //if(refNode.reference != reference)
-                // Needs to be replaced.
-                if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
-
-                    // Closes this game object as it is just a instance of another object.
-                    gameObject.SetActive(false);
-
-                    //Tuple<int, int> id = Tuple.Create<int, int>(centralThreadId, nodeId);
-                    AbilityCentralThreadPool centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
-
-                    // Removes previous instance if not self referenced.
-                    if(selfRef) {
-                        centralRoot.RemoveSharedInstance(reference.Item2, reference);
-                        selfRef = false;
-                    }
-
-                    Debug.Log("Refnode name: " + refNode);
-                    Debug.Log("Refnode Reference" + refNode.reference);
-                    // Adds current reference and creates a new instance according to reference.
-                    reference = refNode.reference;
-                    centralRoot = GetCentralInst().GetRootReferenceCentral(nodeId);
-                    centralRoot.AddSharedInstance(reference.Item2, Tuple.Create(castingPlayerId, centralThreadId, nodeId));
-
-                    //Debug.LogFormat("Reference set. Reference: {0}. This: {1}", reference.Item2, nodeId);
-                } else
-                    GetCentralInst().SetNodeBoolValue(true, nodeId, 0);
-        }
-
-
-        //Debug.Log("Thread may end first because of this.");
-
-        // Sends out this node as a reference if all details are in order.
+        if(refNode != null) 
+            InstanceThisNode(refNode);
+            //if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
         if(CheckIfVarRegionBlocked("This Node"))
             GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
+    }
+
+    public void InstanceThisNode(AbilityTreeNode parent) {
+
+        // Closes this game object as it is just a instance of another object.
+        gameObject.SetActive(false);
+       
+        // Creates new link
+        Tuple<int, int, int> refNode = parent.GetCentralInst().GetInstanceReference(parent.GetNodeId());
+
+
+        // If null, means the parent node is the root node.
+        if(refNode == null)
+            refNode = Tuple.Create<int, int, int>(parent.GetCentralInst().ReturnPlayerCasted(),parent.GetCentralId(),parent.GetNodeId());
+
+        // Instances node on our side
+        GetCentralInst().InstanceNode(nodeId, refNode);        
     }
 
     public bool CheckIfVarRegionBlocked(params string[] target) {
