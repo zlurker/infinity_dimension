@@ -61,8 +61,6 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
         expectedFiles = assetPaths.Count;
 
         foreach(string path in assetPaths) {
-            Debug.Log(Path.Combine(folderPath, path));
-            Debug.Log(File.Exists(Path.Combine(folderPath, path)));
             byte[] image = File.ReadAllBytes(Path.Combine(folderPath, path));
             SetBytesToSend(Encoding.Default.GetBytes(path));
             SetBytesToSend(image);

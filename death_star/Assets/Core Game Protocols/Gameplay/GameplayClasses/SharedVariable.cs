@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -102,4 +102,4 @@ public class SharedVariable : AbilityTreeNode {
 
         return AbilitiesManager.aData[GetCentralInst().GetPlayerId()].globalVariables[clusterRootId][GetNodeVariable<string>("Variable Name")];
     }
-}
+}*/

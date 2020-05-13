@@ -8,15 +8,25 @@ using Newtonsoft.Json;
 
 public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
 
+    public class AbilityBuilder {
+        public List<byte[]> byteData;
+        public int expectedFiles;
+
+        public AbilityBuilder(int eF) {
+            expectedFiles = eF;
+            byteData = new List<byte[]>();
+        }
+    }
+
     static int[] datafilesToSend = new int[] { 0, 1};
     int additionalDataOffset = 1;
-    public Dictionary<int, List<byte[]>> builders;
+    public Dictionary<int, AbilityBuilder> builders;
 
     public int expectedFiles;
     public int sentFiles;
 
     public void ResetTransmitter() {
-        builders = new Dictionary<int, List<byte[]>>();
+        builders = new Dictionary<int, AbilityBuilder>();
         expectedFiles = 0;
         sentFiles = 0;
     }
@@ -50,29 +60,37 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
         //Debug.Log("Incoming data.");
 
         if(!builders.ContainsKey(targetId)) {
-            int recvSize = BitConverter.ToInt32(bytesRecieved, 0);
-            builders.Add(targetId, new List<byte[]>());
+            int incomingAbilityDatasets = BitConverter.ToInt32(bytesRecieved, 0);
+            Debug.Log("incomingAbilityDatasets " + incomingAbilityDatasets);
+            builders.Add(targetId, new AbilityBuilder(incomingAbilityDatasets));
 
             AbilitiesManager.GetAssetData(targetId).abilties = new Dictionary<string, AbilityData>();
             return;
         }
 
-        builders[targetId].Add(bytesRecieved);
+        builders[targetId].byteData.Add(bytesRecieved);
 
         if(targetId == ClientProgram.clientId)
             sentFiles++;
 
-        if(builders[targetId].Count % GetDataBundleLength() == 0)
+        
+        if(builders[targetId].byteData.Count % GetDataBundleLength() == 0) {
+
             BuildAbility(targetId);
+
+            if(builders[targetId].byteData.Count / GetDataBundleLength() == builders[targetId].expectedFiles)
+                Debug.Log("All data files recieved!");
+
+        }
     }
 
     public void BuildAbility(int targetId) {
 
-        int latestEntry = builders[targetId].Count - 1;
+        int latestEntry = builders[targetId].byteData.Count - 1;
 
-        string abilityId = Encoding.Default.GetString(builders[targetId][latestEntry - 2]);
-        string abilityNodeData = Encoding.Default.GetString(builders[targetId][latestEntry - 1]);
-        string abilityDescription = Encoding.Default.GetString(builders[targetId][latestEntry]);
+        string abilityId = Encoding.Default.GetString(builders[targetId].byteData[latestEntry - 2]);
+        string abilityNodeData = Encoding.Default.GetString(builders[targetId].byteData[latestEntry - 1]);
+        string abilityDescription = Encoding.Default.GetString(builders[targetId].byteData[latestEntry]);
 
         AbilityDataSubclass[] ability = LoadedData.GetSingleton<JSONFileConvertor>().ConvertToData(JsonConvert.DeserializeObject<StandardJSONFileFormat[]>(abilityNodeData));
 

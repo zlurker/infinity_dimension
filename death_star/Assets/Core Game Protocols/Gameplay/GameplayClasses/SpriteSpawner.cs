@@ -12,9 +12,6 @@ public class SpriteSpawner : AbilityTreeNode, IOnSpawn {
 
     public override void NodeCallback() {
         base.NodeCallback();
-
-        Debug.Log(name + ", " + GetCentralInst().ReturnVariable(GetNodeId(),GetVariableId("Sprite Name")).field.n);
-        Debug.Log("Node ID: " + GetNodeId());
         
         Sprite givenSprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite Name")];
         sR.sprite = givenSprite;

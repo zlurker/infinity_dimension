@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class MoveTo : AbilityTreeNode {
 
@@ -15,10 +16,13 @@ public class MoveTo : AbilityTreeNode {
     }
 
     protected Transform GetTargetTransform() {
+
+        
+
         if(GetNodeVariable<bool>("Move all objects in blueprint"))
-            return GetNodeVariable<AbilityTreeNode>("Target").transform.root;
+            return GetCentralInst().GetRootReferenceNode(GetNodeId()).transform.root;
         else
-            return GetNodeVariable<AbilityTreeNode>("Target").transform;
+            return GetCentralInst().GetRootReferenceNode(GetNodeId()).transform;
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

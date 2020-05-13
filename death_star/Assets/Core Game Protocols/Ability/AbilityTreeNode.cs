@@ -99,7 +99,7 @@ public class AbilityTreeNode : MonoBehaviour {
         if(refNode != null) {
 
             // Makes sure it doesn't run this code if reference remains the same.
-            if(reference == null || refNode.reference != reference)
+            //if(refNode.reference != reference)
                 // Needs to be replaced.
                 if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
 

@@ -94,7 +94,6 @@ public class AbilityData : IInputCallback<int> {
     int playerId;
     string abilityId;
 
-
     // Used during consturction phase.
     LinkData[] linkData;
     LinkModifier lM;
@@ -270,6 +269,7 @@ public class AbilityData : IInputCallback<int> {
 
                 //Debug.Log("Printing for Variable: " + j);
                 bool interchangeable = LoadedData.GetVariableType(dataType[i], j, VariableTypes.INTERCHANGEABLE);
+
                 AutoPopulationList<List<int[]>> varLinks = new AutoPopulationList<List<int[]>>(1);
 
                 for(int k = 0; k < dataVar[i][j].links.Length; k++) {
@@ -296,6 +296,9 @@ public class AbilityData : IInputCallback<int> {
 
                 if(!LoadedData.GetVariableType(dataType[i], j, VariableTypes.NON_LINK))
                     nodeBranchingData[i] += dataVar[i][j].links.Length;
+
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.GLOBAL_VARIABLE))
+                    AbilitiesManager.aData[playerId].globalVariables.Add((dataVar[i][j].field as RuntimeParameters<string>).v, null);
             }
             autoManagedVariables[i] = aMVar.ToArray();
         }
@@ -359,8 +362,8 @@ public sealed class AbilitiesManager : MonoBehaviour {
         public Dictionary<string, Sprite> assetData;
         public Dictionary<int, string> abilityManifest;
         public AutoPopulationList<AbilityCentralThreadPool> playerSpawnedCentrals;
-        public Dictionary<int, Dictionary<string, VariableInterfaces>> globalVariables;
-
+        public Dictionary<string, Tuple<int, int, int>> globalVariables;
+        //public Dictionary<int, Dictionary<string, VariableInterfaces>> globalVariables;
 
         private List<int> internalFreeSpaceTracker;
 
@@ -368,7 +371,8 @@ public sealed class AbilitiesManager : MonoBehaviour {
             assetData = new Dictionary<string, Sprite>();
             playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
             internalFreeSpaceTracker = new List<int>();
-            globalVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
+            globalVariables = new Dictionary<string, Tuple<int, int, int>>();
+            //globalVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
         }
 
         public void RemoveSpawn(int index) {
@@ -396,6 +400,8 @@ public sealed class AbilitiesManager : MonoBehaviour {
     public SpawnerOutput abilities;
 
     void Start() {
+
+
         string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
 
         //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
@@ -405,6 +411,10 @@ public sealed class AbilitiesManager : MonoBehaviour {
         (abilities.script as LinearLayout).o = LinearLayout.Orientation.X;
         abilities.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.1f));
         AssignInputKeys();
+    }
+
+    public void CreateGlobalVariable() {
+
     }
 
     public void AssignInputKeys() {
