@@ -187,10 +187,12 @@ public class AbilityData : IInputCallback<int> {
             if(!connected.l[i])
                 rC.Add(new int[] { i, 0, 1 });
 
+        
         rootSubclasses = rC.ToArray();
+        Debug.Log(rootSubclasses.Length);
     }
 
-    void RunNodeFlow(int nextNode,int progenitor) {
+    void RunNodeFlow(int nextNode, int progenitor) {
 
         if(LoadedData.loadedNodeInstance[dataType[nextNode]] is INodeNetworkPoint)
             progenitor = nextNode;
@@ -214,7 +216,7 @@ public class AbilityData : IInputCallback<int> {
                     linkData[currLink[0]].lHS.Add(lhslinkTup);
 
                 // Iterates to target.
-                RunNodeFlow(currLink[0],progenitor);
+                RunNodeFlow(currLink[0], progenitor);
             }
     }
 
@@ -253,7 +255,7 @@ public class AbilityData : IInputCallback<int> {
         }
     }
 
-    
+
 
     void BeginDepenciesBuild() {
 
@@ -297,8 +299,11 @@ public class AbilityData : IInputCallback<int> {
                 if(!LoadedData.GetVariableType(dataType[i], j, VariableTypes.NON_LINK))
                     nodeBranchingData[i] += dataVar[i][j].links.Length;
 
-                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.GLOBAL_VARIABLE))
-                    AbilitiesManager.aData[playerId].globalVariables.Add((dataVar[i][j].field as RuntimeParameters<string>).v, null);
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.GLOBAL_VARIABLE)) {
+                    string gVN = (dataVar[i][j].field as RuntimeParameters<string>).v;
+                    if (!AbilitiesManager.GetAssetData(playerId).globalVariables.ContainsKey(gVN))
+                        AbilitiesManager.GetAssetData(playerId).globalVariables.Add(gVN, null);
+                }
             }
             autoManagedVariables[i] = aMVar.ToArray();
         }
@@ -308,7 +313,7 @@ public class AbilityData : IInputCallback<int> {
         AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(ClientProgram.clientId);
         centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<int>(-1, -1, playerId));
         centralPool.AddVariableNetworkData(new AbilityNodeNetworkData<string>(-1, -1, abilityId));
-        CreateAbility(centralPool,ClientProgram.clientId);
+        CreateAbility(centralPool, ClientProgram.clientId);
 
         //if(ClientProgram.clientInst) {
         //AbilityNodeNetworkData[] data = centralPool.GetVariableNetworkData();
@@ -336,7 +341,7 @@ public class AbilityData : IInputCallback<int> {
             clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
 
         AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(givenPopulatedId);
-        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId, targettedNodes,nodeProgenitor);
+        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId, targettedNodes, nodeProgenitor);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
@@ -358,20 +363,23 @@ public class AbilityData : IInputCallback<int> {
 public sealed class AbilitiesManager : MonoBehaviour {
 
     public class PlayerAssetData {
+        private int playerId;
         public Dictionary<string, AbilityData> abilties;
         public Dictionary<string, Sprite> assetData;
         public Dictionary<int, string> abilityManifest;
         public AutoPopulationList<AbilityCentralThreadPool> playerSpawnedCentrals;
-        public Dictionary<string, Tuple<int, int, int>> globalVariables;
+        public Dictionary<string, int[]> globalVariables;
         //public Dictionary<int, Dictionary<string, VariableInterfaces>> globalVariables;
 
         private List<int> internalFreeSpaceTracker;
 
-        public PlayerAssetData() {
+        public PlayerAssetData(int pId) {
+            playerId = pId;
+
             assetData = new Dictionary<string, Sprite>();
             playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
             internalFreeSpaceTracker = new List<int>();
-            globalVariables = new Dictionary<string, Tuple<int, int, int>>();
+            globalVariables = new Dictionary<string,int[]>();
             //globalVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
         }
 
@@ -392,16 +400,41 @@ public sealed class AbilitiesManager : MonoBehaviour {
             playerSpawnedCentrals.ModifyElementAt(index, inst);
             return index;
         }
+
+        public void BuildGlobalVariables() {
+            AbilityDataSubclass[] globalVariableNodes = new AbilityDataSubclass[globalVariables.Count];
+            int i = 0;
+
+            foreach(var variable in globalVariables) {
+
+                int[] instanceAddress = new int[3];
+                globalVariableNodes[i] = new AbilityDataSubclass(typeof(GlobalVariables));
+                (globalVariableNodes[i].var[LoadedData.loadedParamInstances[typeof(GlobalVariables)].variableAddresses["Variable Name"]].field as RuntimeParameters<string>).v = variable.Key;
+
+                Debug.Log((globalVariableNodes[i].var[LoadedData.loadedParamInstances[typeof(GlobalVariables)].variableAddresses["Variable Name"]].field as RuntimeParameters<string>).v);
+                instanceAddress[0] = playerId;
+                instanceAddress[2] = i;
+                i++;
+            }
+
+            AbilityData globalVarInst = new AbilityData(globalVariableNodes, new AbilityInfo(), playerId, "");
+            abilties.Add("", globalVarInst);
+
+            AbilityCentralThreadPool central = new AbilityCentralThreadPool(playerId);
+            globalVarInst.CreateAbility(central, playerId);
+            Debug.Log(central.GetNode(3));
+
+            Debug.Log("BGV was runned.");
+        }
     }
 
 
-
     public static Dictionary<int, PlayerAssetData> aData;
+    public static bool playerLoadedIntoScene;
     public SpawnerOutput abilities;
 
     void Start() {
-
-
+        playerLoadedIntoScene = true;
         string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
 
         //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
@@ -413,7 +446,9 @@ public sealed class AbilitiesManager : MonoBehaviour {
         AssignInputKeys();
     }
 
-    public void CreateGlobalVariable() {
+
+
+    public void BuildGlobalVariables() {
 
     }
 
@@ -425,7 +460,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
                     LoadedData.GetSingleton<PlayerInput>().AddNewInput(aData[ClientProgram.clientId].abilties[ability.Key], 0, (KeyCode)keyAssigned, 0, true);
 
                     SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
-                    LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(abilityButton,"Text").text = aData[ClientProgram.clientId].abilties[ability.Key].abilityInfo.n;
+                    LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(abilityButton, "Text").text = aData[ClientProgram.clientId].abilties[ability.Key].abilityInfo.n;
                     (abilities.script as LinearLayout).Add(abilityButton.script.transform as RectTransform);
 
                     LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(abilityButton).onClick.AddListener(() => {
@@ -438,7 +473,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         if(aData.ContainsKey(playerid))
             return aData[playerid];
 
-        PlayerAssetData inst = new PlayerAssetData();
+        PlayerAssetData inst = new PlayerAssetData(playerid);
         aData.Add(playerid, inst);
         return inst;
     }

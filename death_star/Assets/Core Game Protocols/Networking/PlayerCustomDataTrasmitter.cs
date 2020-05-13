@@ -79,7 +79,7 @@ public class PlayerCustomDataTrasmitter : NetworkMessageEncoder {
             BuildAbility(targetId);
 
             if(builders[targetId].byteData.Count / GetDataBundleLength() == builders[targetId].expectedFiles)
-                Debug.Log("All data files recieved!");
+                AbilitiesManager.GetAssetData(targetId).BuildGlobalVariables();
 
         }
     }

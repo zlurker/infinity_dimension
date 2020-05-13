@@ -78,7 +78,6 @@ public class AbilityDataSubclass {
 
         for(int i = 0; i < var.Length; i++)
             var[i] = new Variable(fields[i].ReturnNewRuntimeParamCopy());
-
     }
 
     public static string[] GetImageDependencies(AbilityDataSubclass[] target) {

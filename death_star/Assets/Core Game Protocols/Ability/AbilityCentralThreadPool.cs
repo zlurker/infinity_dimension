@@ -149,8 +149,6 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
     private int timerEventId;
 
     private Dictionary<int, List<AbilityNodeNetworkData>> networkNodeData;
-
-
     private Dictionary<int, HashSet<Tuple<int, int, int>>> sharedInstance;
 
     // 1st tuple for target node/var, 2nd for types for this target, 3rd for 
@@ -342,6 +340,9 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
     }
 
     public void StartThreads() {
+
+        Debug.Log("Threads started!");
+
         int lastNodeId = runtimeParameters.Length - 1;
 
         // Direct node callback. It will auto handle creation of new threads ect.
