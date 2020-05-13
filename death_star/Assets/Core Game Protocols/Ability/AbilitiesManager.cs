@@ -420,26 +420,25 @@ public sealed class AbilitiesManager : MonoBehaviour {
             AbilityData globalVarInst = new AbilityData(globalVariableNodes, new AbilityInfo(), playerId, "");
             abilties.Add("", globalVarInst);
 
-            AbilityCentralThreadPool central = new AbilityCentralThreadPool(playerId);
-            globalVarInst.CreateAbility(central, playerId);
-            Debug.Log(central.GetNode(3));
+            //AbilityCentralThreadPool central = new AbilityCentralThreadPool(playerId);
+            //globalVarInst.CreateAbility(central, playerId);
+            //Debug.Log(central.GetNode(3));
 
-            Debug.Log("BGV was runned.");
+            //Debug.Log("BGV was runned.");
         }
     }
 
 
     public static Dictionary<int, PlayerAssetData> aData;
-    public static bool playerLoadedIntoScene;
     public SpawnerOutput abilities;
 
     void Start() {
-        playerLoadedIntoScene = true;
+        //playerLoadedIntoScene = true;
         string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
 
-        //AbilityInputEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.ABILITY_INPUT] as AbilityInputEncoder;
+        aData[ClientProgram.clientId].abilties[""].InputCallback(0);
         aData[ClientProgram.clientId].abilties[priCharacterId].InputCallback(0);
-        //encoder.SendInputSignal(priCharacterId,null);
+
         abilities = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));
         (abilities.script as LinearLayout).o = LinearLayout.Orientation.X;
         abilities.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.1f));
