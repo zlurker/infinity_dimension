@@ -112,7 +112,7 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public bool CheckIfVarRegionBlocked(params string[] target) {
-        bool[] nodeBoolValues = GetCentralInst().GetNodeBoolValues(nodeId);
+        bool[] nodeBoolValues = GetCentralInst().GetRootReferenceCentral(nodeId).GetNodeBoolValues(GetCentralInst().GetRootReferenceNode(nodeId).GetNodeId());
 
         for(int i = 0; i < target.Length; i++)
             if(nodeBoolValues[GetVariableId(target[i])])

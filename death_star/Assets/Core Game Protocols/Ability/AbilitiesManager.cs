@@ -187,7 +187,7 @@ public class AbilityData : IInputCallback<int> {
             if(!connected.l[i])
                 rC.Add(new int[] { i, 0, 1 });
 
-        
+
         rootSubclasses = rC.ToArray();
         Debug.Log(rootSubclasses.Length);
     }
@@ -293,15 +293,25 @@ public class AbilityData : IInputCallback<int> {
                 if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.BLOCKED))
                     boolData.varsBlocked[i][j] = true;
 
-                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED))
-                    aMVar.Add(j);
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED)) {
+
+                    bool onCalled = false;
+
+                    if(targettedNodes.ContainsKey(i))
+                        if(targettedNodes[i].ContainsKey(ON_VARIABLE_CATERGORY.ON_CALLED))
+                            if(targettedNodes[i][ON_VARIABLE_CATERGORY.ON_CALLED].ContainsKey(j))
+                                onCalled = true;
+
+                    if(!onCalled)
+                        aMVar.Add(j);
+                }
 
                 if(!LoadedData.GetVariableType(dataType[i], j, VariableTypes.NON_LINK))
                     nodeBranchingData[i] += dataVar[i][j].links.Length;
 
                 if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.GLOBAL_VARIABLE)) {
                     string gVN = (dataVar[i][j].field as RuntimeParameters<string>).v;
-                    if (!AbilitiesManager.GetAssetData(playerId).globalVariables.ContainsKey(gVN))
+                    if(!AbilitiesManager.GetAssetData(playerId).globalVariables.ContainsKey(gVN))
                         AbilitiesManager.GetAssetData(playerId).globalVariables.Add(gVN, null);
                 }
             }
@@ -377,7 +387,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             assetData = new Dictionary<string, Sprite>();
             playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
             internalFreeSpaceTracker = new List<int>();
-            globalVariables = new Dictionary<string,int[]>();
+            globalVariables = new Dictionary<string, int[]>();
             //globalVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
         }
 
@@ -402,9 +412,9 @@ public sealed class AbilitiesManager : MonoBehaviour {
         public void BuildGlobalVariables() {
             AbilityDataSubclass[] globalVariableNodes = new AbilityDataSubclass[globalVariables.Count];
             string[] keys = globalVariables.Keys.ToArray();
-            
 
-            for (int i=0; i < keys.Length; i++) {
+
+            for(int i = 0; i < keys.Length; i++) {
                 int[] instanceAddress = new int[2];
                 globalVariableNodes[i] = new AbilityDataSubclass(typeof(GlobalVariables));
                 (globalVariableNodes[i].var[LoadedData.loadedParamInstances[typeof(GlobalVariables)].variableAddresses["Variable Name"]].field as RuntimeParameters<string>).v = keys[i];
