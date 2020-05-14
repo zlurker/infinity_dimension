@@ -63,7 +63,7 @@ public class OnVariableCalled : SpecialisedNodes {
         GetCentralInst().GetActiveThread(parentThread).SetNodeData(GetNodeId(), 1);
         GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Internal Redirect")).links = new int[][] { new int[] { oCDB.node, oCDB.variable, 0 } };
         GetCentralInst().UpdateVariableValue<T>(GetNodeId(), GetVariableId("Internal Redirect"), rP.v);
-        GetCentralInst().UpdateVariableData<T>(parentThread, GetVariableId("Internal Redirect"), null, false);
+        GetCentralInst().UpdateVariableData<T>(GetNodeId(), GetVariableId("Internal Redirect"), -1, null, false);
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

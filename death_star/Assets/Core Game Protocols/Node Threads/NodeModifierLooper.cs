@@ -20,13 +20,11 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
 
         // If its the same as curr loop, then apply value and not save the data anymore.
         if(givenLoop == currLoop) {
-            GetCentralInst().UpdateVariableValue<T>(dataPacket.nodeId, dataPacket.varId, dataPacket.value,false);
+            GetCentralInst().UpdateVariableValue<T>(dataPacket.nodeId, dataPacket.varId, dataPacket.value, false);
 
-//Debug.LogFormat("TNode {0}, Value {1}",GetCentralInst().GetNode(dataPacket.nodeId), dataPacket.value);
+            //Debug.LogFormat("TNode {0}, Value {1}",GetCentralInst().GetNode(dataPacket.nodeId), dataPacket.value);
 
-            int nTID = GetCentralInst().GetNode(dataPacket.nodeId).GetNodeThreadId();
-            if(nTID > -1)
-                GetCentralInst().UpdateVariableData<T>(nTID, dataPacket.varId);
+            GetCentralInst().UpdateVariableData<T>(dataPacket.nodeId, dataPacket.varId);
             //GetCentralInst().UpdateVariableData<T>(nTID, dataPacket.varId);
             return;
         }
@@ -40,7 +38,7 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
 
     public void ApplyPendingDataToVariable(int iterationId) {
         if(pendingData.ContainsKey(iterationId)) {
-            for(int i = 0; i < pendingData[iterationId].Count; i++) 
+            for(int i = 0; i < pendingData[iterationId].Count; i++)
                 pendingData[iterationId][i].ApplyDataToTargetVariable(GetCentralInst());
 
             pendingData.Remove(iterationId);

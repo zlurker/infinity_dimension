@@ -572,75 +572,81 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         UpdateVariableData<T>(threadId, variableId);
     }*/
 
-    public void UpdateVariableData<T>(int threadId, int variableId, RuntimeParameters<T> var = null, bool runOnCalled = true) {
+    public void UpdateVariableData<T>(int currNode, int variableId, int threadId = -1, RuntimeParameters<T> var = null, bool runOnCalled = true) {
 
-        if(threadId == -1)
-            return;
+        //if(threadId == -1)
+        //return;
 
-        int currNode = activeThreads.l[threadId].GetCurrentNodeID();
+        //int currNode = activeThreads.l[threadId].GetCurrentNodeID();
 
         if(CheckEligibility(currNode, variableId) == NETWORK_CLIENT_ELIGIBILITY.DENIED)
             return;
 
-        int[][] links = runtimeParameters[currNode][variableId].links;
-        int currPossiblePaths = activeThreads.l[threadId].GetPossiblePaths();
-
         if(var == null)
             var = ReturnRuntimeParameter<T>(currNode, variableId);
 
-        for(int i = 0; i < links.Length; i++) {
+        if(threadId == -1)
+            threadId = nodes[currNode].GetNodeThreadId();
 
-            int nodeId = links[i][0];
-            int nodeVariableId = links[i][1];
-            int linkType = links[i][2];
-            int threadIdToUse = threadId;
-            NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
+        if(threadId > -1) {
 
-            if(newThread != null) 
-                threadIdToUse = activeThreads.Add(newThread);
-             else {
-                AbilityTreeNode currNodeInst = CreateNewNodeIfNull(currNode);
+            int[][] links = runtimeParameters[currNode][variableId].links;
+            int currPossiblePaths = activeThreads.l[threadId].GetPossiblePaths();
 
-                if(currNodeInst.GetNodeThreadId() == threadIdToUse)
-                    currNodeInst.SetNodeThreadId(-1);
+            for(int i = 0; i < links.Length; i++) {
 
-                if(CheckIfReferenced(nodeId, variableId))
-                    GetRootReferenceCentral(nodeId).RemoveCalledCallback(instancedNodes[nodeId].Item3, Tuple.Create(castingPlayer, centralId, nodeId));
+                int nodeId = links[i][0];
+                int nodeVariableId = links[i][1];
+                int linkType = links[i][2];
+                int threadIdToUse = threadId;
+                NodeThread newThread = activeThreads.l[threadId].CreateNewThread();
+
+                if(newThread != null)
+                    threadIdToUse = activeThreads.Add(newThread);
+                else {
+                    AbilityTreeNode currNodeInst = CreateNewNodeIfNull(currNode);
+
+                    if(currNodeInst.GetNodeThreadId() == threadIdToUse)
+                        currNodeInst.SetNodeThreadId(-1);
+
+                    if(CheckIfReferenced(nodeId, nodeVariableId))
+                        GetRootReferenceCentral(nodeId).RemoveCalledCallback(instancedNodes[nodeId].Item3, Tuple.Create(castingPlayer, centralId, nodeId));
+                }
+
+                activeThreads.l[threadIdToUse].SetNodeData(nodeId, nodeBranchingData[nodeId]);
+
+                AbilityTreeNode nextNodeInst = CreateNewNodeIfNull(nodeId);
+
+                int existingThread = nextNodeInst.GetNodeThreadId();
+
+                if(existingThread > -1)
+                    HandleThreadRemoval(existingThread);
+                //activeThreads.l[threadIdToUse](existingThread);
+
+                //Debug.Log("Thread travelling to: " + nextNodeInst.GetType());
+                nextNodeInst.SetNodeThreadId(threadIdToUse);
+
+                if(nodeBranchingData[nodeId] == 0)
+                    HandleThreadRemoval(threadIdToUse);
+
+                if(CheckIfReferenced(nodeId, nodeVariableId)) {
+                    GetRootReferenceCentral(nodeId).AddCalledCallback(instancedNodes[nodeId].Item3, Tuple.Create(castingPlayer, centralId, nodeId));
+                    GetRootReferenceCentral(nodeId).UpdateLinkEndPointData<T>(instancedNodes[nodeId].Item3, nodeVariableId, linkType, var, runOnCalled);
+                } else
+                    UpdateLinkEndPointData<T>(nodeId, nodeVariableId, linkType, var, runOnCalled);
             }
-
-            activeThreads.l[threadIdToUse].SetNodeData(nodeId, nodeBranchingData[nodeId]);
-
-            AbilityTreeNode nextNodeInst = CreateNewNodeIfNull(nodeId);
-
-            int existingThread = nextNodeInst.GetNodeThreadId();
-
-            if(existingThread > -1)
-                HandleThreadRemoval(existingThread);
-            //activeThreads.l[threadIdToUse](existingThread);
-
-            //Debug.Log("Thread travelling to: " + nextNodeInst.GetType());
-            nextNodeInst.SetNodeThreadId(threadIdToUse);
-
-            if(nodeBranchingData[nodeId] == 0)
-                HandleThreadRemoval(threadIdToUse);
-
-            if(CheckIfReferenced(nodeId, variableId)) {
-                GetRootReferenceCentral(nodeId).AddCalledCallback(instancedNodes[nodeId].Item3, Tuple.Create(castingPlayer, centralId, nodeId));
-                GetRootReferenceCentral(nodeId).UpdateLinkEndPointData<T>(instancedNodes[nodeId].Item3, nodeVariableId, linkType, var, runOnCalled);
-            } else
-                UpdateLinkEndPointData<T>(nodeId, nodeVariableId, linkType, var, runOnCalled);
         }
 
         // Updates all marked instance.
-        if(instanceUpdateVarDataCallback.ContainsKey(currNode)) 
+        if(instanceUpdateVarDataCallback.ContainsKey(currNode))
             foreach(var item in instanceUpdateVarDataCallback[currNode]) {
                 AbilityCentralThreadPool centralInst = AbilitiesManager.aData[item.Item1].playerSpawnedCentrals.GetElementAt(item.Item2);
-                centralInst.UpdateVariableData<T>(centralInst.GetNode(item.Item3).GetNodeThreadId(), variableId, var, runOnCalled);
+                centralInst.UpdateVariableData<T>(item.Item3, variableId,-1, var, runOnCalled);
             }
 
-            // Needs to be removed from instance side.
-            //markedNodes.Remove(currNode);
-        
+        // Needs to be removed from instance side.
+        //markedNodes.Remove(currNode);
+
         // Updates the other instances.
         /*if(sharedInstance.ContainsKey(currNode))
             foreach(var inst in sharedInstance[currNode]) {
@@ -653,6 +659,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
     public void UpdateLinkEndPointData<T>(int nodeId, int variableId, int linkType, RuntimeParameters<T> var = null, bool runOnCalled = true) {
         // Does instancing shit here
+
         if(runOnCalled) {
 
             int totalOnCalled = RunTargettedNodes<T>(nodeId, variableId, ON_VARIABLE_CATERGORY.ON_CALLED, var.v);
@@ -766,6 +773,6 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         int[] nodeCBInfo = (int[])(object)arg;
 
         AbilityTreeNode inst = CreateNewNodeIfNull(nodeCBInfo[0]);
-        UpdateVariableData<T>(inst.GetNodeThreadId(), nodeCBInfo[1]);
+        UpdateVariableData<T>(inst.GetNodeId(), nodeCBInfo[1]);
     }
 }

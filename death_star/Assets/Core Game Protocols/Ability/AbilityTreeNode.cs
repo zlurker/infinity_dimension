@@ -94,7 +94,7 @@ public class AbilityTreeNode : MonoBehaviour {
         //if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
 
         if(CheckIfVarRegionBlocked("This Node"))
-            GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
+            GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeId, 0,-1, new RuntimeParameters<AbilityTreeNode>(this));
     }
 
     public void InstanceThisNode(AbilityTreeNode parent) {
@@ -141,28 +141,28 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public void SetVariable<T>(int varId, T value) {
         GetCentralInst().UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst().UpdateVariableData<T>(nodeThreadId, varId);
+        GetCentralInst().UpdateVariableData<T>(nodeId, varId);
     }
 
     public void SetVariable<T>(int threadId, string varName) {
         int varId = GetVariableId(varName);
-        GetCentralInst().UpdateVariableData<T>(threadId, varId);
+        GetCentralInst().UpdateVariableData<T>(nodeId, varId,threadId);
     }
 
     public void SetVariable<T>(int threadId, string varName, T value) {
         int varId = GetVariableId(varName);
         GetCentralInst().UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst().UpdateVariableData<T>(threadId, varId);
+        GetCentralInst().UpdateVariableData<T>(nodeId, varId,threadId);
     }
 
     public void SetVariable<T>(string varName, T value) {
         int varId = GetVariableId(varName);
         GetCentralInst().UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst().UpdateVariableData<T>(nodeThreadId, varId);
+        GetCentralInst().UpdateVariableData<T>(nodeId, varId);
     }
 
     public void SetVariable<T>(string varName) {
-        GetCentralInst().UpdateVariableData<T>(nodeThreadId, GetVariableId(varName));
+        GetCentralInst().UpdateVariableData<T>(nodeId, GetVariableId(varName));
     }
 
     public int GetVariableId(string varName) {
