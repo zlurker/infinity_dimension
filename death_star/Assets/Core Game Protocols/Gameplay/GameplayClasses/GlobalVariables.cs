@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GlobalVariables : AbilityTreeNode, IRPGeneric {
+public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
@@ -14,21 +14,25 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric {
     }
 
     public override void NodeCallback() {
+        if(CheckIfVarRegionBlocked("Variable Value")) {
+            GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Variable Value")).field.RunGenericBasedOnRP<int>(this, 0);
+            Debug.Log("Variable was sent out.");
+        }
+    }
 
-        if(!GetCentralInst().CheckIfReferenced(GetNodeId(), GetVariableId("Variable Value"))) {
+    public void OnNodeInitialised() {
+        int[] nodeId = AbilitiesManager.GetAssetData(GetCastingPlayerId()).globalVariables[GetNodeVariable<string>("Variable Name")];
 
-            int[] nodeId = AbilitiesManager.GetAssetData(GetCastingPlayerId()).globalVariables[GetNodeVariable<string>("Variable Name")];
-
-            if(!(nodeId[0] == GetCentralInst().ReturnPlayerCasted() && 0 == GetCentralId() && nodeId[1] == GetNodeId())) {
+        // Handles callback from subnodes.
+        if(!(nodeId[0] == GetCentralInst().ReturnPlayerCasted() && 0 == GetCentralId() && nodeId[1] == GetNodeId())) {
+            if(!GetCentralInst().CheckIfReferenced(GetNodeId(), GetVariableId("Variable Value"))) {
                 Debug.Log(name + " has been instanced.");
                 AbilityTreeNode globalVarSource = AbilitiesManager.GetAssetData(nodeId[0]).playerSpawnedCentrals.l[0].GetNode(nodeId[1]);
                 InstanceThisNode(globalVarSource);
             }
-        }
 
-        if(CheckIfVarRegionBlocked("Variable Value")) {
-            GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Variable Value")).field.RunGenericBasedOnRP<int>(this, 0);
-            Debug.Log("Variable was sent out.");
+            Debug.Log(name + " has already been instanced.");
+            return;
         }
     }
 

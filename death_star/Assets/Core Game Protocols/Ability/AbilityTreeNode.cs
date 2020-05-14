@@ -11,6 +11,10 @@ public enum VariableSetMode {
     LOCAL, INSTANCE
 }
 
+public interface IOnNodeInitialised {
+    void OnNodeInitialised();
+}
+
 public class AbilityNodeHolder {
     public Transform abilityNodeRoot;
     public AbilityTreeNode[] abiNodes;
@@ -85,30 +89,29 @@ public class AbilityTreeNode : MonoBehaviour {
 
         AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node");
 
-        if(refNode != null) 
+        if(refNode != null)
             InstanceThisNode(refNode);
-            //if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
-        
+        //if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
+
+        if(CheckIfVarRegionBlocked("This Node"))
+            GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
     }
 
     public void InstanceThisNode(AbilityTreeNode parent) {
 
         // Closes this game object as it is just a instance of another object.
         gameObject.SetActive(false);
-       
+
         // Creates new link
         Tuple<int, int, int> refNode = parent.GetCentralInst().GetInstanceReference(parent.GetNodeId());
 
 
         // If null, means the parent node is the root node.
         if(refNode == null)
-            refNode = Tuple.Create<int, int, int>(parent.GetCentralInst().ReturnPlayerCasted(),parent.GetCentralId(),parent.GetNodeId());
+            refNode = Tuple.Create<int, int, int>(parent.GetCentralInst().ReturnPlayerCasted(), parent.GetCentralId(), parent.GetNodeId());
 
         // Instances node on our side
         GetCentralInst().InstanceNode(nodeId, refNode);
-
-        if(CheckIfVarRegionBlocked("This Node"))
-            GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeThreadId, 0, new RuntimeParameters<AbilityTreeNode>(this));
     }
 
     public bool CheckIfVarRegionBlocked(params string[] target) {

@@ -260,6 +260,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         //sharedInstance = new Dictionary<int, HashSet<Tuple<int, int, int>>>();
         instancedNodes = new Dictionary<int, Tuple<int, int, int>>();
         variableCalled = new Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, HashSet<Tuple<int, int, int>>>>();
+        subNode = new Dictionary<int, HashSet<Tuple<int, int, int>>>();
     }
 
     public Tuple<int, int, int> GetInstanceReference(int nodeId) {
@@ -306,14 +307,14 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         if(!variableCalled.ContainsKey(key))
             variableCalled.Add(key, new Dictionary<ON_VARIABLE_CATERGORY, HashSet<Tuple<int, int, int>>>());
 
+        if(AbilitiesManager.GetAssetData(value.Item1).playerSpawnedCentrals.l[value.Item2].targettedNodes.ContainsKey(value.Item3))
+            foreach(var item in AbilitiesManager.GetAssetData(value.Item1).playerSpawnedCentrals.l[value.Item2].targettedNodes[value.Item3]) {
+                if(!variableCalled[key].ContainsKey(item.Key))
+                    variableCalled[key].Add(item.Key, new HashSet<Tuple<int, int, int>>());
 
-        foreach(var item in AbilitiesManager.GetAssetData(value.Item1).playerSpawnedCentrals.l[value.Item2].targettedNodes[value.Item3]) {
-            if(!variableCalled[key].ContainsKey(item.Key))
-                variableCalled[key].Add(item.Key, new HashSet<Tuple<int, int, int>>());
-
-            if(!variableCalled[key][item.Key].Contains(value))
-                variableCalled[key][item.Key].Add(value);
-        }
+                if(!variableCalled[key][item.Key].Contains(value))
+                    variableCalled[key][item.Key].Add(value);
+            }
 
         /*if(!sharedInstance.ContainsKey(key))
             sharedInstance.Add(key, new HashSet<Tuple<int, int, int>>());
@@ -614,7 +615,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
                 if(!booleanData[nodeId][autoManagedVar[nodeId][j]])
                     runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
 
-
+            #region Needs overhaul
             // Does instancing shit here
             if(runOnCalled) {
 
@@ -624,8 +625,16 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
                 if(CheckIfReferenced(nodeId, nodeVariableId)) {
                     refNodeId = instancedNodes[nodeId].Item3;
                     refCentral = GetRootReferenceCentral(nodeId);
+
+                    if(!refCentral.subNode.ContainsKey(refNodeId))
+                        refCentral.subNode.Add(refNodeId, new HashSet<Tuple<int, int, int>>());
+
+                    Tuple<int, int, int> currTuple = Tuple.Create(castingPlayer, centralId, nodeId);
+
+                    if(!refCentral.subNode[refNodeId].Contains(currTuple))
+                        refCentral.subNode[refNodeId].Add(currTuple);
                 }
-                
+
                 int totalOnCalled = refCentral.RunTargettedNodes<T>(refNodeId, nodeVariableId, ON_VARIABLE_CATERGORY.ON_CALLED, var.v);
 
                 // Runs other instances OVC too
@@ -647,8 +656,19 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
                 GetRootReferenceNode(nodeId).NodeCallback();
             else
                 nextNodeInst.NodeCallback();
+            #endregion
         }
 
+
+        // Updates all registered instance.
+        if(subNode.ContainsKey(currNode)) {
+            foreach (var item in subNode[currNode]) {
+                AbilityCentralThreadPool centralInst = AbilitiesManager.aData[item.Item1].playerSpawnedCentrals.GetElementAt(item.Item2);
+                centralInst.UpdateVariableData<T>(centralInst.GetNode(item.Item3).GetNodeThreadId(), variableId, var, runOnCalled);
+            }
+
+            subNode.Remove(currNode);
+        }
         // Updates the other instances.
         /*if(sharedInstance.ContainsKey(currNode))
             foreach(var inst in sharedInstance[currNode]) {
@@ -726,6 +746,12 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
             inst.SetNodeThreadId(-1);
             inst.SetNodeId(nodeId);
             inst.SetCentralId(castingPlayer, centralId);
+
+            IOnNodeInitialised oNNInst = inst as IOnNodeInitialised;
+
+            if (oNNInst != null)
+                oNNInst.OnNodeInitialised();
+
             return inst;
         }
 
