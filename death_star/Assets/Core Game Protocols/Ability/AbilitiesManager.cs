@@ -293,18 +293,9 @@ public class AbilityData : IInputCallback<int> {
                 if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.BLOCKED))
                     boolData.varsBlocked[i][j] = true;
 
-                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED)) {
-
-                    bool onCalled = false;
-
-                    if(targettedNodes.ContainsKey(i))
-                        if(targettedNodes[i].ContainsKey(ON_VARIABLE_CATERGORY.ON_CALLED))
-                            if(targettedNodes[i][ON_VARIABLE_CATERGORY.ON_CALLED].ContainsKey(j))
-                                onCalled = true;
-
-                    if(!onCalled)
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED)) 
                         aMVar.Add(j);
-                }
+                
 
                 if(!LoadedData.GetVariableType(dataType[i], j, VariableTypes.NON_LINK))
                     nodeBranchingData[i] += dataVar[i][j].links.Length;
