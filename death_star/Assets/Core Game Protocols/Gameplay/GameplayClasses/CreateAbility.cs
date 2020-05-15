@@ -10,6 +10,7 @@ public class CreateAbility : AbilityTreeNode {
         base.NodeCallback();
 
         if(ClientProgram.clientId == ClientProgram.hostId) {
+            Debug.Log("Able to bypass");
             AbilityCentralThreadPool inst = GetCentralInst();
 
             AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());

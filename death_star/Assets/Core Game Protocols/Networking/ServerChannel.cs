@@ -42,7 +42,7 @@ public class ServerChannel : NetworkMessageEncoder {
 
             case ServerSideMethods.HOST_SELECT:
                 ClientProgram.hostId = BitConverter.ToInt32(bytesRecieved, 4);
-                Debug.LogFormat("Host selected: {0}", BitConverter.ToInt32(bytesRecieved, 4));
+                Debug.LogWarningFormat("Current ID: {0}, Host selected: {0}",ClientProgram.clientId, BitConverter.ToInt32(bytesRecieved, 4));
                 break;
         }
     }

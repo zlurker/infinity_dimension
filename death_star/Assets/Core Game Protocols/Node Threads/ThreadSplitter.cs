@@ -12,6 +12,16 @@ public class SplitterData : ThreadMapDataBase {
 
 public class ThreadSplitter : NodeModifierLooper {
 
+    int threadToProcess = -1;
+
+    private void Update() {
+
+        if(threadToProcess > -1) {
+            ProcessThreads(threadToProcess);
+            threadToProcess = -1;
+        }
+    }
+
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
@@ -31,8 +41,7 @@ public class ThreadSplitter : NodeModifierLooper {
     public override void ThreadZeroed(int parentThread) {
         (threadMap[parentThread] as SplitterData).numberOfLoops++;
         currLoop++;
-        GetCentralInst().SetTimerEventID(-1);
-        ProcessThreads(parentThread);
+        threadToProcess = parentThread;
     }
 
     public void ProcessThreads(int threadId) {

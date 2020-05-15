@@ -52,6 +52,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         byte[] playerId = BitConverter.GetBytes(inst.ReturnPlayerCasted());
         byte[] centralId = BitConverter.GetBytes(inst.ReturnCentralId());
 
+        Debug.LogFormat("Sending out Data for {0},{1}", inst.ReturnPlayerCasted(), inst.ReturnCentralId());
         byte[] manifestData = PrepareVariableManifest(manifest);
 
         bytesToSend = new byte[8 + manifestData.Length];
@@ -68,12 +69,13 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             return new byte[0];
 
         List<byte> byteData = new List<byte>();
-        
-
+              
         for(int i = 0; i < manifest.Length; i++) {
 
             int argType = -1;
             byte[] vBytes = new byte[0];
+
+            Debug.Log("Datatype: " + manifest[i].dataType);
 
             if(manifest[i].dataType == typeof(int)) {
                 argType = 0;
@@ -156,18 +158,21 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
         int playerId = BitConverter.ToInt32(bytesRecieved, 0);
         int centralId = BitConverter.ToInt32(bytesRecieved, 4);
+
         List<AbilityNodeNetworkData> pND = new List<AbilityNodeNetworkData>();
         AbilityCentralThreadPool centralInst = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId);
 
-        //Debug.Log(centralInst);
+        Debug.LogFormat("Node data for {0}/{1}: ", playerId, centralId);
         foreach(AbilityNodeNetworkData parsedData in ParseManifest(bytesRecieved, 8)) {
+
+            Debug.Log("Node datatype: "+ parsedData.dataType);
 
             if(centralInst == null) {
                 pND.Add(parsedData);
 
                 if(pND.Count == 2) {
                     centralInst = new AbilityCentralThreadPool(playerId);
-
+                    
                     int pId = (pND[0] as AbilityNodeNetworkData<int>).value;
                     string aId = (pND[1] as AbilityNodeNetworkData<string>).value;
                     AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, playerId, centralId);

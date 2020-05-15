@@ -42,7 +42,7 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
         if(pendingData.ContainsKey(iterationId)) {
             for(int i = 0; i < pendingData[iterationId].Count; i++)
                 pendingData[iterationId][i].ApplyDataToTargetVariable(GetCentralInst());
-
+          
             pendingData.Remove(iterationId);
         }
     }

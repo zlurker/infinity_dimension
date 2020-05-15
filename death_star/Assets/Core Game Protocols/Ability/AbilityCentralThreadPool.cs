@@ -103,7 +103,7 @@ public class NodeThread {
 }
 
 
-public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
+public class AbilityCentralThreadPool : IRPGeneric {
 
     //public static EnhancedList<AbilityCentralThreadPool> globalCentralList = new EnhancedList<AbilityCentralThreadPool>();
 
@@ -118,7 +118,7 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
     }
 
     void InitialiseCentralVariables() {
-        networkNodeData = new Dictionary<int, List<AbilityNodeNetworkData>>();
+        networkNodeData = new List<AbilityNodeNetworkData>();
         activeThreads = new EnhancedList<NodeThread>();
         timerEventId = -1;
         //networkObjectId = -1;
@@ -148,7 +148,9 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
     private int timerEventId;
 
-    private Dictionary<int, List<AbilityNodeNetworkData>> networkNodeData;
+    private bool markPending;
+    private List<AbilityNodeNetworkData> networkNodeData;
+
     private Dictionary<int, HashSet<Tuple<int, int, int>>> instanceUpdateVarDataCallback;
 
     private Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, HashSet<Tuple<int, int, int>>>> onCallbacks;
@@ -347,37 +349,53 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         return activeThreads.l[threadId];
     }
 
-    public void SetTimerEventID(int id) {
+    /*public void SetTimerEventID(int id) {
         timerEventId = id;
-    }
+    }*/
 
     public void AddVariableNetworkData(AbilityNodeNetworkData aNND) {
         //Debug.Log("Variable Data added.");
 
-        if(timerEventId > -1) {
+        /*if(timerEventId > -1) {
             //Debug.Log("Timer extended.");
             LoadedData.GetSingleton<Timer>().UpdateEventStartTime(timerEventId, Time.realtimeSinceStartup);
         } else {
             //Debug.Log("New timer added.");
             timerEventId = LoadedData.GetSingleton<Timer>().CreateNewTimerEvent(0.05f, this);
             networkNodeData.Add(timerEventId, new List<AbilityNodeNetworkData>());
-        }
+        }*/
 
-        networkNodeData[timerEventId].Add(aNND);
+        if(!markPending) {
+            markPending = true;
+            LoadedData.GetSingleton<AbilityNetworkDataCompiler>().pendingData.Add(this);
+        }
+        
+
+        Debug.LogFormat("Central {0},{1} event ID {2} updated.", castingPlayer, centralId, timerEventId);
+        networkNodeData.Add(aNND);
     }
 
-    public void CallOnTimerEnd(int eventId) {
+    public void CompileVariableNetworkData() {
         UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
+
+        AbilityNodeNetworkData[] data = networkNodeData.ToArray();
+        encoder.SendVariableManifest(this, data);
+        networkNodeData.Clear();
+    }
+
+    /*public void CallOnTimerEnd(int eventId) {
+        
         //Debug.Log("Sending data");
 
-        AbilityNodeNetworkData[] data = networkNodeData[eventId].ToArray();
+        
         networkNodeData.Remove(eventId);
 
-        encoder.SendVariableManifest(this, data);
+        Debug.LogFormat("Central {0},{1} event ID {2} ended. Sending data to manifest.", castingPlayer, centralId, eventId);
+        
 
         if(timerEventId == eventId)
             timerEventId = -1;
-    }
+    }*/
 
     public void StartThreads() {
 

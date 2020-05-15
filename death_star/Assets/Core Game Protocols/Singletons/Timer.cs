@@ -29,12 +29,16 @@ public class Timer : MonoBehaviour, ISingleton {
         List<int> delTimers = new List<int>();
 
         // Need to modify this to only accept those with 
-        foreach(var timeData in tData)
+        foreach(var timeData in tData) {
+            Debug.Log("Curr Timer ID Check: " + timeData.Key);
+
             if(timeData.Value.startTime + timeData.Value.duration <= Time.realtimeSinceStartup) {
+                
                 timeData.Value.callback.CallOnTimerEnd(timeData.Key);
                 delTimers.Add(timeData.Key);
                 //tData.Remove(timeData.Key);
             }
+        }
 
         for(int i = 0; i < delTimers.Count; i++)
             tData.Remove(delTimers[i]);
