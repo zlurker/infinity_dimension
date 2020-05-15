@@ -20,7 +20,7 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
     }
 
     public void OnNodeInitialised() {
-        int[] nodeId = AbilitiesManager.GetAssetData(GetCastingPlayerId()).globalVariables[GetNodeVariable<string>("Variable Name")];
+        int[] nodeId = AbilitiesManager.GetAssetData(GetCentralInst().GetPlayerId()).globalVariables[GetNodeVariable<string>("Variable Name")];
 
         // Handles callback from subnodes.
         if(!(nodeId[0] == GetCentralInst().ReturnPlayerCasted() && 0 == GetCentralId() && nodeId[1] == GetNodeId())) {

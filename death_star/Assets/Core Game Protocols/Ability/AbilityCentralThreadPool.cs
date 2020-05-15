@@ -445,8 +445,9 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.HOST_ACTIVATED))
             if(ClientProgram.hostId != ClientProgram.clientId)
                 return NETWORK_CLIENT_ELIGIBILITY.DENIED;
-            else
+            else 
                 return NETWORK_CLIENT_ELIGIBILITY.GRANTED;
+            
 
         return NETWORK_CLIENT_ELIGIBILITY.LOCAL_HOST;
     }
@@ -469,8 +470,10 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
             switch(nCE) {
                 case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
+                    Debug.Log("Data point going");
                     AbilityNodeNetworkData dataPacket = new AbilityNodeNetworkData<T>(nodeId, variableId, value);
                     INodeNetworkPoint nwPointInst = nodes[progenitorData[nodeId]] as INodeNetworkPoint;
+                    Debug.Log(nodes[progenitorData[nodeId]]);
                     nwPointInst.ModifyDataPacket(dataPacket);
                     AddVariableNetworkData(dataPacket);
                     break;

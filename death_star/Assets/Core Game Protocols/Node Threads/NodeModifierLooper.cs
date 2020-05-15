@@ -10,15 +10,13 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
     protected Dictionary<int, List<AbilityNodeNetworkData>> pendingData = new Dictionary<int, List<AbilityNodeNetworkData>>();
 
     public void ModifyDataPacket(AbilityNodeNetworkData dataPacket) {
+
         dataPacket.additionalData = BitConverter.GetBytes(currLoop);
     }
 
     public void ProcessDataPacket<T>(AbilityNodeNetworkData<T> dataPacket) {
 
-        Debug.Log("Send out given loop: " + currLoop);
         int givenLoop = BitConverter.ToInt32(dataPacket.additionalData, 0);
-
-        //Debug.LogFormat("{0},{1}", givenLoop, currLoop);
 
         // If its the same as curr loop, then apply value and not save the data anymore.
         if(givenLoop == currLoop) {

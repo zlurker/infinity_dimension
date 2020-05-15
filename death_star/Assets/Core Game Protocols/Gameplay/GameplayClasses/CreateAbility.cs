@@ -9,12 +9,15 @@ public class CreateAbility : AbilityTreeNode {
     public override void NodeCallback() {
         base.NodeCallback();
 
-        AbilityCentralThreadPool inst = GetCentralInst();
+        if(ClientProgram.clientId == ClientProgram.hostId) {
+            AbilityCentralThreadPool inst = GetCentralInst();
 
-        AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
-        //Debug.Log(GetNodeVariable<string>("Ability Name"));
-        AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, ClientProgram.clientId);
-        SetVariable<string>("Ability Name");
+            AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
+            AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].SignalCentralCreation(newA);
+            AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, ClientProgram.clientId);
+            //Debug.Log(GetNodeVariable<string>("Ability Name"));
+            SetVariable<string>("Ability Name");
+        }
     }
 
     public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
