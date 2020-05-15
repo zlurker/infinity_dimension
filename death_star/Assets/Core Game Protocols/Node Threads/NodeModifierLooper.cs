@@ -17,7 +17,7 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
     public void ProcessDataPacket<T>(AbilityNodeNetworkData<T> dataPacket) {
 
         int givenLoop = BitConverter.ToInt32(dataPacket.additionalData, 0);
-
+        Debug.LogFormat("CurrLoop - {0}, Data loop - {1} ",currLoop, givenLoop);
         // If its the same as curr loop, then apply value and not save the data anymore.
         if(givenLoop == currLoop) {
             GetCentralInst().UpdateVariableValue<T>(dataPacket.nodeId, dataPacket.varId, dataPacket.value, false);
@@ -40,6 +40,7 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
 
 
         if(pendingData.ContainsKey(iterationId)) {
+            Debug.Log("Contains!");
             for(int i = 0; i < pendingData[iterationId].Count; i++)
                 pendingData[iterationId][i].ApplyDataToTargetVariable(GetCentralInst());
           

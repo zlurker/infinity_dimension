@@ -13,7 +13,7 @@ public class FileSaveTemplate<T> : FileSaveTemplate {
         ext = extension;
         dir = directories;
 
-        fP = FileSaver.PathGenerator(Application.dataPath, filePath);
+        fP = FileSaver.PathGenerator(LoadedData.gameDataPath, filePath);
     }
 }
 

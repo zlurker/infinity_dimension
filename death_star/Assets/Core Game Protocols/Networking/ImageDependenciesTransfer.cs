@@ -56,7 +56,7 @@ public class ImageDependenciesTransfer : NetworkMessageEncoder {
                     assetPaths.Add(imagePaths[j]);
         }
 
-        string folderPath = FileSaver.PathGenerator(new string[] { Application.dataPath, "UsrCreatedArt" });
+        string folderPath = FileSaver.PathGenerator(new string[] { LoadedData.gameDataPath, "UsrCreatedArt" });
 
         expectedFiles = assetPaths.Count;
 

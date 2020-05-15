@@ -110,6 +110,7 @@ public static class LoadedData {
 
     public static double connectionTimeOffset;
     public static double startTimeSinceConnection;
+    public static string gameDataPath;
 
     public static Camera currSceneCamera;
 

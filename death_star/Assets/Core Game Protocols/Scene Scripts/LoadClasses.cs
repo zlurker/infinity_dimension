@@ -11,6 +11,8 @@ using System.IO;
 public class LoadClasses : MonoBehaviour {
 
     void Start() {
+        LoadedData.gameDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pixel");
+
         LoadSingletonClasses();
         LoadAbilityNodes();
         LoadNetworkDependencies();

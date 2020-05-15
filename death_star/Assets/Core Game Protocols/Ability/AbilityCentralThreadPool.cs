@@ -120,7 +120,6 @@ public class AbilityCentralThreadPool : IRPGeneric {
     void InitialiseCentralVariables() {
         networkNodeData = new List<AbilityNodeNetworkData>();
         activeThreads = new EnhancedList<NodeThread>();
-        timerEventId = -1;
         //networkObjectId = -1;
         //instId = -1;
     }
@@ -145,8 +144,6 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
     // This thread's ID
     private int centralId;
-
-    private int timerEventId;
 
     private bool markPending;
     private List<AbilityNodeNetworkData> networkNodeData;
@@ -371,15 +368,18 @@ public class AbilityCentralThreadPool : IRPGeneric {
         }
         
 
-        Debug.LogFormat("Central {0},{1} event ID {2} updated.", castingPlayer, centralId, timerEventId);
+        Debug.LogFormat("Central {0},{1} variable added..", castingPlayer, centralId);
         networkNodeData.Add(aNND);
     }
 
     public void CompileVariableNetworkData() {
         UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
 
+
+        Debug.LogFormat("Data compiling.");      
         AbilityNodeNetworkData[] data = networkNodeData.ToArray();
         encoder.SendVariableManifest(this, data);
+        markPending = false;
         networkNodeData.Clear();
     }
 

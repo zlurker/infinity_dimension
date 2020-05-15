@@ -72,7 +72,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         Texture2D tex;
         colorData = new Color[100,10];
 
-        path = Path.Combine(new string[] { Application.dataPath, "Datafiles", "2", "ImageAssets", "Bullet" });
+        path = Path.Combine(new string[] { LoadedData.gameDataPath, "Datafiles", "2", "ImageAssets", "Bullet" });
         path += ".png";
 
         if(File.Exists(path)) {
@@ -183,7 +183,7 @@ public class PixelArtExperiment : MonoBehaviour, IPointerEnterHandler, IPointerE
         colorTest = new Texture2D(PNGDimensions, PNGDimensions);
         colorTest.SetPixels(colors);
 
-        string fP = FileSaver.PathGenerator(Application.dataPath, new string[] { "UsrCreatedArt" });
+        string fP = FileSaver.PathGenerator(LoadedData.gameDataPath, new string[] { "UsrCreatedArt" });
 
         Debug.LogFormat("Pixels modified. Total modified: {0}", pngScaleFactor);
         File.WriteAllBytes(Path.Combine(fP, name + ".PNG"), colorTest.EncodeToPNG());

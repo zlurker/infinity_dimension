@@ -27,7 +27,7 @@ public class SpriteSpawner : AbilityTreeNode, IOnSpawn {
             List<Dropdown.OptionData> dOd = new List<Dropdown.OptionData>();
             RuntimeParameters<string> rpI = rp as RuntimeParameters<string>;
             int ddId = 0;
-            var imagePaths = new DirectoryInfo(Path.Combine(Application.dataPath, "UsrCreatedArt")).GetFiles().Where(x => x.Extension != ".meta");
+            var imagePaths = new DirectoryInfo(Path.Combine(LoadedData.gameDataPath, "UsrCreatedArt")).GetFiles().Where(x => x.Extension != ".meta");
 
             foreach(FileInfo fI in imagePaths) {
                 if(fI.Name == rpI.v)
