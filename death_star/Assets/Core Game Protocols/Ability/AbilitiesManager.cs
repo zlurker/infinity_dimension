@@ -322,7 +322,7 @@ public class AbilityData : IInputCallback<int> {
     }
 
 
-    public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1, int clusterId = -1) {
+    public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1) {
 
         if(givenPopulatedId > -1)
             AbilitiesManager.aData[pId].playerSpawnedCentrals.ModifyElementAt(givenPopulatedId, threadInst);
@@ -335,12 +335,7 @@ public class AbilityData : IInputCallback<int> {
         //Debug.Log(boolData.OutputValues());
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
-        // Rather than create new instance, everything except variables will be taken from here.
-        if(clusterId == -1)
-            clusterId = AbilityCentralThreadPool.globalCentralClusterList.Add(new List<int>());
-
-        AbilityCentralThreadPool.globalCentralClusterList.l[clusterId].Add(givenPopulatedId);
-        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, clusterId, targettedNodes, nodeProgenitor);
+        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes, nodeProgenitor);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
