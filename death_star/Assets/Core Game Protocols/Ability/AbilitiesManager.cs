@@ -189,7 +189,6 @@ public class AbilityData : IInputCallback<int> {
 
 
         rootSubclasses = rC.ToArray();
-        Debug.Log(rootSubclasses.Length);
     }
 
     void RunNodeFlow(int nextNode, int progenitor) {

@@ -17,12 +17,12 @@ public class MoveTo : AbilityTreeNode {
 
     protected Transform GetTargetTransform() {
 
-        
+        AbilityTreeNode target = GetNodeVariable<AbilityTreeNode>("Target");
 
         if(GetNodeVariable<bool>("Move all objects in blueprint"))
-            return GetCentralInst().GetRootReferenceNode(GetNodeId()).transform.root;
+            return target.GetCentralInst().GetRootReferenceNode(target.GetNodeId()).transform.root;
         else
-            return GetCentralInst().GetRootReferenceNode(GetNodeId()).transform;
+            return target.GetCentralInst().GetRootReferenceNode(target.GetNodeId()).transform;
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

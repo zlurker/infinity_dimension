@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 public enum NETWORK_CLIENT_ELIGIBILITY {
     GRANTED, DENIED, LOCAL_HOST
@@ -574,9 +575,6 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
                     if(currNodeInst.GetNodeThreadId() == threadIdToUse)
                         currNodeInst.SetNodeThreadId(-1);
-
-                    if(CheckIfReferenced(nodeId, nodeVariableId))
-                        GetRootReferenceCentral(nodeId).RemoveCalledCallback(instancedNodes[nodeId].Item3, Tuple.Create(castingPlayer, centralId, nodeId));
                 }
 
                 activeThreads.l[threadIdToUse].SetNodeData(nodeId, nodeBranchingData[nodeId]);
@@ -608,11 +606,21 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
         }
 
         // Updates all marked instance.
-        if(instanceUpdateVarDataCallback.ContainsKey(currNode))
-            foreach(var item in instanceUpdateVarDataCallback[currNode]) {
+        if(instanceUpdateVarDataCallback.ContainsKey(currNode)) {
+
+            HashSet<Tuple<int, int, int>> nodeDataToRm = new HashSet<Tuple<int, int, int>>();
+
+            foreach(var item in instanceUpdateVarDataCallback[currNode].ToArray()) {
                 AbilityCentralThreadPool centralInst = AbilitiesManager.aData[item.Item1].playerSpawnedCentrals.GetElementAt(item.Item2);
                 centralInst.UpdateVariableData<T>(item.Item3, variableId, -1, var, runOnCalled);
+
+                // Checks if node still has any thread on it. If not, removes it.
+                if(centralInst.GetNode(item.Item3).GetNodeThreadId() == -1)
+                    nodeDataToRm.Add(item);
             }
+
+            instanceUpdateVarDataCallback[currNode].ExceptWith(nodeDataToRm);
+        }
 
         // Needs to be removed from instance side.
         //markedNodes.Remove(currNode);

@@ -14,6 +14,8 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
     }
 
     public void ProcessDataPacket<T>(AbilityNodeNetworkData<T> dataPacket) {
+
+        Debug.Log("Send out given loop: " + currLoop);
         int givenLoop = BitConverter.ToInt32(dataPacket.additionalData, 0);
 
         //Debug.LogFormat("{0},{1}", givenLoop, currLoop);
@@ -37,6 +39,8 @@ public class NodeModifierLooper : NodeModifierBase, INodeNetworkPoint {
     }
 
     public void ApplyPendingDataToVariable(int iterationId) {
+
+
         if(pendingData.ContainsKey(iterationId)) {
             for(int i = 0; i < pendingData[iterationId].Count; i++)
                 pendingData[iterationId][i].ApplyDataToTargetVariable(GetCentralInst());
