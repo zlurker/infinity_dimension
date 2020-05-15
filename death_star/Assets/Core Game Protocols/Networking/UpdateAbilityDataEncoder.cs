@@ -49,7 +49,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
     public void SendVariableManifest(AbilityCentralThreadPool inst, AbilityNodeNetworkData[] manifest) {
 
-        byte[] playerId = BitConverter.GetBytes(inst.GetPlayerId());
+        byte[] playerId = BitConverter.GetBytes(inst.ReturnPlayerCasted());
         byte[] centralId = BitConverter.GetBytes(inst.ReturnCentralId());
 
         byte[] manifestData = PrepareVariableManifest(manifest);
@@ -157,7 +157,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         int playerId = BitConverter.ToInt32(bytesRecieved, 0);
         int centralId = BitConverter.ToInt32(bytesRecieved, 4);
         List<AbilityNodeNetworkData> pND = new List<AbilityNodeNetworkData>();
-        AbilityCentralThreadPool centralInst = AbilitiesManager.aData[targetId].playerSpawnedCentrals.GetElementAt(centralId);
+        AbilityCentralThreadPool centralInst = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId);
 
         //Debug.Log(centralInst);
         foreach(AbilityNodeNetworkData parsedData in ParseManifest(bytesRecieved, 8)) {
@@ -170,7 +170,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
                     int pId = (pND[0] as AbilityNodeNetworkData<int>).value;
                     string aId = (pND[1] as AbilityNodeNetworkData<string>).value;
-                    AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, targetId, centralId);
+                    AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, playerId, centralId);
                 }
 
                 //Debug.Log("Continued");

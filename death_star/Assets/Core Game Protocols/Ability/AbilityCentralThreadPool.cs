@@ -470,10 +470,10 @@ public class AbilityCentralThreadPool : IRPGeneric, ITimerCallback {
 
             switch(nCE) {
                 case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
-                    Debug.Log("Data point going");
+                    //Debug.Log("Data point going");
                     AbilityNodeNetworkData dataPacket = new AbilityNodeNetworkData<T>(nodeId, variableId, value);
                     INodeNetworkPoint nwPointInst = nodes[progenitorData[nodeId]] as INodeNetworkPoint;
-                    Debug.Log(nodes[progenitorData[nodeId]]);
+                    //Debug.Log(nodes[progenitorData[nodeId]]);
                     nwPointInst.ModifyDataPacket(dataPacket);
                     AddVariableNetworkData(dataPacket);
                     break;
