@@ -4,21 +4,71 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreateAbility : AbilityTreeNode {
+public class CreateAbility : AbilityTreeNode, IOnVariableInterface {
+
+    public override void ConstructionPhase(AbilityData data) {
+        base.ConstructionPhase(data);
+
+        //Debug.Log("Construction phase called. LHS Links: " + data.GetLinkData(data.GetCurrBuildNode()).lHS.Count);
+        data.AddTargettedNode(data.GetCurrBuildNode(), GetVariableId("Created Ability"), ON_VARIABLE_CATERGORY.ON_CHANGED, data.GetCurrBuildNode());
+    }
+
+    public int CentralCallback<T>(T value, int nodeId, int varId, int links) {
+
+        //SetVariable<bool>("Internal Input Track", (bool)(object)value);
+        //Debug.Log("Central Callback!, " + value);
+
+        //Debug.Log("Value of T" + value);
+        //Debug.LogFormat("NodeID {0}, Thread ID {1}", name, GetNodeThreadId());
+
+        if(GetNodeThreadId() > -1) {
+            //Debug.Log("Has thread.");
+
+            if((int[])(object)value != null) {
+                //Debug.Log("Updated ability details.");
+                TriggerOnHostProcessed((int[])(object)value);
+            }
+        }else
+            GetCentralInst().UpdateVariableValue<T>(GetNodeId(), GetVariableId("Created Ability"), value, false, false);
+
+        return 0;
+    }
 
     public override void NodeCallback() {
         base.NodeCallback();
 
+        //Debug.Log("Node was callbacked!");
+        //Debug.LogFormat("NodeID {0}, Thread ID {1}", name, GetNodeThreadId());
+
+        if(GetNodeVariable<int[]>("Created Ability") != null) {
+            TriggerOnHostProcessed(GetNodeVariable<int[]>("Created Ability"));
+        }
+
         if(ClientProgram.clientId == ClientProgram.hostId) {
-            Debug.Log("Able to bypass");
             AbilityCentralThreadPool inst = GetCentralInst();
 
             AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
-            AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].SignalCentralCreation(newA);
+            //AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].SignalCentralCreation(newA);
             AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, ClientProgram.clientId);
-            //Debug.Log(GetNodeVariable<string>("Ability Name"));
-            SetVariable<string>("Ability Name");
+            GetCentralInst().UpdateVariableValue<int[]>(GetNodeId(), GetVariableId("Created Ability"), new int[] { inst.GetPlayerId(), ClientProgram.clientId, newA.ReturnCentralId() },true,false);
+            HandlePostAbilityCreation();
         }
+    }
+
+    void TriggerOnHostProcessed(int[] value) {
+        AbilityCentralThreadPool newA = new AbilityCentralThreadPool(value[0]);
+        AbilitiesManager.aData[value[0]].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, value[1], value[2]);
+
+        Debug.Log("Abilities created.");
+        HandlePostAbilityCreation();
+    }
+
+    void HandlePostAbilityCreation() {
+        // Unsets input triggered.
+        GetCentralInst().UpdateVariableValue<int[]>(GetNodeId(), GetVariableId("Created Ability"), null, false, false);
+
+        Debug.Log("Moving to Connected.");
+        SetVariable<string>("Ability Name");
     }
 
     public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
@@ -57,6 +107,9 @@ public class CreateAbility : AbilityTreeNode {
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<string>("Ability Name", ""), VariableTypes.HOST_ACTIVATED));
+        holder.AddRange(new LoadedRuntimeParameters[] {
+            new LoadedRuntimeParameters(new RuntimeParameters<string>("Ability Name", "")),
+            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Created Ability", null), VariableTypes.HIDDEN,VariableTypes.HOST_ACTIVATED)
+        });
     }
 }

@@ -368,7 +368,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         }
         
 
-        Debug.LogFormat("Central {0},{1} variable added..", castingPlayer, centralId);
+        //Debug.LogFormat("Central {0},{1} variable added..", castingPlayer, centralId);
         networkNodeData.Add(aNND);
     }
 
@@ -376,7 +376,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         UpdateAbilityDataEncoder encoder = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder;
 
 
-        Debug.LogFormat("Data compiling.");      
+        //Debug.LogFormat("Data compiling.");      
         AbilityNodeNetworkData[] data = networkNodeData.ToArray();
         encoder.SendVariableManifest(this, data);
         markPending = false;
@@ -573,6 +573,8 @@ public class AbilityCentralThreadPool : IRPGeneric {
         if(var == null)
             var = ReturnRuntimeParameter<T>(currNode, variableId);
 
+        //Debug.LogFormat("Curr updatevardata: {0},{1},{2}", castingPlayer, centralId, currNode);
+
         if(threadId == -1)
             threadId = nodes[currNode].GetNodeThreadId();
 
@@ -715,6 +717,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         if(threadId == -1)
             return;
 
+        //Debug.Log("Thread removed " + threadId);
         AbilityTreeNode threadNode = CreateNewNodeIfNull(activeThreads.l[threadId].GetCurrentNodeID());
 
         // Only sets it to 0 if the current thread on node is the same as thread to be removed.

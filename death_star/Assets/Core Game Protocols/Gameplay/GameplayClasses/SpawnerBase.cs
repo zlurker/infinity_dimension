@@ -9,14 +9,14 @@ public class SpawnerBase : SpriteSpawner {
     protected Rigidbody2D rB;
 
     protected virtual void Update() {
-        int[] objLoc = GetNodeVariable<int[]>("Internal Collide Handler");
+        /*int[] objLoc = GetNodeVariable<int[]>("Internal Collide Handler");
 
         if(objLoc != null) {
             AbilityTreeNode inst = AbilitiesManager.aData[objLoc[0]].playerSpawnedCentrals.GetElementAt(objLoc[1]).GetNode(objLoc[2]);
             //AbilityCentralThreadPool central = NetworkObjectTracker.inst.ReturnNetworkObject(objLoc[0]) as AbilityCentralThreadPool;
             //AbilityTreeNode inst = GetCentralInst().GetNode(objLoc[1]);
             SetVariable<AbilityTreeNode>("On Collide", inst);
-        }
+        }*/
     }
 
     private void OnCollisionStay2D(Collision2D collision) {

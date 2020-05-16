@@ -76,6 +76,8 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             byte[] vBytes = new byte[0];
 
             Debug.Log("Datatype: " + manifest[i].dataType);
+            if(manifest[i].additionalData != null)
+                Debug.Log("Loop ID: " + BitConverter.ToInt32(manifest[i].additionalData, 0));
 
             if(manifest[i].dataType == typeof(int)) {
                 argType = 0;
