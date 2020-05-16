@@ -52,7 +52,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         byte[] playerId = BitConverter.GetBytes(inst.ReturnPlayerCasted());
         byte[] centralId = BitConverter.GetBytes(inst.ReturnCentralId());
 
-        Debug.LogFormat("Sending out Data for {0},{1}", inst.ReturnPlayerCasted(), inst.ReturnCentralId());
+        //Debug.LogFormat("Sending out Data for {0},{1}", inst.ReturnPlayerCasted(), inst.ReturnCentralId());
         byte[] manifestData = PrepareVariableManifest(manifest);
 
         bytesToSend = new byte[8 + manifestData.Length];
@@ -75,9 +75,9 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             int argType = -1;
             byte[] vBytes = new byte[0];
 
-            Debug.Log("Datatype: " + manifest[i].dataType);
-            if(manifest[i].additionalData != null)
-                Debug.Log("Loop ID: " + BitConverter.ToInt32(manifest[i].additionalData, 0));
+            //Debug.Log("Datatype: " + manifest[i].dataType);
+            //if(manifest[i].additionalData != null)
+                //Debug.Log("Loop ID: " + BitConverter.ToInt32(manifest[i].additionalData, 0));
 
             if(manifest[i].dataType == typeof(int)) {
                 argType = 0;

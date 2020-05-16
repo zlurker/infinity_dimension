@@ -11,6 +11,9 @@ public class MoveTowardsDirection : MoveTo {
 
         bool allDataRecv = CheckIfVarRegionBlocked("Coordinates", "Target", "Total Distance");
 
+        Debug.Log("All data recv :" + allDataRecv);
+        Debug.Log("Pos: " + GetNodeVariable<Vector3>("Coordinates"));
+
         if(allDataRecv) {
             Vector3 vToN = new Vector3();
 

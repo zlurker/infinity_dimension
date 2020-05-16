@@ -59,7 +59,6 @@ public class CreateAbility : AbilityTreeNode, IOnVariableInterface {
         AbilityCentralThreadPool newA = new AbilityCentralThreadPool(value[0]);
         AbilitiesManager.aData[value[0]].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, value[1], value[2]);
 
-        Debug.Log("Abilities created.");
         HandlePostAbilityCreation();
     }
 
@@ -67,7 +66,7 @@ public class CreateAbility : AbilityTreeNode, IOnVariableInterface {
         // Unsets input triggered.
         GetCentralInst().UpdateVariableValue<int[]>(GetNodeId(), GetVariableId("Created Ability"), null, false, false);
 
-        Debug.Log("Moving to Connected.");
+        //Debug.Log("Moving to Connected.");
         SetVariable<string>("Ability Name");
     }
 

@@ -39,6 +39,7 @@ public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
     }
 
     public override void ApplyDataToTargetVariable(AbilityCentralThreadPool central) {
+        Debug.Log("Data applied: " + value);
         central.UpdateVariableValue<T>(nodeId, varId, value, false);
     }
 }
@@ -567,16 +568,22 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
         //int currNode = activeThreads.l[threadId].GetCurrentNodeID();
 
-        if(CheckEligibility(currNode, variableId) == NETWORK_CLIENT_ELIGIBILITY.DENIED)
-            return;
+        //if(CheckEligibility(currNode, variableId) == NETWORK_CLIENT_ELIGIBILITY.DENIED)
+            //return;
 
         if(var == null)
             var = ReturnRuntimeParameter<T>(currNode, variableId);
+
+       
+
 
         //Debug.LogFormat("Curr updatevardata: {0},{1},{2}", castingPlayer, centralId, currNode);
 
         if(threadId == -1)
             threadId = nodes[currNode].GetNodeThreadId();
+
+        //Debug.LogFormat("Variable it has: {0}, threadID {1}, currNode {2}, varId{3}", var.v ,threadId , currNode, variableId);
+
 
         if(threadId > -1) {
 

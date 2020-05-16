@@ -38,6 +38,8 @@ public class Repeater : NodeModifierLooper, IOnSpawn {
 
         ApplyPendingDataToVariable(currLoop);
 
+        Debug.Log("Repeater running.");
+
         // Fires a phantom thread.
         NodeThread trdInst = new NodeThread();
         trdInst.SetNodeData(GetNodeId(), GetCentralInst().GetNodeBranchData(GetNodeId()));

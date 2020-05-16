@@ -17,7 +17,7 @@ public class MousePos : AbilityTreeNode {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[]{
-            new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Mouse Pos", new Vector3()), VariableTypes.CLIENT_ACTIVATED)
+            new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Mouse Pos", new Vector3()), VariableTypes.CLIENT_ACTIVATED, VariableTypes.AUTO_MANAGED)
         });
     }
 }
