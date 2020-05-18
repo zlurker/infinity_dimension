@@ -10,9 +10,13 @@ public class MoveTo : AbilityTreeNode {
     public override void NodeCallback() {
         base.NodeCallback();
 
+        //Debug.LogFormat("{0},{1}", CheckIfVarRegionBlocked("Coordinates"), CheckIfVarRegionBlocked("Target"));
+
         if(!overrode)
-            if(CheckIfVarRegionBlocked("Coordinates", "Target"))
+            if(CheckIfVarRegionBlocked("Coordinates", "Target")) {
                 GetTargetTransform().position = new Vector3(GetNodeVariable<Vector3>("Coordinates").x, GetNodeVariable<Vector3>("Coordinates").y, 0);
+                Debug.Log("Pos: " + GetTargetTransform().position);
+            }
     }
 
     protected Transform GetTargetTransform() {

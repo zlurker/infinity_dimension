@@ -44,7 +44,7 @@ public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
     }
 
     public override void ApplyDataToTargetVariable(AbilityCentralThreadPool central) {
-        Debug.Log("Data applied: " + value);
+        Debug.LogFormat("Data applied: {0} to: {1}", value, central.GetNode(nodeId));
         central.UpdateVariableValue<T>(nodeId, varId, value, false);
         central.UpdateVariableData<T>(nodeId, varId);
     }
@@ -172,13 +172,15 @@ public class AbilityCentralThreadPool : IRPGeneric {
     public void AddPendingData(AbilityNodeNetworkData nodeNetworkData) {
 
         // Applies it if it matches node current status
+        //Debug.LogFormat("TID {0}, TVSC {1}, GVSC {2}", nodes[nodeNetworkData.nodeId].GetNodeThreadId(), networkVariableData[nodeNetworkData.nodeId].nodeCallbackCount, nodeNetworkData.variableSetCount);
         if(nodes[nodeNetworkData.nodeId].GetNodeThreadId() > 0 && networkVariableData[nodeNetworkData.nodeId].nodeCallbackCount == nodeNetworkData.variableSetCount) {
-            Debug.LogWarning("Pending data applied.");
+            //Debug.LogWarning("Pending data applied. #1");
             nodeNetworkData.ApplyDataToTargetVariable(this);
             return;
         }
 
         // If not, add this to pending list.
+        //Debug.Log("Data added to " + Tuple.Create(nodeNetworkData.nodeId, nodeNetworkData.varId, nodeNetworkData.variableSetCount));
         pendingApplyData.Add(Tuple.Create(nodeNetworkData.nodeId, nodeNetworkData.varId, nodeNetworkData.variableSetCount), nodeNetworkData);
     }
 
@@ -502,6 +504,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
             switch(nCE) {
                 case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
                     //Debug.Log("Data point going");
+                    Debug.LogFormat("Data going to be applied to: {0} to: {1}", value, GetNode(nodeId));
                     AbilityNodeNetworkData dataPacket = new AbilityNodeNetworkData<T>(nodeId, variableId, value, networkVariableData[nodeId].nodeCallbackCount);
                     //INodeNetworkPoint nwPointInst = nodes[progenitorData[nodeId]] as INodeNetworkPoint;
                     //Debug.Log(nodes[progenitorData[nodeId]]);
@@ -629,11 +632,8 @@ public class AbilityCentralThreadPool : IRPGeneric {
                     HandleThreadRemoval(existingThread);
                 //activeThreads.l[threadIdToUse](existingThread);
 
-                //Debug.Log("Thread travelling to: " + nextNodeInst.GetType());
+                //Debug.LogFormat("Thread travelling from {0} to {1}", nodes[currNode], nextNodeInst.GetType());
                 nextNodeInst.SetNodeThreadId(threadIdToUse);
-
-                if(nodeBranchingData[nodeId] == 0)
-                    HandleThreadRemoval(threadIdToUse);
 
                 if(CheckIfReferenced(nodeId, nodeVariableId)) {
 
@@ -644,6 +644,9 @@ public class AbilityCentralThreadPool : IRPGeneric {
                     GetRootReferenceCentral(nodeId).UpdateLinkEndPointData<T>(instancedNodes[nodeId].Item3, nodeVariableId, linkType, var, runOnCalled);
                 } else
                     UpdateLinkEndPointData<T>(nodeId, nodeVariableId, linkType, var, runOnCalled);
+
+                if(nodeBranchingData[nodeId] == 0)
+                    HandleThreadRemoval(threadIdToUse);
             }
         }
 
@@ -701,12 +704,13 @@ public class AbilityCentralThreadPool : IRPGeneric {
         if(networkVariableData.ContainsKey(nodeId)) {
             networkVariableData[nodeId].nodeCallbackCount++;
 
+
             for(int i = 0; i < networkVariableData[nodeId].networkVariables.Length; i++) {
                 int networkVarId = networkVariableData[nodeId].networkVariables[i];
                 Tuple<int, int, int> pendingDataKey = Tuple.Create(nodeId, networkVarId, networkVariableData[nodeId].nodeCallbackCount);
+                //Debug.LogWarning("Pending data waiting #2, " + pendingDataKey);
 
                 if(pendingApplyData.ContainsKey(pendingDataKey)) {
-                    Debug.LogWarning("Pending data applied.");
                     pendingApplyData[pendingDataKey].ApplyDataToTargetVariable(this);
                 }
             }

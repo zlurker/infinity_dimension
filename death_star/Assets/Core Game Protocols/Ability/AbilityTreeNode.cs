@@ -135,6 +135,10 @@ public class AbilityTreeNode : MonoBehaviour {
         return GetCentralInst().GetPlayerId() == ClientProgram.clientId;
     }
 
+    public bool IsHost() {
+        return ClientProgram.hostId == ClientProgram.clientId;
+    }
+
     public T GetNodeVariable<T>(string var) {
         return GetCentralInst().ReturnRuntimeParameter<T>(nodeId, var).v;
     }

@@ -17,7 +17,10 @@ public class RandomNumber : AbilityTreeNode {
     public override void NodeCallback() {
         base.NodeCallback();
 
-        float output = Random.Range(GetNodeVariable<float>("Min Value"), GetNodeVariable<float>("Max Value"));
-        SetVariable<float>("Output Value", output);
+        if(IsHost()) {
+            //Debug.Log("Random called.");
+            float output = Random.Range(GetNodeVariable<float>("Min Value"), GetNodeVariable<float>("Max Value"));
+            SetVariable<float>("Output Value", output);
+        }
     }
 }

@@ -165,10 +165,10 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         List<AbilityNodeNetworkData> pND = new List<AbilityNodeNetworkData>();
         AbilityCentralThreadPool centralInst = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId);
 
-        Debug.LogFormat("Node data for {0}/{1}: ", playerId, centralId);
+        //Debug.LogFormat("Node data for {0}/{1}: ", playerId, centralId);
         foreach(AbilityNodeNetworkData parsedData in ParseManifest(bytesRecieved, 8)) {
 
-            Debug.Log("Node datatype: "+ parsedData.dataType);
+            //Debug.Log("Node datatype: "+ parsedData.dataType);
 
             if(centralInst == null) {
                 pND.Add(parsedData);
@@ -203,7 +203,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             int setCount = BitConverter.ToInt32(bytesRecieved, i + 12);
             int valueLen = BitConverter.ToInt32(bytesRecieved, i + 16);
 
-            Debug.Log(setCount);
+            //Debug.Log(setCount);
             
             switch(argType) {
 
