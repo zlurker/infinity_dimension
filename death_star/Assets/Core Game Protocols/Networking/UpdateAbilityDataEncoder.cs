@@ -159,14 +159,23 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         if(targetId == ClientProgram.clientId)
             return;
 
-        int playerId = BitConverter.ToInt32(bytesRecieved, 0);
-        int centralId = BitConverter.ToInt32(bytesRecieved, 4);
+        if(!AbilitiesManager.playerLoadedInLobby) {
+            AbilitiesManager.pendingData.Add(bytesRecieved);
+            return;
+        }
+
+        ParseMessage(bytesRecieved);
+    }
+
+    public void ParseMessage(byte[] bytesToParse) {
+        int playerId = BitConverter.ToInt32(bytesToParse, 0);
+        int centralId = BitConverter.ToInt32(bytesToParse, 4);
 
         List<AbilityNodeNetworkData> pND = new List<AbilityNodeNetworkData>();
         AbilityCentralThreadPool centralInst = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId);
 
         //Debug.LogFormat("Node data for {0}/{1}: ", playerId, centralId);
-        foreach(AbilityNodeNetworkData parsedData in ParseManifest(bytesRecieved, 8)) {
+        foreach(AbilityNodeNetworkData parsedData in ParseManifest(bytesToParse, 8)) {
 
             //Debug.Log("Node datatype: "+ parsedData.dataType);
 
@@ -175,7 +184,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
                 if(pND.Count == 2) {
                     centralInst = new AbilityCentralThreadPool(playerId);
-                    
+
                     int pId = (pND[0] as AbilityNodeNetworkData<int>).value;
                     string aId = (pND[1] as AbilityNodeNetworkData<string>).value;
                     AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, playerId, centralId);

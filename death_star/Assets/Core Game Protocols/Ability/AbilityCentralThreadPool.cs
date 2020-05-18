@@ -44,7 +44,7 @@ public class AbilityNodeNetworkData<T> : AbilityNodeNetworkData {
     }
 
     public override void ApplyDataToTargetVariable(AbilityCentralThreadPool central) {
-        Debug.LogFormat("Data applied: {0} to: {1}", value, central.GetNode(nodeId));
+        //Debug.LogFormat("Data applied: {0} to: {1}", value, central.GetNode(nodeId));
         central.UpdateVariableValue<T>(nodeId, varId, value, false);
         central.UpdateVariableData<T>(nodeId, varId);
     }

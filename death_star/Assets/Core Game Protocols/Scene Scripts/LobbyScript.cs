@@ -18,7 +18,10 @@ public class LobbyScript : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+        AbilitiesManager.playerLoadedInLobby = false;
+
         lobbyInst = this;
+
         cDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.CUSTOM_DATA_TRASMIT] as PlayerCustomDataTrasmitter;
         iDT = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.IMAGE_DATA_TRANSMIT] as ImageDependenciesTransfer;
         mE = NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.MANIFEST] as ManifestEncoder;

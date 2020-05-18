@@ -417,24 +417,29 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
             AbilityData globalVarInst = new AbilityData(globalVariableNodes, new AbilityInfo(), playerId, "");
             abilties.Add("", globalVarInst);
-
-            //AbilityCentralThreadPool central = new AbilityCentralThreadPool(playerId);
-            //globalVarInst.CreateAbility(central, playerId);
-            //Debug.Log(central.GetNode(3));
-
-            //Debug.Log("BGV was runned.");
         }
     }
 
     public static bool playerLoadedInLobby;
-    public static List<byte[]> pendingData;
+    public static List<byte[]> pendingData = new List<byte[]>();
 
     public static Dictionary<int, PlayerAssetData> aData;
     public SpawnerOutput abilities;
 
     void Start() {
+
+        // Applies pending data that was recieved while loading.
+        Debug.Log("Updating " + pendingData.Count + " messages while loading.");
+        for (int i=0; i < pendingData.Count; i++) 
+            (NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder).ParseMessage(pendingData[i]);
+        
+        pendingData.Clear();
+        playerLoadedInLobby = true;
+
+        // Creates global variables for this player.
         aData[ClientProgram.clientId].abilties[""].InputCallback(0);
 
+        // Creates player main character.
         string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
         aData[ClientProgram.clientId].abilties[priCharacterId].InputCallback(0);
 
@@ -442,12 +447,6 @@ public sealed class AbilitiesManager : MonoBehaviour {
         (abilities.script as LinearLayout).o = LinearLayout.Orientation.X;
         abilities.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.1f));
         AssignInputKeys();
-    }
-
-
-
-    public void BuildGlobalVariables() {
-
     }
 
     public void AssignInputKeys() {

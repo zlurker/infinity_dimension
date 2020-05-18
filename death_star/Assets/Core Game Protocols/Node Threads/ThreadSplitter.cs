@@ -40,7 +40,7 @@ public class ThreadSplitter : NodeModifierBase {
 
     public override void ThreadZeroed(int parentThread) {
 
-        Debug.Log("Loop completed.");
+        //Debug.Log("Loop completed.");
         (threadMap[parentThread] as SplitterData).numberOfLoops++;
         //currLoop++;
         ProcessThreads(parentThread);
