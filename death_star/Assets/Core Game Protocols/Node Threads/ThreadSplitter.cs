@@ -10,7 +10,7 @@ public class SplitterData : ThreadMapDataBase {
     }
 }
 
-public class ThreadSplitter : NodeModifierLooper {
+public class ThreadSplitter : NodeModifierBase {
 
     /*int threadToProcess = -1;
 
@@ -40,14 +40,14 @@ public class ThreadSplitter : NodeModifierLooper {
 
     public override void ThreadZeroed(int parentThread) {
         (threadMap[parentThread] as SplitterData).numberOfLoops++;
-        currLoop++;
+        //currLoop++;
         ProcessThreads(parentThread);
         //threadToProcess = parentThread;
     }
 
     public void ProcessThreads(int threadId) {
 
-        ApplyPendingDataToVariable(currLoop);
+        //ApplyPendingDataToVariable(currLoop);
 
         AbilityCentralThreadPool inst = GetCentralInst();
         SplitterData sData = threadMap[threadId] as SplitterData;

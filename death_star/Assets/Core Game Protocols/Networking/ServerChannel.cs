@@ -34,15 +34,14 @@ public class ServerChannel : NetworkMessageEncoder {
                 break;
 
             case ServerSideMethods.HOST:
-                ClientProgram.hostId = ClientProgram.clientId;
-
+                //ClientProgram.hostId = ClientProgram.clientId;
                 bytesToSend = BitConverter.GetBytes(actionType);
                 SendEncodedMessages();
                 break;
 
             case ServerSideMethods.HOST_SELECT:
                 ClientProgram.hostId = BitConverter.ToInt32(bytesRecieved, 4);
-                Debug.LogWarningFormat("Current ID: {0}, Host selected: {0}",ClientProgram.clientId, BitConverter.ToInt32(bytesRecieved, 4));
+                Debug.LogWarningFormat("Current ID: {0}, Host selected: {1}",ClientProgram.clientId, BitConverter.ToInt32(bytesRecieved, 4));
                 break;
         }
     }

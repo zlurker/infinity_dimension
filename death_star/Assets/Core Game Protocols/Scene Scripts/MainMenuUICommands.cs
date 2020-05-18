@@ -264,18 +264,6 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
             LinearLayout mainAddOptionsLL = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout)).script as LinearLayout;
             mainAddOptionsLL.transform.SetParent(additionalOptions.content.transform);
             mainAddOptionsLL.transform.localPosition = new Vector3();
-
-            Type[] sNTypes = LoadedData.loadedBuiltInheritances[typeof(NodeModifierLooper)].ToArray();
-
-            DropdownWrapper startNodeOptions = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper)).script as DropdownWrapper;
-            mainAddOptionsLL.Add(startNodeOptions.transform as RectTransform);
-
-            List<Dropdown.OptionData> startNodeInputs = new List<Dropdown.OptionData>();
-
-            for(int i = 0; i < sNTypes.Length; i++)
-                startNodeInputs.Add(new Dropdown.OptionData(sNTypes[i].Name));
-
-            startNodeOptions.dropdown.AddOptions(startNodeInputs);
         } else
             additionalOptions.gameObject.SetActive(true);
     }

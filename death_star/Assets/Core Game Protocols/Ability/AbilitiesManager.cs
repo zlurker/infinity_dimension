@@ -8,11 +8,11 @@ using System.Text;
 using System.Linq;
 using UnityEngine.UI;
 
-public interface INodeNetworkPoint {
+/*public interface INodeNetworkPoint {
 
     void ModifyDataPacket(AbilityNodeNetworkData dataPacket);
     void ProcessDataPacket<T>(AbilityNodeNetworkData<T> dataPacket);
-}
+}*/
 
 public class LinkData {
 
@@ -83,11 +83,12 @@ public class AbilityData : IInputCallback<int> {
     // Data that will purely only be read.
     public AbilityInfo abilityInfo;
 
+
     //Dictionary<Tuple<int, int>, HashSet<int>> onCalledDict;
     Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>> targettedNodes;
+    Dictionary<int, int[]> nodeNetworkVariables;
     Type[] dataType;
 
-    int[] nodeProgenitor;
     int[][] rootSubclasses;
     int[] nodeBranchingData;
     int[][] autoManagedVariables;
@@ -115,10 +116,6 @@ public class AbilityData : IInputCallback<int> {
         return dataVar[node][variable];
     }
 
-    public void SetNodeProgenitor(int node, int progenitor) {
-        nodeProgenitor[node] = progenitor;
-    }
-
     public void AddTargettedNode(int a1, int a2, ON_VARIABLE_CATERGORY subCategory, int b1) {
         Tuple<int, int> id = Tuple.Create<int, int>(a1, a2);
 
@@ -142,8 +139,8 @@ public class AbilityData : IInputCallback<int> {
         dataVar = new Variable[data.Length + 1][];
         dataType = new Type[data.Length + 1];
         linkData = new LinkData[data.Length + 1];
-        nodeProgenitor = new int[data.Length + 1];
         targettedNodes = new Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>>();
+        nodeNetworkVariables = new Dictionary<int, int[]>();
 
         for(int i = 0; i < data.Length; i++) {
             dataVar[i] = data[i].var;
@@ -162,7 +159,7 @@ public class AbilityData : IInputCallback<int> {
         dataType[startNode] = typeof(ThreadSplitter);
         linkData[startNode] = new LinkData();
 
-        RunNodeFlow(startNode, startNode);
+        RunNodeFlow(startNode);
         EditLinks();
         BeginDepenciesBuild();
     }
@@ -191,12 +188,10 @@ public class AbilityData : IInputCallback<int> {
         rootSubclasses = rC.ToArray();
     }
 
-    void RunNodeFlow(int nextNode, int progenitor) {
+    void RunNodeFlow(int nextNode) {
 
-        if(LoadedData.loadedNodeInstance[dataType[nextNode]] is INodeNetworkPoint)
-            progenitor = nextNode;
-
-        nodeProgenitor[nextNode] = progenitor;
+        //if(LoadedData.loadedNodeInstance[dataType[nextNode]] is INodeNetworkPoint)
+        //progenitor = nextNode;
 
         for(int i = 0; i < dataVar[nextNode].Length; i++)
             for(int j = 0; j < dataVar[nextNode][i].links.Length; j++) {
@@ -215,7 +210,7 @@ public class AbilityData : IInputCallback<int> {
                     linkData[currLink[0]].lHS.Add(lhslinkTup);
 
                 // Iterates to target.
-                RunNodeFlow(currLink[0], progenitor);
+                RunNodeFlow(currLink[0]);
             }
     }
 
@@ -264,6 +259,7 @@ public class AbilityData : IInputCallback<int> {
 
         for(int i = 0; i < dataVar.Length; i++) {
             List<int> aMVar = new List<int>();
+            List<int> networkVariables = new List<int>();
             //Debug.Log("Printing for Node: " + i);
 
             for(int j = 0; j < dataVar[i].Length; j++) {
@@ -292,9 +288,9 @@ public class AbilityData : IInputCallback<int> {
                 if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.BLOCKED))
                     boolData.varsBlocked[i][j] = true;
 
-                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED)) 
-                        aMVar.Add(j);
-                
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.AUTO_MANAGED))
+                    aMVar.Add(j);
+
 
                 if(!LoadedData.GetVariableType(dataType[i], j, VariableTypes.NON_LINK))
                     nodeBranchingData[i] += dataVar[i][j].links.Length;
@@ -304,8 +300,17 @@ public class AbilityData : IInputCallback<int> {
                     if(!AbilitiesManager.GetAssetData(playerId).globalVariables.ContainsKey(gVN))
                         AbilitiesManager.GetAssetData(playerId).globalVariables.Add(gVN, null);
                 }
+
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.HOST_ACTIVATED) || LoadedData.GetVariableType(dataType[i], j, VariableTypes.CLIENT_ACTIVATED))
+                    networkVariables.Add(j);
             }
+
             autoManagedVariables[i] = aMVar.ToArray();
+
+            if(networkVariables.Count > 0)
+                nodeNetworkVariables.Add(i, networkVariables.ToArray());
+            //aMVar.Add(j);
+
         }
     }
 
@@ -334,7 +339,7 @@ public class AbilityData : IInputCallback<int> {
         //Debug.Log(boolData.OutputValues());
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
-        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes, nodeProgenitor);
+        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes,nodeNetworkVariables);
         threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
@@ -421,6 +426,8 @@ public sealed class AbilitiesManager : MonoBehaviour {
         }
     }
 
+    public static bool playerLoadedInLobby;
+    public static List<byte[]> pendingData;
 
     public static Dictionary<int, PlayerAssetData> aData;
     public SpawnerOutput abilities;

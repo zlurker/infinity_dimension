@@ -3,25 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // It will inherit from NML. However, it will not make use of Threadmaps.
-public class Repeater : NodeModifierLooper, IOnSpawn {
+public class Repeater : NodeModifierBase, IOnSpawn {
 
-    float startTime = -1;
+    float startTime;
+    float currLoop;
 
-	void Update () {
+    void Update() {
         if(currLoop < GetNodeVariable<int>("Total Repeatable Times"))
-		if (startTime > -1) {
-            float diff = Time.realtimeSinceStartup - startTime;
-            int diffMultiplier = Mathf.FloorToInt(diff / GetNodeVariable<float>("Time Interval"));
+            if(startTime > -1) {
+                float diff = Time.realtimeSinceStartup - startTime;
+                int diffMultiplier = Mathf.FloorToInt(diff / GetNodeVariable<float>("Time Interval"));
 
-            for(int i = 0; i < diffMultiplier; i++) {
-                currLoop++;
-                BeginRepeater();
+                for(int i = 0; i < diffMultiplier; i++) {
+                    currLoop++;
+                    BeginRepeater();
+                }
+
+                if(diffMultiplier > 0)
+                    startTime = Time.realtimeSinceStartup;
             }
-
-            if(diffMultiplier > 0)
-                startTime = Time.realtimeSinceStartup;
-        }
-	}
+    }
 
     public override void NodeCallback() {
         destroyOverridenThreads = true;
@@ -30,13 +31,13 @@ public class Repeater : NodeModifierLooper, IOnSpawn {
 
         if(startTime == -1) {
             startTime = Time.realtimeSinceStartup;
-            BeginRepeater(); 
-        }        
+            BeginRepeater();
+        }
     }
 
     public void BeginRepeater() {
 
-        ApplyPendingDataToVariable(currLoop);
+        //ApplyPendingDataToVariable(currLoop);
 
         Debug.Log("Repeater running.");
 
@@ -46,7 +47,7 @@ public class Repeater : NodeModifierLooper, IOnSpawn {
 
         int threadToUse = GetCentralInst().AddNewThread(trdInst);
 
-        SetVariable<float>(threadToUse,"Time Interval");       
+        SetVariable<float>(threadToUse, "Time Interval");
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
@@ -60,5 +61,6 @@ public class Repeater : NodeModifierLooper, IOnSpawn {
 
     public void OnSpawn() {
         startTime = -1;
+        currLoop = 0;
     }
 }

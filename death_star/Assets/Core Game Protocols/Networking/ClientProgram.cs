@@ -66,11 +66,11 @@ public class ClientProgram : MonoBehaviour {
         lock(incoming)
             ParseCommands();
 
-        // Keep alive if client is host.
+        /*// Keep alive if client is host.
         if(clientId == hostId)
             if(outgoing.Count == 0)
                 if(Time.realtimeSinceStartup - prevMsgTimer > 0.1f)
-                    AddNetworkMessage(new byte[0]);
+                    AddNetworkMessage(new byte[0]);*/
 
         if(outgoing.Count > 0) {
             clientSock.BeginSend(outgoing[0], 0, outgoing[0].Length, SocketFlags.None, null, null);
