@@ -10,7 +10,7 @@ public class RandomNumber : AbilityTreeNode {
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Min Value",0),VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Max Value",0),VariableTypes.AUTO_MANAGED),
-            new LoadedRuntimeParameters(new RuntimeParameters<float>("Output Value",0),VariableTypes.HOST_ACTIVATED, VariableTypes.AUTO_MANAGED)
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Output Value",0),VariableTypes.HOST_ACTIVATED)
         });
     }
 

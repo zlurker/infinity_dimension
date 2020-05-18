@@ -173,6 +173,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
         // Applies it if it matches node current status
         if(nodes[nodeNetworkData.nodeId].GetNodeThreadId() > 0 && networkVariableData[nodeNetworkData.nodeId].nodeCallbackCount == nodeNetworkData.variableSetCount) {
+            Debug.LogWarning("Pending data applied.");
             nodeNetworkData.ApplyDataToTargetVariable(this);
             return;
         }
@@ -694,19 +695,22 @@ public class AbilityCentralThreadPool : IRPGeneric {
                 return;
         }
 
-        networkVariableData[nodeId].nodeCallbackCount++;
-
         if((LinkMode)linkType == LinkMode.NORMAL)
             UpdateVariableValue<T>(nodeId, variableId, var.v);
 
-        for(int i = 0; i < networkVariableData[nodeId].networkVariables.Length; i++) {
-            int networkVarId = networkVariableData[nodeId].networkVariables[i];
-            Tuple<int, int, int> pendingDataKey = Tuple.Create(nodeId, networkVarId, networkVariableData[nodeId].nodeCallbackCount);
+        if(networkVariableData.ContainsKey(nodeId)) {
+            networkVariableData[nodeId].nodeCallbackCount++;
 
-            if(pendingApplyData.ContainsKey(pendingDataKey))
-                pendingApplyData[pendingDataKey].ApplyDataToTargetVariable(this);
+            for(int i = 0; i < networkVariableData[nodeId].networkVariables.Length; i++) {
+                int networkVarId = networkVariableData[nodeId].networkVariables[i];
+                Tuple<int, int, int> pendingDataKey = Tuple.Create(nodeId, networkVarId, networkVariableData[nodeId].nodeCallbackCount);
+
+                if(pendingApplyData.ContainsKey(pendingDataKey)) {
+                    Debug.LogWarning("Pending data applied.");
+                    pendingApplyData[pendingDataKey].ApplyDataToTargetVariable(this);
+                }
+            }
         }
-
 
         CreateNewNodeIfNull(nodeId).NodeCallback();
 

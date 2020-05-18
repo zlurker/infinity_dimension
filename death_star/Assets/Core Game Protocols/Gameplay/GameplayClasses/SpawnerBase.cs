@@ -21,10 +21,10 @@ public class SpawnerBase : SpriteSpawner {
 
     private void OnCollisionStay2D(Collision2D collision) {
 
-        string[] objDetails = collision.gameObject.name.Split('/');
+        /*string[] objDetails = collision.gameObject.name.Split('/');
         int[] objLoc = new int[] { int.Parse(objDetails[0]), int.Parse(objDetails[1]), int.Parse(objDetails[2]) };
 
-        SetVariable("Internal Collide Handler", objLoc);       
+        SetVariable("Internal Collide Handler", objLoc);*/     
     }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {

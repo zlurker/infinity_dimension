@@ -202,21 +202,23 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             int argType = BitConverter.ToInt32(bytesRecieved, i + 8);
             int setCount = BitConverter.ToInt32(bytesRecieved, i + 12);
             int valueLen = BitConverter.ToInt32(bytesRecieved, i + 16);
+
+            Debug.Log(setCount);
             
             switch(argType) {
 
                 case 0: //int                    
-                    int iData = BitConverter.ToInt32(bytesRecieved, i + 16);
+                    int iData = BitConverter.ToInt32(bytesRecieved, i + 20);
                     yield return new AbilityNodeNetworkData<int>(ability, var, iData,setCount);
                     break;
 
                 case 1: //float                    
-                    float fData = BitConverter.ToSingle(bytesRecieved, i + 16);
+                    float fData = BitConverter.ToSingle(bytesRecieved, i + 20);
                     yield return new AbilityNodeNetworkData<float>(ability, var, fData, setCount);
                     break;
 
                 case 2: //string
-                    string sData = Encoding.Default.GetString(bytesRecieved, i + 16, valueLen);
+                    string sData = Encoding.Default.GetString(bytesRecieved, i + 20, valueLen);
                     yield return new AbilityNodeNetworkData<string>(ability, var, sData, setCount);
                     break;
 
@@ -224,7 +226,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                     int[] iArray = new int[valueLen / 4];
 
                     for(int j = 0; j < iArray.Length; j++)
-                        iArray[j] = BitConverter.ToInt32(bytesRecieved, i + 16 + (j * 4));
+                        iArray[j] = BitConverter.ToInt32(bytesRecieved, i + 20 + (j * 4));
 
                     yield return new AbilityNodeNetworkData<int[]>(ability, var, iArray, setCount);
                     break;
@@ -233,24 +235,24 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                     float[] fArray = new float[valueLen / 4];
 
                     for(int j = 0; j < fArray.Length; j++)
-                        fArray[j] = BitConverter.ToSingle(bytesRecieved, i + 16 + (j * 4));
+                        fArray[j] = BitConverter.ToSingle(bytesRecieved, i + 20 + (j * 4));
 
                     yield return new AbilityNodeNetworkData<float[]>(ability, var, fArray, setCount);
                     break;
 
                 case 5: //vector3
-                    Vector3 v = new Vector3(BitConverter.ToSingle(bytesRecieved, i + 16), BitConverter.ToSingle(bytesRecieved, i + 20));
+                    Vector3 v = new Vector3(BitConverter.ToSingle(bytesRecieved, i + 20), BitConverter.ToSingle(bytesRecieved, i + 24));
                     yield return new AbilityNodeNetworkData<Vector3>(ability, var, v, setCount);
                     break;
 
                 case 6: //bool                    
-                    bool bData = BitConverter.ToBoolean(bytesRecieved, i + 16);
+                    bool bData = BitConverter.ToBoolean(bytesRecieved, i + 20);
                     yield return new AbilityNodeNetworkData<bool>(ability, var, bData, setCount);
                     break;
             }
 
             //Debug.Log(i);
-            i += 16 + valueLen;
+            i += 20 + valueLen;
         }
     }
 }
