@@ -56,10 +56,6 @@ public class AbilityNodeNetworkData {
     public int variableSetCount;
     public Type dataType;
 
-    public virtual void AddToAppliedData(AbilityCentralThreadPool central) {
-
-    }
-
     public virtual void ApplyDataToTargetVariable(AbilityCentralThreadPool central) {
     }
 }

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// It will inherit from NML. However, it will not make use of Threadmaps.
-public class Repeater : NodeModifierBase, IOnSpawn {
+public class Repeater : AbilityTreeNode, IOnSpawn {
 
     float startTime;
     float currLoop;
@@ -25,8 +24,6 @@ public class Repeater : NodeModifierBase, IOnSpawn {
     }
 
     public override void NodeCallback() {
-        destroyOverridenThreads = true;
-
         base.NodeCallback();
 
         if(startTime == -1) {
