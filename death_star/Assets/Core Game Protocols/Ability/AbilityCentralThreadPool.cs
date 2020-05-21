@@ -252,6 +252,12 @@ public class AbilityCentralThreadPool : IRPGeneric {
         return null;
     }
 
+    public void CopyNodeVariables(int nodeId, int playerId, int centralId,int targetNodeId) {
+
+        for(int i = 0; i < runtimeParameters[nodeId].Length; i++) 
+            runtimeParameters[nodeId][i].field = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId).runtimeParameters[targetNodeId][i].field.ReturnNewRuntimeParamCopy();        
+    }
+
     public void InstanceNode(int nodeId, Tuple<int, int, int> refNode) {
         if(!instancedNodes.ContainsKey(nodeId))
             instancedNodes.Add(nodeId, null);

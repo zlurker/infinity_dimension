@@ -82,33 +82,39 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node", null), VariableTypes.NON_INSTANCED));
+        holder.AddRange(new LoadedRuntimeParameters[] {
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node", null), VariableTypes.NON_INSTANCED),
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Clone Variables", null)),
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Link Variables", null))});
     }
 
     public virtual void NodeCallback() {
 
-        AbilityTreeNode refNode = GetNodeVariable<AbilityTreeNode>("This Node");
+        AbilityTreeNode cB = GetNodeVariable<AbilityTreeNode>("Clone Variables");
+        AbilityTreeNode lV = GetNodeVariable<AbilityTreeNode>("Link Variables");
 
-        if(refNode != null)
-            InstanceThisNode(refNode);
+        if(cB != null)
+            GetCentralInst().CopyNodeVariables(nodeId,cB.GetCentralInst().ReturnPlayerCasted(),cB.GetCentralId(),cB.GetNodeId());
+
+        if(lV != null)
+            InstanceThisNode(lV);
         //if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
 
-        if(CheckIfVarRegionBlocked("This Node"))
-            GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeId, 0,-1, new RuntimeParameters<AbilityTreeNode>(this));
+        GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeId, GetVariableId("This Node"), -1, new RuntimeParameters<AbilityTreeNode>(this));
     }
 
     public void InstanceThisNode(AbilityTreeNode parent) {
 
         // Closes this game object as it is just a instance of another object.
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
 
         // Creates new link
-        Tuple<int, int, int> refNode = parent.GetCentralInst().GetInstanceReference(parent.GetNodeId());
+        //Tuple<int, int, int> refNode = parent.GetCentralInst().GetInstanceReference(parent.GetNodeId());
 
 
         // If null, means the parent node is the root node.
-        if(refNode == null)
-            refNode = Tuple.Create<int, int, int>(parent.GetCentralInst().ReturnPlayerCasted(), parent.GetCentralId(), parent.GetNodeId());
+        //if(refNode == null)
+        Tuple<int, int, int> refNode = Tuple.Create<int, int, int>(parent.GetCentralInst().ReturnPlayerCasted(), parent.GetCentralId(), parent.GetNodeId());
 
         // Instances node on our side
         GetCentralInst().InstanceNode(nodeId, refNode);
@@ -150,13 +156,13 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public void SetVariable<T>(int threadId, string varName) {
         int varId = GetVariableId(varName);
-        GetCentralInst().UpdateVariableData<T>(nodeId, varId,threadId);
+        GetCentralInst().UpdateVariableData<T>(nodeId, varId, threadId);
     }
 
     public void SetVariable<T>(int threadId, string varName, T value) {
         int varId = GetVariableId(varName);
         GetCentralInst().UpdateVariableValue(nodeId, varId, value);
-        GetCentralInst().UpdateVariableData<T>(nodeId, varId,threadId);
+        GetCentralInst().UpdateVariableData<T>(nodeId, varId, threadId);
     }
 
     public void SetVariable<T>(string varName, T value) {
