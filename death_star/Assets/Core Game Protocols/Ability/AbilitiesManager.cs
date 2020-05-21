@@ -315,14 +315,21 @@ public class AbilityData : IInputCallback<int> {
     }
 
     public void InputCallback(int i) {
-        AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(ClientProgram.clientId);
-        SignalCentralCreation(centralPool);
-        CreateAbility(centralPool, ClientProgram.clientId);
+        //AbilitiesManager.aData[playerId].abilties[]
+        (NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.INPUT_SIGNAL] as InputSignalEncoder).SendInputSignal(playerId, abilityId);        
     }
+
+    
 
     public void SignalCentralCreation(AbilityCentralThreadPool central) {
         central.AddVariableNetworkData(new AbilityNodeNetworkData<int>(-1, -1, playerId));
         central.AddVariableNetworkData(new AbilityNodeNetworkData<string>(-1, -1, abilityId));
+    }
+
+    public void CreateAbilityNetworkData() {
+        AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(playerId);
+        SignalCentralCreation(centralPool);
+        CreateAbility(centralPool, ClientProgram.clientId);
     }
 
 
@@ -437,11 +444,11 @@ public sealed class AbilitiesManager : MonoBehaviour {
         playerLoadedInLobby = true;
 
         // Creates global variables for this player.
-        aData[ClientProgram.clientId].abilties[""].InputCallback(0);
+        aData[ClientProgram.clientId].abilties[""].CreateAbilityNetworkData();
 
         // Creates player main character.
         string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
-        aData[ClientProgram.clientId].abilties[priCharacterId].InputCallback(0);
+        aData[ClientProgram.clientId].abilties[priCharacterId].CreateAbilityNetworkData();
 
         abilities = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));
         (abilities.script as LinearLayout).o = LinearLayout.Orientation.X;

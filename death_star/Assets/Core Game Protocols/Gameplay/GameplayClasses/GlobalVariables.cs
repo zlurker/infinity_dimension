@@ -25,6 +25,7 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
         // Handles callback from subnodes.
         if(!(nodeId[0] == GetCentralInst().ReturnPlayerCasted() && 0 == GetCentralId() && nodeId[1] == GetNodeId())) {
             if(!GetCentralInst().CheckIfReferenced(GetNodeId(), GetVariableId("Variable Value"))) {
+                Debug.Log(nodeId[1]);
                 AbilityTreeNode globalVarSource = AbilitiesManager.GetAssetData(nodeId[0]).playerSpawnedCentrals.l[0].GetNode(nodeId[1]);
                 InstanceThisNode(globalVarSource);
             }

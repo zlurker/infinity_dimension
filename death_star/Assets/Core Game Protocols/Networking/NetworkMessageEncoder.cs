@@ -9,7 +9,8 @@ public enum NetworkEncoderTypes {
     CUSTOM_DATA_TRASMIT,
     IMAGE_DATA_TRANSMIT,
     CHRACTER_CREATION,
-    MANIFEST
+    MANIFEST,
+    INPUT_SIGNAL
 }
 
 public class NetworkMessageEncoder {
