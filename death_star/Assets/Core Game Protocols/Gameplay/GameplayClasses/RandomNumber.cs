@@ -18,7 +18,6 @@ public class RandomNumber : AbilityTreeNode {
         base.NodeCallback();
 
         if(IsHost()) {
-            //Debug.Log("Random called.");
             float output = Random.Range(GetNodeVariable<float>("Min Value"), GetNodeVariable<float>("Max Value"));
             SetVariable<float>("Output Value", output);
         }

@@ -7,6 +7,7 @@ public class SpawnerBase : SpriteSpawner {
 
     
     protected Rigidbody2D rB;
+    protected BoxCollider2D coll;
 
     protected virtual void Update() {
         /*int[] objLoc = GetNodeVariable<int[]>("Internal Collide Handler");
@@ -27,12 +28,19 @@ public class SpawnerBase : SpriteSpawner {
         SetVariable("Internal Collide Handler", objLoc);*/     
     }
 
+    public override void NodeCallback() {
+        base.NodeCallback();
+
+        coll.enabled = GetNodeVariable<bool>("Enable Collision");
+    }
+
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("On Collide", null)),
-            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Internal Collide Handler", null),VariableTypes.NETWORK,VariableTypes.HIDDEN)
+            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Internal Collide Handler", null),VariableTypes.NETWORK,VariableTypes.HIDDEN),
+            new LoadedRuntimeParameters(new RuntimeParameters<bool>("Enable Collision",true),VariableTypes.AUTO_MANAGED)
             //new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)
         });
     }
@@ -48,5 +56,9 @@ public class SpawnerBase : SpriteSpawner {
             rB.angularDrag = 0;
             rB.constraints = RigidbodyConstraints2D.FreezeAll;
         }
+
+        if(coll == null) 
+            coll = GetComponent<BoxCollider2D>();
+        
     }
 }

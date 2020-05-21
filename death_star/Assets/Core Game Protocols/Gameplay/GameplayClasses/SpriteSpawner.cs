@@ -12,9 +12,16 @@ public class SpriteSpawner : AbilityTreeNode, IOnSpawn {
 
     public override void NodeCallback() {
         base.NodeCallback();
-        
+
         Sprite givenSprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite Name")];
-        sR.sprite = givenSprite;
+
+        if(!GetNodeVariable<bool>("Don't Load Sprite into Object"))
+            sR.sprite = givenSprite;
+
+        Color spriteColor = sR.color;
+        spriteColor.a = GetNodeVariable<float>("Object Transperency");
+
+        sR.color = spriteColor;
         SetVariable<Sprite>("Sprite", givenSprite);
     }
 
@@ -36,7 +43,7 @@ public class SpriteSpawner : AbilityTreeNode, IOnSpawn {
                 dOd.Add(new Dropdown.OptionData(fI.Name));
                 //Od.Add(new Dropdown.OptionData("Actual Position"));
             }
-            
+
             dW.AddOptions(dOd);
             dW.value = ddId;
 
@@ -55,7 +62,9 @@ public class SpriteSpawner : AbilityTreeNode, IOnSpawn {
 
         holder.AddRange(new LoadedRuntimeParameters[]{
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite Name",""), VariableTypes.AUTO_MANAGED,VariableTypes.IMAGE_DEPENDENCY),
-            new LoadedRuntimeParameters(new RuntimeParameters<Sprite>("Sprite",null))
+            new LoadedRuntimeParameters(new RuntimeParameters<Sprite>("Sprite",null)),
+            new LoadedRuntimeParameters(new RuntimeParameters<bool>("Don't Load Sprite into Object", false)),
+            new LoadedRuntimeParameters(new RuntimeParameters<float>("Object Transperency",1))
         });
     }
 

@@ -18,9 +18,7 @@ public class RandomWholeNumber : AbilityTreeNode {
         base.NodeCallback();
 
         if(IsHost()) {
-            //Debug.Log("Random called.");
             int output = Random.Range(GetNodeVariable<int>("Min Value"), GetNodeVariable<int>("Max Value"));
-            Debug.Log("Random Int :" + output);
             SetVariable<int>("Output Value", output);
         }
     }
