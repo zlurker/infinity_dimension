@@ -83,41 +83,12 @@ public class AbilityTreeNode : MonoBehaviour {
 
     public virtual void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         holder.AddRange(new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node", null), VariableTypes.NON_INSTANCED),
-            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Clone Variables", null)),
-            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Link Variables", null))});
+            new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("This Node", null), VariableTypes.NON_INSTANCED)
+        });
     }
 
     public virtual void NodeCallback() {
-
-        AbilityTreeNode cB = GetNodeVariable<AbilityTreeNode>("Clone Variables");
-        AbilityTreeNode lV = GetNodeVariable<AbilityTreeNode>("Link Variables");
-
-        if(cB != null)
-            GetCentralInst().CopyNodeVariables(nodeId,cB.GetCentralInst().ReturnPlayerCasted(),cB.GetCentralId(),cB.GetNodeId());
-
-        if(lV != null)
-            InstanceThisNode(lV);
-        //if(refNode.GetType().IsSubclassOf(GetType()) || (GetType().IsSubclassOf(refNode.GetType())) || refNode.GetType() == GetType()) {
-
         GetCentralInst().UpdateVariableData<AbilityTreeNode>(nodeId, GetVariableId("This Node"), -1, new RuntimeParameters<AbilityTreeNode>(this));
-    }
-
-    public void InstanceThisNode(AbilityTreeNode parent) {
-
-        // Closes this game object as it is just a instance of another object.
-        //gameObject.SetActive(false);
-
-        // Creates new link
-        //Tuple<int, int, int> refNode = parent.GetCentralInst().GetInstanceReference(parent.GetNodeId());
-
-
-        // If null, means the parent node is the root node.
-        //if(refNode == null)
-        Tuple<int, int, int> refNode = Tuple.Create<int, int, int>(parent.GetCentralInst().ReturnPlayerCasted(), parent.GetCentralId(), parent.GetNodeId());
-
-        // Instances node on our side
-        GetCentralInst().InstanceNode(nodeId, refNode);
     }
 
     public bool CheckIfVarRegionBlocked(params string[] target) {
