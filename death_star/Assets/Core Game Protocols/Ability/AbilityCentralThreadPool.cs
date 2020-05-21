@@ -152,7 +152,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
     private Dictionary<Tuple<int, int, int>, AbilityNodeNetworkData> pendingApplyData;
 
-    private Dictionary<int, HashSet<Tuple<int, int, int>>> instanceUpdateVarDataCallback;
+    //private Dictionary<int, HashSet<Tuple<int, int, int>>> instanceUpdateVarDataCallback;
 
     private Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, HashSet<Tuple<int, int, int>>>> onCallbacks;
     private Dictionary<int, Tuple<int, int, int>> instancedNodes;
@@ -241,7 +241,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         pendingApplyData = new Dictionary<Tuple<int, int, int>, AbilityNodeNetworkData>();
         instancedNodes = new Dictionary<int, Tuple<int, int, int>>();
         onCallbacks = new Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, HashSet<Tuple<int, int, int>>>>();
-        instanceUpdateVarDataCallback = new Dictionary<int, HashSet<Tuple<int, int, int>>>();
+        //instanceUpdateVarDataCallback = new Dictionary<int, HashSet<Tuple<int, int, int>>>();
     }
 
     public Tuple<int, int, int> GetInstanceReference(int nodeId) {
@@ -321,7 +321,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                     item.Value.Remove(value);
     }
 
-    public void AddCalledCallback(int nodeId, Tuple<int, int, int> address) {
+    /*public void AddCalledCallback(int nodeId, Tuple<int, int, int> address) {
         if(!instanceUpdateVarDataCallback.ContainsKey(nodeId))
             instanceUpdateVarDataCallback.Add(nodeId, new HashSet<Tuple<int, int, int>>());
 
@@ -333,7 +333,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         if(instanceUpdateVarDataCallback.ContainsKey(nodeId))
             if(instanceUpdateVarDataCallback[nodeId].Contains(address))
                 instanceUpdateVarDataCallback[nodeId].Remove(address);
-    }
+    }*/
 
     public int GetNodeBranchData(int id) {
         return nodeBranchingData[id];
@@ -594,10 +594,6 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
         if(var == null)
             var = ReturnRuntimeParameter<T>(currNode, variableId);
-
-
-
-
         //Debug.LogFormat("Curr updatevardata: {0},{1},{2}", castingPlayer, centralId, currNode);
 
         if(threadId == -1)
@@ -641,7 +637,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                 //Debug.LogFormat("Thread travelling from {0} to {1}", nodes[currNode], nextNodeInst.GetType());
                 nextNodeInst.SetNodeThreadId(threadIdToUse);
 
-                if(CheckIfReferenced(nodeId, nodeVariableId)) {
+                /*if(CheckIfReferenced(nodeId, nodeVariableId)) {
 
                     // Only adds calledcallback if there is a need to.
                     if(nodeBranchingData[nodeId] > 0)
@@ -649,7 +645,48 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
                     GetRootReferenceCentral(nodeId).UpdateLinkEndPointData<T>(instancedNodes[nodeId].Item3, nodeVariableId, linkType, var, runOnCalled);
                 } else
-                    UpdateLinkEndPointData<T>(nodeId, nodeVariableId, linkType, var, runOnCalled);
+                    UpdateLinkEndPointData<T>(nodeId, nodeVariableId, linkType, var, runOnCalled);*/
+
+                if(runOnCalled) {
+
+                    int totalOnCalled = RunTargettedNodes<T>(nodeId, nodeVariableId, ON_VARIABLE_CATERGORY.ON_CALLED, var.v);
+
+                    // Runs other instances OVC too
+                    if(onCallbacks.ContainsKey(nodeId))
+                        foreach(var id in onCallbacks[nodeId][ON_VARIABLE_CATERGORY.ON_CALLED]) {
+                            AbilityCentralThreadPool centralInst = AbilitiesManager.aData[id.Item1].playerSpawnedCentrals.GetElementAt(id.Item2);
+                            totalOnCalled += centralInst.RunTargettedNodes<T>(id.Item3, nodeVariableId, ON_VARIABLE_CATERGORY.ON_CALLED, var.v);
+                        }
+
+                    if(totalOnCalled > 0)
+                        return;
+                }
+
+                if((LinkMode)linkType == LinkMode.NORMAL)
+                    UpdateVariableValue<T>(nodeId, nodeVariableId, var.v);
+
+                if(networkVariableData.ContainsKey(nodeId)) {
+                    networkVariableData[nodeId].nodeCallbackCount++;
+
+
+                    for(int j = 0; j < networkVariableData[nodeId].networkVariables.Length; j++) {
+                        int networkVarId = networkVariableData[nodeId].networkVariables[j];
+                        Tuple<int, int, int> pendingDataKey = Tuple.Create(nodeId, networkVarId, networkVariableData[nodeId].nodeCallbackCount);
+                        //Debug.LogWarning("Pending data waiting #2, " + pendingDataKey);
+
+                        if(pendingApplyData.ContainsKey(pendingDataKey)) {
+                            pendingApplyData[pendingDataKey].ApplyDataToTargetVariable(this);
+                        }
+                    }
+                }
+
+                CreateNewNodeIfNull(nodeId).NodeCallback();
+
+                // Automatically callback all auto managed nodes.
+                for(int j = 0; j < autoManagedVar[nodeId].Length; j++)
+                    // Callback those that are not blocked.
+                    if(!booleanData[nodeId][autoManagedVar[nodeId][j]])
+                        runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
 
                 if(nodeBranchingData[nodeId] == 0)
                     HandleThreadRemoval(threadIdToUse);
@@ -657,7 +694,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         }
 
         // Updates all marked instance.
-        if(instanceUpdateVarDataCallback.ContainsKey(currNode)) {
+        /*if(instanceUpdateVarDataCallback.ContainsKey(currNode)) {
 
             HashSet<Tuple<int, int, int>> nodeDataToRm = new HashSet<Tuple<int, int, int>>();
 
@@ -671,7 +708,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
             }
 
             instanceUpdateVarDataCallback[currNode].ExceptWith(nodeDataToRm);
-        }
+        }*/
 
         // Needs to be removed from instance side.
         //markedNodes.Remove(currNode);
@@ -686,7 +723,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
             }*/
     }
 
-    public void UpdateLinkEndPointData<T>(int nodeId, int variableId, int linkType, RuntimeParameters<T> var = null, bool runOnCalled = true) {
+    /*public void UpdateLinkEndPointData<T>(int nodeId, int variableId, int linkType, RuntimeParameters<T> var = null, bool runOnCalled = true) {
         // Does instancing shit here
 
         if(runOnCalled) {
@@ -729,7 +766,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
             // Callback those that are not blocked.
             if(!booleanData[nodeId][autoManagedVar[nodeId][j]])
                 runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
-    }
+    }*/
 
     public int RunTargettedNodes<T>(int node, int variable, ON_VARIABLE_CATERGORY category, T value) {
         int targetInCatergory = 0;
