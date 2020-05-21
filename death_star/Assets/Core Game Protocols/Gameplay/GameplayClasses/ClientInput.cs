@@ -67,7 +67,7 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Input Key", 0), VariableTypes.SIGNAL_ONLY),
-             new LoadedRuntimeParameters(new RuntimeParameters<bool>("Internal Input Track", false), VariableTypes.HIDDEN, VariableTypes.CLIENT_ACTIVATED)
+             new LoadedRuntimeParameters(new RuntimeParameters<bool>("Internal Input Track", false), VariableTypes.HIDDEN, VariableTypes.NETWORK)
             //new LoadedRuntimeParameters(new RuntimeParameters<int>("Curr", 0), VariableTypes.HIDDEN),
             //new LoadedRuntimeParameters(new RuntimeParameters<int>("Max", 0), VariableTypes.CLIENT_ACTIVATED,VariableTypes.HIDDEN)
         });

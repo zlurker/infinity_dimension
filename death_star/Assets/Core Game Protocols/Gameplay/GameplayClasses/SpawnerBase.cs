@@ -32,7 +32,7 @@ public class SpawnerBase : SpriteSpawner {
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("On Collide", null)),
-            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Internal Collide Handler", null),VariableTypes.HOST_ACTIVATED,VariableTypes.HIDDEN)
+            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Internal Collide Handler", null),VariableTypes.NETWORK,VariableTypes.HIDDEN)
             //new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite File Path", "Bullet.PNG"),VariableTypes.IMAGE_DEPENDENCY,VariableTypes.AUTO_MANAGED)
         });
     }

@@ -15,7 +15,7 @@ public class MoveTo : AbilityTreeNode {
         if(!overrode)
             if(CheckIfVarRegionBlocked("Coordinates", "Target")) {
                 GetTargetTransform().position = new Vector3(GetNodeVariable<Vector3>("Coordinates").x, GetNodeVariable<Vector3>("Coordinates").y, 0);
-                Debug.Log("Pos: " + GetTargetTransform().position);
+                //Debug.Log("Pos: " + GetTargetTransform().position);
             }
     }
 

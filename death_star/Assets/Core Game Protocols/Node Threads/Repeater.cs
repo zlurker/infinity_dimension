@@ -36,7 +36,7 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
 
         //ApplyPendingDataToVariable(currLoop);
 
-        Debug.Log("Repeater running.");
+        //Debug.Log("Repeater running.");
 
         // Fires a phantom thread.
         NodeThread trdInst = new NodeThread();

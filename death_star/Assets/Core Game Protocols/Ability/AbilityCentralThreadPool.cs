@@ -472,7 +472,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
             return GetRootReferenceCentral(nodeId).GetNode(nodeId);
     }
 
-    public NETWORK_CLIENT_ELIGIBILITY CheckEligibility(int nodeId, int variableId) {
+    /*public NETWORK_CLIENT_ELIGIBILITY CheckEligibility(int nodeId, int variableId) {
 
         if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.CLIENT_ACTIVATED)) {
             if(playerId != ClientProgram.clientId)
@@ -489,7 +489,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
 
         return NETWORK_CLIENT_ELIGIBILITY.LOCAL_HOST;
-    }
+    }*/
 
     public void UpdateVariableValue<T>(int nodeId, int variableId, T value, bool runNetworkCode = true, bool runValueChanged = true) {
 
@@ -505,12 +505,21 @@ public class AbilityCentralThreadPool : IRPGeneric {
         }
 
         if(runNetworkCode) {
-            NETWORK_CLIENT_ELIGIBILITY nCE = CheckEligibility(nodeId, variableId);
+
+            if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.NETWORK)) {
+                AbilityNodeNetworkData dataPacket = new AbilityNodeNetworkData<T>(nodeId, variableId, value, networkVariableData[nodeId].nodeCallbackCount);
+                //INodeNetworkPoint nwPointInst = nodes[progenitorData[nodeId]] as INodeNetworkPoint;
+                //Debug.Log(nodes[progenitorData[nodeId]]);
+                //nwPointInst.ModifyDataPacket(dataPacket);
+                AddVariableNetworkData(dataPacket);
+            }
+
+            /*NETWORK_CLIENT_ELIGIBILITY nCE = CheckEligibility(nodeId, variableId);
 
             switch(nCE) {
                 case NETWORK_CLIENT_ELIGIBILITY.GRANTED:
                     //Debug.Log("Data point going");
-                    Debug.LogFormat("Data going to be applied to: {0} to: {1}", value, GetNode(nodeId));
+                    //Debug.LogFormat("Data going to be applied to: {0} to: {1}", value, GetNode(nodeId));
                     AbilityNodeNetworkData dataPacket = new AbilityNodeNetworkData<T>(nodeId, variableId, value, networkVariableData[nodeId].nodeCallbackCount);
                     //INodeNetworkPoint nwPointInst = nodes[progenitorData[nodeId]] as INodeNetworkPoint;
                     //Debug.Log(nodes[progenitorData[nodeId]]);
@@ -520,7 +529,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
                 case NETWORK_CLIENT_ELIGIBILITY.DENIED:
                     return;
-            }
+            }*/
         }
 
         // Does run value stuff here.

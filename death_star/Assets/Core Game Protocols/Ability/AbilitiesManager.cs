@@ -301,7 +301,7 @@ public class AbilityData : IInputCallback<int> {
                         AbilitiesManager.GetAssetData(playerId).globalVariables.Add(gVN, null);
                 }
 
-                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.HOST_ACTIVATED) || LoadedData.GetVariableType(dataType[i], j, VariableTypes.CLIENT_ACTIVATED))
+                if(LoadedData.GetVariableType(dataType[i], j, VariableTypes.NETWORK))
                     networkVariables.Add(j);
             }
 

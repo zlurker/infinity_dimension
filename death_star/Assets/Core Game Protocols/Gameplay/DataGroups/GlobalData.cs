@@ -18,7 +18,7 @@ public interface IRPGeneric {
 public enum VariableTypes {
 
     // Used by network
-    CLIENT_ACTIVATED, HOST_ACTIVATED,
+    NETWORK,
 
     // Used by variable connections
     PERMENANT_TYPE, SIGNAL_ONLY, 

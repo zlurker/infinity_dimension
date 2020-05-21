@@ -44,7 +44,7 @@ public class CreateAbility : AbilityTreeNode, IOnVariableInterface {
             TriggerOnHostProcessed(GetNodeVariable<int[]>("Created Ability"));
         }
 
-        if(ClientProgram.clientId == ClientProgram.hostId) {
+        if(IsHost()) {
             AbilityCentralThreadPool inst = GetCentralInst();
 
             AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
@@ -108,7 +108,7 @@ public class CreateAbility : AbilityTreeNode, IOnVariableInterface {
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Ability Name", "")),
-            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Created Ability", null), VariableTypes.HIDDEN,VariableTypes.HOST_ACTIVATED)
+            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Created Ability", null), VariableTypes.HIDDEN,VariableTypes.NETWORK)
         });
     }
 }
