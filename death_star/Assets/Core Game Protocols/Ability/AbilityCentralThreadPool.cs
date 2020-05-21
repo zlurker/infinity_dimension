@@ -424,7 +424,11 @@ public class AbilityCentralThreadPool : IRPGeneric {
         int threadId = GetNewThread();
 
         activeThreads.l[threadId].SetNodeData(lastNodeId, nodeBranchingData[lastNodeId]);
-        CreateNewNodeIfNull(lastNodeId).NodeCallback();
+        CreateNewNodeIfNull(lastNodeId).SetNodeThreadId(threadId);
+
+        //Debug.Log("Total links: " + runtimeParameters[lastNodeId][0].links.Length);
+        UpdateVariableData<int>(lastNodeId, 0);
+        //CreateNewNodeIfNull(lastNodeId).NodeCallback();
     }
 
     public bool CheckIfReferenced(int nodeId, int variableId) {

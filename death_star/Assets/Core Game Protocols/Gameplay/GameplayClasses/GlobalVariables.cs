@@ -15,8 +15,7 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
 
     public override void NodeCallback() {
         if(CheckIfVarRegionBlocked("Variable Value")) 
-            GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Variable Value")).field.RunGenericBasedOnRP<int>(this, 0);
-        
+            GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Variable Value")).field.RunGenericBasedOnRP<int>(this, 0);       
     }
 
     public void OnNodeInitialised() {
@@ -25,7 +24,7 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
         // Handles callback from subnodes.
         if(!(nodeId[0] == GetCentralInst().ReturnPlayerCasted() && 0 == GetCentralId() && nodeId[1] == GetNodeId())) {
             if(!GetCentralInst().CheckIfReferenced(GetNodeId(), GetVariableId("Variable Value"))) {
-                Debug.Log(nodeId[1]);
+                //Debug.Log(nodeId[1]);
                 AbilityTreeNode globalVarSource = AbilitiesManager.GetAssetData(nodeId[0]).playerSpawnedCentrals.l[0].GetNode(nodeId[1]);
                 InstanceThisNode(globalVarSource);
             }

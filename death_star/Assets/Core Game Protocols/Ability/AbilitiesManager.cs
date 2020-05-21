@@ -155,8 +155,8 @@ public class AbilityData : IInputCallback<int> {
 
         // Needs to be rectified to add in the This node.
         int startNode = dataVar.Length - 1;
-        dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(ThreadSplitter)].runtimeParameters[0].rP), new Variable(LoadedData.loadedParamInstances[typeof(ThreadSplitter)].runtimeParameters[1].rP, rootSubclasses) };
-        dataType[startNode] = typeof(ThreadSplitter);
+        dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[0].rP.ReturnNewRuntimeParamCopy(),rootSubclasses) };
+        dataType[startNode] = typeof(NodeThreadStarter);
         linkData[startNode] = new LinkData();
 
         RunNodeFlow(startNode);
@@ -316,7 +316,11 @@ public class AbilityData : IInputCallback<int> {
 
     public void InputCallback(int i) {
         //AbilitiesManager.aData[playerId].abilties[]
-        (NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.INPUT_SIGNAL] as InputSignalEncoder).SendInputSignal(playerId, abilityId);        
+        AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(playerId);
+        SignalCentralCreation(centralPool);
+        CreateAbility(centralPool, ClientProgram.clientId);
+
+        //(NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.INPUT_SIGNAL] as InputSignalEncoder).SendInputSignal(playerId, abilityId);        
     }
 
     
@@ -326,11 +330,11 @@ public class AbilityData : IInputCallback<int> {
         central.AddVariableNetworkData(new AbilityNodeNetworkData<string>(-1, -1, abilityId));
     }
 
-    public void CreateAbilityNetworkData() {
+    /*public void CreateAbilityNetworkData() {
         AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(playerId);
         SignalCentralCreation(centralPool);
         CreateAbility(centralPool, ClientProgram.clientId);
-    }
+    }*/
 
 
     public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1) {
@@ -444,11 +448,11 @@ public sealed class AbilitiesManager : MonoBehaviour {
         playerLoadedInLobby = true;
 
         // Creates global variables for this player.
-        aData[ClientProgram.clientId].abilties[""].CreateAbilityNetworkData();
+        aData[ClientProgram.clientId].abilties[""].InputCallback(0);
 
         // Creates player main character.
         string priCharacterId = aData[ClientProgram.clientId].abilityManifest[(int)AbilityManifest.PRIMARY_CHARACTER];
-        aData[ClientProgram.clientId].abilties[priCharacterId].CreateAbilityNetworkData();
+        aData[ClientProgram.clientId].abilties[priCharacterId].InputCallback(0);
 
         abilities = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(LinearLayout));
         (abilities.script as LinearLayout).o = LinearLayout.Orientation.X;
