@@ -377,7 +377,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         public Dictionary<string, Sprite> assetData;
         public Dictionary<int, string> abilityManifest;
         public AutoPopulationList<AbilityCentralThreadPool> playerSpawnedCentrals;
-        public Dictionary<string, int[]> globalVariables;
+        public Dictionary<string, Tuple<int,int,int>> globalVariables;
         //public Dictionary<int, Dictionary<string, VariableInterfaces>> globalVariables;
 
         private List<int> internalFreeSpaceTracker;
@@ -388,7 +388,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             assetData = new Dictionary<string, Sprite>();
             playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
             internalFreeSpaceTracker = new List<int>();
-            globalVariables = new Dictionary<string, int[]>();
+            globalVariables = new Dictionary<string, Tuple<int,int,int>>();
             //globalVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
         }
 
@@ -420,10 +420,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
                 globalVariableNodes[i] = new AbilityDataSubclass(typeof(GlobalVariables));
                 (globalVariableNodes[i].var[LoadedData.loadedParamInstances[typeof(GlobalVariables)].variableAddresses["Variable Name"]].field as RuntimeParameters<string>).v = keys[i];
 
-                instanceAddress[0] = playerId;
-                instanceAddress[1] = i;
-
-                globalVariables[keys[i]] = instanceAddress;
+                globalVariables[keys[i]] = Tuple.Create(playerId,0,i);
             }
 
             AbilityData globalVarInst = new AbilityData(globalVariableNodes, new AbilityInfo(), playerId, "");

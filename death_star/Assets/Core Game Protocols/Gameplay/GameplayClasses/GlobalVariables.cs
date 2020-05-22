@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
 
@@ -14,22 +15,21 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
     }
 
     public override void NodeCallback() {
-        if(CheckIfVarRegionBlocked("Variable Value")) 
-            GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Variable Value")).field.RunGenericBasedOnRP<int>(this, 0);       
+        if(CheckIfVarRegionBlocked("Variable Value"))
+            GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Variable Value")).field.RunGenericBasedOnRP<int>(this, 0);
     }
 
     public void OnNodeInitialised() {
-        int[] nodeId = AbilitiesManager.GetAssetData(GetCentralInst().GetPlayerId()).globalVariables[GetNodeVariable<string>("Variable Name")];
+        Tuple<int,int,int> nodeId = AbilitiesManager.GetAssetData(GetCentralInst().GetPlayerId()).globalVariables[GetNodeVariable<string>("Variable Name")];
 
         // Handles callback from subnodes.
-        if(!(nodeId[0] == GetCentralInst().ReturnPlayerCasted() && 0 == GetCentralId() && nodeId[1] == GetNodeId())) {
+        if(!(nodeId.Item1 == GetCentralInst().ReturnPlayerCasted() && nodeId.Item2 == GetCentralId() && nodeId.Item3 == GetNodeId())) {
             if(!GetCentralInst().CheckIfReferenced(GetNodeId(), GetVariableId("Variable Value"))) {
                 //Debug.Log(nodeId[1]);
-                AbilityTreeNode globalVarSource = AbilitiesManager.GetAssetData(nodeId[0]).playerSpawnedCentrals.l[0].GetNode(nodeId[1]);
-                InstanceThisNode(globalVarSource);
+                GetCentralInst().InstanceNode(GetNodeId(), nodeId);
+                //AbilityTreeNode globalVarSource = AbilitiesManager.GetAssetData(nodeId[0]).playerSpawnedCentrals.l[0].GetNode(nodeId[1]);
+                //InstanceThisNode(globalVarSource);
             }
-
-            return;
         }
     }
 

@@ -8,12 +8,11 @@ public class InstancingModule : ModuleBase {
     public override void NodeCallback() {
         base.NodeCallback();
 
-        AbilityTreeNode sN = GetNodeVariable<AbilityTreeNode>("Source Node");
-        Variable tNVar = GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Target Nodes"));
-        Tuple<int, int, int> refNode = Tuple.Create<int, int, int>(sN.GetCentralInst().ReturnPlayerCasted(), sN.GetCentralId(), sN.GetNodeId());
+        
+        Tuple<int, int, int> refNode = Tuple.Create<int, int, int>(sourceNode.GetCentralInst().ReturnPlayerCasted(), sourceNode.GetCentralId(), sourceNode.GetNodeId());
 
-        for(int i = 0; i < tNVar.links.Length; i++)
-            GetCentralInst().InstanceNode(tNVar.links[i][0], refNode);
+        for(int i = 0; i < targetNodeVar.links.Length; i++)
+            GetCentralInst().InstanceNode(targetNodeVar.links[i][0], refNode);
 
         SetVariable<int>("Target Nodes");
     }
