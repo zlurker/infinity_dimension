@@ -513,7 +513,6 @@ public class AbilityCentralThreadPool : IRPGeneric {
                 //nwPointInst.ModifyDataPacket(dataPacket);
                 AddVariableNetworkData(dataPacket);
             }
-
             /*NETWORK_CLIENT_ELIGIBILITY nCE = CheckEligibility(nodeId, variableId);
 
             switch(nCE) {

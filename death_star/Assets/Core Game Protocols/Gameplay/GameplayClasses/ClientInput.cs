@@ -27,6 +27,9 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
             if(GetNodeVariable<bool>("Internal Input Track"))
                 TriggerInput();
 
+        if(varId == GetVariableId("Input Key"))
+            Debug.Log("Input Key Set Callback: " + GetNodeVariable<int>("Input Key"));
+
         //throw new System.NotImplementedException();
     }
 
@@ -45,8 +48,10 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
             TriggerInput();
 
         if(IsClientPlayerUpdate()) {
-            if(!inputSet)
+            if(!inputSet) {
+                Debug.Log("Input Key Set: " + GetNodeVariable<int>("Input Key"));
                 LoadedData.GetSingleton<PlayerInput>().AddNewInput<int>(this, 0, (KeyCode)GetNodeVariable<int>("Input Key"), 1);
+            }
 
             inputSet = true;
         }
