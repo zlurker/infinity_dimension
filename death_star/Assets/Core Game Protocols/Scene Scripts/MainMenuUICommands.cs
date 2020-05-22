@@ -231,20 +231,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         });
 
         // Creates dropdown for startnode.
-        DropdownWrapper sNDW = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper)).script as DropdownWrapper;
-
-        sNDW.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.65f, 0.9f));
-        List<Dropdown.OptionData> sNDWinputs = new List<Dropdown.OptionData>();
-
-        sNDWinputs.Add(new Dropdown.OptionData("ThreadSplitter"));
-        sNDWinputs.Add(new Dropdown.OptionData("Repeater"));
-        sNDW.dropdown.AddOptions(sNDWinputs);
-
-        sNDW.dropdown.value = abilityDescription.sNT;
-
-        sNDW.dropdown.onValueChanged.AddListener((v) => {
-            abilityDescription.sNT = v;
-        });
+        //DropdownWrapper sNDW = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper)).script as DropdownWrapper;
 
         
 
