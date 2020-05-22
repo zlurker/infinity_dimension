@@ -61,8 +61,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
     SpawnerOutput windowSpawner;
 
-    DropdownWrapper dW;
-    int[] inputValues;
+    KeyCodeDropdownList kcDdL;
 
     MouseMode mMode;
     LinkMode lMode;
@@ -206,28 +205,11 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
 
         // Creates dropdown for input.
-        dW = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper)).script as DropdownWrapper;
+        kcDdL = new KeyCodeDropdownList(abilityDescription.kC);
+        kcDdL.dW.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.75f, 0.9f));
 
-        dW.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.75f, 0.9f));
-        List<Dropdown.OptionData> inputs = new List<Dropdown.OptionData>();
-
-        string[] inputNames = Enum.GetNames(typeof(KeyCode));
-        int inputIndex = 0;
-
-        inputValues = (int[])Enum.GetValues(typeof(KeyCode));
-
-        for(int i = 0; i < inputNames.Length; i++) {
-            inputs.Add(new Dropdown.OptionData(inputNames[i]));
-
-            if(abilityDescription.kC == inputValues[i])
-                inputIndex = i;
-        }
-
-        dW.dropdown.AddOptions(inputs);
-        dW.dropdown.value = inputIndex;
-
-        dW.dropdown.onValueChanged.AddListener((v) => {
-            abilityDescription.kC = inputValues[v];
+        kcDdL.dW.dropdown.onValueChanged.AddListener((v) => {
+            abilityDescription.kC = KeyCodeDropdownList.inputValues[v];
         });
 
         // Creates dropdown for startnode.
