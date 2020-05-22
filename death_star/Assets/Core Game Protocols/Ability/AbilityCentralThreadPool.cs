@@ -252,10 +252,10 @@ public class AbilityCentralThreadPool : IRPGeneric {
         return null;
     }
 
-    public void CopyNodeVariables(int nodeId, int playerId, int centralId,int targetNodeId) {
+    public void CopyNodeVariables(int nodeId, int playerId, int centralId, int targetNodeId) {
 
-        for(int i = 0; i < runtimeParameters[nodeId].Length; i++) 
-            runtimeParameters[nodeId][i].field = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId).runtimeParameters[targetNodeId][i].field.ReturnNewRuntimeParamCopy();        
+        for(int i = 0; i < runtimeParameters[nodeId].Length; i++)
+            runtimeParameters[nodeId][i].field = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId).runtimeParameters[targetNodeId][i].field.ReturnNewRuntimeParamCopy();
     }
 
     public void InstanceNode(int nodeId, Tuple<int, int, int> refNode) {
@@ -533,7 +533,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         }
 
         // Does run value stuff here.
-        if(runValueChanged) {
+        /*if(runValueChanged) {
 
             int totalOnCalled = RunTargettedNodes<T>(nodeId, variableId, ON_VARIABLE_CATERGORY.ON_CHANGED, value);
 
@@ -546,13 +546,15 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
             if(totalOnCalled > 0)
                 return;
-        }
+        }*/
 
         RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
+        bool varWasSet = false;
 
         if(paramInst != null) {
             paramInst.v = value;
             booleanData[nodeId][variableId] = false;
+            varWasSet = true;
 
         } else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
             string varName = runtimeParameters[nodeId][variableId].field.n;
@@ -561,6 +563,15 @@ public class AbilityCentralThreadPool : IRPGeneric {
             //Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
             runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
             booleanData[nodeId][variableId] = false;
+            varWasSet = true;
+        }
+
+        if(varWasSet && runValueChanged) {
+            Debug.Log(value);
+            IOnVariableSet oVS = CreateNewNodeIfNull(nodeId) as IOnVariableSet;
+
+            if(oVS != null)
+                oVS.OnVariableSet(variableId);
         }
     }
 
@@ -656,7 +667,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                 } else
                     UpdateLinkEndPointData<T>(nodeId, nodeVariableId, linkType, var, runOnCalled);*/
 
-                if(runOnCalled) {
+                /*if(runOnCalled) {
 
                     int totalOnCalled = RunTargettedNodes<T>(nodeId, nodeVariableId, ON_VARIABLE_CATERGORY.ON_CALLED, var.v);
 
@@ -669,7 +680,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
                     if(totalOnCalled > 0)
                         return;
-                }
+                }*/
 
                 if((LinkMode)linkType == LinkMode.NORMAL)
                     UpdateVariableValue<T>(nodeId, nodeVariableId, var.v);
@@ -777,7 +788,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                 runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
     }*/
 
-    public int RunTargettedNodes<T>(int node, int variable, ON_VARIABLE_CATERGORY category, T value) {
+    /*public int RunTargettedNodes<T>(int node, int variable, ON_VARIABLE_CATERGORY category, T value) {
         int targetInCatergory = 0;
 
         if(targettedNodes.ContainsKey(node))
@@ -788,13 +799,13 @@ public class AbilityCentralThreadPool : IRPGeneric {
                         targetInCatergory += vCLoop.Value.Count;
 
                     foreach(int vC in vCLoop.Value) {
-                        IOnVariableInterface nodeInst = GetNode(vC) as IOnVariableInterface;
+                        IOnVariableSet nodeInst = GetNode(vC) as IOnVariableSet;
                         nodeInst.CentralCallback<T>(value, node, variable, 0);
                     }
                 }
 
         return targetInCatergory;
-    }
+    }*/
 
 
     public void HandleThreadRemoval(int threadId) {

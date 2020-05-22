@@ -10,7 +10,7 @@ using UnityEngine;
     }
 }*/
 
-public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVariableInterface {
+public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVariableSet {
 
     bool inputSet;
 
@@ -21,22 +21,19 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
         data.AddTargettedNode(data.GetCurrBuildNode(), GetVariableId("Internal Input Track"), ON_VARIABLE_CATERGORY.ON_CHANGED, data.GetCurrBuildNode());
     }
 
-    public int CentralCallback<T>(T value, int nodeId, int varId, int links) {
+    public void OnVariableSet(int varId) {
 
-        //SetVariable<bool>("Internal Input Track", (bool)(object)value);
-        //Debug.Log("Central Callback!, " + value);
-        if(GetNodeThreadId() > -1) {
-            if((bool)(object)value)
+        if(varId == GetVariableId("Internal Input Track"))
+            if(GetNodeVariable<bool>("Internal Input Track"))
                 TriggerInput();
-        } else
-            GetCentralInst().UpdateVariableValue<T>(GetNodeId(), GetVariableId("Internal Input Track"), value, false, false);
 
-        return 0;
+        //throw new System.NotImplementedException();
     }
+
 
     public void InputCallback(int callbackData) {
         inputSet = false;
-       //Debug.Log("Input called");
+        //Debug.Log("Input called");
         SetVariable<bool>("Internal Input Track", true);
         //SetVariable<int>("Input Key");    
     }

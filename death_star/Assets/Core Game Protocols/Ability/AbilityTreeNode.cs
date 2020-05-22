@@ -11,6 +11,10 @@ public enum VariableSetMode {
     LOCAL, INSTANCE
 }
 
+public interface IOnVariableSet {
+    void OnVariableSet(int varId);
+}
+
 public interface IOnNodeInitialised {
     void OnNodeInitialised();
 }

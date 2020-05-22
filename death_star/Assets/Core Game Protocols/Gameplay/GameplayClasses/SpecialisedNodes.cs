@@ -14,11 +14,11 @@ public class ReturningData : ThreadMapDataBase {
     }
 }
 
-public interface IOnVariableInterface {
+/*public interface IOnVariableSet {
     int CentralCallback<T>(T value, int nodeId, int varId, int links);
-}
+}*/
 
-public class SpecialisedNodes : NodeModifierBase, IOnVariableInterface, IRPGeneric {
+public class SpecialisedNodes : NodeModifierBase, IOnVariableSet, IRPGeneric {
 
     protected RuntimeParameters returnTargetInst;
 
@@ -71,4 +71,7 @@ public class SpecialisedNodes : NodeModifierBase, IOnVariableInterface, IRPGener
         });
     }
 
+    public void OnVariableSet(int varId) {
+        throw new System.NotImplementedException();
+    }
 }

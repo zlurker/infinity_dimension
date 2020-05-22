@@ -12,7 +12,6 @@ public class ModuleBase : AbilityTreeNode {
 
         holder.AddRange(new LoadedRuntimeParameters[] {
             new LoadedRuntimeParameters(new RuntimeParameters<AbilityTreeNode>("Source Node", null), VariableTypes.AUTO_MANAGED),
-            new LoadedRuntimeParameters(new RuntimeParameters<bool>("Use Source's Instance", true), VariableTypes.AUTO_MANAGED),
             new LoadedRuntimeParameters(new RuntimeParameters<int>("Target Nodes",0), VariableTypes.PERMENANT_TYPE, VariableTypes.SIGNAL_ONLY)
         });
     }

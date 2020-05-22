@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreateAbility : AbilityTreeNode, IOnVariableInterface {
+public class CreateAbility : AbilityTreeNode, IOnVariableSet {
 
     public override void ConstructionPhase(AbilityData data) {
         base.ConstructionPhase(data);
@@ -13,25 +13,11 @@ public class CreateAbility : AbilityTreeNode, IOnVariableInterface {
         data.AddTargettedNode(data.GetCurrBuildNode(), GetVariableId("Created Ability"), ON_VARIABLE_CATERGORY.ON_CHANGED, data.GetCurrBuildNode());
     }
 
-    public int CentralCallback<T>(T value, int nodeId, int varId, int links) {
-
-        //SetVariable<bool>("Internal Input Track", (bool)(object)value);
-        //Debug.Log("Central Callback!, " + value);
-
-        //Debug.Log("Value of T" + value);
-        //Debug.LogFormat("NodeID {0}, Thread ID {1}", name, GetNodeThreadId());
-
-        if(GetNodeThreadId() > -1) {
-            //Debug.Log("Has thread.");
-
-            if((int[])(object)value != null) {
-                //Debug.Log("Updated ability details.");
-                TriggerOnHostProcessed((int[])(object)value);
-            }
-        }else
-            GetCentralInst().UpdateVariableValue<T>(GetNodeId(), GetVariableId("Created Ability"), value, false, false);
-
-        return 0;
+    public void OnVariableSet(int varId) {
+        if(varId == GetVariableId("Created Ability")) {
+            Debug.Log("info passed from callback");
+            TriggerOnHostProcessed(GetNodeVariable<int[]>("Created Ability"));
+        }
     }
 
     public override void NodeCallback() {
@@ -40,9 +26,7 @@ public class CreateAbility : AbilityTreeNode, IOnVariableInterface {
         //Debug.Log("Node was callbacked!");
         //Debug.LogFormat("NodeID {0}, Thread ID {1}", name, GetNodeThreadId());
 
-        if(GetNodeVariable<int[]>("Created Ability") != null) {
-            TriggerOnHostProcessed(GetNodeVariable<int[]>("Created Ability"));
-        }
+        
 
         if(IsHost()) {
             AbilityCentralThreadPool inst = GetCentralInst();
@@ -50,9 +34,13 @@ public class CreateAbility : AbilityTreeNode, IOnVariableInterface {
             AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
             //AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].SignalCentralCreation(newA);
             AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, ClientProgram.clientId);
-            GetCentralInst().UpdateVariableValue<int[]>(GetNodeId(), GetVariableId("Created Ability"), new int[] { inst.GetPlayerId(), ClientProgram.clientId, newA.ReturnCentralId() },true,false);
+            GetCentralInst().UpdateVariableValue<int[]>(GetNodeId(), GetVariableId("Created Ability"), new int[] { inst.GetPlayerId(), ClientProgram.clientId, newA.ReturnCentralId() }, true, false);
             HandlePostAbilityCreation();
+            return;
         }
+
+        if(GetNodeVariable<int[]>("Created Ability") != null) 
+            TriggerOnHostProcessed(GetNodeVariable<int[]>("Created Ability"));      
     }
 
     void TriggerOnHostProcessed(int[] value) {
