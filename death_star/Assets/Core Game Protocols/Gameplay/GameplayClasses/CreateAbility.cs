@@ -39,8 +39,8 @@ public class CreateAbility : AbilityTreeNode, IOnVariableSet {
             return;
         }
 
-        if(GetNodeVariable<int[]>("Created Ability") != null) 
-            TriggerOnHostProcessed(GetNodeVariable<int[]>("Created Ability"));      
+        //if(GetNodeVariable<int[]>("Created Ability") != null) 
+            //TriggerOnHostProcessed(GetNodeVariable<int[]>("Created Ability"));      
     }
 
     void TriggerOnHostProcessed(int[] value) {

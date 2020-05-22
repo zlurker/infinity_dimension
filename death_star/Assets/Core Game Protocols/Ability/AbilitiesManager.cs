@@ -155,7 +155,7 @@ public class AbilityData : IInputCallback<int> {
 
         // Needs to be rectified to add in the This node.
         int startNode = dataVar.Length - 1;
-        dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[0].rP.ReturnNewRuntimeParamCopy(),rootSubclasses) };
+        dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[0].rP.ReturnNewRuntimeParamCopy(), rootSubclasses) };
         dataType[startNode] = typeof(NodeThreadStarter);
         linkData[startNode] = new LinkData();
 
@@ -323,7 +323,7 @@ public class AbilityData : IInputCallback<int> {
         //(NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.INPUT_SIGNAL] as InputSignalEncoder).SendInputSignal(playerId, abilityId);        
     }
 
-    
+
 
     public void SignalCentralCreation(AbilityCentralThreadPool central) {
         central.AddVariableNetworkData(new AbilityNodeNetworkData<int>(-1, -1, playerId));
@@ -337,7 +337,7 @@ public class AbilityData : IInputCallback<int> {
     }*/
 
 
-    public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1) {
+    public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1, bool startThreads = true) {
 
         if(givenPopulatedId > -1)
             AbilitiesManager.aData[pId].playerSpawnedCentrals.ModifyElementAt(givenPopulatedId, threadInst);
@@ -350,8 +350,10 @@ public class AbilityData : IInputCallback<int> {
         //Debug.Log(boolData.OutputValues());
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
-        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes,nodeNetworkVariables);
-        threadInst.StartThreads();
+        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes, nodeNetworkVariables);
+
+        if(startThreads)
+            threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
 
@@ -377,7 +379,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         public Dictionary<string, Sprite> assetData;
         public Dictionary<int, string> abilityManifest;
         public AutoPopulationList<AbilityCentralThreadPool> playerSpawnedCentrals;
-        public Dictionary<string, Tuple<int,int,int>> globalVariables;
+        public Dictionary<string, Tuple<int, int, int>> globalVariables;
         //public Dictionary<int, Dictionary<string, VariableInterfaces>> globalVariables;
 
         private List<int> internalFreeSpaceTracker;
@@ -388,7 +390,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             assetData = new Dictionary<string, Sprite>();
             playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
             internalFreeSpaceTracker = new List<int>();
-            globalVariables = new Dictionary<string, Tuple<int,int,int>>();
+            globalVariables = new Dictionary<string, Tuple<int, int, int>>();
             //globalVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
         }
 
@@ -420,7 +422,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
                 globalVariableNodes[i] = new AbilityDataSubclass(typeof(GlobalVariables));
                 (globalVariableNodes[i].var[LoadedData.loadedParamInstances[typeof(GlobalVariables)].variableAddresses["Variable Name"]].field as RuntimeParameters<string>).v = keys[i];
 
-                globalVariables[keys[i]] = Tuple.Create(playerId,0,i);
+                globalVariables[keys[i]] = Tuple.Create(playerId, 0, i);
             }
 
             AbilityData globalVarInst = new AbilityData(globalVariableNodes, new AbilityInfo(), playerId, "");
@@ -438,9 +440,9 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
         // Applies pending data that was recieved while loading.
         Debug.Log("Updating " + pendingData.Count + " messages while loading.");
-        for (int i=0; i < pendingData.Count; i++) 
+        for(int i = 0; i < pendingData.Count; i++)
             (NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.UPDATE_ABILITY_DATA] as UpdateAbilityDataEncoder).ParseMessage(pendingData[i]);
-        
+
         pendingData.Clear();
         playerLoadedInLobby = true;
 

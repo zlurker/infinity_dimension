@@ -424,3 +424,41 @@ public class WindowsWrapper : UIWrapperBase, IPointerDownHandler, IDragHandler {
         transform.localPosition = currMousePos - pointInObject;
     }
 }
+
+
+public class KeyCodeDropdownList {
+
+    public static List<Dropdown.OptionData> inputNames;
+    public static int[] inputValues;
+
+    public SpawnerOutput dW;
+
+    public KeyCodeDropdownList(int keycode) {
+
+        PopulateValues();
+
+        dW = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(DropdownWrapper));
+        ReturnDropdownWrapper().dropdown.AddOptions(inputNames);
+
+        for(int i = 0; i < inputValues.Length; i++)
+            if(keycode == inputValues[i])
+                ReturnDropdownWrapper().dropdown.value = i;
+    }
+
+    public DropdownWrapper ReturnDropdownWrapper() {
+        return dW.script as DropdownWrapper;
+    }
+
+    void PopulateValues() {
+        if(inputNames == null) {
+            string[] inputStrs = Enum.GetNames(typeof(KeyCode));
+            inputNames = new List<Dropdown.OptionData>();
+
+            for(int i = 0; i < inputStrs.Length; i++)
+                inputNames.Add(new Dropdown.OptionData(inputStrs[i]));
+        }
+
+        if(inputValues == null)
+            inputValues = (int[])Enum.GetValues(typeof(KeyCode));
+    }
+}

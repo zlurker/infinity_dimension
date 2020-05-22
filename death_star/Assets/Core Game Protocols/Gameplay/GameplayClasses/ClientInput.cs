@@ -14,11 +14,26 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
 
     bool inputSet;
 
+    public override SpawnerOutput ReturnCustomUI(int variable, RuntimeParameters rp) {
+
+        if(variable == GetVariableId("Input Key")) {
+            KeyCodeDropdownList kcDdL = new KeyCodeDropdownList((rp as RuntimeParameters<int>).v);
+
+            kcDdL.ReturnDropdownWrapper().dropdown.onValueChanged.AddListener((v) => {
+                (rp as RuntimeParameters<int>).v = KeyCodeDropdownList.inputValues[v];
+            });
+
+            return kcDdL.dW;
+        }
+
+        return base.ReturnCustomUI(variable, rp);
+    }
+
     public override void ConstructionPhase(AbilityData data) {
         base.ConstructionPhase(data);
 
         //Debug.Log("Construction phase called. LHS Links: " + data.GetLinkData(data.GetCurrBuildNode()).lHS.Count);
-        data.AddTargettedNode(data.GetCurrBuildNode(), GetVariableId("Internal Input Track"), ON_VARIABLE_CATERGORY.ON_CHANGED, data.GetCurrBuildNode());
+        //data.AddTargettedNode(data.GetCurrBuildNode(), GetVariableId("Internal Input Track"), ON_VARIABLE_CATERGORY.ON_CHANGED, data.GetCurrBuildNode());
     }
 
     public void OnVariableSet(int varId) {
@@ -26,9 +41,6 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
         if(varId == GetVariableId("Internal Input Track"))
             if(GetNodeVariable<bool>("Internal Input Track"))
                 TriggerInput();
-
-        if(varId == GetVariableId("Input Key"))
-            Debug.Log("Input Key Set Callback: " + GetNodeVariable<int>("Input Key"));
 
         //throw new System.NotImplementedException();
     }
@@ -48,11 +60,11 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
             TriggerInput();
 
         if(IsClientPlayerUpdate()) {
-            if(!inputSet) {
-                Debug.Log("Input Key Set: " + GetNodeVariable<int>("Input Key"));
+            if(!inputSet)
+                //Debug.Log("Input Key Set: " + GetNodeVariable<int>("Input Key"));
                 LoadedData.GetSingleton<PlayerInput>().AddNewInput<int>(this, 0, (KeyCode)GetNodeVariable<int>("Input Key"), 1);
-            }
 
+            Debug.Log("Input set for " + name);
             inputSet = true;
         }
     }

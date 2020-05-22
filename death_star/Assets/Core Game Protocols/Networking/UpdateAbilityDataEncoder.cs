@@ -171,7 +171,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         int playerId = BitConverter.ToInt32(bytesToParse, 0);
         int centralId = BitConverter.ToInt32(bytesToParse, 4);
 
-        List<AbilityNodeNetworkData> pND = new List<AbilityNodeNetworkData>();
+        List<AbilityNodeNetworkData> centralConstructors = new List<AbilityNodeNetworkData>();
         AbilityCentralThreadPool centralInst = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId);
 
         //Debug.LogFormat("Node data for {0}/{1}: ", playerId, centralId);
@@ -180,14 +180,14 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             //Debug.Log("Node datatype: "+ parsedData.dataType);
 
             if(centralInst == null) {
-                pND.Add(parsedData);
+                centralConstructors.Add(parsedData);
 
-                if(pND.Count == 2) {
+                if(centralConstructors.Count == 2) {
                     centralInst = new AbilityCentralThreadPool(playerId);
 
-                    int pId = (pND[0] as AbilityNodeNetworkData<int>).value;
-                    string aId = (pND[1] as AbilityNodeNetworkData<string>).value;
-                    AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, playerId, centralId);
+                    int pId = (centralConstructors[0] as AbilityNodeNetworkData<int>).value;
+                    string aId = (centralConstructors[1] as AbilityNodeNetworkData<string>).value;
+                    AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, playerId, centralId,false);
                 }
 
                 //Debug.Log("Continued");
@@ -197,6 +197,9 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             //Debug.Log("Data recieved!");
             centralInst.AddPendingData(parsedData);
         }
+
+        if(centralConstructors.Count > 0)
+            centralInst.StartThreads();
     }
 
     public IEnumerable<AbilityNodeNetworkData> ParseManifest(byte[] bytesRecieved, int offset = 0) {

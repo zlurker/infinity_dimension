@@ -206,9 +206,9 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
         // Creates dropdown for input.
         kcDdL = new KeyCodeDropdownList(abilityDescription.kC);
-        kcDdL.dW.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.75f, 0.9f));
+        kcDdL.ReturnDropdownWrapper().transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.75f, 0.9f));
 
-        kcDdL.dW.dropdown.onValueChanged.AddListener((v) => {
+        kcDdL.ReturnDropdownWrapper().dropdown.onValueChanged.AddListener((v) => {
             abilityDescription.kC = KeyCodeDropdownList.inputValues[v];
         });
 
