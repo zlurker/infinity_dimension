@@ -15,9 +15,10 @@ public class NodeModifierBaseThread: NodeThread {
     int givenId;
     NodeModifierBase nodeModifierBase;
 
-    public NodeModifierBaseThread(int gId, NodeModifierBase nMB) {
+    public NodeModifierBaseThread(int gId, NodeModifierBase nMB, int tC):base(tC) {
         givenId = gId;
         nodeModifierBase = nMB;
+        threadChannel = tC;
 
         nodeModifierBase.AddThread(givenId);
     }
@@ -30,7 +31,7 @@ public class NodeModifierBaseThread: NodeThread {
         generatedNodeThreads++;
 
         if(possiblePaths > generatedNodeThreads)
-            return new NodeModifierBaseThread(givenId, nodeModifierBase);
+            return new NodeModifierBaseThread(givenId, nodeModifierBase,threadChannel);
 
         return null;
     }

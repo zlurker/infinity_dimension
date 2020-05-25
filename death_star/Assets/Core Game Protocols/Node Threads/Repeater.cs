@@ -39,7 +39,7 @@ public class Repeater : AbilityTreeNode, IOnSpawn {
         //Debug.Log("Repeater running.");
 
         // Fires a phantom thread.
-        NodeThread trdInst = new NodeThread();
+        NodeThread trdInst = new NodeThread(0);
         trdInst.SetNodeData(GetNodeId(), GetCentralInst().GetNodeBranchData(GetNodeId()));
 
         int threadToUse = GetCentralInst().AddNewThread(trdInst);

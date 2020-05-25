@@ -16,7 +16,7 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
 
     public override void NodeCallback() {
         if(CheckIfVarRegionBlocked("Variable Value"))
-            GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Variable Value")).field.RunGenericBasedOnRP<int>(this, 0);
+            GetCentralInst().ReturnRuntimeParameter(GetNodeId(), GetVariableId("Variable Value")).RunGenericBasedOnRP<int>(this, 0);
     }
 
     public void OnNodeInitialised() {
@@ -34,6 +34,7 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {
+        Debug.LogWarning("GV set: " + GetNodeVariable<T>("Variable Value") + " " + GetNodeVariable<string>("Variable Name"));
         SetVariable<T>("Variable Value");
     }
 }

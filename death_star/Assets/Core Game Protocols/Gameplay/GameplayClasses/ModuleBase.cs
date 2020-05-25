@@ -5,7 +5,8 @@ using UnityEngine;
 public class ModuleBase : AbilityTreeNode {
 
     protected AbilityTreeNode sourceNode;
-    protected Variable targetNodeVar;
+    //protected RuntimeParameters targetNodeVar;
+    protected int[][] links;
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
@@ -20,7 +21,10 @@ public class ModuleBase : AbilityTreeNode {
         base.NodeCallback();
 
         AbilityTreeNode srcNodeInst = GetNodeVariable<AbilityTreeNode>("Source Node");
+        //Debug.Log(GetCentralInst().ReturnRuntimeParameter(GetNodeId(), "Source Node").n);
+        Debug.Log("srcNI" + srcNodeInst);
         sourceNode = srcNodeInst.GetCentralInst().GetRootReferenceNode(srcNodeInst.GetNodeId());
-        targetNodeVar = GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Target Nodes"));
+        links = GetCentralInst().GetVariableLinks(0, GetNodeId(), GetVariableId("Target Nodes"));
+        //targetNodeVar = GetCentralInst().ReturnRuntimeParameter(GetNodeId(), GetVariableId("Target Nodes"));
     }
 }

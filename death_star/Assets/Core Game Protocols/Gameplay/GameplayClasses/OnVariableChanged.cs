@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -50,7 +50,7 @@ public class OnVariableChanged : SpecialisedNodes, IRPGeneric {
 
         SetVariable<T>(threadToUse, "Old Value", valuePair[0]);
         SetVariable<T>(threadToUse, "New Value", valuePair[1]);
-    }*/
+    }
 
     public override void ConstructionPhase(AbilityData data) {
         base.ConstructionPhase(data);
@@ -100,7 +100,7 @@ public class OnVariableChanged : SpecialisedNodes, IRPGeneric {
 
         GetCentralInst().HandleThreadRemoval(parentThread);
         threadMap.Remove(parentThread);
-    }*/
+    }
 
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
@@ -124,3 +124,4 @@ public class OnVariableChanged : SpecialisedNodes, IRPGeneric {
         GetCentralInst().UpdateVariableValue<T>(oCDB.node, oCDB.variable, rP.v, true,false);
     }
 }
+*/

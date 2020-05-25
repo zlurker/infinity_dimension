@@ -62,7 +62,7 @@ public class ClientInput : AbilityTreeNode, IInputCallback<int>, IOnSpawn, IOnVa
         if(IsClientPlayerUpdate()) {
             if(!inputSet)
                 //Debug.Log("Input Key Set: " + GetNodeVariable<int>("Input Key"));
-                LoadedData.GetSingleton<PlayerInput>().AddNewInput<int>(this, 0, (KeyCode)GetNodeVariable<int>("Input Key"), 1);
+                LoadedData.GetSingleton<PlayerInput>().AddNewInput<int>(this, 0, (KeyCode)GetNodeVariable<int>("Input Key"), InputPressType.HOLD);
 
             //Debug.Log("Input set for " + name);
             inputSet = true;

@@ -345,19 +345,34 @@ public class AbilityData : IInputCallback<int> {
             givenPopulatedId = AbilitiesManager.aData[pId].InsertSpawnedIntoFreeSpace(threadInst);//AbilityCentralThreadPool.globalCentralList.Add(threadInst);
 
         //int nId = AbilityTreeNode.globalList.Add(new AbilityNodeHolder(tId.ToString(), a));
-        Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
+        //Variable[][] clonedCopy = CloneRuntimeParams(dataVar);
+
+        RuntimeParameters[][] clonedRp = new RuntimeParameters[dataVar.Length][];
+        int[][][][][] linkMap = new int[1][][][][];
+        linkMap[0] = new int[dataVar.Length][][][];
+
+        for(int i = 0; i < dataVar.Length; i++) {
+            clonedRp[i] = new RuntimeParameters[dataVar[i].Length];
+            linkMap[0][i] = new int[dataVar[i].Length][][];
+
+            for(int j = 0; j < dataVar[i].Length; j++) {
+                clonedRp[i][j] = dataVar[i][j].field.ReturnNewRuntimeParamCopy();
+                linkMap[0][i][j] = dataVar[i][j].links;
+            }
+        }
+
 
         //Debug.Log(boolData.OutputValues());
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
-        threadInst.SetCentralData(pId, givenPopulatedId, clonedCopy, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes, nodeNetworkVariables);
+        threadInst.SetCentralData(pId, givenPopulatedId, clonedRp,linkMap, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes, nodeNetworkVariables);
 
         if(startThreads)
             threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
 
-    Variable[][] CloneRuntimeParams(Variable[][] target) {
+    /*Variable[][] CloneRuntimeParams(Variable[][] target) {
         Variable[][] clonedCopy = new Variable[target.Length][];
 
         for(int i = 0; i < target.Length; i++) {
@@ -368,7 +383,7 @@ public class AbilityData : IInputCallback<int> {
                 clonedCopy[i][j] = new Variable(target[i][j].field.ReturnNewRuntimeParamCopy(), target[i][j].links);
         }
         return clonedCopy;
-    }
+    }*/
 }
 
 public sealed class AbilitiesManager : MonoBehaviour {
@@ -380,7 +395,6 @@ public sealed class AbilitiesManager : MonoBehaviour {
         public Dictionary<int, string> abilityManifest;
         public AutoPopulationList<AbilityCentralThreadPool> playerSpawnedCentrals;
         public Dictionary<string, Tuple<int, int, int>> globalVariables;
-        public PlayerInputController playerInputController;
         //public Dictionary<int, Dictionary<string, VariableInterfaces>> globalVariables;
 
         private List<int> internalFreeSpaceTracker;
@@ -392,7 +406,6 @@ public sealed class AbilitiesManager : MonoBehaviour {
             playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
             internalFreeSpaceTracker = new List<int>();
             globalVariables = new Dictionary<string, Tuple<int, int, int>>();
-            playerInputController = new PlayerInputController();
             //globalVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
         }
 

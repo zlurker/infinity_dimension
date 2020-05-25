@@ -57,7 +57,7 @@ public class ThreadSplitter : NodeModifierBase {
         //Debug.LogFormat("Thread id {0} currently {1}/{2}.", threadId, sData.numberOfLoops, inst.ReturnRuntimeParameter<int>(GetNodeId(), 0).v);
 
         if(sData.numberOfLoops < GetNodeVariable<int>("Number of Loops") || GetNodeVariable<int>("Number of Loops") == -1) {
-            NodeModifierBaseThread trdInst = new NodeModifierBaseThread(threadId, this);
+            NodeModifierBaseThread trdInst = new NodeModifierBaseThread(threadId, this,0);
             trdInst.SetNodeData(GetNodeId(), inst.GetNodeBranchData(GetNodeId()));
 
             int threadToUse = inst.AddNewThread(trdInst);

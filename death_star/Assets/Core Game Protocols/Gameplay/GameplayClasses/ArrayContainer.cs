@@ -17,8 +17,8 @@ public class ArrayContainer : AbilityTreeNode, IRPGeneric {
     public override void NodeCallback() {
         base.NodeCallback();
 
-        int[] arrayValues = GetCentralInst().ReturnVariable(GetNodeId(), GetVariableId("Values")).links[GetNodeVariable<int>("Array Element")];
-        RuntimeParameters targetVar = GetCentralInst().ReturnVariable(arrayValues[0], arrayValues[1]).field;
+        int[] arrayValues = GetCentralInst().GetVariableLinks(0,GetNodeId(), GetVariableId("Values"))[GetNodeVariable<int>("Array Element")];
+        RuntimeParameters targetVar = GetCentralInst().ReturnRuntimeParameter(arrayValues[0], arrayValues[1]);
         targetVar.RunGenericBasedOnRP<RuntimeParameters>(this, targetVar);
     }
 

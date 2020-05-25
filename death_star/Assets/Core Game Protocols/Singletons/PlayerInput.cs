@@ -86,7 +86,7 @@ public class PlayerInput : MonoBehaviour, ISingleton {
         }
     }
 
-    public void AddNewInput<T>(IInputCallback<T> iCB, T cbParam, KeyCode key, KeyCode iT, bool perm = false) {
+    public void AddNewInput<T>(IInputCallback<T> iCB, T cbParam, KeyCode key, InputPressType iT, bool perm = false) {
 
         int kId = (int)key;
         int inputType = (int)iT;
@@ -94,7 +94,7 @@ public class PlayerInput : MonoBehaviour, ISingleton {
         if(!keyEvents.ContainsKey(kId))
             keyEvents.Add(kId, new Dictionary<int, List<InputDataBase>>());
 
-        if(keyEvents[kId].ContainsKey((int)iT))
+        if(!keyEvents[kId].ContainsKey((int)iT))
             keyEvents[kId].Add(inputType, new List<InputDataBase>());
 
         keyEvents[kId][inputType].Add(new InputData<T>(cbParam, iCB, key, inputType, perm));

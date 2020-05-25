@@ -63,14 +63,16 @@ public class AbilityNodeNetworkData {
 public class NodeThread {
 
     int currNode;
+    protected int threadChannel;
 
     // To be used for creation of new threads when it branches out.
     // generatedNodeTheads/possiblePaths.       
     protected int generatedNodeThreads;
     protected int possiblePaths;
 
-    public NodeThread() {
+    public NodeThread(int tC) {
         currNode = -1;
+        threadChannel = tC;
     }
 
     public void SetNodeData(int cN, int pS) {
@@ -81,6 +83,10 @@ public class NodeThread {
     public void SetPossiblePaths(int pS) {
         generatedNodeThreads = 0;
         possiblePaths = pS;
+    }
+
+    public int GetThreadChannel() {
+        return threadChannel;
     }
 
     public int GetCurrentNodeID() {
@@ -95,7 +101,7 @@ public class NodeThread {
         generatedNodeThreads++;
 
         if(possiblePaths > generatedNodeThreads)
-            return new NodeThread();
+            return new NodeThread(threadChannel);
 
         return null;
     }
@@ -127,13 +133,15 @@ public class AbilityCentralThreadPool : IRPGeneric {
         //instId = -1;
     }
 
-    private Variable[][] runtimeParameters;
+    //private Variable[][] runtimeParameters;
+    private RuntimeParameters[][] runtimeParameters;
+    private int[][][][][] linkMap;
     private Type[] subclassTypes;
     private Transform abilityNodeRoot;
     private AbilityTreeNode[] nodes;
 
     private int[] nodeBranchingData;
-
+    
     //private AbilityBooleanData booleanData;
     private bool[][] booleanData;
 
@@ -189,10 +197,14 @@ public class AbilityCentralThreadPool : IRPGeneric {
         return abilityNodeRoot;
     }
 
-    // Base method to get variables.
+    public int[][] GetVariableLinks(int channel, int node, int variable) {
+        return linkMap[channel][node][variable];
+    }
+
+    /*// Base method to get variables.
     public Variable ReturnVariable(int node, int variable) {
 
-        if(CheckIfReferenced(node, variable))
+        
             return GetRootReferenceCentral(node).ReturnVariable(instancedNodes[node].Item3, variable);
 
         return runtimeParameters[node][variable];
@@ -201,15 +213,18 @@ public class AbilityCentralThreadPool : IRPGeneric {
     public Variable ReturnVariable(int node, string vName) {
         int variable = LoadedData.loadedParamInstances[subclassTypes[node]].variableAddresses[vName];
         return ReturnVariable(node, variable);
-    }
+    }*/
 
-    public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, string vName) {
+    public RuntimeParameters ReturnRuntimeParameter(int node, string vName) {
         int variable = LoadedData.loadedParamInstances[subclassTypes[node]].variableAddresses[vName];
-        return ReturnVariable(node, variable).field as RuntimeParameters<T>;
+        return ReturnRuntimeParameter(node, variable);
     }
 
-    public RuntimeParameters<T> ReturnRuntimeParameter<T>(int node, int variable) {
-        return ReturnVariable(node, variable).field as RuntimeParameters<T>;
+    public RuntimeParameters ReturnRuntimeParameter(int node, int variable) {
+        if(CheckIfReferenced(node, variable))
+            return GetRootReferenceCentral(node).ReturnRuntimeParameter(node, variable);
+
+        return runtimeParameters[node][variable];
     }
 
     public int ReturnPlayerCasted() {
@@ -219,7 +234,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         return centralId;
     }
 
-    public void SetCentralData(int cP, int tId, Variable[][] rP, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>> oVC, Dictionary<int, int[]> nwVD) {
+    public void SetCentralData(int cP, int tId, RuntimeParameters[][] rP, int[][][][][] lM,Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>> oVC, Dictionary<int, int[]> nwVD) {
 
         abilityNodeRoot = new GameObject(tId.ToString()).transform;
         //Debug.Log("Ability created.");
@@ -227,6 +242,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         castingPlayer = cP;
         centralId = tId;
         runtimeParameters = rP;
+        linkMap = lM;
         subclassTypes = sT;
         nodeBranchingData = nBD;
         booleanData = aBD;
@@ -256,7 +272,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
     public void CopyNodeVariables(int nodeId, int playerId, int centralId, int targetNodeId) {
 
         for(int i = 0; i < runtimeParameters[nodeId].Length; i++)
-            runtimeParameters[nodeId][i].field = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId).runtimeParameters[targetNodeId][i].field.ReturnNewRuntimeParamCopy();
+            runtimeParameters[nodeId][i] = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId).runtimeParameters[targetNodeId][i].ReturnNewRuntimeParamCopy();
     }
 
     public void InstanceNode(int nodeId, Tuple<int, int, int> refNode) {
@@ -340,7 +356,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
     }
 
     public int GetNewThread() {
-        return activeThreads.Add(new NodeThread());
+        return activeThreads.Add(new NodeThread(0));
     }
 
     public bool[] GetNodeBoolValues(int id) {
@@ -548,7 +564,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                 return;
         }*/
 
-        RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId].field as RuntimeParameters<T>;
+        RuntimeParameters<T> paramInst = runtimeParameters[nodeId][variableId] as RuntimeParameters<T>;
         bool varWasSet = false;
 
         if(paramInst != null) {
@@ -557,11 +573,11 @@ public class AbilityCentralThreadPool : IRPGeneric {
             varWasSet = true;
 
         } else if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.INTERCHANGEABLE)) {
-            string varName = runtimeParameters[nodeId][variableId].field.n;
-            int[][] links = runtimeParameters[nodeId][variableId].links;
+            string varName = runtimeParameters[nodeId][variableId].n;
+            //int[][] links = runtimeParameters[nodeId][variableId].links;
 
             //Debug.LogFormat("Var changed from {0} to {1}", runtimeParameters[nodeId][variableId].field.t, typeof(T));
-            runtimeParameters[nodeId][variableId] = new Variable(new RuntimeParameters<T>(varName, value), links);
+            runtimeParameters[nodeId][variableId] = new RuntimeParameters<T>(varName, value);
             booleanData[nodeId][variableId] = false;
             varWasSet = true;
         }
@@ -613,7 +629,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         //return;
 
         if(var == null)
-            var = ReturnRuntimeParameter<T>(currNode, variableId);
+            var = ReturnRuntimeParameter(currNode, variableId) as RuntimeParameters<T>;
         //Debug.LogFormat("Curr updatevardata: {0},{1},{2}", castingPlayer, centralId, currNode);
 
         if(threadId == -1)
@@ -624,7 +640,9 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
         if(threadId > -1) {
 
-            int[][] links = runtimeParameters[currNode][variableId].links;
+            Debug.Log("Link Type: " + activeThreads.l[threadId].GetThreadChannel());
+            Debug.Log(typeof(T) + " " + var.v);
+            int[][] links = linkMap[activeThreads.l[threadId].GetThreadChannel()][currNode][variableId];
             int currPossiblePaths = activeThreads.l[threadId].GetPossiblePaths();
 
             for(int i = 0; i < links.Length; i++) {
@@ -706,7 +724,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                 for(int j = 0; j < autoManagedVar[nodeId].Length; j++)
                     // Callback those that are not blocked.
                     if(!booleanData[nodeId][autoManagedVar[nodeId][j]])
-                        runtimeParameters[nodeId][autoManagedVar[nodeId][j]].field.RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
+                        runtimeParameters[nodeId][autoManagedVar[nodeId][j]].RunGenericBasedOnRP<int[]>(this, new int[] { nodeId, autoManagedVar[nodeId][j] });
 
                 if(nodeBranchingData[nodeId] == 0)
                     HandleThreadRemoval(threadIdToUse);

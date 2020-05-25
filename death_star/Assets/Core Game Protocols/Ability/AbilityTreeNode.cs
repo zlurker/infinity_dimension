@@ -121,7 +121,7 @@ public class AbilityTreeNode : MonoBehaviour {
     }
 
     public T GetNodeVariable<T>(string var) {
-        return GetCentralInst().ReturnRuntimeParameter<T>(nodeId, var).v;
+        return (GetCentralInst().ReturnRuntimeParameter(nodeId, var) as RuntimeParameters<T>).v;
     }
 
     public void SetVariable<T>(int varId, T value) {

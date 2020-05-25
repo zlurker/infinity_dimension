@@ -33,7 +33,7 @@ public class SpecialisedNodes : NodeModifierBase, IOnVariableSet, IRPGeneric {
         threadMap.Add(transferThread, new ReturningData(nodeId, varId));
 
         if(links > 0) {
-            NodeModifierBaseThread cT = new NodeModifierBaseThread(transferThread, this);
+            NodeModifierBaseThread cT = new NodeModifierBaseThread(transferThread, this,0);
             cT.SetNodeData(GetNodeId(), links);
             return inst.AddNewThread(cT);
         } else
@@ -47,14 +47,14 @@ public class SpecialisedNodes : NodeModifierBase, IOnVariableSet, IRPGeneric {
 
         AbilityCentralThreadPool centralInst = GetCentralInst();
 
-        if(centralInst.ReturnVariable(GetNodeId(), "Return from Variable").links.Length == 0)
+        int[][] variableLinks = centralInst.GetVariableLinks(0, GetNodeId(), GetVariableId("Return from Variable"));
+        if(variableLinks.Length == 0)
             return;
 
-        int[] modifiedReturn = centralInst.ReturnVariable(GetNodeId(), "Return from Variable").links[0];
-        Variable varInst = centralInst.ReturnVariable(modifiedReturn[0], modifiedReturn[1]);
+        int[] modifiedReturn = variableLinks[0];
 
-        returnTargetInst = varInst.field;
-        varInst.field.RunGenericBasedOnRP<int>(this, parentThread);
+        returnTargetInst = centralInst.ReturnRuntimeParameter(modifiedReturn[0], modifiedReturn[1]);
+        returnTargetInst.RunGenericBasedOnRP<int>(this, parentThread);
         threadMap.Remove(parentThread);
     }
 
