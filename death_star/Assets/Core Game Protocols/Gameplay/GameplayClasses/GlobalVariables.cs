@@ -20,13 +20,16 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
     }
 
     public void OnNodeInitialised() {
-        Tuple<int,int,int> nodeId = AbilitiesManager.GetAssetData(GetCentralInst().GetPlayerId()).globalVariables[GetNodeVariable<string>("Variable Name")];
+        Debug.Log(GetNodeVariable<string>("Variable Name") + " " + name);
+        Tuple<int, int, int> nodeId = AbilitiesManager.GetAssetData(GetCentralInst().GetPlayerId()).globalVariables[GetNodeVariable<string>("Variable Name")];
 
+        Debug.LogWarning("Node ID: " + nodeId + " " + name);
         // Handles callback from subnodes.
         if(!(nodeId.Item1 == GetCentralInst().ReturnPlayerCasted() && nodeId.Item2 == GetCentralId() && nodeId.Item3 == GetNodeId())) {
             if(!GetCentralInst().CheckIfReferenced(GetNodeId(), GetVariableId("Variable Value"))) {
                 //Debug.Log(nodeId[1]);
                 GetCentralInst().InstanceNode(GetNodeId(), nodeId);
+                Debug.Log(GetNodeVariable<string>("Variable Name") + " " + name);
                 //AbilityTreeNode globalVarSource = AbilitiesManager.GetAssetData(nodeId[0]).playerSpawnedCentrals.l[0].GetNode(nodeId[1]);
                 //InstanceThisNode(globalVarSource);
             }
@@ -34,7 +37,7 @@ public class GlobalVariables : AbilityTreeNode, IRPGeneric, IOnNodeInitialised {
     }
 
     public void RunAccordingToGeneric<T, P>(P arg) {
-        Debug.LogWarning("GV set: " + GetNodeVariable<T>("Variable Value") + " " + GetNodeVariable<string>("Variable Name"));
+        Debug.LogWarning("GV set: " + GetNodeVariable<T>("Variable Value") + " " + GetNodeVariable<string>("Variable Name") + " " + name);
         SetVariable<T>("Variable Value");
     }
 }

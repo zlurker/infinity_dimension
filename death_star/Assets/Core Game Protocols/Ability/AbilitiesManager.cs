@@ -438,6 +438,8 @@ public sealed class AbilitiesManager : MonoBehaviour {
                 (globalVariableNodes[i].var[LoadedData.loadedParamInstances[typeof(GlobalVariables)].variableAddresses["Variable Name"]].field as RuntimeParameters<string>).v = keys[i];
 
                 globalVariables[keys[i]] = Tuple.Create(playerId, 0, i);
+
+                Debug.LogWarning("Create Node ID: " + keys[i] + " " + globalVariables[keys[i]]);
             }
 
             AbilityData globalVarInst = new AbilityData(globalVariableNodes, new AbilityInfo(), playerId, "");

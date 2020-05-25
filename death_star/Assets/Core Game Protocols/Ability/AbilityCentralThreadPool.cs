@@ -222,7 +222,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
     public RuntimeParameters ReturnRuntimeParameter(int node, int variable) {
         if(CheckIfReferenced(node, variable))
-            return GetRootReferenceCentral(node).ReturnRuntimeParameter(node, variable);
+            return GetRootReferenceCentral(node).ReturnRuntimeParameter(instancedNodes[node].Item3, variable);
 
         return runtimeParameters[node][variable];
     }
@@ -672,7 +672,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                     HandleThreadRemoval(existingThread);
                 //activeThreads.l[threadIdToUse](existingThread);
 
-                //Debug.LogFormat("Thread travelling from {0} to {1}", nodes[currNode], nextNodeInst.GetType());
+                Debug.LogFormat("Thread travelling from {0} to {1} with variable {2}", nodes[currNode], nextNodeInst, var.v);
                 nextNodeInst.SetNodeThreadId(threadIdToUse);
 
                 /*if(CheckIfReferenced(nodeId, nodeVariableId)) {
