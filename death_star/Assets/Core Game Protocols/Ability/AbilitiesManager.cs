@@ -380,6 +380,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
         public Dictionary<int, string> abilityManifest;
         public AutoPopulationList<AbilityCentralThreadPool> playerSpawnedCentrals;
         public Dictionary<string, Tuple<int, int, int>> globalVariables;
+        public PlayerInputController playerInputController;
         //public Dictionary<int, Dictionary<string, VariableInterfaces>> globalVariables;
 
         private List<int> internalFreeSpaceTracker;
@@ -391,6 +392,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
             playerSpawnedCentrals = new AutoPopulationList<AbilityCentralThreadPool>();
             internalFreeSpaceTracker = new List<int>();
             globalVariables = new Dictionary<string, Tuple<int, int, int>>();
+            playerInputController = new PlayerInputController();
             //globalVariables = new Dictionary<int, Dictionary<string, VariableInterfaces>>();
         }
 

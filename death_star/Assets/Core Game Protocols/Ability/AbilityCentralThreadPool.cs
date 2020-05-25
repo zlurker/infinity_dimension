@@ -171,13 +171,13 @@ public class AbilityCentralThreadPool : IRPGeneric {
         //Debug.LogFormat("TID {0}, TVSC {1}, GVSC {2}", nodes[nodeNetworkData.nodeId].GetNodeThreadId(), networkVariableData[nodeNetworkData.nodeId].nodeCallbackCount, nodeNetworkData.variableSetCount);
         if(nodes[nodeNetworkData.nodeId] != null)
             if(nodes[nodeNetworkData.nodeId].GetNodeThreadId() > -1 && networkVariableData[nodeNetworkData.nodeId].nodeCallbackCount == nodeNetworkData.variableSetCount) {
-                Debug.LogWarning("Pending data applied. #1");
+                //Debug.LogWarning("Pending data applied. #1");
                 nodeNetworkData.ApplyDataToTargetVariable(this);
                 return;
             }
 
         // If not, add this to pending list.
-        Debug.Log("Data added to " + Tuple.Create(nodeNetworkData.nodeId, nodeNetworkData.varId, nodeNetworkData.variableSetCount));
+        //Debug.Log("Data added to " + Tuple.Create(nodeNetworkData.nodeId, nodeNetworkData.varId, nodeNetworkData.variableSetCount));
         pendingApplyData.Add(Tuple.Create(nodeNetworkData.nodeId, nodeNetworkData.varId, nodeNetworkData.variableSetCount), nodeNetworkData);
     }
 
@@ -508,7 +508,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
             if(LoadedData.GetVariableType(subclassTypes[nodeId], variableId, VariableTypes.NETWORK)) {
                 AbilityNodeNetworkData dataPacket = new AbilityNodeNetworkData<T>(nodeId, variableId, value, networkVariableData[nodeId].nodeCallbackCount);
-                Debug.Log("Input is been sent out.");
+                //Debug.Log("Input is been sent out.");
                 //INodeNetworkPoint nwPointInst = nodes[progenitorData[nodeId]] as INodeNetworkPoint;
                 //Debug.Log(nodes[progenitorData[nodeId]]);
                 //nwPointInst.ModifyDataPacket(dataPacket);

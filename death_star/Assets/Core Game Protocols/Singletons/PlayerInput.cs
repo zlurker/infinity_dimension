@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+public enum InputPressType {
+    DOWN, HOLD, UP
+}
+
 public interface IInputCallback<T> {
     void InputCallback(T callbackData);
 }
@@ -37,51 +41,77 @@ public class InputDataBase {
 
 public class PlayerInput : MonoBehaviour, ISingleton {
 
-    public List<InputDataBase> iS;
+    //public EnhancedList<InputDataBase> iS;
+    public Dictionary<int, Dictionary<int, List<InputDataBase>>> keyEvents;
 
     void Update() {
+        foreach(var kE in keyEvents)
+            foreach(var e in kE.Value) 
+                TriggerKeyEvent(kE.Key, e.Key);
+    }
 
-        if(iS.Count > 0)
-            for(int i = iS.Count - 1; i >= 0; i--) {
+    public void TriggerKeyEvent(int key, int inputType) {
 
-                bool inputTriggered = false;
+        if(!keyEvents.ContainsKey(key) || !keyEvents[key].ContainsKey(inputType))
+            return;
 
-                switch(iS[i].inputType) {
-                    case 0:
-                        if(Input.GetKeyDown(iS[i].keyCode))
-                            inputTriggered = true;
-                        break;
+        for(int i = keyEvents[key][inputType].Count - 1; i >= 0; i--) {
+            bool inputTriggered = false;
+            KeyCode keyCode = (KeyCode)key;
+            InputPressType typeEnum = (InputPressType)inputType;
 
-                    case 1:
-                        if(Input.GetKey(iS[i].keyCode))
-                            inputTriggered = true;
-                        break;
+            switch(typeEnum) {
+                case InputPressType.DOWN:
+                    if(Input.GetKeyDown(keyCode))
+                        inputTriggered = true;
+                    break;
 
-                    case 2:
-                        if(Input.GetKeyUp(iS[i].keyCode))
-                            inputTriggered = true;
-                        break;
-                }
+                case InputPressType.HOLD:
+                    if(Input.GetKey(keyCode))
+                        inputTriggered = true;
+                    break;
 
-                if(inputTriggered) {
-                    iS[i].InputCallback();
-
-                    if(!iS[i].permanent) {
-                        iS.RemoveAt(i);
-                    }
-                }
+                case InputPressType.UP:
+                    if(Input.GetKeyUp(keyCode))
+                        inputTriggered = true;
+                    break;
             }
+
+            if(inputTriggered) {
+                keyEvents[key][inputType][i].InputCallback();
+
+                if(!keyEvents[key][inputType][i].permanent)
+                    keyEvents[key][inputType].RemoveAt(i);
+            }
+        }
     }
 
-    public void AddNewInput<T>(IInputCallback<T> iCB, T cbParam, KeyCode key, int iT, bool perm = false) {
-        iS.Add(new InputData<T>(cbParam, iCB, key, iT, perm));
+    public void AddNewInput<T>(IInputCallback<T> iCB, T cbParam, KeyCode key, KeyCode iT, bool perm = false) {
+
+        int kId = (int)key;
+        int inputType = (int)iT;
+
+        if(!keyEvents.ContainsKey(kId))
+            keyEvents.Add(kId, new Dictionary<int, List<InputDataBase>>());
+
+        if(keyEvents[kId].ContainsKey((int)iT))
+            keyEvents[kId].Add(inputType, new List<InputDataBase>());
+
+        keyEvents[kId][inputType].Add(new InputData<T>(cbParam, iCB, key, inputType, perm));
+        //return iS.Add(new InputData<T>(cbParam, iCB, key, iT, perm));
     }
+
+    /*public void RemoveInput(int index) {
+        iS.Remove(index);
+    }*/
 
     public void RunOnStart() {
-        iS = new List<InputDataBase>();
+        keyEvents.Clear();
+        //iS = new EnhancedList<InputDataBase>();
     }
 
     public void RunOnCreated() {
-        iS = new List<InputDataBase>();
+        keyEvents = new Dictionary<int, Dictionary<int, List<InputDataBase>>>();
+        //iS = new EnhancedList<InputDataBase>();
     }
 }
