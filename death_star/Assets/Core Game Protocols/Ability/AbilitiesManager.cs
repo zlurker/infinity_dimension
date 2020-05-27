@@ -8,6 +8,12 @@ using System.Text;
 using System.Linq;
 using UnityEngine.UI;
 
+/*public interface INodeNetworkPoint {
+
+    void ModifyDataPacket(AbilityNodeNetworkData dataPacket);
+    void ProcessDataPacket<T>(AbilityNodeNetworkData<T> dataPacket);
+}*/
+
 public class LinkData {
 
     // < NodeConnected, VariableConnected, LinkType, LinkID  >
@@ -81,10 +87,6 @@ public class AbilityData : IInputCallback<int> {
     //Dictionary<Tuple<int, int>, HashSet<int>> onCalledDict;
     Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>> targettedNodes;
     Dictionary<int, int[]> nodeNetworkVariables;
-
-    HashSet<Tuple<int, int, int>>[][][] linkGenerator;
-
-    int[][][][][] generatedLinks;
     Type[] dataType;
 
     int[][] rootSubclasses;
@@ -140,16 +142,8 @@ public class AbilityData : IInputCallback<int> {
         targettedNodes = new Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>>();
         nodeNetworkVariables = new Dictionary<int, int[]>();
 
-        linkGenerator = new HashSet<Tuple<int, int, int>>[2][][];
-        linkGenerator[0] = new HashSet<Tuple<int, int, int>>[data.Length +2][];
-        linkGenerator[1] = new HashSet<Tuple<int, int, int>>[data.Length +2][];
-
         for(int i = 0; i < data.Length; i++) {
             dataVar[i] = data[i].var;
-
-            linkGenerator[0][i] = new HashSet<Tuple<int, int, int>>[data[i].var.Length];
-            linkGenerator[1][i] = new HashSet<Tuple<int, int, int>>[data[i].var.Length];
-
             dataType[i] = data[i].classType;
             linkData[i] = new LinkData();
         }
@@ -159,24 +153,18 @@ public class AbilityData : IInputCallback<int> {
 
         RetrieveStartNodes();
 
+        // Needs to be rectified to add in the This node.
         int startNode = dataVar.Length - 2;
         dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[0].rP.ReturnNewRuntimeParamCopy(), rootSubclasses) };
         dataType[startNode] = typeof(NodeThreadStarter);
         linkData[startNode] = new LinkData();
-        linkGenerator[0][startNode] = new HashSet<Tuple<int, int, int>>[1];
-        linkGenerator[1][startNode] = new HashSet<Tuple<int, int, int>>[1];
 
         int endNode = dataVar.Length - 1;
         dataVar[endNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadEndPoint)].runtimeParameters[0].rP.ReturnNewRuntimeParamCopy()) };
         dataType[endNode] = typeof(NodeThreadEndPoint);
         linkData[endNode] = new LinkData();
-        linkGenerator[0][endNode] = new HashSet<Tuple<int, int, int>>[1];
-        linkGenerator[1][endNode] = new HashSet<Tuple<int, int, int>>[1];
 
-        Tuple<int, int, int> sNTuple = Tuple.Create<int, int, int>(startNode, 0, 1);
-        RunNodeFlow(startNode, new Tuple<int, int, int>[] { sNTuple, sNTuple });
-        GenerateLinks();
-
+        RunNodeFlow(startNode);
         EditLinks();
         BeginDepenciesBuild();
     }
@@ -197,11 +185,11 @@ public class AbilityData : IInputCallback<int> {
 
                     // Marks target as true so it can't be root.
                     connected.ModifyElementAt(currLink[0], true);
-                }
+                }                              
             }
 
             if(totalCurrLinks == 0)
-                dataVar[i][dataVar[i].Length - 1].links = new int[][] { new int[] { dataVar.Length - 1, 0, 0 } };
+                dataVar[i][dataVar[i].Length-1].links = new int[][] { new int[] { dataVar.Length - 1, 0, 0 } };
         }
 
         List<int[]> rC = new List<int[]>();
@@ -210,15 +198,16 @@ public class AbilityData : IInputCallback<int> {
             if(!connected.l[i])
                 rC.Add(new int[] { i, 0, 1 });
 
+
         rootSubclasses = rC.ToArray();
     }
 
-    void RunNodeFlow(int nextNode, Tuple<int, int, int>[] pN) {
+    void RunNodeFlow(int nextNode) {
 
         //if(LoadedData.loadedNodeInstance[dataType[nextNode]] is INodeNetworkPoint)
         //progenitor = nextNode;
 
-        for(int i = 0; i < dataVar[nextNode].Length; i++)
+        for(int i = 0; i < dataVar[nextNode].Length; i++) 
             for(int j = 0; j < dataVar[nextNode][i].links.Length; j++) {
                 int[] currLink = dataVar[nextNode][i].links[j];
 
@@ -234,53 +223,9 @@ public class AbilityData : IInputCallback<int> {
                 if(!linkData[currLink[0]].lHS.Contains(lhslinkTup))
                     linkData[currLink[0]].lHS.Add(lhslinkTup);
 
-                int[] lC = LoadedData.loadedNodeInstance[dataType[nextNode]].ReturnLinkChannels();
-
-                Tuple<int, int, int> nextNodeRef = Tuple.Create<int, int, int>(nextNode, i, currLink[2]);
-
-                for(int k = 0; k < lC.Length; k++) {
-                    Tuple<int, int, int> precedingNode = pN[lC[k]];
-
-                    if(linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] == null)
-                        linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] = new HashSet<Tuple<int, int, int>>();
-
-                    Tuple<int, int, int> currNode = Tuple.Create(nextNode, i, precedingNode.Item3);
-
-                    if(!linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Contains(currNode))                        
-                        linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Add(currNode);
-                    
-                    pN[k] = nextNodeRef;
-                }
-
                 // Iterates to target.
-                RunNodeFlow(currLink[0], pN);
+                RunNodeFlow(currLink[0]);
             }
-    }
-
-    void GenerateLinks() {
-        // Generate links after
-        generatedLinks = new int[linkGenerator.Length][][][][];
-
-        for(int i = 0; i < linkGenerator.Length; i++) {
-            generatedLinks[i] = new int[linkGenerator[i].Length][][][];
-
-            for(int j = 0; j < linkGenerator[i].Length; j++) {
-                generatedLinks[i][j] = new int[linkGenerator[i][j].Length][][];
-
-                for(int k = 0; k < linkGenerator[i][j].Length; k++) {
-                    List<int[]> convertedLinks = new List<int[]>();
-                    //generatedLinks[i][j][k] = new int[linkGenerator[i][j][k].Count];
-
-                    if(linkGenerator[i][j][k] != null)
-                        foreach(var item in linkGenerator[i][j][k]) {
-                            convertedLinks.Add(new int[] { item.Item1, item.Item2, item.Item3 });
-                        }
-
-                    Debug.LogFormat("Generating for: {0}, {1}, {2}",i,j,k);
-                    generatedLinks[i][j][k] = convertedLinks.ToArray();
-                }
-            }
-        }
     }
 
     void EditLinks() {
@@ -387,7 +332,9 @@ public class AbilityData : IInputCallback<int> {
         //AbilitiesManager.aData[playerId].abilties[]
         AbilityCentralThreadPool centralPool = new AbilityCentralThreadPool(playerId);
         SignalCentralCreation(centralPool);
-        CreateAbility(centralPool, ClientProgram.clientId);
+
+        bool isHost = ClientProgram.clientId == ClientProgram.hostId ? true : false;
+        CreateAbility(centralPool, ClientProgram.clientId,-1,isHost);
 
         //(NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.INPUT_SIGNAL] as InputSignalEncoder).SendInputSignal(playerId, abilityId);        
     }
@@ -434,7 +381,7 @@ public class AbilityData : IInputCallback<int> {
         //Debug.Log(boolData.OutputValues());
         bool[][] clonedBoolValues = boolData.ReturnNewCopy();
 
-        threadInst.SetCentralData(pId, givenPopulatedId, clonedRp, generatedLinks, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes, nodeNetworkVariables);
+        threadInst.SetCentralData(pId, givenPopulatedId, clonedRp,linkMap, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes, nodeNetworkVariables);
 
         if(startThreads)
             threadInst.StartThreads();

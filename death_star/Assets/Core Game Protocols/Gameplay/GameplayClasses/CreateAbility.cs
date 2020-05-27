@@ -15,7 +15,7 @@ public class CreateAbility : AbilityTreeNode, IOnVariableSet {
 
     public void OnVariableSet(int varId) {
         if(varId == GetVariableId("Created Ability")) {
-            //Debug.Log("info passed from callback");
+            Debug.Log("info passed from callback");
             TriggerOnHostProcessed(GetNodeVariable<int[]>("Created Ability"));
         }
     }
@@ -95,8 +95,8 @@ public class CreateAbility : AbilityTreeNode, IOnVariableSet {
         base.GetRuntimeParameters(holder);
 
         holder.AddRange(new LoadedRuntimeParameters[] {
-            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Created Ability", null), VariableTypes.HIDDEN,VariableTypes.NETWORK),
-            new LoadedRuntimeParameters(new RuntimeParameters<string>("Ability Name", ""))         
+            new LoadedRuntimeParameters(new RuntimeParameters<string>("Ability Name", "")),
+            new LoadedRuntimeParameters(new RuntimeParameters<int[]>("Created Ability", null), VariableTypes.HIDDEN,VariableTypes.NETWORK)
         });
     }
 }

@@ -48,10 +48,6 @@ public class AbilityTreeNode : MonoBehaviour {
 
     }
 
-    public virtual int[] ReturnLinkChannels() {
-        return new int[] { 0 };
-    }
-
     public int GetNodeThreadId() {
         return nodeThreadId;
     }
