@@ -670,7 +670,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                     HandleThreadRemoval(existingThread);
                 //activeThreads.l[threadIdToUse](existingThread);
 
-                //Debug.LogFormat("Thread travelling from {0} to {1} with variable {2}", nodes[currNode], nextNodeInst, var.v);
+                Debug.LogFormat("Thread travelling from {0} to {1} with variable {2}", nodes[currNode], nextNodeInst, var.v);
                 nextNodeInst.SetNodeThreadId(threadIdToUse);
 
                 /*if(CheckIfReferenced(nodeId, nodeVariableId)) {

@@ -23,6 +23,7 @@ public class ModuleBase : AbilityTreeNode {
         AbilityTreeNode srcNodeInst = GetNodeVariable<AbilityTreeNode>("Source Node");
         //Debug.Log(GetCentralInst().ReturnRuntimeParameter(GetNodeId(), "Source Node").n);
         //Debug.Log("srcNI" + srcNodeInst);
+        Debug.Log(srcNodeInst);
         sourceNode = srcNodeInst.GetCentralInst().GetRootReferenceNode(srcNodeInst.GetNodeId());
         links = GetCentralInst().GetVariableLinks(0, GetNodeId(), GetVariableId("Target Nodes"));
         //targetNodeVar = GetCentralInst().ReturnRuntimeParameter(GetNodeId(), GetVariableId("Target Nodes"));

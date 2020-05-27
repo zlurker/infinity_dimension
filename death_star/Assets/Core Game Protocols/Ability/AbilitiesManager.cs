@@ -141,8 +141,8 @@ public class AbilityData : IInputCallback<int> {
         nodeNetworkVariables = new Dictionary<int, int[]>();
 
         linkGenerator = new HashSet<Tuple<int, int, int>>[2][][];
-        linkGenerator[0] = new HashSet<Tuple<int, int, int>>[data.Length +2][];
-        linkGenerator[1] = new HashSet<Tuple<int, int, int>>[data.Length +2][];
+        linkGenerator[0] = new HashSet<Tuple<int, int, int>>[data.Length + 2][];
+        linkGenerator[1] = new HashSet<Tuple<int, int, int>>[data.Length + 2][];
 
         for(int i = 0; i < data.Length; i++) {
             dataVar[i] = data[i].var;
@@ -174,7 +174,10 @@ public class AbilityData : IInputCallback<int> {
         linkGenerator[1][endNode] = new HashSet<Tuple<int, int, int>>[1];
 
         Tuple<int, int, int> sNTuple = Tuple.Create<int, int, int>(startNode, 0, 1);
-        RunNodeFlow(startNode, new Tuple<int, int, int>[] { sNTuple, sNTuple });
+
+        for(int i = 0; i < rootSubclasses.Length; i++) 
+            RunNodeFlow(rootSubclasses[i][0], new Tuple<int, int, int>[] { sNTuple, sNTuple });        
+
         GenerateLinks();
 
         EditLinks();
@@ -217,7 +220,7 @@ public class AbilityData : IInputCallback<int> {
 
         //if(LoadedData.loadedNodeInstance[dataType[nextNode]] is INodeNetworkPoint)
         //progenitor = nextNode;
-
+        //Debug.LogFormat("Curr Node: {0}, {1}", nextNode,dataType[nextNode]);
         for(int i = 0; i < dataVar[nextNode].Length; i++)
             for(int j = 0; j < dataVar[nextNode][i].links.Length; j++) {
                 int[] currLink = dataVar[nextNode][i].links[j];
@@ -237,6 +240,7 @@ public class AbilityData : IInputCallback<int> {
                 int[] lC = LoadedData.loadedNodeInstance[dataType[nextNode]].ReturnLinkChannels();
 
                 Tuple<int, int, int> nextNodeRef = Tuple.Create<int, int, int>(nextNode, i, currLink[2]);
+                List<Tuple<int, int, int>> precedingArray = new List<Tuple<int, int, int>>(pN);
 
                 for(int k = 0; k < lC.Length; k++) {
                     Tuple<int, int, int> precedingNode = pN[lC[k]];
@@ -246,15 +250,20 @@ public class AbilityData : IInputCallback<int> {
 
                     Tuple<int, int, int> currNode = Tuple.Create(nextNode, i, precedingNode.Item3);
 
-                    if(!linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Contains(currNode))                        
+                    if(!linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Contains(currNode)) {
                         linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Add(currNode);
-                    
-                    pN[k] = nextNodeRef;
+                        //Debug.LogFormat("Adding {0},{1} to {2},{3}", currNode,dataType[nextNode], dataType[precedingNode.Item1],precedingNode);
+                    }
+
+                    Debug.Log("Setting Preceding to: " + nextNodeRef);
+                    precedingArray[k] = nextNodeRef;
                 }
 
                 // Iterates to target.
-                RunNodeFlow(currLink[0], pN);
+                RunNodeFlow(currLink[0], precedingArray.ToArray());
             }
+
+        //Debug.LogWarningFormat("End of Node: {0}, {1}", nextNode, dataType[nextNode]);
     }
 
     void GenerateLinks() {
@@ -272,11 +281,11 @@ public class AbilityData : IInputCallback<int> {
                     //generatedLinks[i][j][k] = new int[linkGenerator[i][j][k].Count];
 
                     if(linkGenerator[i][j][k] != null)
-                        foreach(var item in linkGenerator[i][j][k]) {
+                        foreach(var item in linkGenerator[i][j][k]) 
                             convertedLinks.Add(new int[] { item.Item1, item.Item2, item.Item3 });
-                        }
+                        
 
-                    Debug.LogFormat("Generating for: {0}, {1}, {2}",i,j,k);
+                    //Debug.LogFormat("Generating for: {0}, {1}, {2}", i, j, k);
                     generatedLinks[i][j][k] = convertedLinks.ToArray();
                 }
             }
