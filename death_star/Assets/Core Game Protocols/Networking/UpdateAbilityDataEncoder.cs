@@ -198,7 +198,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             centralInst.AddPendingData(parsedData);
         }
 
-        if(!centralInst.threadsStarted)
+        if(centralConstructors.Count > 0)
             centralInst.StartThreads();
     }
 

@@ -133,7 +133,6 @@ public class AbilityCentralThreadPool : IRPGeneric {
         //instId = -1;
     }
 
-    public bool threadsStarted;
     //private Variable[][] runtimeParameters;
     private RuntimeParameters[][] runtimeParameters;
     private int[][][][][] linkMap;
@@ -434,7 +433,6 @@ public class AbilityCentralThreadPool : IRPGeneric {
     public void StartThreads() {
 
         //Debug.Log("Threads started!");
-        threadsStarted = true;
 
         int lastNodeId = runtimeParameters.Length - 2;
 

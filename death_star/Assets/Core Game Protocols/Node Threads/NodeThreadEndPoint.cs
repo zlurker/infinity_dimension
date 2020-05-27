@@ -12,5 +12,4 @@ public class NodeThreadEndPoint : AbilityTreeNode {
 
     public override void NodeCallback() {
     }
-
 }
