@@ -434,7 +434,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
         //Debug.Log("Threads started!");
 
-        int lastNodeId = runtimeParameters.Length - 1;
+        int lastNodeId = runtimeParameters.Length - 2;
 
         // Direct node callback. It will auto handle creation of new threads ect.
         int threadId = GetNewThread();
@@ -640,8 +640,6 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
         if(threadId > -1) {
 
-            Debug.Log("Link Type: " + activeThreads.l[threadId].GetThreadChannel());
-            Debug.Log(typeof(T) + " " + var.v);
             int[][] links = linkMap[activeThreads.l[threadId].GetThreadChannel()][currNode][variableId];
             int currPossiblePaths = activeThreads.l[threadId].GetPossiblePaths();
 
@@ -672,7 +670,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                     HandleThreadRemoval(existingThread);
                 //activeThreads.l[threadIdToUse](existingThread);
 
-                Debug.LogFormat("Thread travelling from {0} to {1} with variable {2}", nodes[currNode], nextNodeInst, var.v);
+                //Debug.LogFormat("Thread travelling from {0} to {1} with variable {2}", nodes[currNode], nextNodeInst, var.v);
                 nextNodeInst.SetNodeThreadId(threadIdToUse);
 
                 /*if(CheckIfReferenced(nodeId, nodeVariableId)) {

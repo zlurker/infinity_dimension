@@ -136,9 +136,9 @@ public class AbilityData : IInputCallback<int> {
 
         abilityInfo = aD;
         // Sorts variable out accordingly.
-        dataVar = new Variable[data.Length + 1][];
-        dataType = new Type[data.Length + 1];
-        linkData = new LinkData[data.Length + 1];
+        dataVar = new Variable[data.Length + 2][];
+        dataType = new Type[data.Length + 2];
+        linkData = new LinkData[data.Length + 2];
         targettedNodes = new Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>>();
         nodeNetworkVariables = new Dictionary<int, int[]>();
 
@@ -154,10 +154,15 @@ public class AbilityData : IInputCallback<int> {
         RetrieveStartNodes();
 
         // Needs to be rectified to add in the This node.
-        int startNode = dataVar.Length - 1;
+        int startNode = dataVar.Length - 2;
         dataVar[startNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadStarter)].runtimeParameters[0].rP.ReturnNewRuntimeParamCopy(), rootSubclasses) };
         dataType[startNode] = typeof(NodeThreadStarter);
         linkData[startNode] = new LinkData();
+
+        int endNode = dataVar.Length - 1;
+        dataVar[endNode] = new Variable[] { new Variable(LoadedData.loadedParamInstances[typeof(NodeThreadEndPoint)].runtimeParameters[0].rP.ReturnNewRuntimeParamCopy()) };
+        dataType[endNode] = typeof(NodeThreadEndPoint);
+        linkData[endNode] = new LinkData();
 
         RunNodeFlow(startNode);
         EditLinks();
@@ -165,18 +170,27 @@ public class AbilityData : IInputCallback<int> {
     }
 
     void RetrieveStartNodes() {
-        int nonPsuedoNodes = dataVar.Length - 1;
+        int nonPsuedoNodes = dataVar.Length - 2;
 
         AutoPopulationList<bool> connected = new AutoPopulationList<bool>(nonPsuedoNodes);
 
-        for(int i = 0; i < nonPsuedoNodes; i++)
-            for(int j = 0; j < dataVar[i].Length; j++)
+        for(int i = 0; i < nonPsuedoNodes; i++) {
+            int totalCurrLinks = 0;
+
+            for(int j = 0; j < dataVar[i].Length; j++) {
+                totalCurrLinks += dataVar[i][j].links.Length;
+
                 for(int k = 0; k < dataVar[i][j].links.Length; k++) {
                     int[] currLink = dataVar[i][j].links[k];
 
                     // Marks target as true so it can't be root.
                     connected.ModifyElementAt(currLink[0], true);
-                }
+                }                              
+            }
+
+            if(totalCurrLinks == 0)
+                dataVar[i][dataVar[i].Length-1].links = new int[][] { new int[] { dataVar.Length - 1, 0, 0 } };
+        }
 
         List<int[]> rC = new List<int[]>();
 
@@ -193,7 +207,7 @@ public class AbilityData : IInputCallback<int> {
         //if(LoadedData.loadedNodeInstance[dataType[nextNode]] is INodeNetworkPoint)
         //progenitor = nextNode;
 
-        for(int i = 0; i < dataVar[nextNode].Length; i++)
+        for(int i = 0; i < dataVar[nextNode].Length; i++) 
             for(int j = 0; j < dataVar[nextNode][i].links.Length; j++) {
                 int[] currLink = dataVar[nextNode][i].links[j];
 
@@ -439,7 +453,7 @@ public sealed class AbilitiesManager : MonoBehaviour {
 
                 globalVariables[keys[i]] = Tuple.Create(playerId, 0, i);
 
-                Debug.LogWarning("Create Node ID: " + keys[i] + " " + globalVariables[keys[i]]);
+                //Debug.LogWarning("Create Node ID: " + keys[i] + " " + globalVariables[keys[i]]);
             }
 
             AbilityData globalVarInst = new AbilityData(globalVariableNodes, new AbilityInfo(), playerId, "");

@@ -7,7 +7,10 @@ public class NodeThreadStarter : AbilityTreeNode {
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         //base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<int>("placeholder", 0), VariableTypes.SIGNAL_ONLY));
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<int>("", 0), VariableTypes.SIGNAL_ONLY));
+    }
+
+    public override void NodeCallback() {
     }
 
     /*public void ModifyDataPacket(AbilityNodeNetworkData dataPacket) {

@@ -53,7 +53,6 @@ public class LoadClasses : MonoBehaviour {
 
                 LoadedData.loadedNodeInstance.Add(types[i], inst);
 
-
                 List<LoadedRuntimeParameters> nodeRp = new List<LoadedRuntimeParameters>();
                 inst.GetRuntimeParameters(nodeRp);
 

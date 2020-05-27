@@ -18,6 +18,6 @@ public class SetCameraPosition : AbilityTreeNode {
     public override void GetRuntimeParameters(List<LoadedRuntimeParameters> holder) {
         base.GetRuntimeParameters(holder);
 
-        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Coordinates", new Vector3())));
+        holder.Add(new LoadedRuntimeParameters(new RuntimeParameters<Vector3>("Coordinates", new Vector3()),VariableTypes.AUTO_MANAGED));
     }
 }
