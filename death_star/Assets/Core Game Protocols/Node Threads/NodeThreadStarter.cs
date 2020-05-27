@@ -13,6 +13,10 @@ public class NodeThreadStarter : AbilityTreeNode {
     public override void NodeCallback() {
     }
 
+    public override int[] ReturnLinkChannels() {
+        return new int[] { 0, 1 };
+    }
+
     /*public void ModifyDataPacket(AbilityNodeNetworkData dataPacket) {
     }
 

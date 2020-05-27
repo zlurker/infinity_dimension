@@ -173,11 +173,7 @@ public class AbilityData : IInputCallback<int> {
         linkGenerator[0][endNode] = new HashSet<Tuple<int, int, int>>[1];
         linkGenerator[1][endNode] = new HashSet<Tuple<int, int, int>>[1];
 
-        Tuple<int, int, int> sNTuple = Tuple.Create<int, int, int>(startNode, 0, 1);
-
-        for(int i = 0; i < rootSubclasses.Length; i++) 
-            RunNodeFlow(rootSubclasses[i][0], new Tuple<int, int, int>[] { sNTuple, sNTuple });        
-
+        RunNodeFlow(startNode,0);
         GenerateLinks();
 
         EditLinks();
@@ -216,7 +212,7 @@ public class AbilityData : IInputCallback<int> {
         rootSubclasses = rC.ToArray();
     }
 
-    void RunNodeFlow(int nextNode, Tuple<int, int, int>[] pN) {
+    void RunNodeFlow(int nextNode, int targetVar,Tuple<int, int, int>[] pN = null) {
 
         //if(LoadedData.loadedNodeInstance[dataType[nextNode]] is INodeNetworkPoint)
         //progenitor = nextNode;
@@ -240,27 +236,39 @@ public class AbilityData : IInputCallback<int> {
                 int[] lC = LoadedData.loadedNodeInstance[dataType[nextNode]].ReturnLinkChannels();
 
                 Tuple<int, int, int> nextNodeRef = Tuple.Create<int, int, int>(nextNode, i, currLink[2]);
-                List<Tuple<int, int, int>> precedingArray = new List<Tuple<int, int, int>>(pN);
+                List<Tuple<int, int, int>> precedingArray = new List<Tuple<int, int, int>>();
+
+                if(pN != null)
+                    precedingArray.AddRange(pN);
+                else {
+                    precedingArray.Add(null);
+                    precedingArray.Add(null);
+                }
 
                 for(int k = 0; k < lC.Length; k++) {
-                    Tuple<int, int, int> precedingNode = pN[lC[k]];
 
-                    if(linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] == null)
-                        linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] = new HashSet<Tuple<int, int, int>>();
+                    if(pN != null) {
+                        Tuple<int, int, int> precedingNode = pN[lC[k]];
 
-                    Tuple<int, int, int> currNode = Tuple.Create(nextNode, i, precedingNode.Item3);
+                        if(linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] == null)
+                            linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] = new HashSet<Tuple<int, int, int>>();
 
-                    if(!linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Contains(currNode)) {
-                        linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Add(currNode);
-                        //Debug.LogFormat("Adding {0},{1} to {2},{3}", currNode,dataType[nextNode], dataType[precedingNode.Item1],precedingNode);
+                        Tuple<int, int, int> currNode = Tuple.Create(nextNode, targetVar, precedingNode.Item3);
+
+                        if(!linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Contains(currNode))
+                            linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Add(currNode);
+
+                        //Debug.LogFormat("{0}, {1} linked to predecessor {2},{3}", dataType[nextNode], dataVar[nextNode][i].field.n, dataType[precedingNode.Item1], dataVar[precedingNode.Item1][precedingNode.Item2].field.n);
                     }
+                    //Debug.LogFormat("Adding {0},{1} to {2},{3}", currNode,dataType[nextNode], dataType[precedingNode.Item1],precedingNode);
 
-                    Debug.Log("Setting Preceding to: " + nextNodeRef);
-                    precedingArray[k] = nextNodeRef;
+                    //Debug.Log("Setting Preceding to: " + nextNodeRef);
+
+                    precedingArray[lC[k]] = nextNodeRef;
                 }
 
                 // Iterates to target.
-                RunNodeFlow(currLink[0], precedingArray.ToArray());
+                RunNodeFlow(currLink[0],currLink[1], precedingArray.ToArray());
             }
 
         //Debug.LogWarningFormat("End of Node: {0}, {1}", nextNode, dataType[nextNode]);
@@ -281,9 +289,9 @@ public class AbilityData : IInputCallback<int> {
                     //generatedLinks[i][j][k] = new int[linkGenerator[i][j][k].Count];
 
                     if(linkGenerator[i][j][k] != null)
-                        foreach(var item in linkGenerator[i][j][k]) 
+                        foreach(var item in linkGenerator[i][j][k])
                             convertedLinks.Add(new int[] { item.Item1, item.Item2, item.Item3 });
-                        
+
 
                     //Debug.LogFormat("Generating for: {0}, {1}, {2}", i, j, k);
                     generatedLinks[i][j][k] = convertedLinks.ToArray();

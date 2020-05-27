@@ -568,7 +568,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         bool varWasSet = false;
 
         if(paramInst != null) {
-            paramInst.v = value;
+            paramInst.v = value;          
             booleanData[nodeId][variableId] = false;
             varWasSet = true;
 
@@ -670,7 +670,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                     HandleThreadRemoval(existingThread);
                 //activeThreads.l[threadIdToUse](existingThread);
 
-                Debug.LogFormat("Thread travelling from {0} to {1} with variable {2}", nodes[currNode], nextNodeInst, var.v);
+                Debug.LogFormat("Thread travelling from {0},{1} to {2},{3} with variable {4}", nodes[currNode], runtimeParameters[currNode][variableId].n, nextNodeInst, runtimeParameters[nodeId][nodeVariableId].n, var.v);
                 nextNodeInst.SetNodeThreadId(threadIdToUse);
 
                 /*if(CheckIfReferenced(nodeId, nodeVariableId)) {
@@ -698,8 +698,10 @@ public class AbilityCentralThreadPool : IRPGeneric {
                         return;
                 }*/
 
-                if((LinkMode)linkType == LinkMode.NORMAL)
+                if((LinkMode)linkType == LinkMode.NORMAL) {
+                    Debug.Log("Variable was set.");
                     UpdateVariableValue<T>(nodeId, nodeVariableId, var.v);
+                }
 
                 if(networkVariableData.ContainsKey(nodeId)) {
                     networkVariableData[nodeId].nodeCallbackCount++;
