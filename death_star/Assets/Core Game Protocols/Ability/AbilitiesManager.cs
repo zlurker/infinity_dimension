@@ -173,7 +173,7 @@ public class AbilityData : IInputCallback<int> {
         linkGenerator[0][endNode] = new HashSet<Tuple<int, int, int>>[1];
         linkGenerator[1][endNode] = new HashSet<Tuple<int, int, int>>[1];
 
-        RunNodeFlow(startNode,0);
+        RunNodeFlow(startNode, 0);
         GenerateLinks();
 
         EditLinks();
@@ -212,7 +212,23 @@ public class AbilityData : IInputCallback<int> {
         rootSubclasses = rC.ToArray();
     }
 
-    void RunNodeFlow(int nextNode, int targetVar,Tuple<int, int, int>[] pN = null) {
+    void RunNodeFlow(int nextNode, int targetVar, Tuple<int, int, int>[] pN = null) {
+
+        int[] lC = LoadedData.loadedNodeInstance[dataType[nextNode]].ReturnLinkChannels();
+
+        for(int k = 0; k < lC.Length; k++)
+            if(pN != null) {
+                Tuple<int, int, int> precedingNode = pN[lC[k]];
+
+                if(linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] == null)
+                    linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] = new HashSet<Tuple<int, int, int>>();
+
+                Tuple<int, int, int> currNode = Tuple.Create(nextNode, targetVar, precedingNode.Item3);
+
+                if(!linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Contains(currNode))
+                    linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Add(currNode);
+            }
+
 
         //if(LoadedData.loadedNodeInstance[dataType[nextNode]] is INodeNetworkPoint)
         //progenitor = nextNode;
@@ -233,7 +249,6 @@ public class AbilityData : IInputCallback<int> {
                 if(!linkData[currLink[0]].lHS.Contains(lhslinkTup))
                     linkData[currLink[0]].lHS.Add(lhslinkTup);
 
-                int[] lC = LoadedData.loadedNodeInstance[dataType[nextNode]].ReturnLinkChannels();
 
                 Tuple<int, int, int> nextNodeRef = Tuple.Create<int, int, int>(nextNode, i, currLink[2]);
                 List<Tuple<int, int, int>> precedingArray = new List<Tuple<int, int, int>>();
@@ -245,30 +260,11 @@ public class AbilityData : IInputCallback<int> {
                     precedingArray.Add(null);
                 }
 
-                for(int k = 0; k < lC.Length; k++) {
-
-                    if(pN != null) {
-                        Tuple<int, int, int> precedingNode = pN[lC[k]];
-
-                        if(linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] == null)
-                            linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2] = new HashSet<Tuple<int, int, int>>();
-
-                        Tuple<int, int, int> currNode = Tuple.Create(nextNode, targetVar, precedingNode.Item3);
-
-                        if(!linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Contains(currNode))
-                            linkGenerator[lC[k]][precedingNode.Item1][precedingNode.Item2].Add(currNode);
-
-                        //Debug.LogFormat("{0}, {1} linked to predecessor {2},{3}", dataType[nextNode], dataVar[nextNode][i].field.n, dataType[precedingNode.Item1], dataVar[precedingNode.Item1][precedingNode.Item2].field.n);
-                    }
-                    //Debug.LogFormat("Adding {0},{1} to {2},{3}", currNode,dataType[nextNode], dataType[precedingNode.Item1],precedingNode);
-
-                    //Debug.Log("Setting Preceding to: " + nextNodeRef);
-
+                for(int k = 0; k < lC.Length; k++)
                     precedingArray[lC[k]] = nextNodeRef;
-                }
 
                 // Iterates to target.
-                RunNodeFlow(currLink[0],currLink[1], precedingArray.ToArray());
+                RunNodeFlow(currLink[0], currLink[1], precedingArray.ToArray());
             }
 
         //Debug.LogWarningFormat("End of Node: {0}, {1}", nextNode, dataType[nextNode]);

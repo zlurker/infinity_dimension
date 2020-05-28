@@ -670,7 +670,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                     HandleThreadRemoval(existingThread);
                 //activeThreads.l[threadIdToUse](existingThread);
 
-                Debug.LogFormat("Thread travelling from {0},{1} to {2},{3} with variable {4}", nodes[currNode], runtimeParameters[currNode][variableId].n, nextNodeInst, runtimeParameters[nodeId][nodeVariableId].n, var.v);
+                //Debug.LogFormat("Thread travelling from {0},{1} to {2},{3} with variable {4}", nodes[currNode], runtimeParameters[currNode][variableId].n, nextNodeInst, runtimeParameters[nodeId][nodeVariableId].n, var.v);
                 nextNodeInst.SetNodeThreadId(threadIdToUse);
 
                 /*if(CheckIfReferenced(nodeId, nodeVariableId)) {
@@ -699,7 +699,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
                 }*/
 
                 if((LinkMode)linkType == LinkMode.NORMAL) {
-                    Debug.Log("Variable was set.");
+                    //Debug.Log("Variable was set.");
                     UpdateVariableValue<T>(nodeId, nodeVariableId, var.v);
                 }
 
