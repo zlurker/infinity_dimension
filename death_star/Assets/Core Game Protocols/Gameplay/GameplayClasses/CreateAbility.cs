@@ -34,6 +34,7 @@ public class CreateAbility : AbilityTreeNode, IOnVariableSet {
             AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
             //AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].SignalCentralCreation(newA);
             AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, ClientProgram.clientId);
+            newA.StartThreads(0);
             GetCentralInst().UpdateVariableValue<int[]>(GetNodeId(), GetVariableId("Created Ability"), new int[] { inst.GetPlayerId(), ClientProgram.clientId, newA.ReturnCentralId() }, true, false);
             HandlePostAbilityCreation();
             return;
@@ -46,7 +47,7 @@ public class CreateAbility : AbilityTreeNode, IOnVariableSet {
     void TriggerOnHostProcessed(int[] value) {
         AbilityCentralThreadPool newA = new AbilityCentralThreadPool(value[0]);
         AbilitiesManager.aData[value[0]].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, value[1], value[2]);
-
+        newA.StartThreads(0);
         HandlePostAbilityCreation();
     }
 

@@ -402,6 +402,10 @@ public class AbilityData : IInputCallback<int> {
         SignalCentralCreation(centralPool);
         CreateAbility(centralPool, ClientProgram.clientId);
 
+        if(ClientProgram.hostId == ClientProgram.clientId)
+            centralPool.StartThreads(0);
+        else
+            centralPool.StartThreads(1);
         //(NetworkMessageEncoder.encoders[(int)NetworkEncoderTypes.INPUT_SIGNAL] as InputSignalEncoder).SendInputSignal(playerId, abilityId);        
     }
 
@@ -419,7 +423,7 @@ public class AbilityData : IInputCallback<int> {
     }*/
 
 
-    public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1, bool startThreads = true) {
+    public void CreateAbility(AbilityCentralThreadPool threadInst, int pId, int givenPopulatedId = -1) {
 
         if(givenPopulatedId > -1)
             AbilitiesManager.aData[pId].playerSpawnedCentrals.ModifyElementAt(givenPopulatedId, threadInst);
@@ -449,8 +453,8 @@ public class AbilityData : IInputCallback<int> {
 
         threadInst.SetCentralData(pId, givenPopulatedId, clonedRp, generatedLinks, dataType, nodeBranchingData, clonedBoolValues, autoManagedVariables, targettedNodes, nodeNetworkVariables);
 
-        if(startThreads)
-            threadInst.StartThreads();
+        //if(startThreads)
+        //    threadInst.StartThreads();
         //threadInst.SendVariableNetworkData();
     }
 

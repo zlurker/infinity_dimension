@@ -136,10 +136,10 @@ public class AbilityCentralThreadPool : IRPGeneric {
     //private Variable[][] runtimeParameters;
     private RuntimeParameters[][] runtimeParameters;
     private int[][][][][] linkMap;
+    private bool[] threadStarterTracker;
     private Type[] subclassTypes;
     private Transform abilityNodeRoot;
     private AbilityTreeNode[] nodes;
-
     private int[] nodeBranchingData;
     
     //private AbilityBooleanData booleanData;
@@ -249,6 +249,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         autoManagedVar = amVar;
         nodes = new AbilityTreeNode[rP.Length];
         networkVariableData = new Dictionary<int, NetworkVariablesData>();
+        threadStarterTracker = new bool[lM.Length];
 
         foreach(var nodeNetworkData in nwVD)
             networkVariableData.Add(nodeNetworkData.Key, new NetworkVariablesData(nodeNetworkData.Value));
@@ -355,8 +356,8 @@ public class AbilityCentralThreadPool : IRPGeneric {
         return nodeBranchingData[id];
     }
 
-    public int GetNewThread() {
-        return activeThreads.Add(new NodeThread(0));
+    public int GetNewThread(int tC) {
+        return activeThreads.Add(new NodeThread(tC));
     }
 
     public bool[] GetNodeBoolValues(int id) {
@@ -430,14 +431,15 @@ public class AbilityCentralThreadPool : IRPGeneric {
             timerEventId = -1;
     }*/
 
-    public void StartThreads() {
+    public void StartThreads(int threadChannel) {
 
         //Debug.Log("Threads started!");
 
         int lastNodeId = runtimeParameters.Length - 2;
 
         // Direct node callback. It will auto handle creation of new threads ect.
-        int threadId = GetNewThread();
+        int threadId = GetNewThread(threadChannel);
+        threadStarterTracker[threadChannel] = true;
 
         activeThreads.l[threadId].SetNodeData(lastNodeId, nodeBranchingData[lastNodeId]);
         CreateNewNodeIfNull(lastNodeId).SetNodeThreadId(threadId);

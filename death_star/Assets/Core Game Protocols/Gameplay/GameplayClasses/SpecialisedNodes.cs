@@ -28,7 +28,7 @@ public class SpecialisedNodes : NodeModifierBase, IOnVariableSet, IRPGeneric {
 
         //Debug.Log("Central base called.");
 
-        AbilityCentralThreadPool inst = GetCentralInst();
+        /*AbilityCentralThreadPool inst = GetCentralInst();
         int transferThread = inst.GetNewThread();
         threadMap.Add(transferThread, new ReturningData(nodeId, varId));
 
@@ -38,7 +38,7 @@ public class SpecialisedNodes : NodeModifierBase, IOnVariableSet, IRPGeneric {
             return inst.AddNewThread(cT);
         } else
             ThreadZeroed(transferThread);
-
+            */
         return -1;
     }
 
