@@ -69,7 +69,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             return new byte[0];
 
         List<byte> byteData = new List<byte>();
-              
+
         for(int i = 0; i < manifest.Length; i++) {
 
             int argType = -1;
@@ -77,7 +77,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
 
             //Debug.Log("Datatype: " + manifest[i].dataType);
             //if(manifest[i].additionalData != null)
-                //Debug.Log("Loop ID: " + BitConverter.ToInt32(manifest[i].additionalData, 0));
+            //Debug.Log("Loop ID: " + BitConverter.ToInt32(manifest[i].additionalData, 0));
 
             if(manifest[i].dataType == typeof(int)) {
                 argType = 0;
@@ -171,22 +171,20 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
         int playerId = BitConverter.ToInt32(bytesToParse, 0);
         int centralId = BitConverter.ToInt32(bytesToParse, 4);
 
-        List<AbilityNodeNetworkData> centralConstructors = new List<AbilityNodeNetworkData>();
+        List<AbilityNodeNetworkData> cCData = new List<AbilityNodeNetworkData>();
         AbilityCentralThreadPool centralInst = AbilitiesManager.aData[playerId].playerSpawnedCentrals.GetElementAt(centralId);
 
         //Debug.LogFormat("Node data for {0}/{1}: ", playerId, centralId);
         foreach(AbilityNodeNetworkData parsedData in ParseManifest(bytesToParse, 8)) {
 
-            //Debug.Log("Node datatype: "+ parsedData.dataType);
+            cCData.Add(parsedData);
 
             if(centralInst == null) {
-                centralConstructors.Add(parsedData);
-
-                if(centralConstructors.Count == 2) {
+                if(cCData.Count == 2) {
                     centralInst = new AbilityCentralThreadPool(playerId);
 
-                    int pId = (centralConstructors[0] as AbilityNodeNetworkData<int>).value;
-                    string aId = (centralConstructors[1] as AbilityNodeNetworkData<string>).value;
+                    int pId = (cCData[0] as AbilityNodeNetworkData<int>).value;
+                    string aId = (cCData[1] as AbilityNodeNetworkData<string>).value;
                     AbilitiesManager.aData[pId].abilties[aId].CreateAbility(centralInst, playerId, centralId);
                 }
 
@@ -195,42 +193,44 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
             }
 
             //Debug.Log("Data recieved!");
-            centralInst.AddPendingData(parsedData);
+            centralInst.AddPendingData(parsedData);           
         }
 
-        if(centralConstructors.Count > 0)
-            centralInst.StartThreads(0);
+        if(ClientProgram.clientId == ClientProgram.hostId)
+            centralInst.AddVariableNetworkData(cCData.ToArray());
+        
+        centralInst.StartThreads(0);
     }
 
-    public IEnumerable<AbilityNodeNetworkData> ParseManifest(byte[] bytesRecieved, int offset = 0) {
+    public IEnumerable<AbilityNodeNetworkData> ParseManifest(byte[] bytesToParse, int offset = 0) {
 
         int i = offset;
         //Debug.Log(bytesRecieved.Length);
 
-        while(i < bytesRecieved.Length) {
+        while(i < bytesToParse.Length) {
 
-            int ability = BitConverter.ToInt32(bytesRecieved, i);
-            int var = BitConverter.ToInt32(bytesRecieved, i + 4);
-            int argType = BitConverter.ToInt32(bytesRecieved, i + 8);
-            int setCount = BitConverter.ToInt32(bytesRecieved, i + 12);
-            int valueLen = BitConverter.ToInt32(bytesRecieved, i + 16);
+            int ability = BitConverter.ToInt32(bytesToParse, i);
+            int var = BitConverter.ToInt32(bytesToParse, i + 4);
+            int argType = BitConverter.ToInt32(bytesToParse, i + 8);
+            int setCount = BitConverter.ToInt32(bytesToParse, i + 12);
+            int valueLen = BitConverter.ToInt32(bytesToParse, i + 16);
 
             //Debug.Log(setCount);
-            
+
             switch(argType) {
 
                 case 0: //int                    
-                    int iData = BitConverter.ToInt32(bytesRecieved, i + 20);
-                    yield return new AbilityNodeNetworkData<int>(ability, var, iData,setCount);
+                    int iData = BitConverter.ToInt32(bytesToParse, i + 20);
+                    yield return new AbilityNodeNetworkData<int>(ability, var, iData, setCount);
                     break;
 
                 case 1: //float                    
-                    float fData = BitConverter.ToSingle(bytesRecieved, i + 20);
+                    float fData = BitConverter.ToSingle(bytesToParse, i + 20);
                     yield return new AbilityNodeNetworkData<float>(ability, var, fData, setCount);
                     break;
 
                 case 2: //string
-                    string sData = Encoding.Default.GetString(bytesRecieved, i + 20, valueLen);
+                    string sData = Encoding.Default.GetString(bytesToParse, i + 20, valueLen);
                     yield return new AbilityNodeNetworkData<string>(ability, var, sData, setCount);
                     break;
 
@@ -238,7 +238,7 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                     int[] iArray = new int[valueLen / 4];
 
                     for(int j = 0; j < iArray.Length; j++)
-                        iArray[j] = BitConverter.ToInt32(bytesRecieved, i + 20 + (j * 4));
+                        iArray[j] = BitConverter.ToInt32(bytesToParse, i + 20 + (j * 4));
 
                     yield return new AbilityNodeNetworkData<int[]>(ability, var, iArray, setCount);
                     break;
@@ -247,18 +247,18 @@ public class UpdateAbilityDataEncoder : NetworkMessageEncoder {
                     float[] fArray = new float[valueLen / 4];
 
                     for(int j = 0; j < fArray.Length; j++)
-                        fArray[j] = BitConverter.ToSingle(bytesRecieved, i + 20 + (j * 4));
+                        fArray[j] = BitConverter.ToSingle(bytesToParse, i + 20 + (j * 4));
 
                     yield return new AbilityNodeNetworkData<float[]>(ability, var, fArray, setCount);
                     break;
 
                 case 5: //vector3
-                    Vector3 v = new Vector3(BitConverter.ToSingle(bytesRecieved, i + 20), BitConverter.ToSingle(bytesRecieved, i + 24));
+                    Vector3 v = new Vector3(BitConverter.ToSingle(bytesToParse, i + 20), BitConverter.ToSingle(bytesToParse, i + 24));
                     yield return new AbilityNodeNetworkData<Vector3>(ability, var, v, setCount);
                     break;
 
                 case 6: //bool                    
-                    bool bData = BitConverter.ToBoolean(bytesRecieved, i + 20);
+                    bool bData = BitConverter.ToBoolean(bytesToParse, i + 20);
                     yield return new AbilityNodeNetworkData<bool>(ability, var, bData, setCount);
                     break;
             }

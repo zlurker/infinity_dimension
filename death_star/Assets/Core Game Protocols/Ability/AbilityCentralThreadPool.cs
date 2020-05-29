@@ -141,7 +141,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
     private Transform abilityNodeRoot;
     private AbilityTreeNode[] nodes;
     private int[] nodeBranchingData;
-    
+
     //private AbilityBooleanData booleanData;
     private bool[][] booleanData;
 
@@ -173,7 +173,14 @@ public class AbilityCentralThreadPool : IRPGeneric {
     // Current threads active
     private EnhancedList<NodeThread> activeThreads;
 
+    public bool GetThreadStartTracker(int id) {
+        return threadStarterTracker[id];
+    }
+
     public void AddPendingData(AbilityNodeNetworkData nodeNetworkData) {
+
+        if(nodeNetworkData.nodeId == -1 || nodeNetworkData.varId == -1)
+            return;
 
         // Applies it if it matches node current status
         //Debug.LogFormat("TID {0}, TVSC {1}, GVSC {2}", nodes[nodeNetworkData.nodeId].GetNodeThreadId(), networkVariableData[nodeNetworkData.nodeId].nodeCallbackCount, nodeNetworkData.variableSetCount);
@@ -234,7 +241,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         return centralId;
     }
 
-    public void SetCentralData(int cP, int tId, RuntimeParameters[][] rP, int[][][][][] lM,Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>> oVC, Dictionary<int, int[]> nwVD) {
+    public void SetCentralData(int cP, int tId, RuntimeParameters[][] rP, int[][][][][] lM, Type[] sT, int[] nBD, bool[][] aBD, int[][] amVar, Dictionary<int, Dictionary<ON_VARIABLE_CATERGORY, Dictionary<int, HashSet<int>>>> oVC, Dictionary<int, int[]> nwVD) {
 
         abilityNodeRoot = new GameObject(tId.ToString()).transform;
         //Debug.Log("Ability created.");
@@ -384,7 +391,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         timerEventId = id;
     }*/
 
-    public void AddVariableNetworkData(AbilityNodeNetworkData aNND) {
+    public void AddVariableNetworkData(params AbilityNodeNetworkData[] aNND) {
         //Debug.Log("Variable Data added.");
 
         /*if(timerEventId > -1) {
@@ -403,7 +410,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
 
 
         //Debug.LogFormat("Central {0},{1} variable added..", castingPlayer, centralId);
-        networkNodeData.Add(aNND);
+        networkNodeData.AddRange(aNND);
     }
 
     public void CompileVariableNetworkData() {
@@ -434,6 +441,9 @@ public class AbilityCentralThreadPool : IRPGeneric {
     public void StartThreads(int threadChannel) {
 
         //Debug.Log("Threads started!");
+
+        if(threadStarterTracker[threadChannel])
+            return;
 
         int lastNodeId = runtimeParameters.Length - 2;
 
@@ -570,7 +580,7 @@ public class AbilityCentralThreadPool : IRPGeneric {
         bool varWasSet = false;
 
         if(paramInst != null) {
-            paramInst.v = value;          
+            paramInst.v = value;
             booleanData[nodeId][variableId] = false;
             varWasSet = true;
 
