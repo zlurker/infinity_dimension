@@ -10,7 +10,7 @@ public class Coordinates : AbilityTreeNode {
         bool allDataRecv = CheckIfVarRegionBlocked("X", "Y");
 
         if(allDataRecv) {
-            //Debug.Log("Outputing coords");
+            Debug.LogFormat("Coordinates recieved: {0}, {1}",GetNodeVariable<float>("X"), GetNodeVariable<float>("Y")); 
             SetVariable<Vector3>("Output Coordinates", new Vector3(GetNodeVariable<float>("X"), GetNodeVariable<float>("Y")));
         }
     }

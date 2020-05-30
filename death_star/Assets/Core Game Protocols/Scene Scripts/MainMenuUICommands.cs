@@ -132,7 +132,7 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
 
 
         LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<UIMule>(classSelectionScrollRect, "Content").GetRectTransform().sizeDelta = (mainClassSelection.script.transform as RectTransform).sizeDelta;
-        classSelectionScrollRect.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.9f));
+        classSelectionScrollRect.script.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.6f));
 
         mainClassSelection.script.transform.SetParent(LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<UIMule>(classSelectionScrollRect, "Content").transform);
         mainClassSelection.script.transform.localPosition = new Vector2(-(mainClassSelection.script.transform as RectTransform).sizeDelta.x / 2, 0);
@@ -221,7 +221,12 @@ public class MainMenuUICommands : MonoBehaviour, IPointerDownHandler, ILineHandl
         addOptionsButton.button.onClick.AddListener(() => CreateWindowForAdditionalOptions());
 
         addOptionsButton.text.text = "Additional Options";
-        addOptionsButton.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f,0.1f));
+        addOptionsButton.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f,0.2f));
+
+        ButtonWrapper exitBlueprintMaker = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper)).script as ButtonWrapper;
+        exitBlueprintMaker.button.onClick.AddListener(() => SceneTransitionData.LoadScene("AbilityPage"));
+        exitBlueprintMaker.text.text = "Exit";
+        exitBlueprintMaker.transform.position = UIDrawer.UINormalisedPosition(new Vector3(0.1f, 0.1f));
     }
 
     public void CreateWindowForAdditionalOptions() {

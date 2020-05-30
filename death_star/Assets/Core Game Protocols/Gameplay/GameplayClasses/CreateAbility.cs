@@ -26,11 +26,8 @@ public class CreateAbility : AbilityTreeNode, IOnVariableSet {
         //Debug.Log("Node was callbacked!");
         //Debug.LogFormat("NodeID {0}, Thread ID {1}", name, GetNodeThreadId());
 
-        
-
         if(IsHost()) {
             AbilityCentralThreadPool inst = GetCentralInst();
-
             AbilityCentralThreadPool newA = new AbilityCentralThreadPool(inst.GetPlayerId());
             //AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].SignalCentralCreation(newA);
             AbilitiesManager.aData[inst.GetPlayerId()].abilties[GetNodeVariable<string>("Ability Name")].CreateAbility(newA, ClientProgram.clientId);

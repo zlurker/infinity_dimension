@@ -33,6 +33,7 @@ public class MoveTowardsDirection : MoveTo {
 
             Vector3 normDir = vToN.normalized;
             normDir.z = 0;
+            //Debug.Log(normDir);
 
             GetTargetTransform().position += (normDir * GetNodeVariable<float>("Total Distance"));
             SetVariable<Vector3>("Current Target Position", GetTargetTransform().position);

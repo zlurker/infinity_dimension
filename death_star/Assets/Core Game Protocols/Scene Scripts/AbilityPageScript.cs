@@ -11,19 +11,18 @@ public enum AbilityManifest {
 
 public class AbilityPageScript : MonoBehaviour {
 
-    public static Dictionary<string, AbilityInfo> abilityInfo;
-
     enum AbilityButtonMode {
         DEFAULT, CHANGE_PRIMARY_CHARACTER
     }
 
+    public static Dictionary<string, AbilityInfo> abilityInfo;
     public static string selectedAbility;
 
     SpawnerOutput lL;
     SpawnerOutput commandText;
 
     Dictionary<int, string> abilityManifest;
-   
+
     AbilityButtonMode currMode;
 
     string abilityManifestPath;
@@ -31,14 +30,16 @@ public class AbilityPageScript : MonoBehaviour {
     // Use this for initialization
     void Start() {
 
-        if(abilityInfo == null)
+        if(abilityInfo == null) {
             abilityInfo = new Dictionary<string, AbilityInfo>();
+            LoadCurrentFiles();
+        }
 
         GenerateMenuElements();
-        LoadCurrentFiles();
+        GenerateElementFromInfo();
         LoadAbilityManifest();
-        
     }
+
 
     void LoadCurrentFiles() {
         DirectoryInfo dir = Directory.CreateDirectory(FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].fP);
@@ -51,11 +52,15 @@ public class AbilityPageScript : MonoBehaviour {
             string data = FileSaver.sFT[FileSaverTypes.PLAYER_GENERATED_DATA].GenericLoadTrigger(new string[] { fileInt.ToString() }, 1);
             AbilityInfo inst = JsonConvert.DeserializeObject<AbilityInfo>(data);
 
-            abilityInfo.Add(files[i].Name, inst);
+            if(!abilityInfo.ContainsKey(files[i].Name))
+                abilityInfo.Add(files[i].Name, inst);
             //aInfo.ModifyElementAt(fileInt, inst);
-
-            GenerateAbilityElement(files[i].Name);
         }
+    }
+
+    void GenerateElementFromInfo() {
+        foreach(var abilityEle in abilityInfo)
+            GenerateAbilityElement(abilityEle.Key);
     }
 
     void LoadAbilityManifest() {
@@ -89,13 +94,13 @@ public class AbilityPageScript : MonoBehaviour {
 
         SpawnerOutput addAbility = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
         LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(addAbility).onClick.AddListener(() => { CreateAbility(); });
-        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(addAbility,"Text").text = "Create Ability";
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(addAbility, "Text").text = "Create Ability";
 
         addAbility.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.15f, 0.1f));
 
         SpawnerOutput setNewPrimary = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
         LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(setNewPrimary).onClick.AddListener(() => { ChangeButtonMode(AbilityButtonMode.CHANGE_PRIMARY_CHARACTER); });
-        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(setNewPrimary,"Text").text = "Set new primary";
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(setNewPrimary, "Text").text = "Set new primary";
 
         setNewPrimary.script.transform.position = UIDrawer.UINormalisedPosition(new Vector2(0.9f, 0.8f));
 
@@ -126,7 +131,7 @@ public class AbilityPageScript : MonoBehaviour {
     void GenerateAbilityElement(string index) {
         SpawnerOutput abilityButton = LoadedData.GetSingleton<UIDrawer>().CreateScriptedObject(typeof(ButtonWrapper));
 
-        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(abilityButton,"Text").text = abilityInfo[index].n;
+        LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Text>(abilityButton, "Text").text = abilityInfo[index].n;
 
         LoadedData.GetSingleton<UIDrawer>().GetTypeInElement<Button>(abilityButton).onClick.AddListener(() => {
             selectedAbility = index;

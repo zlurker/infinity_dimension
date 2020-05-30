@@ -8,15 +8,22 @@ using System.Linq;
 [RequireComponent(typeof(SpriteRenderer))]
 public class SpriteSpawner : AbilityTreeNode, IOnSpawn {
 
+    public static Transform backgroundLayer;
     protected SpriteRenderer sR;
 
     public override void NodeCallback() {
         base.NodeCallback();
 
+        if(backgroundLayer == null)
+            backgroundLayer = GameObject.Find("Background").transform;
+
         Sprite givenSprite = AbilitiesManager.aData[GetCentralInst().GetPlayerId()].assetData[GetNodeVariable<string>("Sprite Name")];
 
         if(!GetNodeVariable<bool>("Don't Load Sprite into Object"))
             sR.sprite = givenSprite;
+
+        if(!GetNodeVariable<bool>("Background"))
+            sR.sortingLayerName = "Default";
 
         Color spriteColor = sR.color;
         spriteColor.a = GetNodeVariable<float>("Object Transperency");
@@ -64,6 +71,7 @@ public class SpriteSpawner : AbilityTreeNode, IOnSpawn {
             new LoadedRuntimeParameters(new RuntimeParameters<string>("Sprite Name",""), VariableTypes.AUTO_MANAGED,VariableTypes.IMAGE_DEPENDENCY),
             new LoadedRuntimeParameters(new RuntimeParameters<Sprite>("Sprite",null)),
             new LoadedRuntimeParameters(new RuntimeParameters<bool>("Don't Load Sprite into Object", false)),
+            new LoadedRuntimeParameters(new RuntimeParameters<bool>("Background", false)),
             new LoadedRuntimeParameters(new RuntimeParameters<float>("Object Transperency",1))
         });
     }
